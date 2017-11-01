@@ -112,6 +112,9 @@ venv.bak/
 .idea
 .idea/
 .idea/**/workspace.xml
+.idea
+.idea/
+.idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/dictionaries
 
@@ -160,3 +163,4 @@ fabric.properties
 .idea/vcs.xml
 .idea/workspace.xml
 __pycache__/
+
