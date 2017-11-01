@@ -69,7 +69,7 @@ class Estimator(object):
     @staticmethod
     def _callback_test(task: Iterable, callback: Solver, silent: bool):
         for i, entry in enumerate(task):
-            tsk, ans, n_tests = entry
+            tsk, ans, n_tests, tskt = entry
             if not silent:
                 prc = i / n_tests * 100
                 bar = '=' * (int(prc) - 1) + '>' + (100 - int(prc)) * ' '
@@ -78,7 +78,7 @@ class Estimator(object):
 
             user_ans = callback(tsk)
             if (user_ans != ans):
-                raise WrongTestError("Test %s failed." % (i + 1))
+                raise WrongTestError("Test %d [%s] failed." % (i + 1, tskt))
 
     @staticmethod
     def _file_test(task, file, silent: bool):
@@ -92,7 +92,7 @@ class Estimator(object):
     def _fileopen(task):
         try:
             bp = Estimator.BASE_PATH % task
-            files = os.listdir(bp)
+            files = sorted(os.listdir(bp))
             n_tests = len(files) // 2
             for tsk, ans in zip(files[0::2], files[1::2]):
                 with open(bp + '/' + tsk, 'r') as tskf:
@@ -103,7 +103,8 @@ class Estimator(object):
 
                 yield (Estimator._cleanlines(tlines),
                        Estimator._cleanlines(alines),
-                       n_tests)
+                       n_tests,
+                       tsk)
 
         except FileNotFoundError as e:
             raise FileNotFoundError("%s with BASE_PATH=\'%s\'" % (e, Estimator.BASE_PATH))

@@ -44,13 +44,13 @@ int main() {
         for (int j = 0; j <= b; ++j) {
             for (int k = 0; k <= c; ++k) {
                 if (i) {
-                    d[i][j][k] = min(d[i][j][k], d[i - 1][j][k] / 2);   
+                    d[i][j][k] = min(d[i][j][k], d[i - 1][j][k] / 2);
                 }
                 if (j) {
-                    d[i][j][k] = min(d[i][j][k], (d[i][j - 1][k] + 1) / 2);   
+                    d[i][j][k] = min(d[i][j][k], (d[i][j - 1][k] + 1) / 2);
                 }
                 if (k) {
-                    d[i][j][k] = min(d[i][j][k], (d[i][j][k - 1] - 1) / 2);   
+                    d[i][j][k] = min(d[i][j][k], (d[i][j][k - 1] - 1) / 2);
                 }
             }
         }
