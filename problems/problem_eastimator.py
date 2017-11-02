@@ -71,14 +71,17 @@ class Estimator(object):
         for i, entry in enumerate(task):
             tsk, ans, n_tests, tskt = entry
             if not silent:
-                prc = i / n_tests * 100
+                prc = (i + 1) / n_tests * 100
                 bar = '=' * (int(prc) - 1) + '>' + (100 - int(prc)) * ' '
                 os.system(SYSTEM)
-                print("[%s] | %d/%d (%.2f%%)" % (bar, i, n_tests, prc))
+                print("[%s] | %d/%d (%.2f%%)" % (bar, i + 1, n_tests, prc))
 
-            user_ans = callback(tsk)
-            if (user_ans != ans):
-                raise WrongTestError("Test %d [%s] failed." % (i + 1, tskt))
+            try:
+                user_ans = callback(tsk)
+                if (user_ans != ans):
+                    raise WrongTestError("Test %d [%s] failed." % (i + 1, tskt))
+            except Exception as e:
+                raise WrongTestError("Test %d [%s] failed with a runtime error: `%s`" % (i + 1, tskt, e))
 
     @staticmethod
     def _file_test(task, file, silent: bool):
