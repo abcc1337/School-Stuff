@@ -14,68 +14,65 @@ def timeit(f, times=1000000):
     return wrap
 
 
+class State(object):
 
-def task5(kxy):
-    N, x, y = map(int, kxy)
-    return [str(x + y + N)]
+    def __init__(self, ambs ,n_abms):
+        self.ambs = ambs
+        self.n = n_abms
+
+    def is_lost(self):
+        return self.n < min(self.ambs) or self.n <= 0
+
+    def copy(self):
+        return State(self.ambs, self.n)
 
 
-class Point(object):
+class Simulation(object):
 
-    def __init__(self, x, type_):
-        self.start_x = x
-        self.x = x
-        self.t = type_
-        self.dead = False
+    def __init__(self, s1: State, s2: State):
+        self.s1 = s1
+        self.s2 = s2
 
-    def move(self, time):
-        self.x += (self.t * time)
+    def simulate(self):
+        while not self.s1.is_lost() and not self.s1.is_lost():
+            action = self.select_best_action(self.s1.ambs)
+            self.s1.n -= action
+            self.s2.n -= action
+            print(self.s1.n, self.s2.n, action)
 
-    def kill(self):
-        self.dead = True
+            # if self.s2.is_lost():
+            #    return True
 
-    def __xor__(self, other):
-        if self.t == other.t:
-            return False
-        return self.t > other.x
+            action = self.select_best_action(self.s2.ambs)
+            self.s1.n -= action
+            self.s2.n -= action
 
-    """
-        --------------------
-        x     x2   z1      z
+            print(self.s1.n, self.s2.n, action)
 
-        0 +  3          7    10 -
-        t = 3
-    """
+            # if self.s1.is_lost():
+            #    return False
+        return self.s2.is_lost()
+
+    def select_best_action(self, actions):
+        for amb in actions:
+            v = self.s1.n - amb
+            if any(filter(lambda x: v % x == 0, self.s1.ambs)):
+                return amb
+        return random.choice(actions)
+
 
 if __name__ == "__main__":
-    n = int(input())
-    moments = 0
-    points = []
+    # c1, c2 = map(Container, eval(input()))
+    rng = range(1, 4 * 10 ** 4 + 1)
+    c1, c2 = [[2, 3, 4], [2, 3]]
 
-    for _ in range(n):
-        points.append(Point(*map(int, input().split())))
-
-    points.sort(key=lambda x: x.x)
-    moments = int(input())
-    for t in map(int, input().split()):
-        s = 0
-        points[0].move(t)
-        for i in range(1, len(points)):
-            points[i].move(t)
-
-            if not (points[i].dead or points[i - 1].dead) and points[i] ^ points[i - 1]:
-                points[i].kill()
-                points[i - 1].kill()
-
-            if not points[i - 1].dead:
-                s += 1
-
-        points.sort(key = lambda x: x.x)
-        print(s)
-
-    quit(0)
-    from problems.problem_eastimator import Solver, Estimator
-
-    s = Solver(task5)
-    es = Estimator(5, s)
-    es.estimate(silent=False)
+    i = 2
+    l = []
+    d = iter(c1)
+    for i in range(1, 11 + 1):
+        s1, s2 = State(c1, i), State(c2, i)
+        s = Simulation(s1, s2)
+        if s.simulate():
+            l.append(i)
+        print()
+    print(l)
