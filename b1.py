@@ -101,15 +101,11 @@ class Tree(object):
         if node is None:
             return
 
-        if node < v:
+        if v < node.v:
             self._remove(v, node.left)
-        elif node > v:
+        elif v > node.v:
             self._remove(v, node.right)
         else:
-            if node.p is None:
-                self.tree = None
-                return
-
             if node.left is None:
                 add = node.right
             elif node.right is None:
@@ -121,13 +117,14 @@ class Tree(object):
                 self._remove(m.v, node.right)
                 return
 
-            res = node.p.is_node_part(node)
+            res = node.parent.is_node_part(node)
             if res == 1:
-                node.p.left = add
+                node.parent.left = add
             elif res == 0:
-                node.p.right = add
+                node.parent.right = add
             else:
                 raise ValueError("Error with {} : {}", v, node)
+
 
     # TODO: find nearest
     def find(self, e):
@@ -192,28 +189,44 @@ def chaos(lst, input=None):
     return
 
 
-if __name__ == "__main__":
-    """
-    # n = int(input())
-    s = list(map(int, '7 7 7 1 1'.split()))
-    print(s)
+def solveb(s):
     t = Tree()
 
-
-    t.add(0)
-    t.add(1)
-    t.add(2)
-    t.add(3)
-    # t.add(-1)
-    t.add(1)
+    for e in s:
+        t.add(e)
+    print(' ------ ')
     t.print()
 
-    print()
-    print(t.find_min())
-    print(t.find_max())
-    print()
+    r = ""
+    for i in range(len(s)):
+        print(s[i])
+        f = t.extract_min if i % 2 == 1 else t.extract_max
+        r += str(f()) + " "
 
-    print(t.extract_max())
+    return r.strip()
+
+
+if __name__ == "__main__":
+    # n = int(input())
+    t = Tree()
+    line = '1 2 3'
+    line = list(map(int, line.split()))
+
+    [t.add(e) for e in line]
     t.print()
-    print(t.find_max())
-    """
+    print(len(line))
+    for i in range(len(line)):
+        print(t.extract_max() if i % 2 == 0 else t.extract_min())
+
+    quit(0)
+    filename = "b0.txt"
+    stream = STDOUTStream() # FileStream("ans.txt")
+    stream2 = FileStream("b1.txt")
+
+    with open("MOSh/{}".format(filename), 'r') as f:
+        for line in f.readlines():
+            line = list(map(int, line.split()))
+            s = ' '.join(str(e) for e in solveb(line))
+            stream.writeln(s)
+            stream2.writeln(s)
+
