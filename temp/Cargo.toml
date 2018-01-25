@@ -1,0 +1,6 @@
+[package]
+name = "temp"
+version = "0.1.0"
+authors = ["abcc1337 <toh3phaiPh-s>"]
+
+[dependencies]

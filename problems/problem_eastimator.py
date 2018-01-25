@@ -133,10 +133,10 @@ def zero(n):
     return [str(n)]
 
 if __name__ == "__main__":
-    from ..main import task2_calculator
-    zr = Solver(task2_calculator)
+    from .. import a1
+    zr = Solver(a1.solver)
     e = Estimator(2, zr)
     e.estimate(silent=False)
 
-    #for t, a in getattr(Estimator, '_fileopen')(1):
-    #    print(t, a)
+    # for t, a in getattr(Estimator, '_fileopen')(1):
+    #     print(t, a)
