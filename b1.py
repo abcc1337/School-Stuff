@@ -179,6 +179,7 @@ class Tree(object):
             print("{}: {}".format(side[0].upper(), n))
             n = getattr(n, side)
 
+
 def chaos(lst, input=None):
     output = input if input is not None else []
     if not lst: return output
@@ -206,27 +207,53 @@ def solveb(s):
     return r.strip()
 
 
+def solvec(s):
+    from random import shuffle
+    def check_s(s, th=0.9):
+        th = 1 / (10 ** len(str(len(s)))) * (len(s) + 1)
+        v  = 0
+        for i in range(1, len(s) - 1):
+            if not ((s[i] <= s[i + 1] and s[i - 1] <= s[i]) or
+               (s[i] >= s[i + 1] and s[i - 1] >= s[i])):
+                v += 1 #return True
+        # print(s, v / len(s), th)
+        print(s, v / len(s), th)
+        return v / len(s) < th
+
+    while check_s(s):
+        shuffle(s)
+
+    return s
+
+
 if __name__ == "__main__":
-    # n = int(input())
-    t = Tree()
-    line = '1 2 3'
+    # # n = int(input())
+    # t = Tree()
+    line = '1 1 7 7 7' #'1 2 3'
     line = list(map(int, line.split()))
-
-    [t.add(e) for e in line]
-    t.print()
-    print(len(line))
-    for i in range(len(line)):
-        print(t.extract_max() if i % 2 == 0 else t.extract_min())
-
-    quit(0)
+    #
+    # [t.add(e) for e in line]
+    # t.print()
+    #
+    # for i in range(len(line)):
+    #     print(t.extract_max() if i % 2 == 0 else t.extract_min())
+    #     #t.print()
+    #     print()
+    #
+    print(solvec(line))
+    # quit(0)
+    solveb = solvec
     filename = "b0.txt"
     stream = STDOUTStream() # FileStream("ans.txt")
-    stream2 = FileStream("b1.txt")
+    stream2 = FileStream(filename)
+    import re
 
     with open("MOSh/{}".format(filename), 'r') as f:
-        for line in f.readlines():
+        for line in f.readlines()[1:]:
+            if not re.sub(r'[\s\n ]', "", line):
+                stream2.writeln("")
+                continue
             line = list(map(int, line.split()))
-            s = ' '.join(str(e) for e in solveb(line))
-            stream.writeln(s)
+            s = ' '.join(str(e) for e in solvec(line))
+            # stream.writeln(s)
             stream2.writeln(s)
-
