@@ -1,0 +1,7 @@
+read = open('grants.in', 'r').readline
+write = open('grants.out', 'w').write
+
+t = int(read())
+for _ in range(t):
+    n = read().strip()
+    write(n + ' 0 0\n')

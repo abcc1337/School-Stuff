@@ -1,0 +1,87 @@
+program ProjectB;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+var n, i, t, j : longint;
+    res, kol : array[1..3000] of longint;
+    cur, prev : longint;
+
+begin
+//  assign(input, 'video.in');  assign(output, 'video.out');
+//  assign(input, 'input.txt');  assign(output, 'output.txt');
+
+  readln(n);
+
+  res[1] := 1;
+  kol[1] := 1;
+
+  writeln('? 1 2');
+  flush(output);
+
+  readln(kol[2]);
+  if kol[2] = 1 then
+    begin
+      res[2] := 1;
+      t := 1;
+    end
+  else
+    begin
+      res[2] := 2;
+      t := 2;
+    end;
+
+  for i := 3 to n do
+  begin
+    writeln('? 1 ', i);
+    flush(output);
+
+    readln(kol[i]);
+    prev := kol[i];
+
+    if kol[i] = 1 then
+      begin
+        res[i] := 1;
+        continue;
+      end;
+
+    if kol[i] = kol[i-1]+1 then
+      begin
+        res[i] := t+1;
+        inc(t);
+        continue;
+      end;
+
+    writeln('? ', i-1, ' ', i);
+    flush(output);
+    readln(cur);
+    if cur = 1 then
+      begin
+        res[i] := res[i - 1];
+        continue;
+      end;
+
+    for j := 2 to i - 1 do
+    begin
+      writeln('? ', j, ' ', i);
+      flush(output);
+      readln(cur);
+      if cur = prev then
+        begin
+          res[i] := res[j-1];
+          break;
+        end
+      else
+        prev := cur;
+    end;
+  end;
+
+  writeln('Ready!');
+  writeln(t);
+  for i := 1 to n do
+    write(res[i], ' ');
+//  flush(output);
+//  readln;
+end.

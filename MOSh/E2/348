@@ -1,0 +1,91 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define forn(i, n) for(int i = 0; i < n; i++)
+#define sz(a) int(a.size())
+#define re return
+#define fi first
+#define se second
+
+typedef long long ll;
+typedef long double ld;
+typedef pair<int, int> pii;
+typedef pair<ll, ll> pll;
+ll n, m, nu = 0, g, use[1001][1001], num[1001][1001];
+pair<int, int> pr[1001][1001];
+vector<vector<pii> > q;
+vector<int> kk;
+string s[1001];
+
+void dfs(int x, int y, int k) {
+    if (use[x][y] == 2) {
+        kk[num[x][y] - 1] += k;
+        re;
+    }
+    if (use[x][y] == 1) {
+        nu++;
+        num[x][y] = nu;
+        kk.push_back(k);
+        q.push_back({});
+        int xx = x, yy = y;
+        while (true) {
+            q[nu - 1].push_back({xx, yy});
+            pii k2 = pr[xx][yy];
+            xx = k2.fi;
+            yy = k2.se;
+            if (xx == x && yy == y) break;
+        }
+        re;
+    }
+    if (s[x][y] >= 'A' && s[x][y] <= 'Z') k++;
+    use[x][y] = 1;
+    if (s[x][y] == 's' || s[x][y] == 'S') {
+        pr[x + 1][y] = {x, y};
+        dfs(x + 1, y, k);
+        num[x][y] = num[x + 1][y];
+    }
+    if (s[x][y] == 'e' || s[x][y] == 'E') {
+        pr[x][y + 1] = {x, y};
+        dfs(x, y + 1, k);
+        num[x][y] = num[x][y + 1];
+    }
+    if (s[x][y] == 'n' || s[x][y] == 'N') {
+        pr[x - 1][y] = {x, y};
+        dfs(x - 1, y, k);
+        num[x][y] = num[x - 1][y];
+    }
+    if (s[x][y] == 'w' || s[x][y] == 'W') {
+        pr[x][y - 1] = {x, y};
+        dfs(x, y - 1, k);
+        num[x][y] = num[x][y - 1];
+    }
+    use[x][y] = 2;
+}
+
+int main() {
+    iostream::sync_with_stdio(0), cin.tie(0);
+    freopen("robots.in", "r", stdin);
+    freopen("robots.out", "w", stdout);
+    cin >> n >> m >> g;
+    forn(i, n) {
+        cin >> s[i];
+    }
+    forn (i, n) {
+        forn (j, m) {
+            if (!use[i][j]) {
+                dfs(i, j, 0);
+            }
+            //cout << num[i][j] << " ";
+        }
+        //cout << endl;
+    }
+    int ans = 0;
+    forn (i, sz(q)) {
+        ans += min(sz(q[i]), kk[i]);
+    }
+    cout << ans;
+    re 0;
+}
+
+

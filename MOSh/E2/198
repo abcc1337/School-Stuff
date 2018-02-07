@@ -1,0 +1,103 @@
+#include <cstdio>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+int main(int argc, char **argv)
+{
+    FILE *in, *out;
+
+    in = fopen("castle.in", "r");
+    out = fopen("castle.out", "w");
+
+    int n, s, a, k;
+
+    fscanf(in, "%i %i", &n, &s);
+
+    vector<pair<int, int> > wall(n, make_pair(0, 0));
+
+    for (int i = 0; i < n; i++)
+    {
+        fscanf(in, "%i %i", &a, &k);
+
+        wall[i].first = a;
+        wall[i].second = k;
+    }
+
+    sort(wall.rbegin(), wall.rend());
+
+    vector<int> def(n, 0);
+    vector<int> exc(n, 0);
+
+    int mn = 0;
+
+    for (int i = 0; i < wall.size(); i++)
+    {
+        if (s > 0)
+        {
+            int f = (wall[i].first + wall[i].second - 1) / wall[i].second;
+            def[i] = min(s, f);
+
+            if (f > s)
+            {
+                for (int j = i - 1; j >= 0 && f; j--)
+                {
+                    if (exc[j] && def[j])
+                    {
+                        int prob = (wall[i].first - def[i] * wall[i].second) % (wall[i].second + 1);
+                        int anti = wall[j].second - exc[j];
+
+                        if (prob >= anti)
+                        {
+                            --def[j];
+                            ++def[i];
+
+                            mn += anti;
+                            exc[j] = 0;
+                        }
+                    }
+                }
+            }
+
+            s -= min(s, f);
+        }
+        else
+        {
+            for (int j = i - 1; j >= 0; j--)
+            {
+                if (exc[j] && def[j])
+                {
+                    int prob = (wall[i].first - def[i] * wall[i].second) % (wall[i].second + 1);
+                    int anti = wall[j].second - exc[j];
+
+                    if (prob >= anti)
+                    {
+                        --def[j];
+                        ++def[i];
+
+                        mn += anti;
+                        exc[j] = 0;
+                    }
+                }
+            }
+        }
+
+        int z = def[i] * wall[i].second - wall[i].first;
+
+        if (z < 0)
+        {
+            mn += -z;
+
+            z = 0;
+        }
+        else
+        {
+            exc[i] = z;
+        }
+    }
+
+    fprintf(out, "%i", mn);
+
+    return 0;
+}

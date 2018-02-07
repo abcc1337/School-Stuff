@@ -1,0 +1,54 @@
+def dfs(a, x1, x2, y1, y2):
+    global used
+    used[a] = True
+    for elem in s[a]:
+        if not used[elem] and x1 <= s1[elem][0] <= x2 and y1 <= s1[elem][1] <= y2:
+            dfs(elem, x1, x2, y1, y2)
+
+r = open('repair.in', 'r')
+w = open('repair.out', 'w')
+a, b = map(int, r.readline().split())
+n, q = map(int, r.readline().split())
+s = [[] for i in range(n)]
+s1 = [0] * n
+cnt = -1
+cur = [[-1] * a for i in range(b)]
+for i in range(n - 1):
+    d, x, y = r.readline().split()
+    x, y = int(x), int(y)
+    x, y = x - 1, y - 1
+    if d == 'h':
+        if cur[y][x] ==  -1:
+            cnt += 1
+            cur[y][x] = cnt
+            s1[cnt] = (x, y)
+        if cur[y][x + 1] == -1:
+            cnt += 1
+            cur[y][x + 1] = cnt
+            s1[cnt] = (x + 1, y)        
+        s[cur[y][x]].append(cur[y][x + 1])
+        s[cur[y][x + 1]].append(cur[y][x])
+    if d == 'v':
+        if cur[y][x] ==  -1:
+            cnt += 1
+            cur[y][x] = cnt
+            s1[cnt] = (x, y)
+        if cur[y + 1][x] == -1:
+            cnt += 1
+            cur[y + 1][x] = cnt
+            s1[cnt] = (x, y + 1)        
+        s[cur[y][x]].append(cur[y + 1][x])
+        s[cur[y + 1][x]].append(cur[y][x])
+print(s, cur, s1, sep="\n")
+for j in range(q):
+    x1, y1, x2, y2 = map(int, r.readline().split())
+    x1, x2, y1, y2 = x1 - 1, x2 - 1, y1 - 1, y2 - 1
+    used = [False] * n
+    ans = 0
+    for i in range(n):
+        if x1 <= s1[i][0] <= x2 and y1 <= s1[i][1] <= y2 and not used[i]:
+            dfs(i, x1, x2, y1, y2)
+            ans += 1
+    print(ans, file=w)
+r.close()
+w.close()

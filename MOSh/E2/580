@@ -1,0 +1,29 @@
+fin = open('typing.in', 'r')
+fout = open('typing.out', 'w')
+input = fin.readline
+
+read = lambda: map(int, input().split())
+m, n, L = read()
+s = input()[:-1]
+a = [0] * n
+for i in range(n):
+    c, w = input().split()
+    a[i] = int(c), w
+inf = float('inf')
+dp = [inf] * (m + 1)
+dp[0] = 0
+for i in range(m):
+    for cost, t in a:
+        k = len(t)
+        for d in range(1, k + 1):
+            if i + d > m:
+                continue
+            s2 = s[i:i + d]
+            if s2 == t[:d] or s2 == t[-d:]:
+                dp[i + d] = min(dp[i + d], dp[i] + cost)
+ans = dp[m]
+if ans == inf: ans = -1
+print(ans, file = fout)
+
+fin.close()
+fout.close()

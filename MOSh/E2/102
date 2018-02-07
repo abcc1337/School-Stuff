@@ -1,0 +1,94 @@
+#define consfl 0
+#define fname "fisher"
+
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+
+#include <algorithm>
+#include <cmath>
+
+#include <vector>
+#include <set>
+
+#define forn(i, n) for (int i = 0; i < n; i ++)
+#define fornn(i, n, m) for (int i = n; i < m; i ++)
+#define mk make_pair
+#define outb pop_back
+#define inb push_back
+#define X first
+#define Y second
+
+typedef long long ll;
+
+using namespace std;
+
+const int dd = 1e5;
+
+struct st {
+	bool fl;
+	ll l;
+	ll cnt;
+	ll pr;
+};
+
+bool cmp(st a, st b) {
+	return a.l < b.l;
+}
+
+vector<st> qwe;
+
+int main(){
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+#else
+	if (!consfl) {
+		freopen(fname".in", "r", stdin);
+		freopen(fname".out", "w", stdout);
+	}
+#endif
+	ll n, m, p;
+	cin >> n >> m >> p;
+	forn(i, n) {
+		ll x, w;
+		cin >> x >> w;
+		st q;
+		q.fl = 1;
+		q.l = x;
+		q.cnt = w;
+		qwe.inb(q);
+	}
+	forn(i, m) {
+		ll x, w, pr;
+		cin >> x >> w >> pr;
+		st q;
+		q.fl = 0;
+		q.l = x;
+		q.cnt = w;
+		q.pr = pr;
+		qwe.inb(q);
+	}
+	sort(qwe.begin(), qwe.end(), cmp);
+
+	ll cnow = 0;
+	ll maxx = 0;
+	set<pair<ll, ll> > asd;
+	forn(i, qwe.size()) {
+		if (qwe[i].fl)
+			cnow += qwe[i].cnt;
+		else
+			asd.insert(mk(qwe[i].pr, qwe[i].cnt));
+		ll snow = -p * qwe[i].l;
+		ll cc = cnow;
+		for (auto ind = asd.rbegin(); ind != asd.rend(); ind++) {
+			snow += min(cc, ind->Y) * (ind->X);
+			cc -= min(cc, ind->Y);
+			if (!cc)
+				break;
+		}
+		maxx = max(maxx, snow);
+	}
+	cout << maxx;
+	return 0;
+}

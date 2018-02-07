@@ -1,0 +1,201 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma comment(linker, "/STACK:256000000")
+#include <iostream>
+#include <fstream>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
+#include <ctime>
+#include <cassert>
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <queue>
+#include <unordered_map>
+#include <unordered_set>
+#include <map>
+#include <set>
+
+using namespace std;
+
+#define forn(i, n) for (int i = 0; i < int(n); ++i)
+#define forq(i, q, n) for (int i = int(q); i < int(n); ++i)
+#define all(v) v.begin(), v.end()
+#define mk make_pair
+#define psh push_back
+#define TIME clock() * 1.0 / CLOCKS_PER_SEC
+#define X first
+#define Y second
+#define TASK "twopaths"
+
+typedef long long ll;
+typedef vector <int> vi;
+typedef pair <int, int> pii;
+
+const int MOD = (int)1e9 + 7;
+const int INF = (int)1e9 + 7;
+const int MAXN = (int)1e6 + 7;
+const double EPS = 1e-6;
+
+void file() {
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin); freopen("output.txt", "w", stdout);
+#else
+	freopen(TASK".in", "r", stdin); freopen(TASK".out", "w", stdout);
+#endif
+}
+
+char mem[100000000];
+int cur = 0;
+
+void *operator new(size_t s){
+	cur += s;
+return cur + mem - s;
+}
+
+void operator delete(void *) {
+
+}
+
+vi G[MAXN];
+
+int up[MAXN][40];
+
+void u(int v, int p) {
+	forn(i, 20) {
+		up[v][i] = -1;
+	}
+	up[v][0] = p;
+	forq(i, 1, 20) {
+		if (up[v][i - 1] == -1) {
+			break;
+		}
+		up[v][i] = up[up[v][i - 1]][i - 1];
+	}
+	forn(i, G[v].size()) {
+		if (G[v][i] != p) {
+			u(G[v][i], v);
+		}
+	}
+}
+
+int t;
+pii TIM[MAXN];
+int GL[MAXN];
+
+void dfsv(int v, int p, int t1) {
+	t++;
+	TIM[v].X = t;
+	GL[v] = t1;
+	forn(i, G[v].size()) {
+		if (G[v][i] != p) {
+			dfsv(G[v][i], v, t1 + 1);
+		}
+	}
+	t++;
+	TIM[v].Y = t;
+}
+
+bool ppp(int x, int y) {
+	return TIM[x].X <= TIM[y].X && TIM[x].Y >= TIM[y].Y;
+}
+
+int lca(int x, int y) {
+	if (ppp(x, y)) {
+		return x;
+	}
+	for (int i = 20; i >= 0; --i) {
+		if (up[x][i] != -1) {
+			if (!ppp(up[x][i], y)) {
+				x = up[x][i];
+			}
+		}
+	}
+	return up[x][0];
+}
+
+vector <pii> kkk[MAXN];
+
+int getans(int x, int y) {
+	int ans1 = 0, ans2 = 0, ans3 = 0, ans4 = 0;
+	if (GL[kkk[x][0].X] > GL[kkk[x][0].Y]) {
+		swap(kkk[x][0].X, kkk[x][0].Y);
+	}
+	if (GL[kkk[y][0].X] > GL[kkk[y][0].Y]) {
+		swap(kkk[y][0].X, kkk[y][0].Y);
+	}
+	int ll = lca(kkk[x][0].Y, kkk[y][0].Y);
+	ans1 = min(GL[ll] - GL[kkk[x][0].X], GL[ll] - GL[kkk[y][0].X]);
+	if (kkk[y].size() == 2) {
+		if (GL[kkk[y][1].X] > GL[kkk[y][1].Y]) {
+			swap(kkk[y][1].X, kkk[y][1].Y);
+		}
+		ll = lca(kkk[x][0].Y, kkk[y][1].Y);
+		ans2 = min(GL[ll] - GL[kkk[x][0].X], GL[ll] - GL[kkk[y][1].X]);
+	}
+	if (kkk[x].size() == 2) {
+		if (GL[kkk[x][1].X] > GL[kkk[x][1].Y]) {
+			swap(kkk[x][1].X, kkk[x][1].Y);
+		}
+		ll = lca(kkk[x][1].Y, kkk[y][0].Y);
+		ans3 = min(GL[ll] - GL[kkk[x][1].X], GL[ll] - GL[kkk[y][0].X]);
+	}
+	if (kkk[x].size() == 2 && kkk[y].size() == 2) {
+		ll = lca(kkk[x][1].Y, kkk[y][1].Y);
+		ans4 = min(GL[ll] - GL[kkk[x][1].X], GL[ll] - GL[kkk[y][1].X]);
+	}
+	return max(0, ans1) + max(0, ans2) + max(0, ans3) + max(0, ans4);
+}
+
+int main() {
+	file();
+	srand(1486395232563);
+	int n, k, x, y;
+	scanf("%d%d", &n, &k);
+	forn(i, n - 1) {
+		scanf("%d", &x);
+		--x;
+		G[i + 1].psh(x);
+		G[x].psh(i + 1);
+	}
+	dfsv(0, -1, 0);
+	u(0, -1);
+	forn(i, k) {
+		scanf("%d%d", &x, &y);
+		--x;
+		--y;
+		int ll = lca(x, y);
+		if (ll == x || ll == y) {
+			kkk[i].psh(mk(x, y));
+		}
+		else {
+			kkk[i].psh(mk(x, ll));
+			kkk[i].psh(mk(y, ll));
+		}
+	}
+	int ans = -1;
+	vi lll(k);
+	forn(i, k) {
+		lll[i] = i;
+	}
+	random_shuffle(all(lll));
+	forn(i, k) {
+		forq(j, i + 1, k) {
+			if (TIME > 1.97) {
+				printf("%d\n%d %d", ans, x + 1, y + 1);
+				return 0;
+			}
+			int q = lll[i];
+			int w = lll[j];
+			int hh = getans(q, w);
+			if (ans < hh) {
+				ans = hh;
+				x = q;
+				y = w;
+			}
+		}
+	}
+	printf("%d\n%d %d", ans, x + 1, y + 1);
+	return 0;
+}

@@ -1,0 +1,42 @@
+{$mode delphi}
+{$minstacksize 134217728}
+var
+  n:int64;
+  t,i:longint;
+  a,b,c:int64;
+  bool:boolean;
+  ansa,ansb,ansc:int64;
+begin
+ assign(input,'grants.in');
+ assign(output,'grants.out');
+ reset(input);
+ rewrite(output);
+ read(t);
+ For i:=1 to t do
+ begin
+  read(n);
+  ansa:=0;
+  ansb:=0;
+  ansc:=n;
+  a:=n div 3;
+  bool:=false;
+  While not(bool) do
+  begin
+   b:=n-a*3;
+   While not(bool) and (b>=0) do
+   begin
+    c:=n-a*3-b;
+    If (c and a = 0) and (a and b = 0) Then
+    begin
+     bool:=true;
+     ansa:=a;
+     ansb:=c+a;
+     ansc:=b+a;
+    end;
+    dec(b);
+   end;
+   dec(a);
+  end;
+  writeln(ansa,' ',ansb,' ',ansc);
+ end;
+end.

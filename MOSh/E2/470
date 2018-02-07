@@ -1,0 +1,79 @@
+const
+  MAXP = 60;
+
+type
+  distrib = array [0..2] of longint;
+
+var
+  n, i: longint;
+  k: int64;
+  dist: distrib;
+  pow2: array [0..MAXP] of int64;
+
+procedure initpow2();
+  var
+    i: longint;
+  begin
+    pow2[0] := 1;
+    for i := 1 to MAXP do
+      pow2[i] := pow2[i - 1] shl 1;
+  end;
+
+function maxpow2(a: int64): int64;
+  var
+    l, r, m: longint;
+  begin
+    l := 0;
+    r := MAXP;
+    while r - l > 1 do begin
+      m := (l + r) div 2;
+      if pow2[m] <= a
+        then l := m
+        else r := m;
+    end;
+    maxpow2 := pow2[l];
+  end;
+
+
+function distribute(f: int64): distrib;
+  var
+    i: longint;
+    g: int64;
+  begin
+    distribute[0] := 0;
+    distribute[1] := 0;
+    distribute[2] := 0;
+    while f > 2 do begin
+      g := maxpow2(f div 3);
+      distribute[0] := distribute[0] + g;
+      distribute[1] := distribute[1] + g;
+      distribute[2] := distribute[2] + g;
+      f := f - 3 * g;
+      if f <= 2 then break;
+      i := 0;
+      while f > 3 * (g - 1) do begin
+        distribute[i] := distribute[i] + 2 * g;
+        f := f - 2 * g;
+        inc(i);
+      end;
+    end;
+    i := 0;
+    while f > 0 do begin
+      distribute[i] := distribute[i] + 1;
+      f := f - 1;
+    end;
+  end;
+
+begin
+  assign(input, 'grants.in');
+  reset(input);
+  assign(output, 'grants.out');
+  rewrite(output);
+  initpow2();
+  read(n);
+  for i := 1 to n do begin
+    read(k);
+    dist := distribute(k);
+    writeln(dist[2], ' ', dist[1], ' ', dist[0]);
+  end;
+end.

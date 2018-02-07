@@ -1,0 +1,67 @@
+#include <iostream>
+#include <iomanip>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
+#include <algorithm>
+#include <set>
+#include <vector>
+#include <map>
+#include <cstring>
+
+using namespace std;
+
+typedef long long ll;
+
+const int N = 2e6;
+
+set < pair <pair <ll, ll>, ll> > ar, br;
+ll x[N], y[N], a[N], b[N], c[N], sum[N], pp[N];
+int main()
+{
+    int n, m, p;
+    ios_base::sync_with_stdio(0);
+    freopen("fisher.in", "r", stdin);
+    freopen("fisher.out", "w", stdout);
+    cin >> n >> m >> p;
+    for (int i = 0; i < n; i++)
+        cin >> x[i] >> a[i];
+    for (int i = 0; i < m; i++)
+        cin >> y[i] >> b[i] >> c[i];
+    int l = 0, r = 0;
+    ll ans = 0;
+    ll pp = 0;
+    while (l < n || r < m)
+    {
+        if ((l < n && x[l] <= y[r]) || r >= m)
+        {
+            sum[l] = a[l];
+            if (l > 0)
+                sum[l] += sum[l - 1];
+            pp = x[l], l++;
+        }
+        else
+            ar.insert(make_pair(make_pair(c[r], b[r]), y[r])), r++, pp = y[r - 1];
+        br = ar;
+        if (l > 0)
+        {
+            int i = l;
+            ll f = sum[i - 1];
+            ll otv = 0;
+            while (f > 0 && br.size() > 0)
+            {
+                pair < pair <ll, ll>, ll> k = *br.rbegin();
+                br.erase(k);
+                ll c = k.first.first;
+                ll b = k.first.second;
+                ll y = k.second;
+                ll q = min(f, b);
+                f -= q;
+                otv += q * c;
+            }
+            ans = max(ans, otv - pp * p);
+        }
+    }
+    cout << ans << endl;
+    return 0;
+}

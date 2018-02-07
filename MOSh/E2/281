@@ -1,0 +1,98 @@
+#include <stdio.h>
+#include <iostream>
+#include <cmath>
+#include <string>
+using namespace std;
+#define ll long long
+
+ll k,i,n,m,j,x,l,r,q,q2,e,cur,sum,ans,ans1,a[2005][2005],c[100],u[2005],d[2005],maxp[2005],maxs[2005];
+string s;
+
+int main(){
+	freopen("submarine.in", "r", stdin);
+	freopen("submarine.out", "w", stdout);
+//	freopen("input.txt", "r", stdin);
+	ans = -2000000000;
+	cin >> k;
+	for (i = 0; i < k; i++)
+		cin >> c[i];
+	cin >> n >> m;
+	for (i = 0; i < n; i++)
+	{
+		cin >> s;
+		for (j = 0; j < m; j++)
+			a[i][j] = c[s[j] - 'a'];
+	}
+	for (x = 0; x < n; x++)
+	{
+		for (j = 0; j < m; j++)
+		{
+			cur = u[j] = 0;
+			for (i = x - 1; i >= 0; i--)
+			{
+				cur += a[i][j];
+				if (cur > u[j]) u[j] = cur;
+			}
+			cur = d[j] = 0;
+			for (i = x + 1; i < n; i++)
+			{
+				cur += a[i][j];
+				if (cur > d[j]) d[j] = cur;
+			}
+		}
+		for (l = 0; l < m-1; l++)
+		{
+			sum = a[x][l];
+			q = u[l];
+			ans1 = 0;
+			for (r = l+1; r < m; r++)
+			{
+				sum += a[x][r];
+				if (u[r] + d[r] + q > ans1) ans1 = u[r] + d[r] + q;
+				if (u[r] > q) q = u[r];
+				if (ans1+sum > ans) ans = ans1+sum;
+			}
+		}
+		
+	}
+	cout << ans;
+	return 0;
+}
+/*
+2
+-10 1
+6 11
+aaaaaaaaaaa
+aaabaaaaaaa
+aaabaaaabaa
+abbbbbbbbba
+aaaaaaaabaa
+aaaaaaaaaaa
+
+3
+-4 -3 4
+5 5
+bbabc
+ccaac
+accba
+baccb
+baaaa
+
+3
+-2 4 0
+5 5
+abccb
+cccac
+cbcba
+cccbb
+accba
+
+4
+-1 -5 -3 0
+5 5
+bbabc
+ccaac
+acdba
+baccb
+baaaa
+*/

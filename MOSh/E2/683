@@ -1,0 +1,96 @@
+{$mode delphi}
+{$minstacksize 134217728}
+type
+ path = record
+   up,down,left,right:boolean;
+   have:boolean;
+ end;
+
+var
+ map:array[1..3000,1..3000] of path;
+ tmap:array[0..3001,0..3001] of longint;
+ i,j,k:longint;
+ n,q:longint;
+ a,b:longint;
+ x,y,x1,x2,y1,y2:longint;
+ c:char;
+ ans:longint;
+
+ procedure dfs(x,y:longint);
+ begin
+  If (x>=x1) and (x<=x2) and (y>=y1) and (y<=y2) then
+  begin
+   If map[x,y].down and (tmap[x,y-1] = 0) Then
+   begin
+    tmap[x,y-1]:=tmap[x,y];
+    dfs(x,y-1);
+   end;
+   If map[x,y].up and (tmap[x,y+1] = 0) Then
+   begin
+    tmap[x,y+1]:=tmap[x,y];
+    dfs(x,y+1);
+   end;
+   If map[x,y].left and (tmap[x-1,y] = 0) Then
+   begin
+    tmap[x-1,y]:=tmap[x,y];
+    dfs(x-1,y);
+   end;
+   If map[x,y].right and (tmap[x+1,y] = 0) Then
+   begin
+    tmap[x+1,y]:=tmap[x,y];
+    dfs(x+1,y);
+   end;
+  end;
+ end;
+
+begin
+ assign(input,'repair.in');
+ assign(output,'repair.out');
+ reset(input);
+ rewrite(output);
+ readln(a,b);
+ readln(n,q);
+ For i:=1 to n-1 do
+ begin
+  readln(c,x,y);
+  If c = 'h' then
+  begin
+   map[x,y].have:=true;
+   map[x+1,y].have:=true;
+   map[x,y].right:=true;
+   map[x+1,y].left:=true;
+  end
+  else
+  begin
+   map[x,y].have:=true;
+   map[x,y+1].have:=true;
+   map[x,y].up:=true;
+   map[x,y+1].down:=true;
+  end;
+ end;
+ For k:=1 to q do
+ begin
+  read(x1,y1,x2,y2);
+  For i:=x1 to x2 do
+  begin
+   For j:=y1 to y2 do
+   begin
+    tmap[i,j]:=0;
+   end;
+  end;
+  ans:=0;
+  For i:=x1 to x2 do
+  begin
+   For j:=y1 to y2 do
+   begin
+    If (tmap[i,j]=0) and map[i,j].have Then
+    begin
+     inc(ans);
+     tmap[i,j]:=ans;
+     dfs(i,j);
+    end;
+   end;
+  end;
+  writeln(ans);
+ end;
+end.

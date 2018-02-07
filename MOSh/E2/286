@@ -1,0 +1,83 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define mp make_pair
+#define s second
+#define f first
+
+struct triple
+{
+    int64_t f, s, t;
+};
+
+struct pair_
+{
+    int64_t f, s;
+};
+
+bool operator < (const triple& a, const triple& b)
+{
+    return a.t < b.t || (a.f == b.f && a.s < b.s) || (a.t == b.t && a.s == b.s && a.f < b.f);
+}
+
+bool operator < (const pair_& a, const pair_& b)
+{
+    return a.f < b.f || (a.f == b.f && a.s < b.s);
+}
+
+int main()
+{
+    #ifndef LOCAL_DEBUG
+    freopen("fisher.in", "rt", stdin);
+    freopen("fisher.out", "wt", stdout);
+    #endif
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    int64_t n, m, p;
+    cin >> n >> m >> p;
+    vector < pair_ > x(n);
+    vector < triple > y(m);
+    for (int64_t i = 0; i < n; i++)
+        cin >> x[i].f >> x[i].s;
+    for (int64_t j = 0; j < m; j++)
+        cin >> y[j].f >> y[j].s >> y[j].t;
+    if (p == 0)
+    {
+        sort(y.rbegin(), y.rend());
+        int64_t sum1 = 0, sum2 = 0;
+        for (int64_t i = 0; i < n; i++)
+        {
+            sum1 += x[i].s;
+        }
+        for (int64_t i = 0; i < m; i++)
+        {
+            sum2 += min(y[i].s, sum1) * y[i].t;
+            sum1 -= min(y[i].s, sum1);
+        }
+        cout << sum2 << endl;
+    }
+    else
+    {
+        sort(y.rbegin(), y.rend());
+        int64_t asdasd = 0, res = 0, prev1 = 0, curr1 = 0, prev2 = 0, curr2 = 0, curri = 0, currl = y[0].s;
+        for (int64_t i = 0; i < n; i++)
+        {
+            curr1 = (i > 0 ? prev1 - p * (x[i].f - x[i - 1].f) : -p * x[i].f);
+            curr2 = x[i].s;
+            while (curr2)
+            {
+                asdasd = min(currl, curr2);
+                currl -= asdasd;
+                curr2 -= asdasd;
+                curr1 += asdasd * y[curri].t;
+                if (currl == 0)
+                    currl = y[++curri].s;
+            }
+            if (curr1 > res)
+                res= curr1;
+            prev1 = curr1;
+        }
+        cout << res << endl;
+    }
+    return 0;
+}

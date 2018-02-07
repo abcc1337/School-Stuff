@@ -1,0 +1,28 @@
+n = int(input())
+arr = [None] * n
+arr[0] = 0
+last = [(0, 0)]
+counter = 1
+for i in range(1, n):
+    print('?', 1, i + 1)
+    ans = int(input())
+    if ans > counter:
+        arr[i] = counter
+        last.append((i, counter))
+        counter += 1
+    else:
+        last.sort()
+        now = counter
+        for j in range(len(last)):
+            print('?', last[j][0] + 2, i + 1)
+            ans = int(input())
+            if ans == now:
+                arr[i] = last[j][1]
+                last[j] = (i, last[j][1])
+                break
+            else:
+                now -= 1
+print('Ready!')
+print(counter)
+for i in range(n):
+    print(arr[i] + 1, end=' ')

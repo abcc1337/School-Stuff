@@ -1,0 +1,43 @@
+def f(ost):
+    ans = 0
+    for j in range(len(G)):
+        if G[j] != 0:
+            x1 = (j + ost - G[j][0]) % k
+            x2 = (G[j][1] - j - ost) % k
+            ans += ((G[j][1] - G[j][0]) // k)
+            ans += int(x1 != 0) + int(x2 != 0) - int(x1 + x2 >= k)
+    return ans
+
+fin = open("monument.in")
+fout = open("monument.out", "w")
+n, k = map(int, fin.readline().rstrip().split())
+A = dict()
+for i in range(n):
+    x, y = map(int, fin.readline().rstrip().split())
+    if y not in A:
+        A[y] = [x]
+    else:
+        A[y].append(x)
+Min = 10e10
+G = [0]*max(A)
+T = True
+prevelem = min(A)
+prev = A[prevelem]
+a, b = min(prev), max(prev)
+for elem in A:
+    if T:
+        T = False
+        continue
+    c, d = min(A[elem]), max(A[elem])
+    for i in range(prevelem, elem):
+        G[i] = (max(a, c), min(b, d))
+    prev = A[elem]
+    prevelem = elem
+    a, b = c, d
+for ost in range(k):
+    a = f(ost)
+    if a < Min:
+        Min = a
+print(Min, file = fout)
+fin.close()
+fout.close()

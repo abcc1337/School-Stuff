@@ -1,0 +1,72 @@
+program zad_7;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+var
+    a :array[0..123456] of smallint;
+    d :array[0..123456] of int64;
+    k :array[1..510, 1..510] of boolean;
+    n, q, i, j, u, rr, ll, c, w :integer;
+    sum :int64;
+    ch :char;
+
+begin
+    reset(input, 'lamps.in');
+    rewrite(output, 'lamps.out');
+    readln(n, q);
+    for i := 1 to n do
+    begin
+        if (i < n) then
+            read(ch)
+        else
+            readln(ch);
+        if (ch = '1') then
+            a[i] := 1
+        else
+            a[i] := 0;
+        d[i] := d[i - 1] + a[i];
+    end;
+    sum := 0;
+    for i := 1 to n do
+        for j := i to n do
+            if (d[j] - d[i - 1] = j - i + 1) then
+            begin
+                k[i][j] := true;
+                inc(sum);
+            end;
+    writeln(sum);
+    for u := 1 to q do
+    begin
+        readln(ll, rr, c);
+        w := 0;
+        sum := 0;
+        for i := ll to rr do
+            a[i] := c;
+        for i := ll to n do
+            d[i] := d[i - 1] + a[i];
+
+        for i := 1 to n do
+            for j := i to n do
+            begin
+                if (d[j] - d[i - 1] = j - i + 1) or (k[i][j]) then
+                begin
+                    inc(sum);
+                    k[i][j] := true;
+                end;
+            end;
+
+
+        writeln(sum);
+    end;
+end.
+
+7 4
+1100101
+4 6 1
+3 6 0
+3 4 1
+5 7 1
+

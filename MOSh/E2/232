@@ -1,0 +1,133 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+#include <map>
+
+using namespace std;
+
+ifstream fin("repair.in");
+ofstream fout("repair.out");
+
+
+
+int a, b, n, q;
+vector <vector <int> > G;
+vector <int> rev;
+vector <bool> used(105);
+int x1, x2, y1, y2;
+
+
+
+void dfs(int v)
+{
+    //cout << v << endl;
+    used[v] = true;
+    for (int i = 0; i < (int)G[v].size(); ++i)
+    {
+        int u = G[v][i];
+        int x0 = rev[u] % a;
+        int y0 = rev[u] / a;
+        if (!used[u] && (x0 >= x1 && x0 <= x2 && y0 >= y1 && y0 <= y2))
+        {
+            dfs(u);
+        }
+    }
+}
+
+
+int main()
+{
+    fin >> a >> b;
+    fin >> n >> q;
+    G.resize(n);
+    map <int, int> num;
+    for (int i = 1; i < n; ++i)
+    {
+        char c;
+        int x, y;
+        fin >> c >> x >> y;
+        x--;
+        y--;
+        int ind = x + a * y;
+        //cout << ind << endl;
+        int cur;
+        if (num.find(ind) == num.end())
+        {
+            cur = (int)num.size();
+            num[ind] = cur;
+            rev.push_back(ind);
+        }
+        else
+        {
+            cur = num[ind];
+        }
+        int ind1;
+        if (c == 'v')
+        {
+            ind1 = ind + a;
+        }
+        else
+        {
+            ind1 = ind + 1;
+        }
+       // cout << ind1 << endl;
+        int cur1;
+        if (num.find(ind1) == num.end())
+        {
+            cur1 = (int)num.size();
+            num[ind1] = cur1;
+            rev.push_back(ind1);
+        }
+        else
+        {
+            cur1 = num[ind1];
+        }
+        G[cur].push_back(cur1);
+        G[cur1].push_back(cur);
+    }
+   /* for (int i = 0; i < n; ++i)
+    {
+        for (int j = 0; j < (int)G[i].size(); ++j)
+        {
+            cout << G[i][j] << " ";
+        }
+        cout << endl << endl;
+    }*/
+   /* for (int i = 0; i < rev.size(); ++i)
+    {
+        cout << rev[i] << endl;
+    }*/
+    for (int i = 0; i < q; ++i)
+    {
+        fin >> x1 >> y1 >> x2 >> y2;
+        x1--;
+        y1--;
+        x2--;
+        y2--;
+        for (int i = 0; i < 105; ++i)
+        {
+            used[i] = false;
+        }
+        int ans = 0;
+        for (int i = 0; i < n; ++i)
+        {
+            if (!used[i])
+            {
+                int x0 = rev[i] % a;
+                int y0 = rev[i] / a;
+                if (x0 >= x1 && x0 <= x2 && y0 >= y1 && y0 <= y2)
+                {
+                    dfs(i);
+                    ans++;
+                }
+            }
+        }
+        fout << ans << endl;
+    }
+    fin.close();
+    fout.close();
+    return 0;
+}
+
+

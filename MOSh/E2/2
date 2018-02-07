@@ -1,0 +1,101 @@
+#include <iostream>
+#include <algorithm>
+#include <stdio.h>
+#include <vector>
+using namespace std;
+long long n, m, i, j, d[2000001], g[2000001], y, ans=0, t[2000001], dlina, q=0;
+bool used2[2000001], robot[2000001], used1[2000001];
+vector <long long> antig[2000001];
+char x;
+void dfs1(long long v) {
+	if (used1[v] == true) {
+		y = v;
+	}
+	used1[v] = true;
+	if (y==-1) {
+		t[g[v]] = t[v] + 1;
+		dfs1(g[v]);
+	}
+}
+void dfs2 (long long v) {
+	long long l;
+	used1[v] = true;
+	used2[v] = true;
+	if (robot[v]==true) {
+		q++;
+	}
+	if (antig[v].size()>0) {
+		for (l = 0; l < antig[v].size(); l++) {
+			if (used2[antig[v][l]] == false) {
+				dfs2(antig[v][l]);
+			}
+		}
+	}
+}
+int main() {
+	freopen("robots.in", "r", stdin);
+	freopen("robots.out", "w", stdout);
+	cin >> n >> m >> x;
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < m; j++) {
+			cin >> x;
+			if (x=='W') {
+				robot[i*m + j] = true;
+				g[i*m + j] = i*m + j - 1;
+				antig[i*m + j - 1].push_back(i*m + j);
+			}
+			if (x=='w') {
+				robot[i*m + j] = false;
+				g[i*m + j] = i*m + j - 1;
+				antig[i*m + j - 1].push_back(i*m + j);
+			}
+			if (x == 'S') {
+				robot[i*m + j] = true;
+				g[i*m + j] = (i+1)*m + j;
+				antig[(i+1)*m + j].push_back(i*m + j);
+			}
+			if (x == 's') {
+				robot[i*m + j] = false;
+				g[i*m + j] = (i+1)*m + j;
+				antig[(i + 1)*m + j].push_back(i*m + j);
+			}
+			if (x == 'N') {
+				robot[i*m + j] = true;
+				g[i*m + j] = (i-1)*m + j;
+				antig[(i - 1)*m + j].push_back(i*m + j);
+			}
+			if (x == 'n') {
+				robot[i*m + j] = false;
+				g[i*m + j] = (i-1)*m + j;
+				antig[(i - 1)*m + j].push_back(i*m + j);
+			}
+			if (x == 'E') {
+				robot[i*m + j] = true;
+				g[i*m + j] = i*m + j + 1;
+				antig[i*m + j + 1].push_back(i*m + j);
+			}
+			if (x == 'e') {
+				robot[i*m + j] = false;
+				g[i*m + j] = i*m + j + 1;
+				antig[i*m + j + 1].push_back(i*m + j);
+			}
+			used1[i*m + j] = false;
+			used2[i*m + j] = false;
+		}
+	}
+	for (i = 0; i < n*m; i++) {
+		y = -1;
+		if (used1[i]==false) {
+			t[i] = 0;
+			dfs1(i);
+			q = 0;
+			if (y>=0) {
+				dlina = t[y] - t[g[y]];
+				dfs2(y);
+				ans += min(q, dlina);
+			}
+		}
+	}
+	cout << ans;
+	return 0;
+}

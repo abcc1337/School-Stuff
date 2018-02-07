@@ -1,0 +1,77 @@
+
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <cmath>
+#include <algorithm>
+using namespace std;
+
+#define int64 long long int
+
+vector <int> Bin(int64 n) {
+	vector <int> b(10);
+	while (n > 0LL) {
+		b.push_back(n % 2LL);
+		n /= 2LL;
+	}
+	return b;
+}
+
+
+int mx = 0;
+vector <int> mxv;
+
+struct my{
+	int mx;
+	vector <int> mxv;
+	my() {
+		mx = -1;
+	}
+};
+
+vector <my> ans;
+
+int main() {
+	ifstream cin("grants.in");
+	ofstream cout("grants.out");
+	int t;
+	cin >> t;
+	while (t--) {
+		int64 n;
+		cin >> n;
+		int mxs = -1;
+		int ra, rb, rc;
+		for (int i = 0; i <= n; ++i) {
+			vector <int> a = Bin(i);
+			for (int j = 0; j + i <= n; ++j) {
+				int k = n - i - j;
+				
+				vector <int> b = Bin(j);
+				vector <int> c = Bin(k);
+				a.resize(20);
+				b.resize(20);
+				c.resize(20);
+
+				int ss = 0;
+				int p = 1;
+				for (int i = 0; i < 10; ++i) {
+					if (a[i] + b[i] + c[i] == 3) {
+						ss += p * 3;
+					}
+					p *= 2;
+				}
+
+				if (mxs < ss) {
+					mxs = ss;
+					ra = i;
+					rb = j;
+					rc = k;
+				}
+			}
+		}
+		cout << ra << " " << rb << " " << rc << "\n";
+	}
+
+
+	return 0;
+}

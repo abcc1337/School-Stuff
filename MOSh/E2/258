@@ -1,0 +1,171 @@
+#include <bits/stdc++.h>
+#define pii pair<int, long long>
+#define F first
+#define S second
+
+using namespace std;
+
+long long dp[300001];
+long long w[300001];
+long long pr[300001];
+long long sf[300001];
+long long q[300001];
+long long mn[1200001];
+vector<string> s;
+vector<vector<long long> > pr1;
+vector<vector<long long> > sf1;
+const long long MOD = 1e9 + 7;
+const long long INF = 1e18 + 7;
+int m, n, L;
+set<pii> st;
+
+long long ghs(int l, int r){
+    return pr[r] - (pr[l] * q[r - l]);// % MOD + MOD) % MOD;
+}
+
+long long grhs(int l, int r){
+    return sf[l] - (sf[r] * q[r - l]);// % MOD + MOD) % MOD;
+}
+
+bool cmp(pii a, pii b){
+    return a.F == b.F ? a.S > b.S : a.F < b.F;
+}
+
+void init(int l, int r, int i){
+    mn[i] = INF;
+    if (l == r - 1){
+        return;
+    }
+    int m = (l + r) / 2;
+    init(l, m, 2 * i + 1);
+    init(m, r, 2 * i + 2);
+}
+
+void ins(int pos, long long val, int l, int r, int i){
+    if (l == r - 1){
+        mn[i] = val;
+        return;
+    }
+    int m = (l + r) / 2;
+    if (m > pos) ins(pos, val, l, m, 2 * i + 1);
+    else ins(pos, val, m, r, 2 * i + 2);
+    mn[i] = min(mn[2 * i + 1], mn[2 * i + 2]);
+}
+
+long long minx(int l, int r, int ql, int qr, int i){
+    if (l >= qr || ql >= r) return INF;
+    if (l >= ql && qr >= r) return mn[i];
+    int m = (l + r) / 2;
+    return min(minx(l, m, ql, qr, 2 * i + 1), minx(m, r, ql, qr, 2 * i + 2));
+}
+
+void clcfrt(int i){
+    //vector<pii> vt;
+    for (int j = 0; j < n; j++){
+        int l = 0;
+        int r = min(m + 1 - i, (int)s[j].size() + 1);
+        while (l < r - 1){
+            int m = (l + r) / 2;
+            long long h = ghs(i, i + m);
+            if (h == pr1[j][m]) l = m;
+            else r = m;
+        }
+        if (l != 0){
+            pii p = pii(i + l, -(dp[i]+w[j]));
+            auto it = st.lower_bound(p);
+            if (it != st.end() && (it->S) > p.S) continue;
+            while (it != st.begin()){
+                it--;
+                if ((it->S) > p.S){
+                    break;
+                }
+                st.erase(it);
+                it = st.lower_bound(p);
+            }
+            st.insert(p);
+        }
+    }
+}
+
+void clcbck(int i){
+    while (!st.empty() && (st.begin()->F) < i){
+        st.erase(*(st.begin()));
+    }
+    if (!st.empty()){
+        dp[i] = min(dp[i], -(st.begin()->S));
+    }
+    vector<pii> vt;
+    for (int j = 0; j < n; j++){
+        int l = 0;
+        int r = min(i + 1, (int)s[j].size() + 1);
+        while (l < r - 1){
+            int m = (l + r) / 2;
+            long long h = grhs(i - m, i);
+            //cerr << sf1[j][s[j].size() - m] << "\n";
+            if (h == sf1[j][s[j].size() - m]) l = m;
+            else r = m;
+        }
+        if (l != 0)
+            dp[i] = min(dp[i], minx(0, m, i - l, i, 0) + w[j]);
+    }
+    if (i != m)
+        ins(i, dp[i], 0, m, 0);
+}
+
+int main(){
+    ios_base::sync_with_stdio(0), cin.tie(0);
+    #ifndef DEBUG
+    freopen("typing.in", "r", stdin);
+    freopen("typing.out", "w", stdout);
+    #else
+    freopen("input.txt", "r", stdin);
+    #endif // DEBUG
+    cin >> m >> n >> L;
+    string t;
+    cin >> t;
+    s.resize(n);
+    pr1.resize(n);
+    sf1.resize(n);
+    for (int i = 0; i < n; i++){
+        cin >> w[i];
+        cin >> s[i];
+    }
+    pr[0] = 0;
+    q[0] = 1;
+    for (int i = 1; i <= max(L, m); i++){
+        q[i] = (q[i - 1] * 23467);// % MOD;
+    }
+    for (int i = 1; i <= m; i++){
+        pr[i] = (pr[i - 1] * 23467 + t[i - 1]);// % MOD;
+    }
+    sf[m] = 0;
+    for (int i = m - 1; i >= 0; i--){
+        sf[i] = (sf[i + 1] * 23467 + t[i]);// % MOD;
+    }
+    for (int j = 0; j < n; j++){
+        pr1[j].resize(s[j].size() + 1);
+        sf1[j].resize(s[j].size() + 1);
+        pr1[j][0] = 0;
+        for (int i = 1; i <= s[j].size(); i++){
+            pr1[j][i] = (pr1[j][i - 1] * 23467 + s[j][i - 1]);// % MOD;
+        }
+        sf1[j][s[j].size()] = 0;
+        for (int i = s[j].size() - 1; i >= 0; i--){
+            sf1[j][i] = (sf1[j][i + 1] * 23467 + s[j][i]);// % MOD;
+        }
+    }
+    dp[0] = 0;
+    for (int i = 1; i <= m; i++){
+        dp[i] = INF;
+    }
+    for (int i = 0; i < m; i++){
+        clcfrt(i);
+        clcbck(i + 1);
+    }
+    if (dp[m] >= INF){
+        cout << "-1";
+        return 0;
+    }
+    cout << dp[m];
+    return 0;
+}

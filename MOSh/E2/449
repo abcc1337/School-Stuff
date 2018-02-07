@@ -1,0 +1,141 @@
+#include <iostream>
+#include <stdio.h>
+#include <vector>
+#include <algorithm>
+#include <string>
+
+using namespace std;
+
+#define vec vector
+#define ALL(x) (x).begin(), (x).end()
+#define mp make_pair
+
+typedef pair< int, int > pii;
+
+const int LOG = 21;
+
+int n, k;
+vec< int > p, par[LOG], pid, h;
+vec< vec< pii > > g;
+vec< pii > que;
+
+void dfs(int v, int par = -1, int H = 0) {
+	h[v] = H;
+	for (auto to : g[v]) {
+		if (to.first != par) dfs(to.first, v, H + 1);
+	}
+}
+
+void read() {
+	scanf("%d %d", &n, &k);
+	p.resize(n + 1, -1);
+	g.resize(n + 1);
+	pid.resize(n + 1, -1);
+
+	for (int cur = 0, i = 2; i <= n; i++) {
+		scanf("%d", &p[i]);
+		g[i].push_back(mp(p[i], cur));
+		g[p[i]].push_back(mp(i, cur));
+		pid[i] = cur;
+		cur++;
+	}
+	for (int u, v, i = 0; i < k; i++) {
+		scanf("%d %d", &u, &v);
+		que.push_back(mp(u, v));
+	}
+
+	for (int i = 0; i < LOG; i++) {
+		par[i].resize(n + 1, -1);
+	}
+
+	par[0] = p;
+
+	for (int i = 1; i < LOG; i++) {
+		for (int j = 1; j <= n; j++) {
+			int x = par[i - 1][j];
+			if (x != -1) par[i][j] = par[i - 1][x];
+		}
+	}
+
+	h.resize(n + 1);
+	dfs(1);
+}
+
+int lca(int u, int v) {
+	if (h[u] < h[v]) swap(u, v);
+	for (int i = LOG - 1; i >= 0; i--) {
+		int pu = par[i][u];
+		if (pu == -1 || h[pu] < h[v]) continue;
+		u = pu;
+	}
+	for (int i = LOG - 1; i >= 0; i--) {
+		int pu, pv;
+		pu = par[i][u];
+		pv = par[i][v];
+		if (pu == -1 || pv == -1 || pu == pv) continue;
+		u = pu;
+		v = pv;
+	}
+	if (u != v) u = par[0][u];
+	return u;
+}
+
+void sol1() {
+	
+	vec< vec< int > > edge(k);
+
+	for (int u, v, _lca, it = 0; it < k; it++) {
+		u = que[it].first;
+		v = que[it].second;
+		_lca = lca(u, v);
+		for (; u != _lca; u = p[u]) edge[it].push_back(pid[u]);
+		for (; v != _lca; v = p[v]) edge[it].push_back(pid[v]);	
+		sort(ALL(edge[it]));
+	}
+
+	int res = -1, a1, a2;
+	for (int i = 0; i < k; i++) {
+		for (int j = i + 1; j < k; j++) {
+			int tmp = 0, I = 0, J = 0;
+			while (I < (int)edge[i].size() && J < (int)edge[j].size()) {
+				if (edge[i][I] < edge[j][J]) I++;
+				else if (edge[i][I] > edge[j][J]) J++;
+				else {
+					tmp++;
+					I++;
+					J++;
+				}
+			}
+			if (tmp > res) {
+				res = tmp;
+				a1 = i + 1;
+				a2 = j + 1;
+			}
+		}
+	}
+
+	printf("%d\n%d %d", res, a1, a2);
+}
+
+bool solve() {
+
+	freopen("twopaths.in", "r", stdin);
+	freopen("twopaths.out", "w", stdout);
+
+	read();
+	
+	if (n <= 4000 && k <= 1000) {
+		sol1();
+		return true;
+	}
+
+	return true;
+}
+
+int main() {
+
+	//while (solve());
+	solve();
+
+	return 0;
+}

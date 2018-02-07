@@ -1,0 +1,60 @@
+fin = open('robots.in', 'r')
+fout = open('robots.out', 'w')
+input = fin.readline
+
+read = lambda: map(int, input().split())
+f = lambda i, j: m * i + j + 1 if 0 <= i < n and 0 <= j < m else 0
+n, m, g = read()
+a = [list(input()) for i in range(n)]
+
+N = n * m + 1
+g = [0 for i in range(N)]
+for i in range(n):
+    for j in range(m):
+        u = f(i, j)
+        c = a[i][j]
+        if c == 'N': v = f(i - 1, j)
+        if c == 'S': v = f(i + 1, j)
+        if c == 'W': v = f(i, j - 1)
+        if c == 'E': v = f(i, j + 1)
+        g[u] = v
+
+def dfs(v):
+    global d, flag, p, ans, C
+    if v == p:
+        flag = True
+        return
+    if d > N:
+        return
+    d += 1
+    if v and not flag: dfs(g[v])
+
+from sys import setrecursionlimit
+import threading
+setrecursionlimit(20000)
+threading.stack_size(20000)
+ 
+def main():
+    global p, d, flag, ans, C
+    for i in range(1, N):
+        d = 1
+        p = i
+        flag = False
+        dfs(g[i])
+        if flag:
+            C[d] += 1
+    ans = sum(C[i] for i in range(1, N))
+    print(ans, file = fout)
+    print(ans)
+    pass
+
+p, d = 0, 0
+flag = False
+ans = 0
+C = [0] * N
+     
+thread = threading.Thread(target=main)
+thread.start()
+
+fin.close()
+fout.close()

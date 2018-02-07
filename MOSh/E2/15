@@ -1,0 +1,188 @@
+#include <iostream>
+#include <cstdio>
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <ctime>
+#include <set>
+#include <unordered_set>
+#pragma comment(linker, "/stack:100000000")
+#define ll long long
+#define ld long double
+#define cs(x) (int)x.size()
+#define mp make_pair
+
+using namespace std;
+
+const int MAXN = 100000;
+
+int calcq(int n) {
+	int q = 0;
+	int k = 1;
+	while (k < n) {
+		k *= 2;
+		q++;
+	}
+	return q;
+}
+
+vector<int> graph[MAXN];
+int up[MAXN][18];
+int depth[MAXN];
+vector<pair<int, int> > belong[MAXN];
+
+vector<int> precalc() {
+	vector<int> toret(100001);
+	int q = 0;
+	int next = 1;
+	for (int i = 1; i < cs(toret); i++) {
+		if (i == next) {
+			q++;
+			next *= 2;
+		}
+		toret[i] = q;
+	}
+	return toret;
+}
+
+vector<int> near = precalc();
+
+int lca(int a, int b) {
+	if (depth[a] < depth[b])
+		swap(a, b);
+	for (int i = near[depth[a]-depth[b]]; i >= 0; i--) {
+		if (depth[up[a][i]] >= depth[b]) {
+			a = up[a][i];
+		}
+	}
+	if (a == b)
+		return a;
+	for (int i = near[depth[a]]; i >= 0; i--) {
+		if(up[a][i] != up[b][i]) {
+			a = up[a][i];
+			b = up[b][i];
+		}
+	}
+	return up[a][0];
+}
+int curans = 0;
+pair<int, int> ans = mp(0, 1);
+
+pair<int, int> dfs(int v) {
+	vector<pair<int, int> > result;
+	for (auto to : graph[v])
+		result.push_back(dfs(to));
+	pair<int, int> cur = mp(0, -1);
+	for (auto el : result) {
+		el.first--;
+		if (el.first <= 0)
+			continue;
+		if (curans < min(el.first, cur.first)) {
+			curans = min(el.first, cur.first);
+			ans = mp(el.second, cur.second);
+		}
+		if (el.first > cur.first)
+			cur = el;
+	}
+	for (auto el : belong[v]) {
+		if (el.first <= 0)
+			continue;
+		if (curans < min(el.first, cur.first)) {
+			curans = min(el.first, cur.first);
+			ans = mp(el.second, cur.second);
+		}
+		if (el.first > cur.first)
+			cur = el;
+	}
+	return cur;
+}
+
+ll start;
+
+void checktime() {
+	ll delta = clock() - start;
+	if ((ld)delta / CLOCKS_PER_SEC > 1.9) {
+		printf("%d\n%d %d\n", curans, ans.first + 1, ans.second + 1);
+		exit(0);
+	}
+}
+
+int main() {
+	start = clock();
+	//iostream::sync_with_stdio(0);
+	//cin.tie(0);
+	//cout.tie(0);
+	freopen("twopaths.in", "r", stdin);
+	freopen("twopaths.out", "w", stdout);
+	int n, k;
+	scanf("%d%d", &n, &k);
+	for (int i = 1; i < n; i++) {
+		int p;
+		scanf("%d", &p);
+		p--;
+		graph[p].push_back(i);
+		up[i][0] = p;
+		depth[i] = depth[p] + 1;
+	}
+	for (int j = 1; j < 18; j++) {
+		for (int i = 0; i < n; i++)
+			up[i][j] = up[up[i][j-1]][j - 1];
+	}
+	vector<pair<pair<int, int>, int> > guys;
+	for (int i = 0; i < k; i++) {
+		int a, b;
+		scanf("%d%d", &a, &b);
+		a--;
+		b--;
+		guys.push_back(mp(mp(a, b), i));
+	}
+	random_shuffle(guys.begin(), guys.end());
+	vector<int> guyslca(k);
+	for (int i = 0; i < k; i++) {
+		int l = lca(guys[i].first.first, guys[i].first.second);
+		belong[guys[i].first.first].push_back(mp(depth[guys[i].first.first] - depth[l], guys[i].second));
+		belong[guys[i].first.second].push_back(mp(depth[guys[i].first.second] - depth[l], guys[i].second));
+		guyslca[i] = l;
+	}
+	dfs(0);
+	int t = 0;
+	if (k <= 5000) {
+		for (int i = 0; i < k; i++) {
+			for (int j = i + 1; j < k; j++) {
+				t++;
+				if (t == 10000) {
+					checktime();
+					t = 0;
+				}
+				auto a = guys[i].first;
+				auto b = guys[j].first;
+				int i1 = guys[i].second;
+				int j1 = guys[j].second;
+				int cur = 0;
+				int l = guyslca[i];
+				int l1 = guyslca[j];
+				if (l == l1) {
+					cur = max(max(depth[l], max(depth[l1], depth[lca(a.first, b.first)])) - max(depth[l], depth[l1]), 0);
+					if (cur != 0) {
+						cur += max(max(depth[l], max(depth[l1], depth[lca(a.second, b.second)])) - max(depth[l], depth[l1]), 0);
+						if (cur > curans) {
+							curans = cur;
+							ans = mp(i1, j1);
+						}
+					}
+					else {
+						swap(a.first, a.second);
+						cur = max(max(depth[l], max(depth[l1], depth[lca(a.first, b.first)])) - max(depth[l], depth[l1]), 0);
+						cur += max(max(depth[l], max(depth[l1], depth[lca(a.second, b.second)])) - max(depth[l], depth[l1]), 0);
+						if (cur > curans) {
+							curans = cur;
+							ans = mp(i1, j1);
+						}
+					}
+				}
+			}
+		}
+	}
+	printf("%d\n%d %d\n", curans, ans.first + 1, ans.second + 1);
+	return 0;
+}

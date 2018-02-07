@@ -1,0 +1,102 @@
+#include <iostream>
+#include <cstdio>
+#include <algorithm>
+
+using namespace std;
+
+const int nn = 100;
+long long a[nn][nn][nn];
+
+int main()
+{
+    freopen("onlyone.in", "r", stdin);
+    freopen("onlyone.out", "w", stdout);
+
+    int n;
+    scanf("%d", &n);
+    for (int i = 0; i < n; ++i) {
+        int x, y, z;
+        scanf("%d%d%d", &x, &y, &z);
+        a[x - 1][y - 1][z - 1]++;
+    }
+    long long ans1 = 0;
+    for (int i = 0; i < nn; ++i) {
+        for (int j = 0; j < nn; ++j) {
+            long long cur = 0, c = 0;
+            for (int k = 0; k < nn; ++k) {
+                cur += a[i][j][k];
+                c += a[i][j][k] * (a[i][j][k] - 1) / 2;
+            }
+            ans1 += cur * (cur - 1) / 2 - c;
+        }
+    }
+    long long ans2 = 0;
+    for (int j = 0; j < nn; ++j) {
+        for (int k = 0; k < nn; ++k) {
+            long long cur = 0, c = 0;
+            for (int i = 0; i < nn; ++i) {
+                cur += a[i][j][k];
+                c += a[i][j][k] * (a[i][j][k] - 1) / 2;
+            }
+            ans2 += cur * (cur - 1) / 2 - c;
+        }
+    }
+    long long ans3 = 0;
+    for (int k = 0; k < nn; ++k) {
+        for (int i = 0; i < nn; ++i) {
+            long long cur = 0, c = 0;
+            for (int j = 0; j < nn; ++j) {
+                cur += a[i][j][k];
+                c += a[i][j][k] * (a[i][j][k] - 1) / 2;
+            }
+            ans3 += cur * (cur - 1) / 2 - c;
+        }
+    }
+    long long ans = 0;
+    for (int i = 0; i < nn; ++i) {
+        long long sum = 0;
+        for (int j = 0; j < nn; ++j) {
+            for (int k = 0; k < nn; ++k) {
+                sum += a[i][j][k];
+            }
+        }
+        sum = sum * (sum - 1) / 2;
+        ans += sum;
+    }
+    for (int i = 0; i < nn; ++i) {
+        long long sum = 0;
+        for (int j = 0; j < nn; ++j) {
+            for (int k = 0; k < nn; ++k) {
+                sum += a[j][i][k];
+            }
+        }
+        sum = sum * (sum - 1) / 2;
+        ans += sum;
+    }
+    for (int i = 0; i < nn; ++i) {
+        long long sum = 0;
+        for (int j = 0; j < nn; ++j) {
+            for (int k = 0; k < nn; ++k) {
+                sum += a[j][k][i];
+            }
+        }
+        sum = sum * (sum - 1) / 2;
+        ans += sum;
+    }
+    ans -= 2 * ans1;
+    ans -= 2 * ans2;
+    ans -= 2 * ans3;
+    long long ans4 = 0;
+    long long c = 0;
+    for (int i = 0; i < nn; ++i) {
+        for (int j = 0; j < nn; ++j) {
+            for (int k = 0; k < nn; ++k) {
+                ans4 += a[i][j][k] * (a[i][j][k] - 1) / 2;
+            }
+        }
+    }
+    ans -= 3 * ans4;
+    cout << ans << endl;
+
+    return 0;
+}

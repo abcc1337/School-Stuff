@@ -1,0 +1,268 @@
+program ProjectD;
+ 
+{$O-}
+{$APPTYPE CONSOLE}
+ 
+uses
+  SysUtils, Math;
+ 
+type rec = record
+       x, y : int64;
+     end;
+     mas = array[1..100100] of rec;
+
+var nn, q : int64;
+    point : mas;
+    d, k : int64;
+    i, j : longint;
+    num : int64;
+    A : rec;
+    f : boolean;
+ 
+function bin(x : int64) : int64;
+var l, r, m : int64;
+begin
+  l := 0;
+  r := nn + 2;
+  while r - l > 1 do
+  begin
+    m := (l + r) div 2;
+    if point[m].x > x then
+      r := m
+    else
+      l := m;
+  end;
+
+  bin := l;
+end;
+
+
+function cross(A, B : rec) : int64;
+var res : int64;
+begin
+  res := A.x*B.y - A.y*B.x;
+  if res < 0 then
+    cross := 0
+  else
+    cross := 1;
+end;
+
+function check1(qw : int64) : boolean;
+var X, Y, M, N : rec;
+    vect1, vect2, vect3 : rec;
+    i : longint;
+begin
+  X := A;
+  Y := point[qw];
+  check1 := False;
+  for i := qw to num-1 do
+  begin
+    N := point[i];
+    M := point[i+1];
+
+    vect1.x := -Y.x + X.x;
+    vect1.y := -Y.y + X.y;
+    vect2.x := -Y.x + M.x;
+    vect2.y := -Y.y + M.y;
+
+    vect3.x := -Y.x + N.x;
+    vect3.y := -Y.y + N.y;
+
+    if cross(vect1, vect2) <> cross(vect1, vect3) then
+
+    else
+      begin
+      //  check1 := False;
+      //  exit;
+      continue;
+      end;
+
+    vect1.x := Y.x - X.x;
+    vect1.y := Y.y - X.y;
+    vect2.x := M.x - X.x;
+    vect2.y := M.y - X.y;
+
+    vect3.x := -X.x + N.x;
+    vect3.y := -X.y + N.y;
+
+    if cross(vect1, vect2) <> cross(vect1, vect3) then
+   //   f2 := True
+    else
+      begin
+       // check1 := False;
+       // exit;
+       continue;
+      end;
+
+    vect1.x := N.x - M.x;
+    vect1.y := N.y - M.y;
+    vect2.x := X.x - M.x;
+    vect2.y := X.y - M.y;
+
+    vect3.x := Y.x - M.x;
+    vect3.y := Y.y - M.y;
+
+    if cross(vect1, vect2) <> cross(vect1, vect3) then
+   //   f3 := True
+    else
+      begin
+       // check1 := False;
+       // exit;
+       continue;
+      end;
+
+    vect1.x := M.x - N.x;
+    vect1.y := M.y - N.y;
+    vect2.x := X.x - N.x;
+    vect2.y := X.y - N.y;
+
+    vect3.x := Y.x - N.x;
+    vect3.y := Y.y - N.y;
+
+    if cross(vect1, vect2) <> cross(vect1, vect3) then
+    //  f4 := True
+    else
+      begin
+       // check1 := False;
+       // exit;
+       continue;
+      end;
+
+    check1 := True;
+  end;
+
+end;
+
+function check2(qw : int64) : boolean;
+var X, Y, M, N : rec;
+    vect1, vect2, vect3 : rec;
+    i : longint;
+begin
+  X := A;
+  Y := point[qw];
+  check2 := False;
+  for i := num to nn do
+  begin
+    N := point[i];
+    M := point[i+1];
+
+    vect1.x := -Y.x + X.x;
+    vect1.y := -Y.y + X.y;
+    vect2.x := -Y.x + M.x;
+    vect2.y := -Y.y + M.y;
+ 
+    vect3.x := -Y.x + N.x;
+    vect3.y := -Y.y + N.y;
+ 
+    if cross(vect1, vect2) <> cross(vect1, vect3) then
+      //f1 := True
+    else
+      begin
+        //check2 := False;
+        //exit;
+        continue;
+      end;
+ 
+    vect1.x := Y.x - X.x;
+    vect1.y := Y.y - X.y;
+    vect2.x := M.x - X.x;
+    vect2.y := M.y - X.y;
+ 
+    vect3.x := -X.x + N.x;
+    vect3.y := -X.y + N.y;
+ 
+    if cross(vect1, vect2) <> cross(vect1, vect3) then
+     // f2 := True
+    else
+      begin
+       // check2 := False;
+       // exit;
+       continue;
+      end;
+ 
+    vect1.x := N.x - M.x;
+    vect1.y := N.y - M.y;
+    vect2.x := X.x - M.x;
+    vect2.y := X.y - M.y;
+ 
+    vect3.x := Y.x - M.x;
+    vect3.y := Y.y - M.y;
+ 
+    if cross(vect1, vect2) <> cross(vect1, vect3) then
+     // f3 := True
+    else
+      begin
+      //  check2 := False;
+      //  exit;
+      continue;
+      end;
+ 
+    vect1.x := M.x - N.x;
+    vect1.y := M.y - N.y;
+    vect2.x := X.x - N.x;
+    vect2.y := X.y - N.y;
+ 
+    vect3.x := Y.x - N.x;
+    vect3.y := Y.y - N.y;
+ 
+    if cross(vect1, vect2) <> cross(vect1, vect3) then
+     // f4 := True
+    else
+      begin
+       // check2 := False;
+       // exit;
+       continue;
+      end;
+ 
+    check2 := True;
+  end;
+end;
+ 
+begin
+//  assign(input, 'input.txt'); assign(output, 'output.txt');
+  assign(input, 'mountain.in'); assign(output, 'mountain.out');
+ 
+  readln(nn, q);
+ 
+  point[1].x := 0;
+  point[1].y := 0;
+ 
+  for i := 1 to nn do
+  begin
+    readln(d, k);
+    point[i+1].x := point[i].x + d;
+    point[i+1].y := point[i].y + d*k;
+  end;
+ 
+  for i := 1 to q do
+  begin
+    readln(A.x, A.y);
+    num := bin(A.x);
+ 
+    f := True;
+ 
+    for j := num downto 1 do
+      if check1(j) then
+        begin
+          write(point[j+1].x, ' ');
+          f := False;
+          break;
+        end;
+ 
+    if f then
+      write(point[1].x, ' ')
+    else
+      f := True;
+ 
+    for j := num to nn+1 do
+      if check2(j) then
+        begin
+          writeln(point[j-1].x);
+          f := False;
+          break;
+        end;
+ 
+    if f then
+      writeln(point[nn+1].x);
+  end;
+end.

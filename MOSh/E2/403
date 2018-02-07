@@ -1,0 +1,45 @@
+#include <iostream> 
+#include <stdio.h>
+#include <cmath>
+#define big long long
+using namespace std;
+big poda[105];
+big podb[105];
+big podc[105];
+big podab[105][105];
+big podac[105][105];
+big podbc[105][105];
+big pod[105][105][105];
+int main()
+{
+	big n;
+	cin >> n;
+	big k1, k2, k3;
+	freopen("onlyone.in", "r", stdin);
+	freopen("onlyone.out", "w",stdout);
+	for (int lol = 0; lol < n; lol++)
+	{
+		cin >> k1 >> k2 >> k3;
+		poda[k1]++;
+		podb[k2]++;
+		podc[k3]++;
+		podab[k1][k2]++;
+		podac[k1][k3]++;
+		podbc[k2][k3]++;
+		pod[k1][k2][k3]++;
+	}
+	big res = 0;
+	for (int lol = 0; lol < 101; lol++)
+	{
+		for (int i = 0; i < 101; i++)
+		{
+			for (int j = 0; j < 101; j++)
+			{
+				res += pod[lol][i][j] * (poda[lol] + podb[i] + podc[j] - 2 * podab[lol][i] - 2 * podac[lol][j] - 2 * podbc[i][j] + 3 * pod[lol][i][j]);
+				//cout << res << "\n";
+			}
+		}
+	}
+	cout << res / 2;
+	return 0;
+}

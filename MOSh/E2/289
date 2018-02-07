@@ -1,0 +1,327 @@
+#include <iostream>
+#include <stdio.h>
+#include <vector>
+#include <algorithm>
+#include <string>
+#include <cstring>
+#include <set>
+
+using namespace std;
+
+#define vec vector
+#define ALL(x) (x).begin(), (x).end()
+#define mp make_pair
+
+typedef long long ll;
+typedef pair< int, int > pii;
+
+const int inf = 1000 * 1000 * 1000;
+const ll inf64 = 1ll * inf * inf;
+
+struct segmentTree {
+	int n; // [ 0 .. n - 1 ] 
+	vec< ll > delt, mn;
+
+	segmentTree() {
+		n = 0;
+	}
+
+	segmentTree(int nn) {
+		n = nn;
+		delt.resize(4 * n, inf64);
+		mn.resize(4 * n, inf64);
+	}
+
+	void push(int v) {
+		if (delt[v] != inf64) {
+			delt[v * 2 + 1] = min(delt[v * 2 + 1], delt[v]);
+			delt[v * 2 + 2] = min(delt[v * 2 + 2], delt[v]);
+			mn[v * 2 + 1] = min(mn[v * 2 + 1], delt[v]);
+			mn[v * 2 + 2] = min(mn[v * 2 + 2], delt[v]);
+			delt[v] = inf64;
+		}
+	}
+
+	void up(int v) {
+		delt[v] = inf64;
+		mn[v] = min(mn[v * 2 + 1], mn[v * 2 + 2]);
+	}
+
+	void upd(int v, int tl, int tr, int l, int r, ll val) {
+		if (l <= tl && tr <= r) {
+			delt[v] = min(delt[v], val);
+			mn[v] = min(mn[v], val);
+		} else {
+			int tm = (tl + tr) / 2;
+			push(v);
+			if (l <= tm) upd(v * 2 + 1, tl, tm, l, r, val);
+			if (r > tm) upd(v * 2 + 2, tm + 1, tr, l, r, val);
+			up(v);
+		}
+	}
+
+	void upd(int l, int r, ll val) {
+		if (l > r) return;
+		upd(0, 0, n - 1, l, r, val);
+	}
+
+	ll get(int v, int tl, int tr, int l, int r) {
+		if (l <= tl && tr <= r) return mn[v];
+		else {
+			int tm = (tl + tr) / 2;
+			push(v);
+			ll res = inf64;
+			if (l <= tm) res = min(res, get(v * 2 + 1, tl, tm, l, r));
+			if (r > tm) res = min(res, get(v * 2 + 2, tm + 1, tr, l, r));
+			up(v);
+			return res;
+		}
+	}
+
+	ll getMin(int l, int r) {
+		if (l > r) return inf64;
+		return get(0, 0, n - 1, l, r);
+	}
+};
+
+const int mod1 = inf + 7;
+const int mod2 = inf + 9;
+const int p = 5;
+
+pii sum(pii a, pii b) {
+	pii res;
+	res.first = (a.first + b.first) % mod1;
+	res.second = (a.second + b.second) % mod2;
+	return res;
+}
+
+pii mul(pii a, pii b) {
+	ll val1, val2;
+	val1 = 1ll * a.first * b.first;
+	val2 = 1ll * a.second * b.second;
+	val1 %= mod1;
+	val2 %= mod2;
+	return mp((int)val1, (int)val2);
+}
+
+pii raz(pii a, pii b) {
+	pii res;
+	res.first = a.first - b.first;
+	res.second = a.second - b.second;
+	res.first = (res.first % mod1 + mod1) % mod1;
+	res.second = (res.second % mod2 + mod2) % mod2;
+	return res;
+}
+
+char buff[300300];
+
+void read(string & s) {
+	scanf("%s", &buff);
+	s = buff;
+}
+
+int m, n, L;
+vec< string > w;
+vec< int > cost, preff, suff;
+string big;
+
+pii getHash(const vec< pii > & st, const vec< pii > & preffHash, int l, int r) {
+	pii H = preffHash[r];
+	pii T = (l ? preffHash[l - 1] : mp(0, 0));
+	int ST = r - l + 1;
+	T = mul(T, st[ST]);
+	H = raz(H, T);
+	return H;
+}
+
+void sol1(int value) {
+	int T = max(m + 1, L + 1);
+	vec< pii > st(T);
+	st[0] = mp(1, 1);
+	for (int i = 1; i < T; i++) {
+		st[i] = mul(st[i - 1], mp(p, p));
+	}
+
+	set< pii > hl, hr;
+
+	for (int i = 0; i < n; i++) {
+		pii H = mp(0, 0);
+		for (int j = 0; j < (int)w[i].size(); j++) {
+			int c = w[i][j] - '0' + 1;
+			H = mul(H, mp(p, p));
+			H = sum(H, mp(c, c));
+			hl.insert(H);
+		}
+		H = mp(0, 0);
+		for (int ST = 0, j = (int)w[i].size() - 1; j >= 0; j--, ST++) {
+			int c = w[i][j] - '0' + 1;
+			H = sum(mul(st[ST], mp(c, c)), H);
+			hr.insert(H);
+		}
+	}
+
+	vec< pii > preffHash(m);
+	for (int i = 0; i < m; i++) {
+		pii H = (i ? preffHash[i - 1] : mp(0, 0));
+		int c = big[i] - '0' + 1;
+		H = mul(H, mp(p, p));
+		H = sum(H, mp(c, c));
+		preffHash[i] = H;
+	}
+
+	vec< ll > dp(m, inf64);
+
+	segmentTree segt(m);
+
+	for (int i = 0; i < m; i++) {
+		dp[i] = segt.getMin(i, i);
+
+		// [j .. i]
+		int bl, br, bm, bp;
+		
+		bl = 0;
+		br = i;
+		while (br - bl > 1) {
+			bm = (bl + br) / 2;
+			if (hr.count(getHash(st, preffHash, bm, i))) br = bm;
+			else bl = bm + 1;
+		}
+
+		if (hr.count(getHash(st, preffHash, bl, i))) bp = bl;
+		else if (hr.count(getHash(st, preffHash, br, i))) bp = br;
+		else bp = inf;
+
+		// [bp .. i]
+
+		ll MIN = (bp == 0 ? 0 : inf64);
+		
+		MIN = min(MIN, segt.getMin(max(0, bp - 1), i - 1));
+		dp[i] = min(dp[i], MIN + value);
+
+		segt.upd(i, i, dp[i]);
+
+		bl = i;
+		br = m - 1;
+
+		while (br - bl > 1) {
+			bm = (bl + br) / 2;
+			if (hl.count(getHash(st, preffHash, i, bm))) bl = bm;
+			else br = bm - 1;
+		}
+
+		if (hl.count(getHash(st, preffHash, i, br))) bp = br;
+		else if (hl.count(getHash(st, preffHash, i, bl))) bp = bl;
+		else bp = -inf;
+
+		// [i .. bp]
+
+		segt.upd(i, bp, (i ? dp[i - 1] : 0) + value);
+	}
+
+	if (dp[m - 1] == inf64)
+		printf("-1\n");
+	else
+		cout << dp[m - 1] << '\n';
+}
+
+vec< vec< int > > pr, sf;
+vec< int > add_vec;
+int sz_preff, sz_suff;
+
+void add_preff(int i) {
+	int v = 0;
+	for (int j = 0; j < (int)w[i].size(); j++) {
+		int c = w[i][j] - '0';
+		if (pr[v][c] == -1) {
+			pr[v][c] = sz_preff++;
+			pr.push_back(add_vec);
+			preff.push_back(inf);
+		}
+		v = pr[v][c];
+		preff[v] = min(preff[v], cost[i]);
+	}
+}
+
+void add_suff(int i) {
+	int v = 0;
+	for (int j = (int)w[i].size() - 1; j >= 0; j--) {
+		int c = w[i][j] - '0';
+		if (sf[v][c] == -1) {
+			sf[v][c] = sz_suff++;
+			sf.push_back(add_vec);
+			suff.push_back(inf);
+		}
+		v = sf[v][c];
+		suff[v] = min(suff[v], cost[i]);
+	}
+}
+
+void buildBor() {
+	add_vec = vec< int >(2, -1);
+	sz_preff = sz_suff = 1;
+	preff.push_back(0);
+	suff.push_back(0);
+	pr.push_back(add_vec);
+	sf.push_back(add_vec);
+	for (int i = 0; i < n; i++) {
+		add_preff(i);
+		add_suff(i);
+	}
+}
+
+bool solve() {
+
+	freopen("typing.in", "r", stdin);
+	freopen("typing.out", "w", stdout);
+
+	scanf("%d %d %d", &m, &n, &L);
+
+	read(big);
+
+	w.resize(n);
+	cost.resize(n);
+
+	for (int i = 0; i < n; i++) {
+		scanf("%d", &cost[i]);
+		read(w[i]);
+	}
+
+	buildBor();
+
+	if (*max_element(cost.begin(), cost.end()) == *min_element(cost.begin(), cost.end())) {
+		sol1(*max_element(cost.begin(), cost.end()));
+		return true;
+	}
+
+	vec< ll > dp(m, inf64);
+
+	for (int i = 0; i < m; i++) {
+		for (int v = 0, j = i; j >= 0; j--) {
+			int c = big[j] - '0';
+			if (sf[v][c] == -1) break;
+			v = sf[v][c];
+			dp[i] = min(dp[i], (j ? dp[j - 1] : 0) + suff[v]);
+		}
+		for (int v = 0, j = i; j < m; j++) {
+			int c = big[j] - '0';
+			if (pr[v][c] == -1) break;
+			v = pr[v][c];
+			dp[j] = min(dp[j], (i ? dp[i - 1] : 0) + preff[v]);
+		}
+	}
+
+	if (dp[m - 1] == inf64)
+		printf("-1\n");
+	else
+		cout << dp[m - 1] << '\n';
+
+	return true;
+}
+
+int main() {
+
+	//while (solve());
+	solve();
+
+	return 0;
+}

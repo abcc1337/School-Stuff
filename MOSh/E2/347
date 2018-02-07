@@ -1,0 +1,69 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+#include <cstdio>
+
+using namespace std;
+	
+const int MAX = 3 * 1e5 + 13, INF = 1e9;
+
+int m, n, L;
+
+struct shablon {
+	int c;
+	string w;
+};
+
+string s;
+
+void in(shablon &a) {
+	cin >> a.c >> a.w;
+}
+
+vector<pair<int, string>> vec;
+
+int dp[MAX];
+
+int  main() {
+	//freopen("tests.txt", "r", stdin);
+	freopen("typing.in", "r", stdin);
+	freopen("typing.out", "w", stdout);
+
+	cin >> m >> n >> L;
+
+	cin >> s;
+
+	for (int i = 1; i <= n; i++) {
+		shablon sh;
+		in(sh);
+		for (int j = 1; j <= sh.w.size(); j++) {
+			vec.push_back(make_pair(sh.c, sh.w.substr(0, j)));
+			vec.push_back(make_pair(sh.c, sh.w.substr(sh.w.size() - j, j)));
+		}
+	}
+
+	fill(dp + 1, dp + m + 1, INF);
+	dp[0] = 0;
+	for (int i = 0; i < m; i++) {
+		if (dp[i] == INF) {
+			continue;
+		}
+		for (int j = 0; j < vec.size(); j++) {
+			string ss = vec[j].second;
+			int c = vec[j].first;
+			string ch = s.substr(i, ss.size());
+			if (ss == ch) {
+				dp[i + ss.size()] = min(dp[i + ss.size()], dp[i] + c);
+			}
+		}
+	}
+
+	if (dp[m] == INF) {
+		cout << -1;
+		return 0;
+	}
+	cout << dp[m];
+	return 0;
+}

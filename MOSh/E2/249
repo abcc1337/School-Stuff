@@ -1,0 +1,165 @@
+#include <stdio.h>
+
+int n, m, a[1005][1005], best = 0, ans, p[1005][1005];
+char ch;
+
+void move_right()
+{
+	int t[1005];
+	for (int i = 0; i < n; i++)
+	{
+		t[i] = a[i][m - 1];
+	}
+	for (int j = m - 1; j > 0; j--)
+		for (int i = 0; i < n; i++)
+			a[i][j] = a[i][j - 1];
+	for (int i = 0; i < n; i++)
+	{
+		a[i][0] = t[i];
+	}
+}
+
+void move_down()
+{
+	int t[1005];
+	for (int j = 0; j < m; j++)
+	{
+		t[j] = a[n - 1][j];
+	}
+	for (int i = n - 1; i >= 0; i--)
+		for (int j = 0; j < m; j++)
+			a[i][j] = a[i - 1][j];
+	for (int i = 0; i < m; i++)
+	{
+		a[0][i] = t[i];
+	}
+}
+
+void move_left()
+{
+	int t[1005];
+	for (int i = 0; i < n; i++)
+	{
+		t[i] = a[i][0];
+	}
+	for (int j = 0; j < m - 1; j++)
+		for (int i = 0; i < n; i++)
+			a[i][j] = a[i][j + 1];
+	for (int i = 0; i < n; i++)
+	{
+		a[i][m - 1] = t[i];
+	}
+}
+
+void move_up()
+{
+	int t[1005];
+	for (int j = 0; j < m; j++)
+	{
+		t[j] = a[0][j];
+	}
+	for (int i = 0; i < n - 1; i++)
+		for (int j = 0; j < m; j++)
+			a[i][j] = a[i + 1][j];
+	for (int i = 0; i < m; i++)
+	{
+		a[n - 1][i] = t[i];
+	}
+}
+
+void check()
+{
+	ans = 0;
+	for (int i = 0; i < n - 1; i++)
+		for (int j = 0; j < m - 1; j++)
+			if ((a[i][j] + a[i + 1][j] + a[i][j + 1] + a[i + 1][j + 1]) % 4 == 0)
+				ans++;
+	if (ans > best)
+		best = ans;
+}
+
+int main()
+{
+	freopen("video.in", "r", stdin);
+	freopen("video.out", "w", stdout);
+	scanf("%d%d\n", &n, &m);
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < m; j++)
+		{
+			scanf("%c", &ch);
+			if (ch == '1')
+				a[i][j] = 1;
+			else
+				a[i][j] = 2;
+		}
+		scanf("\n");
+	}
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < m; j++)
+			p[i][j] = a[i][j];
+	check();
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			if (i % 2 == 0)
+				move_right();
+			else
+				move_left();
+			check();
+		}
+		move_up();
+		check();
+	}
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < m; j++)
+			a[i][j] = p[i][j];
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			if (i % 2 == 0)
+				move_left();
+			else
+				move_right();
+			check();
+		}
+		move_up();
+		check();
+	}
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < m; j++)
+			a[i][j] = p[i][j];
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			if (i % 2 == 0)
+				move_left();
+			else
+				move_right();
+			check();
+		}
+		move_down();
+		check();
+	}
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < m; j++)
+			a[i][j] = p[i][j];
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			if (i % 2 == 0)
+				move_right();
+			else
+				move_left();
+			check();
+		}
+		move_down();
+		check();
+	}
+	printf("%d", best);
+	return 0;
+}

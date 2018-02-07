@@ -1,0 +1,8 @@
+var
+head,next,dest:array[1..10000] of longint;
+i,j,n,en,vn,k,s:longint;
+
+begin
+read(n);
+
+for i:=1 to n do

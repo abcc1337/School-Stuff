@@ -1,0 +1,83 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+vector < vector <char> > a, kop;
+int kol = 0, n, m;
+
+
+void prov(int p, int uk){
+    int k = 0;
+    for (int i = 0; i < n-1; i++)
+        for (int j = 0; j < m-1; j++)
+            if (a[i][j] == a[i+1][j] && a[i][j] == a[i+1][j+1] && a[i][j] == a[i][j+1]) k++;
+    kol = max(kol, k);
+    if (p != 5)
+    {
+        prov(p+1, 0);
+        vector <char> cop;
+        kop = a;
+        if (uk != 1 && uk != 3){
+            cop.resize(n);
+            for (int i = 0; i < n; i++)
+                cop[i] = a[i][0];
+            for (int j = 1; j < m; j++)
+                for (int i = 0; i < n; i++)
+                    a[i][j-1] = a[i][j];
+            for (int i = 0; i < n; i++)
+                a[i][m-1] = cop[i];
+            prov(p+1, 1);
+        }
+        a = kop;
+        if (uk != 2 && uk != 4){
+            cop.resize(m);
+            cop = a[0];
+            for (int i = 1; i < n; i++)
+                for (int j = 0; j < m; j++)
+                    a[i-1][j] = a[i][j];
+            a[n-1] = cop;
+            prov(p+1, 2);
+        }
+        a = kop;
+        if (uk != 3 && uk != 1){
+            cop.resize(n);
+            for (int i = 0; i < n; i++)
+                cop[i] = a[i][m-1];
+            for (int j = m-2; j >= 0; j--)
+                for (int i = 0; i < n; i++)
+                    a[i][j+1] = a[i][j];
+            for (int i = 0; i < n; i++)
+                a[i][0] = cop[i];
+            prov(p+1, 3);
+        }
+        a = kop;
+        if (uk != 4 && uk != 2){
+            cop.resize(m);
+            cop = a[n-1];
+            for (int i = n-2; i >= 0; i--)
+                for (int j = 0; j < m; j++)
+                    a[i+1][j] = a[i][j];
+            a[0] = cop;
+            prov(p+1, 4);
+        }
+    }
+}
+
+int main(){
+    freopen("video.in", "r", stdin);
+    freopen("video.out", "w", stdout);
+    cin >> n >> m;
+    a.resize(n);
+    kop.resize(n);
+    for (int i = 0; i < n; i++){
+        a[i].resize(m);
+        kop[i].resize(m);
+        for (int j = 0; j < m; j++)
+            cin >> a[i][j];
+    }
+    for (int i = 0; i < n-1; i++)
+        for (int j = 0; j < m-1; j++)
+            if (a[i][j] == a[i+1][j] && a[i][j] == a[i+1][j+1] && a[i][j] == a[i][j+1]) kol++;
+    prov(1, 0);
+    cout << kol << "\n";
+    return 0;
+}

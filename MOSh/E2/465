@@ -1,0 +1,37 @@
+program q;
+var a:array[0..3000,0..3000]of char;
+    b:array[0..3000,0..3000]of longint;
+i,j,k,n,m,l:longint;
+begin
+   assign(input,'video.in'); reset(input);
+   assign(output,'video.out'); rewrite(output);
+   readln(n,m);
+   for i:=1 to n do
+   begin
+      for j:=1 to m do
+      begin
+        read(a[i,j]);
+        for k:=0 to 2 do
+        for l:=0 to 2 do
+        a[i+n*k,j+l*m]:=a[i,j];
+      end;
+      readln
+   end;
+   for i:=0 to 3000 do
+   begin
+      b[i,0]:=0;
+      b[0,i]:=0
+   end;
+   for i:=1 to 3*n do
+   for j:=1 to 3*m do
+   if (a[i,j]=a[i-1,j]) and (a[i,j]=a[i,j-1]) and (a[i-1,j-1]=a[i,j])
+   then b[i,j]:=1+b[i-1,j]+b[i,j-1]-b[i-1,j-1]
+   else b[i,j]:=b[i-1,j]+b[i,j-1]-b[i-1,j-1];
+   k:=0;
+   for i:=n to 3*n do
+   for j:=m to 3*m do
+   if b[i,j]-b[i-n+1,j]-b[i,j-m+1]+b[i-n+1,j-m+1]>k
+   then k:=b[i,j]-b[i-n+1,j]-b[i,j-m+1]+b[i-n+1,j-m+1];
+   write(k)
+
+end.

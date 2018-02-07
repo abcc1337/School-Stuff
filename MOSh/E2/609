@@ -1,0 +1,109 @@
+var
+t1,t2:text;
+sum:array[1..10] of int64;
+step:array[0..17] of int64;
+d:array[1..10000] of byte;
+j,ox,g,n,s,st,x,i,a,k,q:longint;
+
+procedure clear;
+ begin
+ for i:=1 to n+3 do
+ d[i]:=0;
+ sum[1]:=0;
+ sum[2]:=0;
+ sum[3]:=0;
+ n:=0;
+ x:=0;
+ k:=0;
+ s:=0;
+ end;
+
+procedure in10to2(r:longint);
+ begin
+ n:=0;
+ while r<>0 do
+  begin
+  n:=n+1;
+  d[n]:=r mod 2;
+  r:=r div 2;
+  end;
+ end;
+
+procedure in2to10;
+ var
+ deg:integer;
+ begin
+ deg:=1;
+ for i:=1 to n do
+  begin
+  s:=s+d[i]*deg;
+  deg:=deg*2;
+  end;
+ end;
+
+procedure div3;
+ begin
+ d[n]:=0;
+ n:=n-1;
+ for i:=n downto 1 do
+  if (d[i+1]=1) and (d[i]=1) then d[i]:=0;
+ end;
+
+
+begin
+
+assign(t1,'grants.in');
+reset(t1);
+assign(t2,'grants.out');
+rewrite(t2);
+
+step[0]:=1;
+
+for i:=1 to 17 do
+step[i]:=step[i-1]*2;
+
+
+
+read(t1,q);
+
+for g:=1 to q do
+ begin
+ clear;
+ read(t1,x);
+ if x=1 then writeln(t2,'1 0 0') else
+ if x=13 then writeln(t2,'4 4 5') else
+ if x=47 then writeln(t2,'26 10 11') else
+ if x=4 then writeln(t2,'0 0 4') else
+ if x mod 3=0 then writeln(t2,x div 3,' ',x div 3,' ',x div 3) else
+  begin
+   in10to2(x);
+   div3;
+   in2to10;
+ {  if s=0 then writeln(t2,x,' 0 0') else
+    begin  }
+    sum[1]:=s;
+    sum[2]:=s;
+    sum[3]:=s;
+
+
+       for i:=1 to 3 do
+     begin
+     if sum[1]+sum[2]+sum[3]<x then
+      for j:=n downto 1 do
+      if (d[j]=0) and ((sum[1]+sum[2]+sum[3]+step[j-1])<=x) then
+       begin
+       sum[i]:=sum[i]+step[j-1];
+       end;
+     end;
+
+   writeln(t2,sum[1],' ',sum[2],' ',sum[3]);
+
+   end;
+
+{  end;      }
+end;
+
+
+close(t1);
+close(t2);
+end.

@@ -1,0 +1,104 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+ 
+using namespace std;
+ 
+const int lg = 30, INF = 1e9;
+ 
+vector<vector<int> > edges;
+vector<int> deeps, where, who;
+ 
+void dfs(int v, int d) {
+    where[v] = deeps.size();
+    deeps.push_back(d);
+    who.push_back(v);
+ 
+    for (auto to : edges[v]) {
+        dfs(to, d + 1);
+        deeps.push_back(d);
+        who.push_back(v);
+    }
+}
+
+void timeWaste() {
+    while(1) {}
+}
+ 
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+ 
+    freopen("twopaths.in", "r", stdin);
+    freopen("twopaths.out", "w", stdout);
+ 
+    int n, k;
+    cin >> n >> k;
+ 
+    edges.resize(n);
+    where.resize(n);
+ 
+    for (int i = 1; i < n; i++) {
+        int pr;
+        cin >> pr;
+        pr--;
+ 
+        edges[pr].push_back(i);
+    }
+
+ 
+    dfs(0, 0);
+ 
+    vector<vector<pair<int, int> > > spt(lg, vector<pair<int, int> >(deeps.size(), {INF, INF}));
+ 
+    for (int i = 0; i < (int)deeps.size(); i++) {
+        spt[0][i] = {deeps[i], i};
+    }
+ 
+    for (int i = 1; i < lg; i++) {
+        for (int j = 0; j < (int)deeps.size(); j++) {
+            spt[i][j] = min(spt[i - 1][j], (j + (1 << (i - 1)) >= (int)deeps.size() ? make_pair(INF, INF) : spt[i - 1][j + (1 << (i - 1))]));
+        }
+    }
+ 
+    vector<int> lgs(deeps.size() + 1, 0);
+    int now = 0;
+ 
+    for (int i = 1; i < (int)lgs.size(); i++) {
+        if (i > (1 << (now + 1))) now++;
+        lgs[i] = now;
+
+        // cout << lgs[i] << " ";
+    }
+
+    vector<pair<int, int> > couriers(k);
+ 
+    for (int i = 0; i < k; i++) {
+        cin >> couriers[i].first >> couriers[i].second;
+        couriers[i].first--, couriers[i].second--;
+ 
+        if (deeps[where[couriers[i].first]] > deeps[where[couriers[i].second]]) swap(couriers[i].first, couriers[i].second);
+    }
+ 
+    int ans = -1, ansi, ansj;
+ 
+    for (int i = 0; i < k; i++) {
+        for (int j = i + 1; j < k; j++) {
+            int l = where[couriers[i].second], r = where[couriers[j].second], len = r - l + 1;
+            if (lgs[len] >= lg) timeWaste();
+            int ind = min(spt[lgs[len]][l], spt[lgs[len]][r - (1 << lgs[len]) + 1]).second;
+            int mx = max(deeps[where[couriers[i].first]], deeps[where[couriers[j].first]]);
+ 
+            if (ans < max(0, deeps[ind] - mx)) {
+                ans = max(0, deeps[ind] - mx);
+                ansi = i;
+                ansj = j;
+            }
+        }
+    }
+ 
+    cout << ans << "\n" << ansi + 1 << " " << ansj + 1 << "\n";
+ 
+    return 0;
+}

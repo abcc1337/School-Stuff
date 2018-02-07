@@ -1,0 +1,62 @@
+#include <bits/stdc++.h>
+#define problem "lamps"
+typedef long long ll;
+using namespace std;
+ 
+int n, q, type, l, r;
+ll best[333333];
+string a;
+ll ans;
+void recalc()
+{
+    int l, r;
+    l = 0;
+    r = 1;
+    for (; l < n;)
+    {
+        if (a[l] == '1')
+        {
+            for (r = l + 1; r < n && a[r] == '1'; r++);
+            for (int j = l; j < r; j++)
+                best[j] = max(best[j], (ll)r);
+        }
+        l = r;
+        r++;
+    }
+}
+void get()
+{
+    ans = 0;
+    for (int i = 0; i < n; i++)
+        ans += (best[i] - i);
+}
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    freopen(problem".in", "r", stdin);
+    freopen(problem".out", "w", stdout);
+    scanf("%d %d\n", &n, &q);
+    for (int i = 0; i < n; i++)
+    {
+        scanf("%c", &a[i]);
+        best[i] = i;
+    }
+    recalc();
+    get();
+	printf("%I64d\n", ans);
+    for (int i = 0; i < q; i++)
+    {
+        scanf("%d %d %d", &l, &r, &type);
+        l--;
+        for (int j = l; j < r; j++)
+            a[j] = char('0' + type);
+        if (type)
+        {
+            recalc();
+            get();
+        }
+		printf("%I64d\n", ans);
+    }
+    return 0;
+}

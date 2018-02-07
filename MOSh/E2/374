@@ -1,0 +1,189 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const long long X = 239;
+const long long MOD = 1e9 + 9;
+
+int n, m, L;
+string s;
+string t[300000];
+long long c[300000];
+int go1[3000000][2];
+long long val1[3000000];
+int go2[3000000][2];
+long long val2[3000000];
+int nx1 = 1;
+int nx2 = 1;
+long long dp[300001];
+
+long long h[300000];
+long long pw[300000];
+int tree[300000];
+set<long long> st;
+
+void add1(int v, string x, int i, int pos) {
+    if (pos == x.size()) {
+        return;
+    }
+    int ch = x[pos] - '0';
+    if (go1[v][ch] != -1) {
+        add1(go1[v][ch], x, i, pos + 1);
+        val1[go1[v][ch]] = min(c[i], val1[go1[v][ch]]);
+    } else {
+        go1[v][ch] = nx1;
+        val1[nx1] = c[i];
+        nx1++;
+        add1(nx1 - 1, x, i, pos + 1);
+    }
+}
+
+void add2(int v, string x, int i, int pos) {
+    if (pos == -1) {
+        return;
+    }
+    int ch = x[pos] - '0';
+    if (go2[v][ch] != -1) {
+        add2(go2[v][ch], x, i, pos - 1);
+        val2[go2[v][ch]] = min(c[i], val2[go2[v][ch]]);
+    } else {
+        go2[v][ch] = nx2;
+        val2[nx2] = c[i];
+        nx2++;
+        add2(nx2 - 1, x, i, pos - 1);
+    }
+}
+
+long long sub(int L, int R) {
+    long long t = (h[R] - h[L] * pw[R - L]) % MOD;
+    if (t < 0) {
+        t += MOD;
+    }
+    return t;
+}
+
+void st1(int v, int L, int R, int pos, int val) {
+    if (L > pos || R <= pos) {
+        return;
+    }
+    if (L == R - 1) {
+        tree[v] = val;
+        return;
+    }
+    int M = (R + L) / 2;
+    st1(2 * v + 1, L, M, pos, val);
+    st1(2 * v + 2, M, R, pos, val);
+    tree[v] = min(tree[2 * v + 1], tree[2 * v + 2]);
+}
+
+int mn(int v, int L, int R, int a, int b) {
+    if (L >= b || R <= a) {
+        return 1e9;
+    }
+    if (a <= L && R <= b) {
+        return tree[v];
+    }
+    int M = (R + L) / 2;
+    return min(mn(2 * v + 1, L, M, a, b), mn(2 * v + 2, M, R, a, b));
+}
+
+void solve2() {
+    pw[0] = 1;
+    for (int i = 0; i <= max(n, L); i++) {
+        pw[i + 1] = (pw[i] * X) % MOD;
+    }
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < t[i].size(); j++) {
+            h[j + 1] = (h[j] * X + t[i][j]) % MOD;
+            st.insert(h[j + 1]);
+        }
+        for (int j = 1; j < t[i].size(); j++) {
+            st.insert(sub(j, t[i].size()));
+        }
+    }
+    for (int i = 0; i < n; i++) {
+        h[i + 1] = (h[i] * X + s[i]) % MOD;
+    }
+    st1(0, 0, n + 1, 0, 0);
+    for (int i = 1; i <= n; i++) {
+        dp[i] = 1e9;
+        st1(0, 0, n + 1, i, dp[i]);
+    }
+    for (int i = 1; i <= n; i++) {
+        int L = -1;
+        int R = i;
+        while (R - L > 1) {
+            int M = (R + L) / 2;
+            if (st.find(sub(M, i)) != st.end()) {
+                R = M;
+            } else {
+                L = M;
+            }
+        }
+        dp[i] = mn(0, 0, n + 1, R, i + 1) + 1;
+        st1(0, 0, n + 1, i, dp[i]);
+    }
+    if (dp[n] > 1e8) {
+        cout << "-1\n";
+    } else {
+        cout << dp[n] << "\n";
+    }
+}
+
+int main() {
+    freopen("typing.in", "r", stdin);
+    freopen("typing.out", "w", stdout);
+    iostream::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    cin >> n >> m >> L >> s;
+    for (int i = 0; i < 3000000; i++) {
+        go1[i][0] = -1;
+        go1[i][1] = -1;
+        val1[i] = 1e18;
+        go2[i][0] = -1;
+        go2[i][1] = -1;
+        val2[i] = 1e18;
+    }
+    bool flag = 0;
+    for (int i = 0; i < m; i++) {
+        cin >> c[i] >> t[i];
+        if (t[i].size() > 2000) {
+            flag = 1;
+        }
+    }
+    if (flag) {
+        solve2();
+        return 0;
+    }
+    for (int i = 0; i < m; i++) {
+        add1(0, t[i], i, 0);
+        add2(0, t[i], i, t[i].size() - 1);
+    }
+    for (int i = 1; i <= n; i++) {
+        dp[i] = 1e18;
+    }
+    for (int i = 0; i <= n; i++) {
+        int v = 0;
+        for (int j = i - 1; j >= 0; j--) {
+            v = go2[v][s[j] - '0'];
+            if (v == -1) {
+                break;
+            }
+            dp[i] = min(dp[i], dp[j] + val2[v]);
+        }
+        v = 0;
+        for (int j = i + 1; j <= n; j++) {
+            v = go1[v][s[j - 1] - '0'];
+            if (v == -1) {
+                break;
+            }
+            dp[j] = min(dp[j], dp[i] + val1[v]);
+        }
+    }
+    if (dp[n] < 1e17) {
+        cout << dp[n] << "\n";
+    } else {
+        cout << "-1\n";
+    }
+}

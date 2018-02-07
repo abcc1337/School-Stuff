@@ -1,0 +1,27 @@
+def main():
+    fin = open('video.in')
+    fout = open('video.out', 'w')
+    n, m = map(int, fin.readline().split())
+    A = [0] * 2 * n
+    for i in range(n):
+        A[i] = fin.readline()
+        if A[i][-1] not in '12':
+            A[i] = A[i][:-1]
+        A[i + n] = A[i][:]
+    for i in range(2 * n):
+        A[i] *= 2
+    ans = 0
+    for x in range(n):
+        for y in range(m):
+            c = 0
+            for i in range(x, x + n - 1):
+                for j in range(y, y + m - 1):
+                    if A[i][j] == A[i][j + 1] and A[i + 1][j] == A[i + 1][j + 1] and A[i][j] == A[i + 1][j]:
+                        c += 1
+            ans = max(ans, c)
+    fout.write(str(ans))
+    fin.close()
+    fout.close()
+
+
+main()

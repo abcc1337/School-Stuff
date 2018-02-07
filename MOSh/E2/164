@@ -1,0 +1,198 @@
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <iostream>
+#include <cstdlib>
+#include <cstdio>
+#include <cmath>
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <set>
+#include <map>
+#include <bitset>
+#include <unordered_map>
+#include <ctime>
+using namespace std;
+
+int solve();
+
+#define forn(i, n) for (int i = 0; i < (n); ++i)
+#define fornn(i, q, n) for (int i = q; i < (n); ++i)
+#define all(v) v.begin(), v.end()
+#define mp make_pair
+
+typedef long long ll;
+
+#define TASK "fisher"
+
+int main() {
+#ifdef KAZAN
+	freopen("input.txt", "r", stdin), freopen("output.txt", "w", stdout);
+#else
+	freopen(TASK".in", "r", stdin), freopen(TASK".out", "w", stdout);
+#endif
+	solve();
+}
+
+const int dd = 5e5 + 7;
+
+const int maxC = 1e9 + 7;
+
+struct fen {
+	ll T[dd];
+	ll sum = 0;
+
+	void upd(int v, ll val) {
+		sum += val;
+
+		for (int i = v + 1; i < dd; i += (i&-i))
+			T[i] += val;
+	}
+	
+	ll get(int v) {
+		ll res = 0;
+		for (int i = v + 1; i; i -= (i&-i))
+			res += T[i];
+		return res;
+	}
+
+	ll get(int l, int r) {
+		return sum - get(l - 1);
+	}
+} F1, F2;
+
+int x[dd], a[dd];
+int y[dd], b[dd], c[dd];
+
+struct ev {
+	int x, tp, ind;
+	bool operator < (ev b) const {
+		return x == b.x ? tp < b.tp : x < b.x;
+	}
+};
+
+int readInt() {
+	char c = getchar();
+
+	int cur = 0;
+	while (c >= '0' && c <= '9') {
+		cur = cur * 10 + c - '0';
+		c = getchar();
+	}
+	return cur;
+}
+
+void operator delete (void *) {}
+
+const int MAX_MEM = 5e8;
+char MEM[MAX_MEM];
+int mpos = 0;
+
+void * operator new (size_t n){
+	char* res = MEM + mpos;
+	
+	mpos += n;
+	return (void *)res;
+}
+
+int solve() {
+	int n = readInt(), m = readInt(), p = readInt();
+	//int n, m, p;
+	//scanf("%d %d %d", &n, &m, &p);
+
+
+	vector<ev> T(n + m);
+
+	vector<int> G;
+
+	forn(i, n) {
+		x[i] = readInt();
+		a[i] = readInt();
+
+		//scanf("%d %d", &x[i], &a[i]);
+
+		T[i].x = x[i];
+		T[i].tp = 0;
+		T[i].ind = i;
+
+	}
+
+	G.reserve(m);
+
+	forn(i, m) {
+		y[i] = readInt(), b[i] = readInt(), c[i] = readInt();
+
+		//scanf("%d %d %d", &y[i], &b[i], &c[i]);
+		T[i + n].x = y[i];
+		T[i + n].tp = 1;
+		T[i + n].ind = i;
+
+		G.push_back(c[i]);
+	}
+
+	sort(all(G));
+	G.resize(unique(all(G)) - G.begin());
+
+	forn(i, m) {
+		c[i] = lower_bound(all(G), c[i]) - G.begin();
+	}
+
+	sort(all(T));
+
+	ll ans = 0;
+	ll cur = 0;
+
+	multiset<ll> S;
+
+	for (auto t : T) {
+		if (t.tp == 0) {
+			cur += a[t.ind];
+		}
+		else {
+
+			F1.upd(c[t.ind], b[t.ind]);
+			F2.upd(c[t.ind], 1ll * G[c[t.ind]] * b[t.ind]);
+
+			S.insert(c[t.ind]);
+		}
+
+		if (S.size() == 0)
+			continue;
+
+		if (1ll * G[*S.rbegin()] * cur < ans)
+			continue;
+
+		int l = -1, r = *S.rbegin() + 1;
+
+		while (r - l > 1) {
+			int m = (l + r) / 2;
+
+			ll t = F1.get(m, dd);
+
+			if (t < cur) {
+				r = m;
+			}
+			else {
+				l = m;
+			}
+		}
+
+		ll tt = F1.get(r, dd);
+		ll jj = F2.get(r, dd) - 1ll * t.x * p;
+
+		auto it = S.lower_bound(r);
+		if (it != S.begin()) {
+			it--;
+			jj += (cur - tt) * G[(*it)];
+		}
+
+		ans = max(ans, jj);
+
+		if (clock() * 1.0 / CLOCKS_PER_SEC > 0.95)
+			break;
+	}
+
+	printf("%lld", ans);
+
+	return 0;
+}

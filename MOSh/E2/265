@@ -1,0 +1,91 @@
+#define	_CRT_SECURE_NO_WARNINGS
+#define	_USE_MATH_DEFINES
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
+#include <cassert>
+#include <cstdio>
+#include <ctime>
+#include <iostream>
+#include <utility>
+#include <string>
+#include <algorithm>
+#include <functional>
+#include <set>
+#include <map>
+#include <stack>
+#include <queue>
+#include <deque>
+#include <vector>
+
+using namespace std;
+
+typedef	long long int	ll;
+typedef	long double		ld;
+typedef	pair<int, int>	ii;
+typedef	vector<int>		vi;
+typedef	vector<ii>		vii;
+
+const int MAXN = 200000;
+const int INF = 1000000010;
+
+int N;
+ll S;
+ll A[MAXN], K[MAXN];
+ll sum = 0;
+int id[MAXN];
+priority_queue<int> rem;
+
+bool cmp(int idl, int idr) {
+	return K[idl] > K[idr];
+}
+
+int main() {
+#ifdef FILE_IO
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+#else
+	freopen("castle.in", "r", stdin);
+	freopen("castle.out", "w", stdout);
+#endif // FILE_IO
+
+	scanf("%d %lld", &N, &S);
+	for (int i = 0; i < N; i++) {
+		scanf("%lld %lld", &A[i], &K[i]);
+		sum += A[i];
+		id[i] = i;
+	}
+
+	sort(id, id + N, cmp);
+
+	int ptr;
+	for (int i = 0; i < N; i++) {
+		ptr = id[i];
+
+		while (S != 0 && !rem.empty() && rem.top() >= min(A[ptr], K[ptr])) {
+			S--;
+			sum -= rem.top();
+			rem.pop();
+		}
+
+		if (S >= A[ptr] / K[ptr]) {
+			S -= A[ptr] / K[ptr];
+			sum -= (A[ptr] - A[ptr] % K[ptr]);
+			rem.push(A[ptr] % K[ptr]);
+		}
+		else {
+			sum -= K[ptr] * S;
+			S = 0;
+		}
+	}
+
+	while (S != 0 && !rem.empty()) {
+		S--;
+		sum -= rem.top();
+		rem.pop();
+	}
+
+	printf("%lld", sum);
+
+	return 0;
+}

@@ -1,0 +1,75 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <set>
+using namespace std;
+vector<vector<int>> g;
+vector<int> p, used, tin, tout;
+int time11;
+int min(int a, int b) {
+	return a < b ? a : b;
+}
+int max(int a, int b) {
+	return a > b ? a : b;
+}
+void dfs(int v) {
+	used[v] = 1;
+	tin[v] = time11++;
+	for (int i = 0; i < g[v].size(); i++)
+		if (!used[g[v][i]])
+			dfs(g[v][i]);
+	tout[v] = time11;
+}
+int main() {
+	freopen("twopaths.in", "r", stdin);
+	freopen("twopaths.out", "w", stdout);
+	int n, k;
+	cin >> n >> k;
+	p.resize(n, -1);
+	used.resize(n);
+	tin.resize(n);
+	tout.resize(n);
+	g.resize(n);
+	vector<set<pair<int, int> > > cour(k);
+	for (int i = 1; i < n; i++) {
+		scanf("%d", &p[i]);
+		p[i]--;
+		g[p[i]].push_back(i);
+	}
+	dfs(0);
+		for (int i = 0; i < k; i++) {
+			int a, b;
+			scanf("%d%d", &a, &b);
+			--a, --b;
+			int f = a, s = b;
+			while (!(tout[a] >= tout[b] && tin[a] < tin[b]) && a!=b) {
+				cour[i].insert({ min(p[a], a), max(p[a], a) });
+				a = p[a];
+			}
+			while (b != a)
+			{
+				cour[i].insert({ min(p[b], b), max(p[b], b) });
+				b = p[b];
+			}
+		}
+	long long ans = 0;
+	int f = 1, s = 2;
+	for (int i = 0; i < k; i++) {
+		for (int j = i + 1; j < k; j++){
+			int cur = 0;
+			if (cour[j].size() <= ans) continue;
+			int fl = 0;
+			for (auto it = cour[j].begin(); it != cour[j].end(); it++) {
+				auto d = find(cour[i].begin(), cour[i].end(), *it);
+				if (d != cour[i].end()) {
+					cur++;
+				}
+			}
+			if (cur > ans) {
+				ans = cur;
+				f = i + 1, s = j + 1;
+			}
+		}
+	}
+	cout << ans << endl << f << ' ' << s;
+}

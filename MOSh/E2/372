@@ -1,0 +1,97 @@
+#include <cstdio>
+#include <iostream>
+using namespace std;
+const int N = 100;
+int main() {
+    freopen("submarine.in", "r", stdin);
+    freopen("submarine.out", "w", stdout);
+    int k, h, w,s;
+    char sym[N][N];
+    int x[N][N],pref[N][N],left[N][N],leftlen[N][N],right[N][N],rightlen[N][N],up[N][N],uplen[N][N],down[N][N],downlen[N][N],c[26];
+    cin >> k;
+    for (int i = 0; i < k; ++i) cin >> c[i];
+    cin >> h >> w;
+    for (int i = 0; i < h; ++i)
+        for (int j = 0; j < w; ++j) {
+            cin >> sym[i][j];
+            x[i][j] = c[sym[i][j] - 'a'];
+        };
+    for (int i = 0; i < h; ++i) {
+        int s = 0;
+        for (int j = 0; j < w; ++j) {
+            s += x[i][j];
+            pref[i][j] = s;
+        };
+    };
+    for (int i = 0; i < h; ++i) {
+        for (int j = 0; j < w; ++j) {
+            if (j == 0 || left[i][j - 1] < 0) {
+                left[i][j] = x[i][j];
+                leftlen[i][j] = 1;
+            } else {
+                left[i][j] = left[i][j - 1] + x[i][j];
+                leftlen[i][j] = leftlen[i][j - 1] + 1;
+            };
+        };
+    };
+    for (int j = 0; j < w; ++j) {
+        for (int i = 0; i < h; ++i) {
+            if (i == 0 || up[i-1][j] < 0) {
+                up[i][j] = x[i][j];
+                uplen[i][j] = 1;
+            } else {
+                up[i][j] = up[i-1][j] + x[i][j];
+                uplen[i][j] = uplen[i - 1][j] + 1;
+            };
+        };
+    };
+    for (int i = h - 1; i >= 0; --i) {
+        for (int j = w - 1; j >= 0; --j) {
+            if (j == w-1 || right[i][j + 1] < 0) {
+                right[i][j] = x[i][j];
+                rightlen[i][j] = 1;
+            } else {
+                right[i][j] = right[i][j + 1] + x[i][j];
+                rightlen[i][j] = rightlen[i][j + 1] + 1;
+            };
+        };
+    };
+    for (int j = w-1; j >=0; --j) {
+        for (int i=h-1; i >=0; --i) {
+            if (i == h-1 || down[i+1][j] < 0) {
+                down[i][j] = x[i][j];
+                downlen[i][j] = 1;
+            } else {
+                down[i][j] = down[i+1][j] + x[i][j];
+                downlen[i][j] = downlen[i + 1][j] + 1;
+            };
+        };
+    };
+    int rez = -(1e8);
+    for (int i = 0; i < h; ++i)
+        for (int j = 0; j < w; ++j)
+            for (int k = j + 1; k < w; ++k) {
+                rez = max(rez, up[i][j] + left[i][j] + up[i][k] + right[i][k] + down[i][k] + pref[i][k] - (j > 0 ? pref[i][j-1] : 0) - 2 * x[i][j] - 3 * x[i][k]);
+            };
+//    for (int i = 0; i < h; ++i)
+//        for (int j = 0; j < w; ++j)
+//            for (int k = j + 1; k < w; ++k) {
+//                if (rez == up[i][j] + left[i][j] + up[i][k] + right[i][k] + down[i][k] + pref[i][k] - (j > 0 ? pref[i][j-1] : 0) - 2 * x[i][j] - 3 * x[i][k]) {
+//                    for  (int ii = 0; ii < h; ++ii) {
+//                        for (int jj = 0; jj < w; ++jj) {
+//                            if (((ii == i) && (jj >= j - leftlen[i][j] + 1) && (jj <= k + rightlen[i][k] - 1)) || ((jj == j) && (ii <= i) && (ii >= i - uplen[i][j] + 1)) || ((jj == k) && (ii >= i - uplen[i][k] + 1) && (ii <= i + downlen[i][k] - 1))) cout << sym[ii][jj];
+//                            else cout << '.';
+//                        };
+//                        cout << '\n';
+//                    };
+//                    cout << up[i][j] << ' ' << left[i][j] << ' ' << up[i][k] << ' '<<right[i][k]<<' ' << down[i][k]<<' ' << pref[i][k]<<' ' << (j > 0 ? pref[i][j-1] : 0) <<' '<< 3 * x[i][j] << ' '<<4 * x[i][k]<<endl;
+//                    fclose(stdin);
+//                    fclose(stdout);
+//                    return 0;
+//                };
+//            };
+    cout << rez;
+    fclose(stdin);
+    fclose(stdout);
+    return 0;
+}

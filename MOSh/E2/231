@@ -1,0 +1,65 @@
+#include<fstream>
+#include<time.h>
+#include<algorithm>
+#include<string>
+using namespace std;
+struct y {
+	long long y1, b, c;
+};
+struct x {
+	long long x1, a;
+};
+ifstream cin("fisher.in");
+ofstream cout("fisher.out");
+bool prc(y a, y b) {
+	return a.c > b.c;
+}
+
+y pr[100001];
+x lv[100001];
+int main() {
+	long long i, j,k,l,m,n,p,s=0,i0=0,s0=0,b0=0,s1,summ=0,summ0=0,ms=0;
+	cin >> n >> m >> p;
+	for (i = 0; i < n; i++) {
+		cin >> lv[i].x1 >> lv[i].a;
+		s += lv[i].a;
+	}
+	for (i = 0; i < m; i++)
+		cin >> pr[i].y1 >> pr[i].b >> pr[i].c;
+	if (p == 0) {
+		sort(pr, pr + m, prc);
+		for (i = 0; i < m; i++) {
+			summ = summ + min(s, pr[i].b)*pr[i].c;
+			s = max(long long(0), s - pr[i].b);
+		}
+		cout << summ;
+	}
+	else if (lv[0].x1>pr[n - 1].y1) {
+
+		sort(pr, pr + m, prc);
+		for (i = 0; i < n; i++) {
+			s0 = s0 + lv[i].a;
+			s1 = s0 - b0;
+			summ = summ0;
+			while (s1 >= pr[i0].b && i0<n) {
+				s1 = s1 - pr[i0].b;
+				summ = summ + pr[i0].b*pr[i0].c;
+				summ0 = summ;
+				i0++;
+			}
+			if (i0 < n)
+				summ = summ + pr[i0].c*s1;
+			ms = max(ms, summ - p*lv[i].x1 );
+
+
+		}
+		cout << ms;
+
+
+
+	}
+	//system("pause");
+	return 0;
+
+}
+

@@ -1,0 +1,173 @@
+#include <iostream>
+#include <cstdio>
+#include <fstream>
+#include <map>
+#include <set>
+#include <vector>
+#include <cstdlib>
+#include <climits>
+#include <cassert>
+#include <ctime>
+#include <algorithm>
+#include <string>
+#include <queue>
+using namespace std;
+struct fileOpener
+{
+	FILE *in, *out;
+	fileOpener(string file_name)
+	{
+		in = freopen((file_name + ".in").c_str(), "r", stdin);
+		out = freopen((file_name + ".out").c_str(), "w", stdout);
+	}
+	~fileOpener()
+	{
+		fclose(in);
+		fclose(out);
+	}
+};
+typedef long long llg;
+#define m_p(x, y) make_pair(x, y)
+#define fori(i, n) for (int i = 0; i < (int)(n); i++)
+
+const int maxn = 3002;
+vector<int> powers;
+vector<vector<pair<int, int> > > g;
+vector<vector<int> > v;
+queue<int> q;
+bool used[maxn];
+
+vector<int> stack;
+void dfs(int vertex, int parent = -1, int power = 0)
+{
+	stack.push_back(vertex);
+	fori(i, g[vertex].size())
+	{
+		if (g[vertex][i].first != parent && g[vertex][i].second <= power)
+		{
+			dfs(g[vertex][i].first, vertex, power - g[vertex][i].second);
+		}
+	}
+}
+
+
+int check(int n)
+{
+	memset(used, false, maxn);
+	int vertex;
+	int size = 0;
+	while (!q.empty())
+	{
+		vertex = q.front();
+		q.pop();
+		if (used[vertex])
+			continue;
+		used[vertex] = true;
+		size++;
+
+		fori(i, v[vertex].size())
+		{
+			if (!used[v[vertex][i]])
+				q.push(v[vertex][i]);
+		}
+	}
+	return n - size;
+}
+
+int main()
+{
+#ifdef LOCAL
+	fileOpener FileOpener("test");
+#else
+	fileOpener FileOpener("alarm");
+#endif 
+	//-----------------------------------------------------------------
+
+	int n, f, a, b, d;
+	cin >> n;
+	g.resize(n);
+	v.resize(n);
+
+	fori(i, n)
+	{
+		cin >> f;
+		powers.push_back(f);
+	}
+
+	for (int i = 0; i < n - 1; i++)
+	{
+		cin >> a >> b >> d;
+		a--;
+		b--;
+		g[a].push_back(m_p(b, d));
+		g[b].push_back(m_p(a, d));
+	}
+
+	fori(i, n)
+	{
+		dfs(i, -1, powers[i]);
+		fori(j, stack.size())
+			v[i].push_back(stack[j]);
+		stack.clear();
+	}
+
+	vector<int> toOrder, inOrder;
+
+	fori(i, n)
+		inOrder.push_back(i);
+
+	fori(i, 100)
+		random_shuffle(inOrder.begin(), inOrder.end());
+
+	int p1, p2, oldAns, tans;
+	for (int z = 1; z <= n; z++)
+	{
+		toOrder.push_back(inOrder.back());
+		inOrder.pop_back();
+
+		fori(p, toOrder.size())
+			q.push(toOrder[p]);
+		oldAns = check(n);
+
+		if (oldAns == n)
+		{
+			cout << z << endl;
+			return 0;
+		}
+
+		for (double T = 100; T > 0.01; T *= 0.97)
+		{
+			fori(i, 300)
+			{
+				if (oldAns == 0)
+				{
+					cout << z << endl;
+					return 0;
+				}
+
+				p1 = rand() % toOrder.size();
+				p2 = rand() % inOrder.size();
+
+				swap(toOrder[p1], inOrder[p2]);
+
+				fori(p, toOrder.size())
+					q.push(toOrder[p]);
+
+				tans = check(n);
+
+				if (tans < oldAns)
+					oldAns = tans;
+				else
+				{
+					if ((double)rand() / RAND_MAX < exp(-(tans - oldAns) / T))
+						oldAns = tans;
+					else
+						swap(toOrder[p1], inOrder[p2]);
+				}
+			}
+		}
+
+	}
+	//-----------------------------------------------------------------
+	return 0;
+}

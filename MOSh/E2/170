@@ -1,0 +1,48 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+typedef long long ll;
+const int MAX = 101;
+ll XYZ[MAX][MAX][MAX], X[MAX], Y[MAX], Z[MAX], XY[MAX][MAX], XZ[MAX][MAX], YZ[MAX][MAX];
+
+int main(){
+    ifstream IN("onlyone.in");
+    ofstream OUT("onlyone.out");
+    int n;
+    IN >> n;
+    for(int i = 0; i < MAX; ++i){
+        for(int j = 0; j < MAX; ++j){
+            for(int k = 0; k < MAX; ++k){
+                XYZ[i][j][k] = 0;
+            }
+        }
+    }
+    for(int i = 0; i < n; ++i){
+        int a, b, c;
+        IN >> a >> b >> c;
+        ++X[a];
+        ++Y[b];
+        ++Z[c];
+        ++XY[a][b];
+        ++XZ[a][c];
+        ++YZ[b][c];
+        ++XYZ[a][b][c];
+    }
+    ll sum = n;
+    ll ans = 0;
+    for(int i = 0; i < MAX; ++i){
+        for(int j = 0; j < MAX; ++j){
+            for(int k = 0; k < MAX; ++k){
+                int res = 0;
+                res += X[i] + Y[j] + Z[k];
+                res -= 2 * (XY[i][j] + XZ[i][k] + YZ[j][k]);
+                res += 3 * XYZ[i][j][k];
+                res *= XYZ[i][j][k];
+                ans += res;
+            }
+        }
+    }
+    ans /= 2;
+    OUT << ans;
+    return 0;
+}

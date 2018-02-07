@@ -1,0 +1,47 @@
+import random
+fi = open("grants.in", "r")
+fo = open("grants.out", "w")
+t = int(fi.readline().strip())
+for i in range(t):
+    n = int(fi.readline().strip())
+    if n%3 ==0:
+        print(n//3, n//3, n//3, file = fo)
+        continue
+    if (n//3|1 != n//3):
+        if n%3 == 1:
+            print(n//3+1, n//3, n//3, file = fo)
+        else:
+            print(n//3+1, n//3+1, n//3, file = fo)
+        continue
+    if n%3 == 2 and n//3|2 != n//3:
+        print(n//3+2, n//3, n//3, file = fo)
+        continue
+    con = n%3
+    if n > 1000:
+        mi = -2
+        ans = [0,0,n]
+        for i in range(100):
+            a = random.randint(10, n)
+            b = random.randint(0, n-a)
+            c = n-a-b
+            if mi < a&b&c:
+                mi = a&b&c
+                ans = [a,b,c]
+        print(ans[0], ans[1], ans[2], file = fo)
+        continue
+    flag = 0
+    for i in range(n//3-1, -1, -1):
+        con+=3
+        for x1 in range(con+1):
+            for x2 in range(con-x1+1):
+                x3 = con-x2-x1
+                if x3|i == x3+i and x2|i == x2+i and x1|i == x1+i:
+                    print(x1+i, x2+i, x3+i, file = fo)
+                    flag = 1
+                    break
+            if flag == 1:
+                break
+        if flag == 1:
+            break
+fi.close()
+fo.close()

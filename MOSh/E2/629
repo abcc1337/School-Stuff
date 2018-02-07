@@ -1,0 +1,21 @@
+var
+s:string;
+q,n,i,j,k:longint;
+t1,t2:text;
+begin
+assign(t1,'penguins.in');
+reset(t1);
+assign(t2,'penguins.out');
+rewrite(t2);
+read(t1,q);
+for i:=1 to q do
+ begin
+ read(t1,n,k);
+ readln(t1);
+ read(t1,s);
+ writeln(t2,s);
+ end;
+
+ close(t1);
+ close(t2);
+end.

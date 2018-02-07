@@ -1,0 +1,136 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+typedef long long ll;
+#define all(v) v.begin(), v.end()
+
+struct point{
+    ll x, y;
+    point (ll _x, ll _y){
+        x = _x;
+        y = _y;
+    }
+    point(){}
+    friend point operator -(point a, point b){
+        return point(a.x - b.x, a.y - b.y);
+    }
+    friend ll operator %(point a, point b){
+        return (a.x * b.y - a.y * b.x);
+    }
+    friend bool operator <(point a, point b){
+        if (a.x == b.x){
+            return a.y < b.y;
+        }
+        return a.x < b.x;
+    }
+};
+
+struct seg{
+    point b, e;
+    seg(point x, point y){
+        b = x;
+        e = y;
+    }
+    seg(){};
+    int nak(){
+        if (b.y > e.y){
+            return 1;
+        }
+        if (b.y < e.y){
+            return -1;
+        }
+        return 0;
+    }
+};
+
+ll lans[100007], rans[100007];
+
+vector<pair<point, int> > zaps;
+
+int main(){
+    ios_base::sync_with_stdio(0);
+    //freopen("input.txt", "r", stdin);
+    freopen("mountain.in", "r", stdin);
+    freopen("mountain.out", "w", stdout);
+    int n, q;
+    scanf("%d %d", &n, &q);
+    vector<seg> wall;
+    point tb = point(0, 0);
+    //cout << tb.x << " " << tb.y << endl;
+    for (int i = 0; i < n; i++){
+        int d, k;
+        scanf("%d %d", &d, &k);
+        point te;
+        te.x = tb.x + d;
+        te.y = tb.y + k * d;
+        wall.push_back(seg(tb, te));
+        //cout << te.x << " " << te.y << endl;
+        tb = te;
+    }
+    set<ll> temp;
+    for (int i = 0; i < q; i++){
+        point zap;
+        scanf("%lld %lld", &zap.x, &zap.y);
+        zaps.push_back({zap, i});
+        temp.insert(zap.x);
+    }
+    sort(all(zaps));
+    if (temp.size() == 1){
+        int fl = n - 1, fr = 0;
+        for (int i = 0; i < q; i++){
+            point zap = zaps[i].first;
+            ll l = 0, r = wall[n - 1].e.x;
+            for (int k = fr; k < n; k++){
+                if (wall[k].b.x > zap.x){
+                    if (((wall[k].b - wall[k].e) % (zap - wall[k].e)) > 0){
+                        r = wall[k].b.x;
+                        fr = k;
+                        break;
+                    }
+                }
+            }
+            for (int k = fl; k >= 0; k--){
+                if (wall[k].e.x < zap.x){
+                    if (((wall[k].e - wall[k].b) % (zap - wall[k].b)) < 0){
+                        l = wall[k].e.x;
+                        fl = k;
+                        break;
+                    }
+                }
+            }
+            lans[zaps[i].second] = l;
+            rans[zaps[i].second] = r;
+        }
+        for (int i = 0; i < q; i++){
+            printf("%lld %lld\n", &lans[i], &rans[i]);
+        }
+        return 0;
+    }
+    for (int i = 0; i < q; i++){
+        point zap = zaps[i].first;
+        ll l = 0, r = wall[n - 1].e.x;
+        for (int k = 0; k < n; k++){
+            if (wall[k].b.x > zap.x){
+                if (((wall[k].b - wall[k].e) % (zap - wall[k].e)) > 0){
+                    r = wall[k].b.x;
+                    break;
+                }
+            }
+        }
+        for (int k = n - 1; k >= 0; k--){
+            if (wall[k].e.x < zap.x){
+                if (((wall[k].e - wall[k].b) % (zap - wall[k].b)) < 0){
+                    l = wall[k].e.x;
+                    break;
+                }
+            }
+        }
+        lans[zaps[i].second] = l;
+        rans[zaps[i].second] = r;
+    }
+    for (int i = 0; i < q; i++){
+        printf("%lld %lld\n", &lans[i], &rans[i]);
+    }
+    return 0;
+}
+

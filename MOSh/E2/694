@@ -1,0 +1,22 @@
+def f():
+    for i in range(n):
+        for j in range(i, n):
+            if sum(A[i:j + 1]) == j - i + 1:
+                s.add(str(i) + " " + str(j))
+    print(len(s), file = fout)
+
+
+fin = open("lamps.in")
+fout = open("lamps.out", "w")
+n, q = map(int, fin.readline().rstrip().split())
+A = list(map(int, list(fin.readline().rstrip())))
+s = set()
+f()
+for i in range(q):
+    l, r, c = map(int, fin.readline().rstrip().split())
+    l -= 1
+    r -= 1
+    A = A[:l] + [c] * (r - l + 1) + A[r + 1:]
+    f()
+fin.close()
+fout.close()

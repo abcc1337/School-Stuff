@@ -1,0 +1,153 @@
+#include <bits/stdc++.h>
+
+#define TASK "typing"
+using namespace std;
+typedef long long ll;
+typedef long double ld;
+
+
+char mem[1876543210];
+int pends = 0;
+
+void *operator new(size_t x)
+{
+    int ans = pends;
+    pends += x;
+    return mem + ans;
+}
+
+void operator delete(void* x)
+{
+
+}
+
+struct node
+{
+    ll next[2];
+    ll mincost;
+
+    node() : mincost(1e17 + 123)
+    {
+        next[0] = -1;
+        next[1] = -1;
+    };
+};
+
+node mas[3456789];
+ll pend = 1;
+ll dp[345678];
+string q[345678];
+ll c[345678];
+bool used[345678];
+ll root[345678];
+set<pair<ll, ll>> edges[345678];
+
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+#ifdef DEBUG
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#else
+    if(strcmp(TASK,"")!=0)
+    {
+        freopen(TASK".in","r",stdin);
+        freopen(TASK".out","w",stdout);
+    }
+#endif
+    ll m, n, l;
+    ll maxci = 0;
+    cin >> m >> n >> l;
+    string s;
+    cin >> s;
+    for (int i = 0; i < 345678; i++)
+    {
+        dp[i] = 1e17;
+    }
+    dp[0] = 0;
+    for (int i = 0; i < n; i++)
+    {
+        cin >> c[i] >> q[i];
+        maxci = max(maxci, c[i]);
+        root[i] = 0;
+        for (int j = 0; j < q[i].size(); j++)
+        {
+            for (int k = j; k < q[i].size(); k++)
+            {
+                ll curpos = k;
+                ll cur = root[i];
+                while (curpos < q[i].size())
+                {
+                    if (mas[cur].next[q[i][curpos] - '0'] == -1)
+                    {
+                        mas[cur].next[q[i][curpos] - '0'] = pend;
+                        pend++;
+                    }
+                    cur = mas[cur].next[q[i][curpos] - '0'];
+                    curpos++;
+                }
+                mas[cur].mincost = min(mas[cur].mincost, c[i]);
+            }
+        }
+        ll curpos = 0;
+        ll cur = root[i];
+        while (curpos < q[i].size())
+        {
+            if (mas[cur].next[q[i][curpos] - '0'] == -1)
+            {
+                mas[cur].next[q[i][curpos] - '0'] = pend;
+                pend++;
+            }
+            cur = mas[cur].next[q[i][curpos] - '0'];
+            mas[cur].mincost = min(mas[cur].mincost, c[i]);
+            curpos++;
+        }
+    }
+    for (int i = 0; i < s.size(); i++)
+    {
+        ll cur = 0;
+        ll curpos = i;
+        while (curpos < s.size())
+        {
+            if (mas[cur].next[s[curpos] - '0'] != -1)
+            {
+                cur = mas[cur].next[s[curpos] - '0'];
+                if (mas[cur].mincost < 1e17)
+                {
+                    edges[i].insert(make_pair(mas[cur].mincost, curpos+1));
+                    //dp[curpos + 1] = min(dp[curpos + 1], dp[i] + mas[cur].mincost);
+                }
+                curpos++;
+            }
+            else break;
+        }
+    }
+    set<pair<ll, ll>> st;
+    st.insert(make_pair(0,0));
+    while (!st.empty())
+    {
+        ll cur = st.begin()->second;
+        ll len = st.begin()->first;
+        st.erase(st.begin());
+        if (cur == s.size())
+        {
+            cout << len << endl;
+            return 0;
+        }
+        if (used[cur])continue;
+        used[cur] = true;
+        ll predi = -1;
+        for (auto i : edges[cur])
+        {
+            //if (predi != -1 && predi != i.first) break;
+            if (!used[i.second])
+            {
+                st.insert(make_pair(len + i.first, i.second));
+            }
+            //predi = i.first;
+        }
+    }
+    cout << -1;
+    return 0;
+}

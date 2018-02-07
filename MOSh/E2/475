@@ -1,0 +1,42 @@
+import math
+def f(i, n, a):
+    if i >= 0:
+        if n - 2**i > 0:
+            f(i - 1, n - 2 ** i, a + 2**i)
+        f(i - 1, n, a)
+    else:
+        lg1 = math.floor(math.log(n, 2))
+        g(lg1, n, a, 0)
+    
+def g(i, n, a, b):
+    if i >= 0:
+        if n - 2**i >= 0:
+            g(i - 1, n - 2 ** i, a, b + 2**i)
+        g(i - 1, n, a, b)
+    else:
+        r(a, b, n)
+
+def r(a, b, c):
+    global Max, res
+    if a >= 0 and b >= 0 and c >= 0:
+        t = a & b & c
+        Sum = 0
+        while t > 0:
+            Sum += t % 2
+            t //= 2
+        if Sum >= Max:
+            Max = Sum
+            res = [a, b, c]
+
+fin = open("grants.in")
+fout = open("grants.out", "w")
+t = int(fin.readline().rstrip())
+for j in range(t):
+    Max = 0
+    res = [0, 0, 0]
+    N = int(fin.readline().rstrip())
+    lg = math.floor(math.log(N, 2))
+    f(lg, N, 0)
+    print(*res, file = fout)
+fin.close()
+fout.close()

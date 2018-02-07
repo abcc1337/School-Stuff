@@ -1,0 +1,67 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+int t, n;
+int pw[100];
+int a, b, c;
+
+//pair<bool, string> check(int x, int p, int k, int y, string s = "") {
+//    if((x & (1 << p)) == 0) {
+//        pair<bool, string> w, v;
+//        if(k != 3) w = check(x, p, k + 1, y -= (1 << p), s + char(1<<p));
+//        if(!w.first) v = check(x, p + 1, 0, y, s);
+//        else return w;
+//
+//    }else{
+//        return make_pair(false, "");
+//    }
+//}
+
+pair<int, int> check(int y, int x) {
+    for(int i = 0; i <= y; ++i) {
+        for(int j = 0; j <= y - i; ++j) {
+            int g = y - i - j;
+            if(((i & x) == 0) && ((j & x) == 0) && ((g & x) == 0))
+                return make_pair(i, j);
+        }
+    }
+    return make_pair(-1, -1);
+}
+
+void mk(int n) {
+    int x = n / 3;
+
+    for(int i = x; i >= 0; --i) {
+        int y = n - i * 3;
+        pair<int, int> w = check(y, i);
+        if(w.first != -1) {
+            a = i + w.first;
+            b = i + w.second;
+            c = i + (y - w.first - w.second);
+            return;
+        }
+    }
+}
+
+int main()
+{
+    freopen("grants.in", "r", stdin);
+    freopen("grants.out", "w", stdout);
+
+    scanf("%d", &t);
+
+    pw[0] = 1;
+    for(int i = 1; i < 70; ++i) {
+        pw[i] = pw[i - 1] * 2;
+    }
+    for(int i = 0; i < t; ++i) {
+        scanf("%d", &n);
+        mk(n);
+        printf("%d %d %d\n", a, b, c);
+    }
+
+    return 0;
+}

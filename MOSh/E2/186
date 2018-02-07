@@ -1,0 +1,59 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void solve()
+{
+    int n, m, p;
+    cin >> n >> m >> p;
+
+    assert(p == 0);
+
+    int64_t sum(0);
+
+    int c;
+    for (int i = 0; i < n; ++i)
+    {
+        int c, a;
+        cin >> c >> a;
+        sum += a;
+    }
+
+    vector<pair<int, int> > can(m);
+    for (auto& it : can)
+        cin >> c >> it.second >> it.first;
+
+    sort(can.rbegin(), can.rend());
+
+    int64_t ans(0);
+    for (auto it : can)
+    {
+        if (sum < it.second)
+        {
+            ans += sum*it.first;
+            break;
+        }
+        ans += (int64_t)it.first*it.second;
+        sum -= it.second;
+    }
+
+    cout << ans << endl;
+    return;
+
+}
+
+#define FILE_NAME "fisher"
+
+int main()
+{
+#ifndef __DEBUG
+    freopen(FILE_NAME ".in", "r", stdin);
+    freopen(FILE_NAME ".out", "w", stdout);
+#endif // __DEBUG
+    ios_base::sync_with_stdio(false);
+    cin.tie();
+
+    solve();
+
+    return 0;
+}

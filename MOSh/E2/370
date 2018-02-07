@@ -1,0 +1,64 @@
+#include <iostream>
+using namespace std;
+
+typedef long long lng;
+
+lng st[63];
+int us[63];
+bool fl = false;
+
+void go(lng v)
+{
+	if (v == 0)
+	{
+		fl = true;
+		return;
+	}
+	for (int q = 61; q >= 0; --q)
+		if ((st[q] * 3 <= v) && (us[q] == 0))
+		{
+			us[q] = 3;
+			go(v - st[q] * 3);
+			if (fl) return;
+			us[q] = 0;
+		}
+	for (int q = 61; q >= 0; --q)
+		if ((st[q] <= v) && (us[q] < 3))
+		{
+			us[q] += 1;
+			go(v - st[q]);
+			if (fl) return;
+			us[q] -= 1;
+		}
+}
+
+int main()
+{
+	freopen("grants.in", "r", stdin);
+	freopen("grants.out", "w", stdout);
+	st[0] = 1;
+	for (int i = 1; i < 63; ++i)
+		st[i] = st[i - 1] * 2;
+	int t; cin >> t;
+	for (; t > 0; --t)
+	{
+		for (int i = 0; i < 63; ++i)
+			us[i] = 0;
+		lng n; cin >> n;
+		fl = false;
+		go(n);
+		lng t[3];
+		for (int i = 0; i < 3; ++i)
+		{
+			t[i] = 0LL;
+			for (int j = 0; j < 63; ++j)
+				if (us[j])
+				{
+					t[i] += st[j];
+					us[j] -= 1;
+				}
+		}
+		cout << t[0] << ' ' << t[1] << ' ' << t[2] << endl;
+	}
+	return 0;
+}

@@ -1,0 +1,29 @@
+fin = open("onlyone.in")
+fout = open("onlyone.out", "w")
+ABC = [[[0 for i in range(51)] for j in range(51)] for k in range(51)]
+AB = [[0 for i in range(51)] for j in range(51)]
+BC = [[0 for i in range(51)] for j in range(51)]
+AC = [[0 for i in range(51)] for j in range(51)]
+A = [0 for i in range(51)]
+B = [0 for i in range(51)]
+C = [0 for i in range(51)]
+n = int(fin.readline().rstrip())
+for i in range(n):
+    a, b, c = map(int, fin.readline().rstrip().split())
+    ABC[a][b][c] += 1
+    AB[a][b] += 1
+    BC[b][c] += 1
+    AC[a][c] += 1
+    A[a] += 1
+    B[b] += 1
+    C[c] += 1
+res = 0
+for a in range(1, 51):
+    for b in range(1, 51):
+        for c in range(1, 51):
+            res += ABC[a][b][c] * (A[a] - AB[a][b] - AC[a][c] + ABC[a][b][c])
+            res += ABC[a][b][c] * (B[b] - AB[a][b] - BC[b][c] + ABC[a][b][c])
+            res += ABC[a][b][c] * (C[c] - AC[a][c] - BC[b][c] + ABC[a][b][c])
+print(res // 2, file = fout)
+fin.close()
+fout.close()

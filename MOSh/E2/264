@@ -1,0 +1,200 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define forn(i, n) for (int i = 0; i < n; i++)
+#define pb push_back
+#define mp make_pair
+#define x first
+#define y second
+#define NAME "twopaths"
+#define sz(a) (a.size())
+#define FREOPEN freopen(NAME".in", "r", stdin); freopen(NAME".out", "w", stdout);
+
+typedef long long ll;
+typedef pair < int, int > pii;
+typedef pair < ll, ll > pll;
+
+const int INF = 2e9;
+const ll INF64 = 9e18;
+const int N = 200100;
+const int M = 3010;
+
+
+int n, nn, k, ans = 0, v1 = 1, v2 = 2;
+vector < int > g[N];
+vector < pii > aa, bb;
+vector < int > pp;
+pii a[N];
+bool mark[N];
+int  h[N], tin[N], tout[N], timer = 0, mm[30][1000100], lg[1000100];
+
+void dfs(int v, int hh = 0, int p = 1)
+{
+    mark[v] = 1;
+    pp.pb(v);
+    tin[v] = timer++;
+    h[v] = hh;
+    forn(i, sz(g[v]))
+        if (!mark[g[v][i]])
+        {
+            timer++;
+            pp.pb(v);
+            dfs(g[v][i], hh + 1, v);
+        }
+    tout[v] = timer++;
+    pp.pb(v);
+}
+
+int mini(int x, int y)
+{
+    if (h[x] < h[y])
+        return x;
+    return y;
+}
+
+bool check(int a, int b)
+{
+    return (tin[a] <= tin[b] && tout[a] >= tin[b]);
+}
+
+int lca(int a, int b)
+{
+    if (tin[a] > tout[b])
+        swap(a, b);
+    a = tin[a];
+    b = tout[b];
+    int q = b - a + 1;
+    int x = (int)lg[q];
+    return mini(mm[x][a], mm[x][b - (1 << x) + 1]);
+
+}
+
+int get(pii vv, pii uu)
+{
+    int x1 = vv.x, y1 = vv.y, x2 = uu.x, y2 = uu.y;
+    if (h[x1] > h[y1])
+        swap(x1, y1);
+    if (h[x2] > h[y2])
+        swap(x2, y2);
+    int s1 = lca(x1, x2);
+    if (s1 != x1 && s1 != x2)
+        return 0;
+    int s2 = lca(y1, y2);
+    //cout << "====   " << s1 << ' ' << s2 << ' ' << y1 << ' ' << y2 << endl;
+    if (h[x1] <= h[s2] && h[y1] >= h[s2] && h[x2] <= h[s2] && h[y2] >= h[s2])
+    {
+        if (x1 == x2)
+            return h[s2] - h[x1];
+        else
+        {
+            if (s1 == x1)
+                return h[s2] - h[x2];
+            else
+                return h[s2] - h[x1];
+        }
+    }
+    else
+        return 0;
+}
+
+int main()
+{
+    FREOPEN;
+    cin >> n >> k;
+    for (int i = 2; i <= n; i++)
+    {
+        int pp;
+        scanf("%d", &pp);
+        g[pp].pb(i);
+        g[i].pb(pp);
+    }
+    forn(i, k)
+        scanf("%d %d", &a[i].x, &a[i].y);
+    dfs(1);
+    nn = sz(pp);
+    forn(i, nn)
+        mm[0][i] = pp[i];
+
+    for (int j = 1; j < 30; j++)
+    {
+        forn(i, nn - (1 << j) + 1)
+        {
+            mm[j][i] = mini(mm[j - 1][i], mm[j - 1][i + (1 << (j - 1))]);
+        }
+    }
+
+    int j = 0;
+    int q = 2;
+    for (int i = 0; i < 1000100; i++)
+    {
+        if (i == q)
+        {
+            q *= 2;
+            j++;
+        }
+        lg[i] = j;
+    }
+
+    for (int i = 0; i < k; i++)
+        for (int j = i + 1; j < k; j++)
+        {
+            aa.clear();
+            bb.clear();
+            int s1 = lca(a[i].x, a[i].y), s2 = lca(a[j].x, a[j].y);
+            aa.pb(mp(s1, a[i].x));
+            aa.pb(mp(s1, a[i].y));
+            bb.pb(mp(s2, a[j].x));
+            bb.pb(mp(s2, a[j].y));
+            int sum = 0;
+            forn(ii, 2)
+                forn(jj, 2)
+                    sum += get(aa[ii], bb[jj]);
+            if (sum > ans)
+            {
+                ans = sum;
+                v1 = i + 1;
+                v2 = j + 1;
+            }
+        }
+    cout << ans << endl << v1 << ' ' << v2;
+    return 0;
+}
+
+
+
+/*
+
+4 2
+1 2 2
+1 3
+1 4
+
+
+4 2
+1 2 3
+1 2
+3 4
+
+
+7 3
+1 2 2 4 5 5
+1 3
+3 7
+6 1
+
+
+4 3
+1 2 3
+1 4
+4 1
+1 4
+
+
+
+
+*/
+
+
+
+

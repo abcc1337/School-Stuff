@@ -1,0 +1,169 @@
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <set>
+#include <map>
+#include <queue>
+#include <ctime>
+#include <cmath>
+#include <cassert>
+
+typedef long long int int64;
+
+using namespace std;
+
+const int INF = 2147000000;
+
+int k;
+int h, w;
+int bukv[128];
+int arr[2005][2005];
+int sumsLine[2005][2005];
+int sumsVert[2005][2005];
+int answer = -INF;
+
+int minVert[2005][2005];
+int maxVert[2005][2005];
+
+int lineSum(int i, int l, int r)
+{
+	return sumsLine[i][r] - sumsLine[i][l - 1];
+}
+
+int vertSum(int l, int r, int j)
+{
+	return sumsVert[r][j] - sumsVert[l - 1][j];
+}
+
+int main()
+{
+	freopen("submarine.in", "r", stdin);
+	freopen("submarine.out", "w", stdout);
+	
+	scanf("%d", &k);
+
+	for (int i = 'a'; i < 'a' + k; ++i)
+	{
+		scanf("%d", &bukv[i]);
+	}
+
+	scanf("%d %d", &h, &w);
+
+	string now;
+	for (int i = 1; i <= h; ++i)
+	{
+		cin >> now;
+
+		for (int j = 1; j <= w; ++j)
+		{
+			arr[i][j] = bukv[now[j - 1]];
+		}
+	}
+
+	//for (int i = 1; i <= h; ++i)
+	//{
+	//	for (int j = 1; j <= w; ++j)
+	//	{
+	//		cout << arr[i][j] << " ";
+	//	}
+	//	cout << endl;
+	//}
+
+	for (int i = 1; i <= h; ++i)
+	{
+		sumsLine[i][0] = 0;
+
+		for (int j = 1; j <= w; ++j)
+		{
+			sumsLine[i][j] = arr[i][j] + sumsLine[i][j - 1];
+		}
+	}
+
+	for (int j = 1; j <= w; ++j)
+	{
+		sumsVert[0][j] = 0;
+		minVert[0][j] = 0;
+
+		for (int i = 1; i <= h; ++i)
+		{
+			sumsVert[i][j] = arr[i][j] + sumsVert[i - 1][j];
+			minVert[i][j] = min(minVert[i - 1][j], sumsVert[i][j]);
+		}
+
+		maxVert[h + 1][j] = 0;
+		sumsVert[h + 1][j] = 0;
+
+		maxVert[h][j] = sumsVert[h][j];
+
+		for (int i = h - 1; i >= 0; --i)
+		{
+			maxVert[i][j] = max(maxVert[i + 1][j], sumsVert[i][j]);
+		}
+	}
+
+	int add_corp = 0;
+	int add_rub = 0;
+	int add_up = 0;
+	int add_down = 0;
+	int add_hv;
+	for (int i = 1; i <= h; ++i)
+	{
+		for (int j = 1; j <= w; ++j)
+		{
+			for (int k = j + 1; k <= w; ++k)
+			{
+				add_corp = lineSum(i, j, k);
+				add_rub = 0;
+				add_up = 0;
+				add_down = 0;
+
+				//if (lineSum(i, j, k) == -1)
+				//{
+				//	cout << i << " " << j << " " << k << endl;
+				//}
+
+				for (int q = j; q < k; ++q)
+				{
+
+					add_rub = sumsVert[i - 1][q] - minVert[i - 1][q];
+
+					add_hv = 0;
+
+
+					for (int m = q + 1; m <= k; ++m)
+					{
+						add_up = 0;
+						add_down = 0;
+						/*for (int z = i - 1; z >= 1; --z)
+						{
+							add_up = max(add_up, vertSum(z, i - 1, m));
+						}
+						for (int z = i + 1; z <= h; ++z)
+						{
+							add_down = max(add_down, vertSum(i + 1, z, m));
+						}*/
+
+						add_down = sumsVert[i - 1][m] - minVert[i - 1][m];
+						add_up = maxVert[i + 1][m] - sumsVert[i + 1][m];
+
+						add_hv = max(add_hv, add_up + add_down);
+
+						answer = max(answer, add_corp + add_rub + add_hv);
+						//cout << add_corp << " " << add_rub << " " << add_hv << endl;
+						//cout << answer << endl << endl;
+					}
+				}
+			}
+		}
+	}
+
+	printf("%d", answer);
+
+	fclose(stdin);
+	fclose(stdout);
+
+	return 0;
+}

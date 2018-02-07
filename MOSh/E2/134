@@ -1,0 +1,112 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+typedef long long ll;
+#define all(v) v.begin(), v.end()
+const int MAXN = 500007;
+
+int n, m;
+ll p;
+int x[MAXN], y[MAXN], a[MAXN], b[MAXN], c[MAXN];
+
+void sol1(){
+    map<int, ll> t;
+    ll sum = 0;
+    for (int i = 0; i < n; i++){
+        int tx, ta;
+        cin >> tx >> ta;
+        sum += ll(ta);
+    }
+    for (int i = 0; i < m; i++){
+        int ty, tb, tc;
+        cin >> ty >> tb >> tc;
+        t[tc] += ll(tb);
+    }
+    ll ans = 0;
+    while ((t.size() > 0) && (sum > 0)){
+        pair<int, ll> tc = *(--t.end());
+        t.erase(--t.end());
+        if (tc.second <= sum){
+            sum -= tc.second;
+            ans += ll(tc.first) * tc.second;
+        } else {
+            ans += ll(tc.first) * sum;
+            sum = 0;
+        }
+    }
+    cout << ans;
+}
+
+void sol2(){
+    map<int, ll> temp;
+    for (int i = 0; i < m; i++){
+        temp[c[i]] += ll(b[i]);
+    }
+    vector<ll> tans, ts, cost, cnt;
+    m = temp.size();
+    while (temp.size() > 0){
+        pair<int, ll> t = *(--temp.end());
+        temp.erase(--temp.end());
+        ts.push_back(t.second);
+        tans.push_back(t.second * ll(t.first));
+        cost.push_back(t.first);
+        cnt.push_back(t.second);
+        if (ts.size() > 1){
+            ts[ts.size() - 1] += ts[ts.size() - 2];
+        }
+        if (tans.size() > 1){
+            tans[tans.size() - 1] += tans[tans.size() - 2];
+        }
+    }
+    ll ans = 0;
+    ll sum = 0;
+    for (int i = 0; i < n; i++){
+        ll tc = 0;
+        tc -= ll(x[i]) * p;
+        sum += ll(a[i]);
+        if (ts[0] >= sum){
+            tc += cost[0] * sum;
+            ans = max(ans, tc);
+            continue;
+        }
+        int l = 0, r = m;
+        while (r - l > 1){
+            int m = (l + r) / 2;
+            if (ts[m] < sum){
+                l = m;
+            } else {
+                r = m;
+            }
+        }
+        if (l == m - 1){
+            tc += tans[l];
+            ans = max(ans, tc);
+        }
+        tc += tans[l];
+        tc += cost[l + 1] * (sum - ts[l]);
+        ans = max(ans, tc);
+    }
+    cout << ans;
+}
+
+int main(){
+    freopen("fisher.in", "r", stdin);
+    freopen("fisher.out", "w", stdout);
+    cin >> n >> m >> p;
+    if (p == 0){
+        sol1();
+        return 0;
+    }
+    for (int i = 0; i < n; i++){
+        cin >> x[i] >> a[i];
+    }
+    for (int i = 0; i < m; i++){
+        cin >> y[i] >> b[i] >> c[i];
+    }
+    if (y[m - 1] <= x[0]){
+        sol2();
+        return 0;
+    }
+    return 0;
+}
+

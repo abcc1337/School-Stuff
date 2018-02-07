@@ -1,0 +1,50 @@
+input_file = open("alarm.in", "r")
+output_file = open("alarm.out", "w")
+n = int(input_file.readline())
+d = [0] + list(map(int, input_file.readline().split()))
+graf = [[None] *(n + 1) for i in range(n + 1)]
+graf_list = []
+for i in range(n + 1):
+    graf_list.append([])
+for i in range(n - 1):
+    a, b, c = map(int, input_file.readline().split())
+    graf[a][b] = c
+    graf[b][a] = c
+    graf_list[a].append(b)
+    graf_list[b].append(a)
+ans = [False] * (n + 1)
+def bfs(begin, p, graf, graf_list):
+    if not ans[begin] and p >= 0:
+        #print(begin, p, ans)
+        ans[begin] = True
+        for i in range(len(graf_list[begin])):
+            if p - graf[begin][graf_list[begin][i]] >= 0:
+                bfs(graf_list[begin][i],  max(d[graf_list[begin][i]], p - graf[begin][graf_list[begin][i]]), graf, graf_list)
+help_graf = []
+for i in range(n + 1):
+    help_graf.append([i])
+#print(help_graf)
+def our_sort(our_list):
+    return(len(our_list))
+for i in range(1, n + 1):
+    ans = [False] * (n + 1)
+    bfs(i, d[i], graf, graf_list)
+    for j in range(1, n + 1):
+        if ans[j] and i != j:
+            help_graf[i].append(j)
+    #print(ans)
+
+help_graf.sort(key=our_sort, reverse=True)
+#print(help_graf)
+ans_set = set()
+i = 0
+counter = 0
+while len(ans_set) < n:
+    if help_graf[i][0] not in ans_set and help_graf[i][0] != 0:
+        counter += 1
+        for j in range(len(help_graf[i])):
+            ans_set.add(help_graf[i][j])
+    i += 1
+print(counter, file=output_file)
+                       
+            

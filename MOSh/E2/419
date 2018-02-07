@@ -1,0 +1,96 @@
+/*
+ * sol.cpp
+ *
+ *  Created on: 07.04.2015
+ *      Author: Eran
+ */
+
+#include <bits\stdc++.h>
+
+using namespace std;
+
+#define stdio false
+#define input "penguins.in"
+#define output "penguins.out"
+
+const int maxn = 3005;
+const int MAXN = 10000000;
+const int inf = 1000000000;
+
+struct Segment {
+	int l, r;
+	Segment(int _l, int _r) :
+			l(_l), r(_r) {
+	}
+	Segment() {
+		l = r = 0;
+	}
+};
+
+int T;
+int n, k;
+vector<int> peng;
+
+void scan() {
+	cin >> n >> k;
+	peng = vector<int>(n);
+	for (int i = 0; i < n; i++) {
+		char col;
+		cin >> col;
+		peng[i] = col - '0';
+	}
+}
+
+void print() {
+	for (int i = 0; i < n; i++)
+		cout << peng[i];
+	cout << endl;
+}
+
+int getMinSize() {
+	int size = 1;
+	for (int i = 1; i < n; i++)
+		if (peng[i] != peng[i - 1])
+			size++;
+	return size;
+}
+
+void solve() {
+	if (getMinSize() <= k)
+		return;
+	int res_cnt = inf;
+	vector<int> res_peng;
+	for (int mask = 0; mask < (1 << n); mask++) {
+		int cnt = 0;
+		for (int j = 0; (1 << j) < mask; j++) {
+			if (mask & (1 << j)) {
+				cnt++;
+				peng[j] ^= 1;
+			}
+		}
+		if (getMinSize() <= k && cnt < res_cnt) {
+			res_cnt = cnt;
+			res_peng = peng;
+		}
+		for (int j = 0; (1 << j) < mask; j++)
+			if (mask & (1 << j))
+				peng[j] ^= 1;
+	}
+	peng = res_peng;
+}
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	if (!stdio) {
+		freopen(input, "r", stdin);
+		freopen(output, "w", stdout);
+	}
+	cin >> T;
+	for (int i = 0; i < T; i++) {
+		scan();
+		solve();
+		print();
+	}
+	return 0;
+}
+

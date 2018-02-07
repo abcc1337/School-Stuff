@@ -1,0 +1,71 @@
+#define fname "video"
+
+#include <iostream>
+#include <cstdio>
+#include <cmath>
+#include <algorithm>
+
+
+
+#define forn(i, n) for (int i = 0; i < n; i ++)
+#define fornn(i, m, n) for (int i = m; i < n; i ++)
+
+using namespace std;
+
+int a[2010][2010];
+int f[2010][2010];
+int s[2010][2010];
+
+int main() {
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+#else
+	freopen(fname".in", "r", stdin);
+	freopen(fname".out", "w", stdout);
+#endif
+	int n, m;
+	cin >> n >> m;
+	forn(i, n)
+		forn(j, m) {
+			char x;
+			cin >> x;
+			a[i][j] = x - '0';
+			a[i + n][j] = a[i][j];
+			a[i][j + m] = a[i][j];
+			a[i + n][j + m] = a[i][j];
+		}
+	forn(i, n * 2)
+		forn(j, m * 2) {
+			if (a[i][j] == a[i + 1][j] && a[i][j] == a[i][j + 1] && a[i][j] == a[i + 1][j + 1])
+				f[i][j] = 1;
+		}
+
+	forn(i, n * 2) {
+		forn(j, m * 2) {
+			s[i][j] = f[i][j];
+			if (i)
+				s[i][j] += s[i - 1][j];
+			if (j)
+				s[i][j] += s[i][j - 1];
+			if (i && j)
+				s[i][j] -= s[i - 1][j - 1];
+		}
+	}
+
+
+	int ans = 0;
+	forn(i, n)
+		forn(j, m) {
+			int sum = s[i + n - 2][j + m - 2];
+			if (i)
+				sum -= s[i - 1][j + m - 2];
+			if (j)
+				sum -= s[i + n - 2][j - 1];
+			if (i && j)
+				sum += s[i - 1][j - 1];
+			ans = max(ans, sum);
+		}
+	cout << ans;
+	return 0;
+}

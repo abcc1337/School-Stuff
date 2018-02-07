@@ -1,0 +1,200 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+int checker(__int64 tst, __int64 izb,int bits) {
+	__int64 tst2 = tst - izb;
+	__int64 alb = ~0;
+	if (tst2 % 3) {
+		return 0;
+	}
+	tst2 /= 3;
+	if (izb == 0) {
+		cout << tst2 << " " << tst2 << " " << tst2 << " "<< endl;
+		return 1;
+	}
+	alb &= ~tst2;/*
+	if (alb&izb == izb) {
+		__int64 ans[3] = { tst2, tst2, tst2 };
+		int shf = 0;
+		int tm = 0;
+		while (izb) {
+			if (izb) {
+				ans[shf] += (1LL << tm);
+				shf++;
+			}
+			izb >>= 1;
+			tm++;
+		}
+		cout << ans[0] << " " << ans[1] << " " << ans[2];
+		return 1;
+	}
+	else {
+	}*/
+	__int64 bx;
+	__int64 bx2;
+	__int64 bx3;
+	int shf = 0;
+	int tm = 0;
+	__int64 ans[3] = { tst2, tst2, tst2 };
+	__int64 at, bt, ct;
+	switch (bits) {
+	case 1:
+		bx = izb & alb;
+		if (bx) {
+			cout << tst2 + bx << " " << tst2 << " " << tst2 << " "<< endl;
+			return 1;
+		}
+		bx = (izb / 2)&alb;
+		if (bx) {
+			cout << tst2 + bx << " " << tst2 + bx << " " << tst2 << " " << endl;
+			return 1;
+		}
+		return 0;
+		break;
+	case 2:
+		bx = izb & alb;
+		ans[0] = 0;
+		ans[1] = 0;
+		ans[2] = 0;
+		while (bx) {
+			if (bx & 1) {
+				ans[shf] = (1LL << tm);
+				shf++;
+			}
+			bx >>= 1;
+			tm++;
+		}
+		if (shf == 2) {
+			cout << ans[0] + tst2 << " " << ans[1] + tst2 << " " << ans[2] + tst2 << " "<< endl;
+			return 1;
+		}
+		else {
+			ans[0] = 0;
+			ans[1] = 0;
+			ans[2] = 0;
+			bx = izb;
+			tm = 0;
+			shf = 0;
+			while (bx) {
+				if (bx & 1) {
+					ans[shf] = (1LL << tm);
+					shf++;
+				}
+				bx >>= 1;
+				tm++;
+			}
+			if ((ans[1] & 1) == 0) {
+				at = ans[1] / 2;
+				bt = ans[1] / 2;
+				ct = ans[0];
+				if ((at & alb) && (bt & alb) && (ct & alb)) {
+					cout << at + tst2 << " " << bt + tst2 << " " << ct + tst2 << " " << endl;
+					return 1;
+				}
+			}
+			if ((ans[0] & 1) == 0) {
+				at = ans[0] / 2;
+				bt = ans[0] / 2;
+				ct = ans[1];
+				if ((at & alb) && (bt & alb) && (ct & alb)) {
+					cout << at + tst2 << " " << bt + tst2 << " " << ct + tst2 << " "  << endl;
+					return 1;
+				}
+			}
+		}
+		return 0;
+		break;
+	case 3:
+		bx = izb & alb;
+		while (bx) {
+			if (bx&1) {
+				ans[shf] += (1LL << tm);
+				shf++;
+			}
+			bx >>= 1;
+			tm++;
+		}
+		if (shf == 3) {
+			cout << ans[0] << " " << ans[1] << " " << ans[2] << " "<<endl;
+			return 1;
+		}
+		return 0;
+		break;
+	default:
+		return 0;
+		break;
+	}
+}
+
+void dotest(__int64 tst) {
+	if (tst == 8) {
+		tst = 8;
+	}
+	int mxb;
+	__int64 tm = tst;
+	mxb = 0;
+	while (tm) {
+		tm >>= 1;
+		mxb++;
+	}
+	if (checker(tst, 0, 0)) {
+		return;
+	}
+	for (int i = 0; i < mxb; i++) {
+		if (checker(tst, 1LL << i, 1)) {
+			return;
+		}
+		for (int j = 0; j < i; j++) {
+			if (checker(tst, (1LL << i) | (1LL<<j), 2)) {
+				return;
+			}
+			for (int k = 0; k < j; k++) {
+				if (checker(tst, (1LL << i) | (1LL << j) |(1LL<<k), 3)) {
+					return;
+				}
+			}
+		}
+	}
+}
+
+__int64 bdf = 0;
+__int64 bans[3];
+int main() {
+	freopen("grants.in", "r", stdin);
+	freopen("grants.out", "w", stdout);
+	int t;
+	cin >> t;
+	for (int i = 0; i < t; i++) {
+		__int64 n;
+		cin >> n;
+		dotest(n);
+		/*bdf = -1;
+		for (int ii = 0; ii <= n; ii++) {
+			for (int jj = ii; jj <= n - ii; jj++) {
+				for (int kk = jj; kk <= n - ii-jj; kk++) {
+					if (ii + jj + kk == n) {
+						__int64 df = ii&jj&kk;
+						for (int ppx = 0; ppx <= df; ppx++) {
+							__int64 xm = ~ppx;
+							if ((((ii - ppx)&xm) == ii - ppx) && (((jj - ppx)&xm) == jj - ppx) && (((kk - ppx)&xm) == kk - ppx)) {
+
+							if (df >= bdf) {
+								bdf = df;
+								bans[0] = ii;
+								bans[1] = jj;
+								bans[2] = kk;
+							}
+							}
+						}
+					}
+				}
+			}
+		}*/
+		//cout << bans[0] << " " << bans[1] << " " << bans[2] << " "<<bdf<<endl ;
+	}
+}

@@ -1,0 +1,93 @@
+program Rob;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+ var n,m,g,i,j,x,y,p,l,op:longint;
+     a:array [1..1000,1..1000] of char;
+     c,cl:array [1..1000,1..1000] of longint;
+     q:array [1..4,1..10000] of longint;
+     s:string;
+
+begin
+  assign(input,'robots.in');
+  reset(input);
+   assign(output,'robots.out');
+  rewrite(output);
+  readln(n,m,g);
+  for i:=1 to n do
+   begin
+    readln(s);
+     for j:=1 to m do
+      a[i,j]:=s[j];
+   end;
+
+  close(input);
+   for i:=1 to n do
+    for j:=1 to m do
+     cl[i,j]:=0;
+   c:=cl;
+     l:=0;
+    for i:=1 to n do
+     for j:=1 to m do
+      begin
+       x:=i;
+       y:=j;
+       p:=0;
+       c:=cl;
+        while c[x,y]=0 do
+         begin
+           if (a[x,y]='s')or(a[x,y]='S') then
+            begin
+              c[x,y]:=1;
+             x:=x+1;
+             p:=p+1;
+            end
+             else
+           if (a[x,y]='n')or(a[x,y]='N') then
+            begin
+              c[x,y]:=1;
+             x:=x-1;
+             p:=p+1;
+            end
+             else
+            if (a[x,y]='e')or(a[x,y]='E') then
+            begin
+              c[x,y]:=1;
+             y:=y+1;
+             p:=p+1;
+            end
+             else
+            if (a[x,y]='w')or(a[x,y]='W') then
+            begin
+              c[x,y]:=1;
+             y:=y-1;
+             p:=p+1;
+            end;
+
+
+         end;
+        if (i=x)and(j=y)and(p<>0) then
+         begin
+          
+          l:=l+1;
+          q[1,l]:=x;
+          q[2,l]:=y;
+          q[3,l]:=p;
+          cl:=c;
+         end
+          else c:=cl;
+      end;
+
+
+   op:=0;
+   for i:=1 to l do
+    op:=op+q[3,i];
+
+   writeln(op);
+
+
+  close(output);  
+end.
+ 

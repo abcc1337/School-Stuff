@@ -1,0 +1,70 @@
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <algorithm>
+#include <utility>
+#include <vector>
+#include <cstdio>
+#include <iostream>
+#include <string>
+#include <time.h>
+
+#define forn(i, n) for (int i = 0; i < (n); i++)
+#define fornn(i, q, n) for (int i = (q); i < (n); i++)
+#define times clock() * 1.0 / CLOCKS_PER_SEC
+using namespace std;
+
+typedef long long ll;
+
+int solve();
+
+int main() {
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin), freopen("output.txt", "w", stdout);
+#else
+	freopen("video.in", "r", stdin), freopen("video.out", "w", stdout);
+#endif
+	solve();
+
+	return 0;
+}
+
+const int MAXN = 1e3 + 7;
+
+string G[MAXN];
+int n, m;
+
+int cnt(int x, int y) {
+	int c = 0;
+	fornn(i, x, x + n - 1) {
+		fornn(j, y, y + m - 1) {
+			if ((G[i][j] == G[i][j + 1]) && (G[i + 1][j] == G[i + 1][j + 1]) && (G[i][j] == G[i + 1][j])) {
+				c++;
+			}
+		}
+	}
+	return c;
+}
+
+int used[MAXN][MAXN];
+
+int solve() {
+	srand(911332312333312312);
+	scanf("%d %d\n", &n, &m);
+	forn(i, n) {
+		cin >> G[i];
+		G[i] += G[i];
+	}
+	forn(i, n) {
+		G[i + n] = G[i];
+	}
+	int ans = cnt(0, 0);
+	forn(w, 50000000) {
+		int j = rand() % (m);
+		int i = rand() % (n);
+		if (!used[i][j])
+			ans = max(ans, cnt(i, j)), used[i][j] = true;
+		if (times > 0.95) break;
+	}
+	cout << ans;
+	return 0;
+}

@@ -1,0 +1,113 @@
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <deque>
+#include <stack>
+#include <queue>
+#include <set>
+#include <map>
+#include <bitset>
+#include <unordered_map>
+#include <unordered_set>
+#include <cmath>
+#include <cassert>
+#include <algorithm>
+using namespace std;
+
+const long long bInf = 1000000000000000003LL;
+const int sInf = 1000000007;
+const double Eps = 1e-9;
+const int None = -1;
+
+vector<long long> d;
+vector< vector<long long> > ro;
+vector< vector< pair<long long, int> > > g, t;
+vector< set<int> > kill;
+vector<bool> used, del;
+vector<int> deg;
+queue<int> q;
+
+int main() {
+    freopen("alarm.in", "r", stdin);
+    freopen("alarm.out", "w", stdout);
+    ios_base::sync_with_stdio(0);
+
+    int n;
+    int v, u;
+    long long w;
+    cin >> n;
+    d.resize(n);
+    for (int i = 0; i < n; ++i) {
+        cin >> d[i];
+    }
+    ro.resize(n);
+    for (int s = 0; s < n; ++s) {
+        ro[s].assign(n, bInf);
+        ro[s][s] = 0;
+    }
+    g.resize(n);
+    for (int i = 0; i < n - 1; ++i) {
+        cin >> v >> u >> w;
+        --v;
+        --u;
+        g[v].push_back(make_pair(w, u));
+        g[u].push_back(make_pair(w, v));
+        ro[v][u] = w;
+        ro[u][v] = w;
+    }
+    for (int k = 0; k < n; ++k) {
+        for (int v = 0; v < n; ++v) {
+            for (int u = 0; u < n; ++u) {
+                if (ro[v][k] != bInf && ro[k][u] != bInf) {
+                    ro[v][u] = min(ro[v][u], ro[v][k] + ro[k][u]);
+                }
+            }
+        }
+    }
+    int ans = 0;
+    del.assign(n, false);
+    deg.assign(n, 0);
+    kill.resize(n);
+    do {
+        int best = 0;
+        for (int s = 0; s < n; ++s) {
+            deg[s] = 0;
+            kill[s].clear();
+            if (del[s]) {
+                continue;
+            }
+            q.push(s);
+            kill[s].insert(s);
+            used.assign(n, false);
+            used[s] = true;
+            while (!q.empty()) {
+                int u = q.back();
+                q.pop();
+                for (int v = 0; v < n; ++v) {
+                    if (!used[v] && ro[u][v] <= d[u]) {
+                        q.push(v);
+                        used[v] = true;
+                        kill[s].insert(v);
+                    }
+                }
+            }
+            deg[s] = kill[s].size();
+            if (deg[s] > deg[best]) {
+                best = s;
+            }
+        }
+        if (deg[best] == 0) {
+            break;
+        }
+        ans += 1;
+        for (auto it = kill[best].begin(); it != kill[best].end(); ++it) {
+            del[*it] = true;
+        }
+     //   cerr << best << "\n";
+    } while(true);
+    cout << ans << "\n";
+    return 0;
+}

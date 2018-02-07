@@ -1,0 +1,205 @@
+#include <random>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+#include <queue>
+#pragma comment(linker, "/STACK:5120000000")
+using namespace std;
+
+#define int long long
+#define lint long long
+#define vint vector<vector<long long>>
+#define ld long long
+
+const int nmax = 400000;
+const int maxq = 400000;
+
+struct Vect {
+	ld x, y;
+	Vect() : x(), y() {};
+	Vect(ld _x, ld _y) : x(_x), y(_y) {};
+
+	//Vect operator-(const Vect oth) const  {
+	//	return Vect(x - oth.x, y - oth.y);
+	//}
+	Vect operator+(const Vect oth) const {
+		return Vect(x + oth.x, y + oth.y);
+	}
+};
+
+Vect operator-(const Vect& a, const Vect& b) {
+	return Vect(a.x - b.x, a.y - b.y);
+}
+
+ld mult(Vect a, Vect b) {
+	return a.x * b.y - b.x * a.y;
+}
+
+bool lessx(Vect a, Vect b) {
+	return a.x < b.x;
+}
+
+bool operator<(Vect a, Vect b) {
+	return mult(a, b) > 0;
+}
+
+bool eq(Vect a, Vect b) {
+	return mult(a, b) == 0;
+}
+
+int32_t main() {
+	ifstream cin("mountain.in");
+	ofstream cout("mountain.out");
+	ios::sync_with_stdio(false);
+
+	int n, q;
+	cin >> n >> q;
+	int d[nmax], k[nmax];
+	bool k_is_1 = true;
+	Vect p[nmax + 1];
+	p[0] = Vect(0, 0);
+	int xnow = 0, ynow = 0;
+	for (int i = 0; i < n; i++) {
+		cin >> d[i] >> k[i];
+		//if ((i != 0) && (k[i - 1] == k[i])) {
+		//	xnow -= d[i - 1];
+		//	ynow -= d[i - 1] * k[i - 1];
+		//	d[i - 1] += d[i];
+		//	n--;
+		//	i--;
+		//}
+		ynow += d[i] * k[i];
+		xnow += d[i];
+		p[i + 1] = Vect(xnow, ynow);
+
+		k_is_1 = k_is_1 && (k[i] == 1 || k[i] == -1);
+	}
+
+	int uu[maxq], vv[maxq];
+	bool same = true;
+	for (int t = 0; t < q; t++) {
+		int u, v;
+		cin >> uu[t] >> vv[t];
+		if (t != 0)
+			same = same && uu[t] == uu[t - 1];
+	}
+	if (!k_is_1 || (n <= 1000)) {
+		if (!same) {
+			for (int t = 0; t < q; t++) {
+				auto u = uu[t];
+				auto v = vv[t];
+				Vect top(u, v);
+
+				int id = upper_bound(p, p + n + 1, Vect(u, 0), lessx) - p - 1;
+				Vect now(0, -1);
+				int minx = u;
+				for (int i = id; i >= 0; i--) {
+					if (mult(now, p[i] - top) > 0)
+						break;
+					now = p[i] - top;
+					minx = p[i].x;
+				}
+
+				id = lower_bound(p, p + n + 1, Vect(u, 0), lessx) - p;
+				now = Vect(0, -1);
+				int maxx = u;
+				for (int i = id; i < n + 1; i++) {
+					if (mult(now, p[i] - top) < 0)
+						break;
+					now = p[i] - top;
+					maxx = p[i].x;
+				}
+
+				cout << minx << ' ' << maxx << '\n';
+			}
+		}
+		else {	// if same
+			pair<int, int> vt[maxq];
+			for (int i = 0; i < q; i++) {
+				vt[i] = { vv[i], i };
+			}
+			sort(vt, vt + q);
+
+			int al[maxq], ar[maxq];
+
+
+			int i_r = lower_bound(p, p + n + 1, Vect(uu[0], 0), lessx) - p;
+			Vect now_r = Vect(0, -1);
+			int minx = uu[0];
+			int i_l = upper_bound(p, p + n + 1, Vect(uu[0], 0), lessx) - p - 1;
+			Vect now_l(0, -1);
+			int maxx = uu[0];
+
+			for (int t = 0; t < q; t++) {
+				auto u = uu[t];
+				auto v = vt[t].first;
+				Vect top(u, v);
+
+				if (i_l + 1 <= n)
+					now_l = p[i_l + 1] - top;
+				else
+					now_l = Vect(0, -1);
+
+				for (; i_l >= 0; i_l--) {
+					if (mult(now_l, p[i_l] - top) > 0)
+						break;
+					now_l = p[i_l] - top;
+					minx = p[i_l].x;
+				}
+
+				if (i_r > 0)
+					now_r = p[i_r - 1] - top;
+				else now_r = p[0] - top;
+
+				for (; i_r < n + 1; i_r++) {
+					if (mult(now_r, p[i_r] - top) < 0)
+						break;
+					now_r = p[i_r] - top;
+					maxx = p[i_r].x;
+				}
+
+				al[vt[t].second] = minx;
+				ar[vt[t].second] = maxx;
+			}
+
+			for (int i = 0; i < q; i++)
+				cout << al[i] << ' ' << ar[i] << '\n';
+		}
+	}
+	else {	// every k == 1
+		vector<int> lx, li, rx, ri;
+		int xnow = 0;
+		int ynow = 0;
+		for (int i = 0; i < n; i++) {
+			if (k[i] == 1) {
+				lx.push_back(xnow - ynow);
+				li.push_back(i);
+			}
+			else {
+				rx.push_back(xnow + ynow);
+				ri.push_back(i);
+			}
+
+			ynow += k[i] * d[i];
+			xnow += d[i];
+		}
+
+		for (int t = 0; t < q; t++) {
+			int xmin, xmax;
+
+			int ind = upper_bound(lx.begin(), lx.end(), uu[t] - vv[t]) - lx.begin() - 1;
+			if (ind == -1)
+				xmin = 0;
+			else xmin = p[li[ind] + 1].x;
+
+			ind = upper_bound(rx.begin(), rx.end(), uu[t] + vv[t]) - rx.begin();
+			if (ind == ri.size())
+				xmax = p[n].x;
+			else xmax = p[ri[ind]].x;
+
+			cout << xmin << ' ' << xmax << '\n';
+		}
+	}
+	return 0;
+}

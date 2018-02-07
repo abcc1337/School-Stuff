@@ -1,0 +1,202 @@
+#include <iostream>
+#include <algorithm>
+#include <map>
+
+using namespace std;
+
+pair <long long, pair <long long, pair <long long, long long> > > a[1000013];
+long long n, m, p, x, y, z;
+long long spl[1000013];
+
+struct node {
+	node *l, *r;
+	long long c, b;
+	long long sum;
+	long long zn;
+	long long prior;
+	long long kol;
+	node(long long cind, long long bind) {
+		c = cind;
+		b = bind;
+		kol = b;
+		sum = b * c;
+		zn = sum;
+		prior = rand();
+		l = 0;
+		r = 0;
+	}
+};
+
+struct DD {
+	node *root;
+	long long sum(node *a) {
+		if (a == 0) {
+			return 0;
+		}
+		return a->sum;
+	}
+	long long kol(node *a) {
+		if (a == 0) {
+			return 0;
+		}
+		return a->kol;
+	}
+	void upd(node *a) {
+		if (a == 0) {
+			return;
+		}
+
+		a->zn = a->b * a->c;
+		a->sum = sum(a->l) + sum(a->r) + a->zn;
+		a->kol = kol(a->l) + kol(a->r) + a->b;
+	}
+
+	node *mer(node *a, node *b) {
+		upd(a);
+		upd(b);
+		if (a == 0) {
+			return b;
+		}
+		if (b == 0) {
+			return a;
+		}
+
+		if (a->prior < b->prior) {
+			a->r = mer(a->r, b);
+			upd(a);
+			return a;
+		}
+		else {
+			b->l = mer(a, b->l);
+			upd(b);
+			return b;
+		}
+	}
+
+	pair <node *, node*> split(node *a, long long x) {
+		if (a == 0) {
+			return make_pair(a, a);
+		}
+
+		if (a->c > x) {
+			pair <node *, node*> pr = split(a->l, x);
+			a->l = pr.second;
+			upd(a);
+			return make_pair(pr.first, a);
+		}
+		else {
+			pair <node*, node*> pr = split(a->r, x);
+			a->r = pr.first;
+			upd(a);
+			return make_pair(a, pr.second);
+		}
+	}
+
+	node *ins(node *a, node* b) {
+		if (a == 0) {
+			return b;
+		}
+
+		if (b->prior < a->prior) {
+			pair <node *, node*> pr = split(a, b->c);
+			b->l = pr.first;
+			b->r = pr.second;
+			upd(b);
+			return b;
+		}
+
+		if (b->c < a->c) {
+			a->l = ins(a->l, b);
+			upd(a);
+			return a;
+		}
+		else {
+			a->r = ins(a->r, b);
+			upd(a);
+			return a;
+		}
+		return a;
+	}
+
+	bool find(node *a, long long c, long long b) {
+		upd(a);
+		if (a == 0) {
+			return 0;
+		}
+		if (a->c == c) {
+			a->b += b;
+			upd(a);
+			return 1;
+		}
+		if (a->c > c) {
+			bool f = find(a->l, c, b);
+			upd(a);
+			return f;
+		}
+		else {
+			bool f = find(a->r, c, b);
+			upd(a);
+			return f;
+		}
+	}
+
+	long long out(node *a, long long su) {
+		if (a == 0) {
+			return 0;
+		}
+
+		if (kol(a) <= su) {
+			return sum(a);
+		}
+		if (kol(a->r) >= su) {
+			return out(a->r, su);
+		}
+
+		if (a->b + kol(a->r) >= su) {
+			return (su - kol(a->r)) * a->c + sum(a->r);
+		}
+		return sum(a->r) + out(a->l, su - kol(a->r) - a->b) + a->zn;
+	}
+};
+
+
+int main() {
+	DD dd;
+	dd.root = 0;
+	//freopen("1.txt", "r", stdin);
+	freopen("fisher.in", "r", stdin);
+	freopen("fisher.out", "w", stdout);
+	
+	cin >> n >> m >> p;
+	for (long long i = 0; i < n; i++) {
+		cin >> x >> y;
+		a[i] = make_pair(x, make_pair(y, make_pair(0, 0)));
+	}
+
+	for (long long i = 0; i < m; i++) {
+		cin >> x >> y >> z;
+		a[i + n] = make_pair(x, make_pair(0, make_pair(y, z)));
+	}
+
+	n += m;
+
+	sort(a, a + n);
+
+	long long sum = 0, c = 0, rast = 0, out = 0;
+
+	map <long long, long long> mp;
+	for (long long i = 0; i < n; i++) {
+		if (!dd.find(dd.root, a[i].second.second.second, a[i].second.second.first)) {
+			node *now = new node(a[i].second.second.second, a[i].second.second.first);
+			dd.root = dd.ins(dd.root, now);
+		}
+		dd.upd(dd.root);
+		sum += a[i].second.first;
+		rast = a[i].first;
+		long long outout = dd.out(dd.root, sum);
+		out = max(outout - p * rast, out);
+	}
+
+	cout << out;
+	return 0;
+}

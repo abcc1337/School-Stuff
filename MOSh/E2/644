@@ -1,0 +1,40 @@
+fin = open('monument.in', 'r')
+fout = open('monument.out', 'w')
+a, k = [int(x) for x in fin.readline().split()]
+points = []
+minn = 1000001
+maxx = 0
+for i in range(a):
+    cur = [int(x) for x in fin.readline().split()]
+    points.append(cur)
+    if cur[1] > maxx:
+        maxx = cur[1]
+    if cur[1] < minn:
+        minn = cur[1]
+leng = maxx - minn
+mat = [[] for i in range(leng)]
+prev = points[0]
+points.append(points[0])
+for i in range(1, a + 1):
+    if prev[0] == points[i][0]:
+        if prev[1] > points[i][1]:
+            for j in range(abs(prev[1] - points[i][1])):
+                mat[points[i][1] + j - minn].append(points[i][0])
+        else:
+            for j in range(abs(prev[1] - points[i][1])):
+                mat[prev[1] + j - minn].append(points[i][0])  
+    prev = points[i]
+for i in mat:
+    i.sort()
+minn = 100000000000
+for i in range(k):
+    summ = 0
+    for j in range(leng):
+        l = (mat[j][0] + i - j) // k
+        r = (mat[j][1] + i - j + k - 1) // k
+        summ += r - l
+    if summ < minn:
+        minn = summ
+print(minn, file = fout)
+fout.close()
+fin.close()        

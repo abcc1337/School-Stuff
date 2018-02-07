@@ -1,0 +1,57 @@
+#include <cstdio>
+#include <iostream>
+
+#define fname "grants"
+
+using namespace std;
+
+typedef long long ll;
+
+int used[70] = { 1 }, u[70];
+ll p[3], add[3];
+
+int main(){
+    int t, gj;
+    ll a;
+    freopen(fname".in", "r", stdin);
+    freopen(fname".out", "w", stdout);
+    cin >> t;
+    for(int i = 0; i < t; i++){
+			cin >> a;
+			int ans = 0;
+			for (int j = 0; 3 * j <= a; j++){
+				int m = 0;
+				for (int k = 0; k < 60; k++){
+					used[k + 1] = j & (1 << k);
+					m++;
+				}
+				ll b = a - 3 * j;
+				bool good = true;
+				for (int k = 0; k < 60; k++)
+					if ((b & (1 << k)) && used[k + 1] && used[k]){
+						good = false;
+						break;
+					}
+				if (good && m >= ans){
+					ans = m;
+					gj = j;
+				}
+			}
+			ll b = a - 3 * gj;
+			for (int k = 0; k < 60; k++)
+				used[k + 1] = ((gj & (1 << k)) != 0);
+			p[0] = p[1] = p[2] = gj;
+			add[0] = add[1] = add[2] = 0;
+			for (int k = 0; k < 60; k++)
+				u[k + 1] = ((b & (1 << k)) != 0);
+			for (int i = 60; i >= 1; i--){
+				if (u[i] && used[i])
+					u[i] = 0, u[i - 1] += 2;
+				add[0] += (1 << (i - 1)) * (u[i] >= 1);
+				add[1] += (1 << (i - 1)) * (u[i] >= 2);
+				add[2] += (1 << (i - 1)) * (u[i] >= 3);
+			}
+			cout << p[0] + add[0] / 2 << " " << p[1] + add[1] / 2 << " " << p[2] + add[2] / 2 << endl;
+    }
+    return 0;
+}

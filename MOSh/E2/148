@@ -1,0 +1,136 @@
+#include <bits/stdc++.h>
+
+#define TASK "fisher"
+using namespace std;
+typedef long long ll;
+typedef long double ld;
+const ll inf = numeric_limits<ll>::max();
+const ll mod = 1000000007;
+const ld eps = 1e-7;
+const ll maxn = 123456;
+
+long long n, m, p;
+
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+#ifdef DEBUG
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#else
+    if(strcmp(TASK,"")!=0)
+    {
+        freopen(TASK".in","r",stdin);
+        freopen(TASK".out","w",stdout);
+    }
+#endif
+    cin >> n >> m >> p;
+    vector<pair<ll, ll> > x(n);
+    for (ll i = 0; i < n; i++)
+    {
+        long long a, b;
+        cin >> a >> b;
+        x[i].first = a;
+        x[i].second = b;
+    }
+    vector<pair<ll, pair<ll, ll> > > ys(m);
+    for (ll i = 0; i < m; i++)
+    {
+        long long a, b, c;
+        cin >> a >> b >> c;
+        ys[i].first = a;
+        ys[i].second.first = b;
+        ys[i].second.second = c;
+    }
+    if (p == 0)
+    {
+        ll cntx = 0;
+        for (ll i = 0; i < n; i++) cntx += x[i].second;
+        vector<pair<ll, ll> > st;
+        for (ll i = 0; i < m; i++)st.push_back(make_pair(ys[i].second.second, ys[i].second.first));
+        sort(st.begin(), st.end(), greater<pair<ll, ll>>());
+        ll ans = 0;
+        for (auto i : st)
+        {
+            if (cntx >= i.second)
+            {
+                cntx -= i.second;
+                ans += i.second * i.first;
+            }
+            else
+            {
+                ans += cntx * i.first;
+                cntx = 0;
+            }
+        }
+        cout << (long long) ans;
+        return 0;
+    }
+    else
+    {
+        if (ys[m - 1].first < x[0].first)
+        {
+            ll ans = 0;
+            vector<pair<ll, ll> > st;
+            for (ll i = 0; i < m; i++)st.push_back(make_pair(ys[i].second.second, ys[i].second.first));
+            sort(st.begin(), st.end(), greater<pair<ll, ll>>());
+            ll nowcan = 0;
+            ll nowpos = 0;
+            ll fixedsum = 0;
+            for (ll i = 0; i < n; i++)
+            {
+                nowcan += x[i].second;
+                ll bad = x[i].first * p;
+                while (nowpos < m && nowcan >= st[nowpos].second)
+                {
+                    fixedsum += st[nowpos].first * st[nowpos].second;
+                    nowcan -= st[nowpos].second;
+                    nowpos++;
+                }
+                if (nowpos < m)
+                {
+                    ans = max(fixedsum - bad + nowcan * st[nowpos].first, ans);
+                }
+                else
+                {
+                    ans = max(fixedsum - bad, ans);
+                }
+            }
+            cout << (long long) ans;
+            return 0;
+        }
+        else if (x[n - 1].first < ys[0].first)
+        {
+            ll cntx = 0;
+            for (ll i = 0; i < n; i++) cntx += x[i].second;
+            ll allcnt = 0;
+            ll allgood = 0;
+            ll ans = 0;
+            set<pair<ll, ll> > st;
+            for (ll j = 0; j < m; j++)
+            {
+                ll bad = ys[j].first * p;
+                bad = -bad;
+                allcnt += ys[j].second.first;
+                allgood += ys[j].second.first * ys[j].second.second;
+                st.insert(make_pair(ys[j].second.second, ys[j].second.first));
+                while (!st.empty() && allcnt - (ll) st.begin()->second > cntx)
+                {
+                    allcnt -= st.begin()->second;
+                    allgood -= st.begin()->first * st.begin()->second;
+                    st.erase(st.begin());
+                }
+                if (!st.empty() && allcnt > cntx)
+                    ans = max(ans, bad + allgood - st.begin()->first * st.begin()->second +
+                                   ((cntx - allcnt + st.begin()->second) >= 0 ? (cntx - allcnt + st.begin()->second) *
+                                                                                st.begin()->first : 0));
+                else ans = max(ans, bad + allgood);
+            }
+            cout << (long long) ans;
+            return 0;
+        }
+        else exit(1);
+    }
+    return 0;
+}

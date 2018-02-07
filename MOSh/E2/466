@@ -1,0 +1,107 @@
+const
+  mleft: byte = 1;
+  mright: byte = 2;
+  mup: byte = 4;
+  mdown: byte = 8;
+  mseen: byte = 16;
+
+var
+  ar, art: array[1..100,1..100] of byte;
+  qx, qy: array[1..400000] of longint;
+  qb, qf: longint;
+  xs, ys, x, y, i, j, n, q, x1, y1, x2, y2, cx, cy, ans: longint;
+  c: char;
+  fl, flo: text;
+
+begin
+  assign(fl, 'repair.in');
+  reset(fl);
+  assign(flo, 'repair.out');
+  rewrite(flo);
+  readln(fl, xs, ys);
+  readln(fl, n, q);
+  for i:=1 to n-1 do
+    begin
+      readln(fl, c, x, y);
+      if c='h' then
+        begin
+          ar[x,y]:=ar[x,y] or mright;
+          ar[x+1,y]:=ar[x+1,y] or mleft;
+        end
+      else
+        begin
+          ar[x,y]:=ar[x,y] or mup;
+          ar[x,y+1]:=ar[x,y+1] or mdown;
+        end;
+    end;
+  for i:=1 to q do
+    begin
+      ans:=0;
+      readln(fl, x1, y1, x2, y2);
+      art:=ar;
+      for y:=y1 to y2 do
+        for x:=x1 to x2 do if (art[x, y] and mseen) = 0 then
+          begin
+            qb:=1;
+            qf:=1;
+            qx[1]:=x;
+            qy[1]:=y;
+            if (art[x, y] and not(mseen)) > 0 then ans:=ans+1;
+            repeat
+              cx:=qx[qb];
+              cy:=qy[qb];
+              assert((cx>0) and (cy>0));
+              if ((art[cx,cy] and mseen) > 0) then
+                begin
+                  qb:=qb+1;
+                  continue;
+                end;
+              art[cx,cy]:=art[cx,cy] or mseen;
+              if (cx>x1) and ((art[cx,cy] and mleft) > 0) then
+                begin
+                  if ((art[cx-1,cy] and mseen) = 0) then
+                    begin
+                      qf:=qf+1;
+                      qx[qf]:=cx-1;
+                      qy[qf]:=cy;
+
+                    end;
+                end;
+              if (cx<x2) and ((art[cx,cy] and mright) > 0) then
+                begin
+                  if ((art[cx+1,cy] and mseen) = 0) then
+                    begin
+                      qf:=qf+1;
+                      qx[qf]:=cx+1;
+                      qy[qf]:=cy;
+
+                    end;
+                end;
+              if (cy>y1) and ((art[cx,cy] and mdown) > 0) then
+                begin
+                  if ((art[cx,cy-1] and mseen) = 0) then
+                    begin
+                      qf:=qf+1;
+                      qx[qf]:=cx;
+                      qy[qf]:=cy-1;
+
+                    end;
+                end;
+              if (cy<y2) and ((art[cx,cy] and mup) > 0) then
+                begin
+                  if ((art[cx,cy+1] and mseen) = 0) then
+                    begin
+                      qf:=qf+1;
+                      qx[qf]:=cx;
+                      qy[qf]:=cy+1;
+
+                    end;
+                end;
+              qb:=qb+1;
+            until qb>qf;
+          end;
+      writeln(flo, ans);
+    end;
+  close(fl);
+  close(flo);
+end.

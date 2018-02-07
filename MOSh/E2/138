@@ -1,0 +1,99 @@
+#include <iostream>
+#include <vector>
+#include <stdlib.h>
+#include <stdio.h>
+#include <set>
+#include <algorithm>
+
+using namespace std;
+
+int arr[1000][1000];
+
+int arr_count(int n, int m)
+{
+    int ans = 0;
+
+    for(int y = 0; y < n-1; y++)
+    {
+        for(int x = 0; x < m-1; x++)
+        {
+            if(arr[x][y] == arr[x+1][y] && arr[x][y] == arr[x][y+1] && arr[x][y] == arr[x+1][y+1]) ans++;
+        }
+    }
+
+    return ans;
+}
+
+void move_right(int n, int m)
+{
+    for(int y = 0; y < n; y++)
+    {
+        int a = arr[m-1][y];
+        for(int x = m-1; x > 0; x--) arr[x][y] = arr[x-1][y];
+        arr[0][y] = a;
+    }
+}
+
+void move_down(int n, int m)
+{
+    for(int x = 0; x < m; x++)
+    {
+        int a = arr[x][n-1];
+        for(int y = n-1; y > 0; y--) arr[x][y] = arr[x][y-1];
+        arr[x][0] = a;
+    }
+}
+
+void mode_left(int n, int m)
+{
+    for(int y = 0; y < n; y++)
+    {
+        int a = arr[0][y];
+        for(int x = 0; x < m-1; x++) arr[x][y] = arr[x+1][y];
+        arr[m-1][y] = a;
+    }
+}
+
+void move_up(int n, int m)
+{
+    for(int x = 0; x < m; x++)
+    {
+        int a = arr[x][0];
+        for(int y = 0; y < n-1; y++) arr[x][y] = arr[x][y+1];
+        arr[x][n-1] = a;
+    }
+}
+
+int main()
+{
+    freopen("video.in", "r", stdin);
+    freopen("video.out", "w", stdout);
+
+    int n, m;
+    cin >> n >> m;
+
+    for(int y = 0; y < n; y++)
+    {
+        for(int x = 0; x < m; x++)
+        {
+            char c;
+            cin >> c;
+            arr[x][y] = c - '0';
+        }
+    }
+
+    int ans = arr_count(n, m);
+    for(int i = 0; i < m; i++)
+    {
+        move_left(n, m);
+        for(int k = 0; k < n; k++)
+        {
+            move_up(n, m);
+            ans = max(ans, arr_count(n, m));
+        }
+    }
+
+    cout << ans << endl;
+
+    return 0;
+}

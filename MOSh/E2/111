@@ -1,0 +1,89 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+
+int main()
+{
+    freopen("castle.in", "r", stdin);
+    freopen("castle.out", "w", stdout);
+    long long n, s;
+    cin >> n >> s;
+    long long ans = 0;
+    vector< pair<long long, long long> > wall(n);
+    for (long long i = 0; i < n; ++i)
+    {
+        cin >> wall[i].second >> wall[i].first;
+        ans += wall[i].second;
+    }
+    for (long long i = 0; i < s; ++i)
+    {
+        long long t = 0;
+        for (long long i = 0; i < n; ++i)
+        {
+            if (wall[i].second > 0)
+            {
+                t = max(t, min(wall[i].second, wall[i].first));
+                wall[i].second -= min(wall[i].second, wall[i].first);
+            }
+        }
+        ans -= t;
+    }
+    /*
+    sort(wall.begin(), wall.end());
+    reverse(wall.begin(), wall.end());
+    multiset<long long> p;
+    //cout << "first part" << endl;
+    for (long long i = 0; i < n; ++i)
+    {
+        //cout << "s = " << s << ", ans = " << ans << ", attack[i] = " << wall[i].second << ", one can defend from " << wall[i].first << endl;
+        multiset<long long> q;
+        if (s > 0)
+        {
+            multiset<long long>::iterator it = p.begin();
+            for (; (s > 0) && (it != p.end()) && (*it + wall[i].first <= 0); ++it)
+            {
+                --s;
+                ans += *it;
+            }
+            for (; (it != p.end()); ++it)
+            {
+                q.insert(*it);
+            }
+            swap(p, q);
+            if (wall[i].second / wall[i].first <= s)
+            {
+                s -= wall[i].second / wall[i].first;
+                long long t = (wall[i].second / wall[i].first) * wall[i].first;
+                ans -= t;
+                wall[i].second -= t;
+                p.insert(-wall[i].second);
+                wall[i].second = 0;
+            }
+            else
+            {
+                long long t = wall[i].first * s;
+                ans -= t;
+                wall[i].second -= t;
+                s = 0;
+            }
+            swap(wall[i].first, wall[i].second);
+        }
+    }
+    sort(wall.begin(), wall.end());
+    reverse(wall.begin(), wall.end());
+    /*cout << "second part" << endl;
+    for (long long i = 0; i < n; ++i)
+    {
+        cout << "s = " << s << ", ans = " << ans << ", attack[i] = " << wall[i].first << ", one can defend from " << wall[i].second << endl;
+        if (s > 0)
+        {
+            if (wall[i].first > 0)
+            {
+                --s;
+                ans -= wall[i].first;
+            }
+        }
+    }*/
+    cout << ans << endl;
+    return 0;
+}

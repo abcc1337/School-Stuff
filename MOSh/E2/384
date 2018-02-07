@@ -1,0 +1,100 @@
+#include <iostream>
+#include <cstdio>
+#include <cassert>
+#include <cmath>
+#include <set>
+#include <map>
+#include <vector>
+#include <algorithm>
+#include <unordered_map>
+#include <string>
+#include <cstring>
+#include <tuple>
+#include <bitset>
+#include <cstdlib>
+#define mp make_pair
+#define pb push_back
+#define NAME "twopaths"
+#define mt make_tuple
+#define y1 y11
+
+using namespace std;
+
+typedef long long ll;
+typedef long double ld;
+
+const int nmax = 1000 * 1000;
+const int inf = 1000 * 1000 * 1000;
+const int mod = 1000 * 1000 * 1000 + 7;
+const int force = 27;
+const ld pi = acos(-1.0);
+const int loga = 19;
+
+int h[nmax];
+int n, k, x[nmax], y[nmax], answer = -1, ind1, ind2;
+int go[loga][nmax];
+
+int lca(int v1, int v2) {
+	if (h[v2] > h[v1]) {
+		swap(v1, v2);
+	}
+	if (v1 == v2) {
+		return v1;
+	}
+	for (int i = loga - 1; i >= 0; i--) {
+		if (h[go[i][v1]] >= h[v2]) {
+			v1 = go[i][v1];
+		}
+	}
+	assert(h[v1] == h[v2]);
+	if (v1 == v2) {
+		return v1;
+	}
+	for (int i = loga - 1; i >= 0; i--) {
+		if (go[i][v1] != go[i][v2]) {
+			v1 = go[i][v1];
+			v2 = go[i][v2];
+		}
+	}
+	return go[0][v1];
+}
+
+int main() {
+	freopen(NAME".in", "r", stdin); freopen(NAME".out", "w", stdout);
+	cin >> n >> k;
+	for (int i = 1; i < n; i++) {
+		scanf("%d", &go[0][i]);
+		go[0][i]--;
+	}
+	go[0][0] = 0;
+	for (int i = 1; i < loga; i++) {
+		for (int j = 0; j < n; j++) {
+			go[i][j] = go[i - 1][go[i - 1][j]];
+		}
+	}
+	for (int i = 1; i < n; i++) {
+		h[i] = h[go[0][i]] + 1;
+	}
+	for (int i = 0; i < k; i++) {
+		scanf("%d%d", &x[i], &y[i]);
+		x[i]--, y[i]--;
+		for (int j = 0; j < i; j++) {
+			int l1 = lca(x[i], x[j]), l2 = lca(x[i], y[j]), l3, l4;
+			if (h[l1] < h[l2]) {
+				l1 = l2;
+			}
+			l2 = lca(y[i], x[j]), l3 = lca(y[i], y[j]);
+			if (h[l3] > h[l2]) {
+				l2 = l3;
+			}
+			l3 = lca(l1, l2);
+			//cerr << x[i] << " " << y[i] << " " << x[j] << " " << y[j] << " " << l1 << " " << l2 << " " << l3 << endl;
+			if (answer < max(0, h[l1] - h[l3]) + max(0, h[l2] - h[l3])) {
+				answer = max(0, h[l1] - h[l3]) + max(0, h[l2] - h[l3]);
+				ind1 = i;
+				ind2 = j;
+			}
+		}
+	}
+	cout << answer << endl << ind1 + 1 << " " << ind2 + 1 << endl;
+}

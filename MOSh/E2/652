@@ -1,0 +1,61 @@
+import sys
+
+
+def main():
+    n = int(input())
+    i = 60
+    while 2 ** i > n:
+        i -= 1
+    arr = [0] * (i + 1)
+    rest = n
+    while i >= 0:
+        if (2 ** i) * 3 <= rest:
+            arr1 = arr[::]
+            arr1[i] = 3
+            rest1 = rest - (2 ** i) * 3
+            if check(arr1, rest1):
+#                print(arr)
+                arr[i] = 3
+#                print(arr)
+#                print(rest)
+                rest -= (2 ** i) * 3
+#                print(rest)
+#                print()
+        i -= 1
+#    print(arr)
+    tmp = check(arr, rest)
+#    print(arr)
+    res1 = 0
+    res2 = 0
+    res3 = 0
+    for i in range(len(arr)):
+        if arr[i] >= 1:
+            res1 += 2 ** i
+        if arr[i] >= 2:
+            res2 += 2 ** i
+        if arr[i] >= 2:
+            res3 += 2 ** i
+    print(res1, res2, res3)
+#    print()
+
+
+def check(arr, rest):
+    i = len(arr) - 1
+    while i >= 0:
+        if arr[i] != 3 and 2 ** i <= rest:
+            arr[i] += 1
+            rest -= 2 ** i
+        else:
+            i -= 1
+#    print(rest)
+    if rest == 0:
+        return True
+    return False
+
+
+sys.stdin = open('grants.in')
+sys.stdout = open('grants.out', 'w')
+t = int(input())
+for i in range(t):
+    main()
+sys.stdout.close()

@@ -1,0 +1,162 @@
+program zad_B_1;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils, Math;
+var
+  n, k, i, n1, n2, res, y : integer;
+  ar : array[1 .. 1001, 1 .. 2] of integer;
+  ar1 : array[1 .. 10000, 1 .. 2] of integer;
+  otr : array[1 .. 10000, 1 .. 3] of integer;
+
+procedure swap(var a, b : integer);
+  var
+    c : integer;
+  begin
+    c := a;
+    a := b;
+    b := c;
+  end;
+
+procedure qsort(l, r : integer);
+  var
+    i, j, m, x, m1 : integer;
+  begin
+    i := l;
+    j := r;
+    x := l + random(r - l + 1);
+    m := ar1[x, 2];
+    m1 := ar1[x, 1];
+
+    repeat
+      while(ar1[i, 2] < m) or ((ar1[i, 2] = m) and (ar1[i, 1] < m1))  do inc(i);
+      while(ar1[j, 2] > m) or ((ar1[j, 2] = m) and (ar1[j, 1] > m1))  do dec(j);
+
+      if(i <= j) then begin
+        swap(ar1[i, 1], ar1[j, 1]);
+        swap(ar1[i, 2], ar1[j, 2]);
+        inc(i);
+        dec(j);
+      end;
+    until(i > j);
+
+    if(i < r) then qsort(i, r);
+    if(j > l) then qsort(l, j);
+  end;
+
+function get(x : integer):integer;
+  var
+    res, i, nac, con, y : integer;
+  begin
+    res := 0;
+    for i := 1 to n2 do begin
+
+      nac := otr[i, 1] + x;
+      con := nac + otr[i, 3];
+      y := otr[i, 2];
+
+      if(abs(nac - y) mod k <> 0) then begin
+        inc(res);
+        nac := nac + k - ((nac - y) mod k);
+      end;
+      if (con > nac) and (abs(con - otr[i, 2]) mod k <> 0) then begin
+        inc(res);
+        con := con - ((con - otr[i, 2]) mod k);
+      end;
+
+      //writeln(nac, ' ', con, ' ', otr[i, 1], ' ', otr[i, 1] + otr[i, 3]);
+
+      if(con > nac) then
+        inc(res, (con - nac) div k);
+    end;
+    get := res;
+  end;
+
+
+begin
+  reset(input, 'monument.in');
+  rewrite(output, 'monument.out');
+
+  randomize;
+
+  readln(n, k);
+  for i := 1 to n do
+    readln(ar[i, 1], ar[i, 2]);
+
+  ar[n + 1, 1] := ar[1, 1];
+  ar[n + 1, 2] := ar[1, 2];
+
+  n1 := 0;
+  for i := 1 to n do
+    if(ar[i, 1] = ar[i + 1, 1]) then begin
+      y := ar[i, 2];
+      while(y <> ar[i + 1, 2]) do begin
+        inc(n1);
+        ar1[n1, 1] := ar[i, 1];
+
+        if(ar[i + 1, 2] > y) then begin
+          ar1[n1, 2] := y;
+          inc(y);
+        end else begin
+          dec(y);
+          ar1[n1, 2] := y;
+        end;
+      end;
+    end;
+
+  qsort(1, n1);
+
+  {writeln(n1);
+  for i := 1 to n1 do
+    writeln(ar1[i, 1], ' ', ar1[i, 2]);  }
+
+  n2 := n1 div 2;
+  for i := 1 to n2 do begin
+    otr[i, 1] := ar1[i * 2 - 1, 1];
+    otr[i, 2] := ar1[i * 2 - 1, 2];
+    otr[i, 3] := ar1[i * 2, 1] - ar1[i * 2 - 1, 1];
+  end;
+
+  n1 := 1;
+  for i := 2 to n2 do
+    if(otr[i - 1, 2] <> otr[i, 2]) or (otr[i, 1] - otr[i - 1, 1] - otr[i - 1, 3] >= k) then begin
+      inc(n1);
+      otr[n1, 1] := otr[i, 1];
+      otr[n1, 2] := otr[i, 2];
+      otr[n1, 3] := otr[i, 3];
+    end else begin
+      otr[n1, 3] := otr[i, 1] + otr[i, 3] - otr[n1, 1];
+      //while(true) do;
+    end;
+  n2 := n1;
+
+  {writeln(n2);
+  for i := 1 to n2 do
+    writeln(otr[i, 1], ' ', otr[i, 2], ' ', otr[i, 3]);  }   
+
+  res := maxint;
+  for i := 0 to k do begin
+    //writeln(get(i));
+    //writeln('----------------');
+    res := min(res, get(i));
+  end;
+
+  writeln(res);
+  readln(n);
+end.
+
+
+12 3
+2 3
+1 3
+1 2
+3 2
+3 1
+8 1
+8 2
+10 2
+10 3
+8 3
+8 4
+2 4

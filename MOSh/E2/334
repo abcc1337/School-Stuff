@@ -1,0 +1,74 @@
+def maxpow(grantsize):
+    a = 1
+    while grantsize // a > 0:
+        a *= 2
+    a //= 2
+    return a
+
+def powin(power, grant):
+    return (grant % (power * 2)) // power == 1
+        
+
+def maxpow3(grantsize):
+    a = 3
+    while grantsize // a > 0:
+        a *= 2
+    a //= 2
+    return a
+
+
+def makegrants(grantsize, power):
+    if grantsize == 4:
+        return [0, 2, 2, 0]
+    elif grantsize == 3:
+        return [1, 1, 1, 1]
+    elif grantsize == 2:
+        return [0, 1, 1, 0]
+    elif grantsize == 1:
+        return [0, 1, 0, 0]
+    elif grantsize == 0:
+        return [0, 0, 0, 0]
+    elif power > grantsize:
+        return makegrants(grantsize, power // 2)
+    else:
+        if power * 6 <= grantsize:
+            return [False]
+        if power * 3 <= grantsize:
+            withTG = makegrants(grantsize - power * 3, power)
+            if powin(power, withTG[1]) or powin(power, withTG[2]) or powin(power, withTG[3]):
+                withTG = [False]
+            else:
+                for i in range(4):
+                    withTG[i] += power
+                pass
+        else:
+            withTG = [False]
+        if power * 2 <= grantsize:
+            withoutTG2 = makegrants(grantsize - power * 2, power)
+            if powin(power, withoutTG2[1]) or powin(power, withoutTG2[2]):
+                withoutTG2 = [False]
+            else:
+                withoutTG2[1] += power
+                withoutTG2[2] += power
+        else:
+            withoutTG2 = [False]
+        withoutTG = makegrants(grantsize - power, power)
+        if powin(power, withoutTG[1]):
+            withoutTG = [False]
+        else:
+            withoutTG[1] += power
+        down = makegrants(grantsize, power // 2)
+        return max(withTG, withoutTG, withoutTG2, down)
+            
+
+arr = ["0 0 0", "1 0 0", "2 0 0", "1 1 1", "2 2 0", "3 1 1", "2 2 2", "3 2 2"]
+inp = open("grants.in")
+out = open("grants.out", "w")
+years = int(inp.readline())
+for i in range(years):
+    size = int(inp.readline())
+    grants = makegrants(size, maxpow(size))
+    for i in range(1, 4):
+        out.write(str(grants[i]) + " ")
+    out.write("\n")
+out.close()

@@ -1,0 +1,136 @@
+#include <iostream>
+#include <algorithm>
+#include <cstdio>
+#include <vector>
+#include <string>
+#include <cstring>
+
+using namespace std;
+
+const int MAX_N = 1001;
+const int dx[4] = {1, 0, -1, 0};
+const int dy[4] = {0, 1, 0, -1};
+
+int n, m, go[MAX_N][MAX_N], cx, cy, c, g, har[MAX_N], num[MAX_N][MAX_N], dist[MAX_N][MAX_N];
+pair<int, int> how[MAX_N][MAX_N];
+string s[MAX_N];
+bool used[MAX_N][MAX_N], used_now[MAX_N][MAX_N];
+vector<vector<pair<int, int> > > cicle;
+
+void dfs(int x, int y)
+{
+    used[x][y] = true;
+    used_now[x][y] = true;
+    int l = x + dx[go[x][y]];
+    int r = y + dy[go[x][y]];
+    if (!used[l][r])
+    {
+        dfs(l, r);
+        if (cx != -1 && cy != -1)
+            cicle[c - 1].push_back(make_pair(x, y));
+        if (x == cx && y == cy)
+        {
+            cx = -1;
+            cy = -1;
+        }
+    }
+    else if (used_now[l][r])
+    {
+        c++;
+        vector<pair<int, int> > emp;
+        cicle.push_back(emp);
+        cx = l;
+        cy = r;
+        cicle[c - 1].push_back(make_pair(x, y));
+        return;
+    }
+    else
+        return;
+}
+
+void dfs_har(int x, int y)
+{
+    int l = x + dx[go[x][y]];
+    int r = y + dy[go[x][y]];
+    if (num[l][r] == -1)
+        dfs_har(l, r);
+    dist[x][y] = dist[l][r] + 1;
+    num[x][y] = num[l][r];
+    how[x][y] = how[l][r];
+}
+
+int main()
+{
+    #define fname "robots"
+    freopen(fname".in", "r", stdin);
+    freopen(fname".out", "w", stdout);
+    cin >> n >> m >> g;
+    for (int i = 0; i < n; i++)
+        cin >> s[i];
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+        {
+            if (s[i][j] == 's' || s[i][j] == 'S')
+                go[i][j] = 0;
+            else if (s[i][j] == 'e' || s[i][j] == 'E')
+                go[i][j] = 1;
+            else if (s[i][j] == 'n' || s[i][j] == 'N')
+                go[i][j] = 2;
+            else
+                go[i][j] = 3;
+        }
+    memset(used, 0, sizeof(used));
+    c = 0;
+    cx = -1;
+    cy = -1;
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            if (!used[i][j])
+            {
+                memset(used_now, 0, sizeof(used_now));
+                dfs(i, j);
+            }
+    for (int i = 0; i < c; i++)
+        har[i] = 0;
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            num[i][j] = -1;
+    memset(dist, 0, sizeof(dist));
+    for (int i = 0; i < c; i++)
+        for (pair<int, int> p : cicle[i])
+        {
+            how[p.first][p.second] = p;
+            num[p.first][p.second] = i;
+            dist[p.first][p.second] = 0;
+        }
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            if (num[i][j] == -1)
+                dfs_har(i, j);
+    if (g == 0)
+    {
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < m; j++)
+                if ('A' <= s[i][j] && s[i][j] <= 'Z')
+                    if (num[i][j] != -1)
+                        har[num[i][j]]++;
+        bool ch = true;
+        for (int i = 0; i < c; i++)
+            if (har[i] < cicle[i].size())
+                ch = false;
+        if (!ch)
+        {
+            int ans = 0;
+            for (int i = 0; i < c; i++)
+                ans += cicle[i].size();
+        }
+        int ans = 0;
+        for (int i = 0; i < c; i++)
+        {
+            int f = cicle[i].size();
+            ans += min(f, har[i]);
+        }
+        cout << ans;
+    }
+    return 0;
+}

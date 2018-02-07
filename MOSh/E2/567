@@ -1,0 +1,36 @@
+#include <sys>
+#define a 1
+import sys
+
+
+def f1(el1, el2):
+    if el1[1] < el2[1]:
+        return True
+    return False
+
+
+sys.stdin, sys.stdout = open("castle.in", "r"), open("castle.out", "w")
+n, s = map(int, input().split())
+parts = [list(map(int, input().split())) for i in range(n)]
+parts.sort(key = lambda part: -1 * part[1])
+res = sum([i[0] for i in parts])
+for i in range(len(parts)):
+    if res - (parts[i][1] - (parts[i][0] % parts[i][1])) >= 0 and s - parts[i][0] //  parts[i][1] >= 0:
+        s -= parts[i][0] //  parts[i][1]
+        res -= parts[i][0] - (parts[i][0] % parts[i][1])
+        parts[i][0] %= parts[i][1]
+        if s == 0 or res == 0:
+            break
+    elif s > 0:
+        res -= s * parts[i][1]
+        break
+else:
+    #print(parts, res, s)
+    parts.sort(key = lambda part: -1 * part[0])
+    for i in range(len(parts)):
+        if parts[i][0] != 0 and s > 0:
+            s -= 1
+            res -= parts[i][0]
+print(res)
+sys.stdin.close()
+sys.stdout.close()

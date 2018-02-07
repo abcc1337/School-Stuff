@@ -1,0 +1,131 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <iostream>
+#include <ctime>
+using namespace std;
+
+
+int main() {
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+#else
+	freopen("video.in", "r", stdin);
+	freopen("video.out", "w", stdout);
+#endif // _DEBUG
+	srand(time(0));
+	int n, m;
+	scanf("%d %d\n", &n, &m);
+	char a[1000][1000];
+	for (int i = 0; i != n; ++i) {
+		for (int j = 0; j != m; ++j) {
+			char in;
+			scanf("%c", &in);
+			in -= '0';
+			a[i][j] = in;
+		}
+		scanf("\n");
+	}
+
+	int cur = 0;
+
+	for (int i = 0; i != n - 1; ++i)
+		for (int j = 0; j != m - 1; ++j)
+			if (a[i][j] == a[i][j + 1] && a[i][j] == a[i + 1][j] && a[i][j] == a[i + 1][j + 1])
+				++cur;
+
+	int cnt = cur;
+	int last = cnt;
+
+	if (n > 600 || m > 600) {
+		for (int i = 0; i != n; ++i) {
+			int iter = 200;
+			while (iter != -1) {
+				int j;
+				j = rand() % m;
+				if (j != 0)
+					for (int k = 0; k != n - 1; ++k)
+						if (a[k][j - 1] == a[k][j] && a[k][j - 1] == a[k + 1][j - 1] && a[k][j - 1] == a[k + 1][j])
+							--cur;
+				if (i != 0)
+					for (int k = 0; k != m - 1; ++k)
+						if (a[i - 1][k] == a[i - 1][k + 1] && a[i - 1][k] == a[i][k] && a[i - 1][k] == a[i][k + 1])
+							--cur;
+				if (i != 0 && j != 0 && a[i - 1][j - 1] == a[i][j] && a[i - 1][j - 1] == a[i][j - 1] && a[i - 1][j - 1] == a[i - 1][j])
+					++cur;
+
+				if (i - 2 > 0 && j != 0)
+					for (int k = 0; k != i - 1; ++k)
+						if (a[k][m - 1] == a[k + 1][m - 1] && a[k][0] == a[k + 1][0] && a[k][m - 1] == a[k][0])
+							++cur;
+
+				if (j != 0)
+					for (int k = i; k != n - 1; ++k)
+						if (a[k][m - 1] == a[k + 1][m - 1] && a[k][0] == a[k + 1][0] && a[k][m - 1] == a[k][0])
+							++cur;
+
+				if (i != 0)
+					for (int k = j; k != m - 1; ++k)
+						if (a[n - 1][k] == a[n - 1][k + 1] && a[0][k] == a[0][k + 1] && a[n - 1][k] == a[0][k])
+							++cur;
+
+				if (j - 2 > 0 && i != 0)
+					for (int k = 0; k != j - 1; ++k)
+						if (a[n - 1][k] == a[n - 1][k + 1] && a[0][k] == a[0][k + 1] && a[n - 1][k] == a[0][k])
+							++cur;
+
+				if (i != 0 && j != 0 && a[n - 1][m - 1] == a[n - 1][0] && a[0][0] == a[0][m - 1] && a[0][0] == a[n - 1][0])
+					++cur;
+
+				cnt = cur > cnt ? cur : cnt;
+				cur = last;
+				--iter;
+			}
+		}
+	}
+
+	else {
+		for (int i = 0; i != n; ++i)
+			for (int j = 0; j != m; ++j) {
+				if (j != 0)
+					for (int k = 0; k != n - 1; ++k)
+						if (a[k][j - 1] == a[k][j] && a[k][j - 1] == a[k + 1][j - 1] && a[k][j - 1] == a[k + 1][j])
+							--cur;
+				if (i != 0)
+					for (int k = 0; k != m - 1; ++k)
+						if (a[i - 1][k] == a[i - 1][k + 1] && a[i - 1][k] == a[i][k] && a[i - 1][k] == a[i][k + 1])
+							--cur;
+				if (i != 0 && j != 0 && a[i - 1][j - 1] == a[i][j] && a[i - 1][j - 1] == a[i][j - 1] && a[i - 1][j - 1] == a[i - 1][j])
+					++cur;
+
+				if (i - 2 > 0 && j != 0)
+					for (int k = 0; k != i - 1; ++k)
+						if (a[k][m - 1] == a[k + 1][m - 1] && a[k][0] == a[k + 1][0] && a[k][m - 1] == a[k][0])
+							++cur;
+
+				if (j != 0)
+					for (int k = i; k != n - 1; ++k)
+						if (a[k][m - 1] == a[k + 1][m - 1] && a[k][0] == a[k + 1][0] && a[k][m - 1] == a[k][0])
+							++cur;
+
+				if (i != 0)
+					for (int k = j; k != m - 1; ++k)
+						if (a[n - 1][k] == a[n - 1][k + 1] && a[0][k] == a[0][k + 1] && a[n - 1][k] == a[0][k])
+							++cur;
+
+				if (j - 2 > 0 && i != 0)
+					for (int k = 0; k != j - 1; ++k)
+						if (a[n - 1][k] == a[n - 1][k + 1] && a[0][k] == a[0][k + 1] && a[n - 1][k] == a[0][k])
+							++cur;
+
+				if (i != 0 && j != 0 && a[n - 1][m - 1] == a[n - 1][0] && a[0][0] == a[0][m - 1] && a[0][0] == a[n - 1][0])
+					++cur;
+
+				cnt = cur > cnt ? cur : cnt;
+				cur = last;
+			}
+	}
+
+	cout << cnt;
+	return 0;
+}

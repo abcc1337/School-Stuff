@@ -1,0 +1,85 @@
+type mass=array[0..100000,1..3] of longint;
+     majj=array[0..100] of longint;
+     maee=array[0..100,0..100,0..100] of longint;
+     marr=array[0..100,0..100] of longint;
+var m:mass;l,a,b,c,i,n,k,z:longint;
+    res,e:int64;
+    m2:majj;
+    u:boolean;
+    m3:maee;
+    m4:marr;
+procedure swap(var a,b:longint);
+var c:longint;
+Begin
+   c:=a;
+   a:=b;
+   b:=c;
+end;
+procedure qsort(var m:mass;a,b,c:longint);
+procedure sort(l,r:longint);
+var i,j,x1,x2,x,w:longint;
+Begin
+   i:=l;
+   j:=r;
+   w:=l+random(r-l);
+   x:=m[w,a];
+   x1:=m[w,b];
+   x2:=m[w,c];
+   repeat
+      while (m[i,a]<x) or ((m[i,a]=x) and (m[i,b]<x1)) or ((m[i,a]=x) and (m[i,b]=x1) and (m[i,c]<x2)) do
+         inc(i);
+      while (m[j,a]>x) or ((m[j,a]=x) and (m[j,b]>x1)) or ((m[j,a]=x) and (m[j,b]=x1) and (m[j,c]>x2)) do
+         dec(j);
+      if i<=j
+      then Begin
+              swap(m[i,1],m[j,1]);
+              swap(m[i,2],m[j,2]);
+              swap(m[i,3],m[j,3]);
+              inc(i);
+              dec(j);
+           end;
+   until i>j;
+   if l<j
+   then sort(l,j);
+   if i<r
+   then sort(i,r);   
+end;
+Begin
+   sort(1,n);
+end;
+procedure doing(a,b,c:longint);
+Begin
+   fillchar(m3,sizeof(m3),0);
+   fillchar(m2,sizeof(m2),0);
+   fillchar(m4,sizeof(m4),0);
+   for i:=1 to n do
+     Begin
+      inc(m3[m[i,a],m[i,b],m[i,c]]);
+      inc(m2[m[i,a]]);
+      inc(m4[m[i,a],m[i,b]]);
+     end;
+   for i:=1 to n do
+      Begin
+         e:=m2[m[i,a]];
+         dec(e,m4[m[i,a],m[i,b]]);
+         for z:=1 to 100 do
+           if z<>m[i,b]
+           then dec(e,m3[m[i,a],z,m[i,c]]);
+         inc(res,e);
+      end;
+end;
+begin
+   assign(input,'onlyone.in');
+   assign(output,'onlyone.out');
+//   assign(input,'input.txt');
+//   assign(output,'output.txt');
+   reset(input);
+   rewrite(output);
+   readln(n);
+   for i:=1 to n do
+      readln(m[i,1],m[i,2],m[i,3]);
+   doing(1,2,3);
+   doing(2,1,3);
+   doing(3,1,2);
+   writeln(res div 2);
+end.

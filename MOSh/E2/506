@@ -1,0 +1,67 @@
+var
+  n, q, j, i, l, r, k, kk, ans:longint;
+  qq:boolean;
+  s:string;
+  a:array[1..500, 1..500] of boolean;
+  x:array[1..500] of boolean;
+begin
+  assign(input, 'lamps.in')
+  reset(input);
+  assign(output, 'lamps.out');
+  rewrite(output);
+  readln(n, q);
+  readln(s);
+  for j := 1 to n do
+  begin
+    if s[j] = '1' then x[j] := True;
+  end;
+  for j := 1 to n do
+  begin
+    for i := j to n do
+    begin
+      qq := True;
+      for kk := j to i do
+      begin
+        if (not(x[kk])) then qq := False;
+      end;
+      if qq then a[j, i] := True;
+    end;
+  end;
+  ans := 0;
+  for j := 1 to n do
+  begin
+    for i := 1 to n do
+    begin
+      if a[j, i] then ans += 1;
+    end;
+  end;
+  writeln(ans);
+  for k := 1 to q do
+  begin
+    readln(l, r, kk);
+    if kk = 1 then qq := True
+    else qq := False;
+    for j := l to r do x[j] := qq;
+    for j := 1 to n do
+    begin
+      for i := j to n do
+      begin
+        qq := True;
+        for kk := j to i do
+        begin
+          if (not(x[kk])) then qq := False;
+        end;
+        if qq then a[j, i] := True;
+      end;
+    end;
+    ans := 0;
+    for j := 1 to n do
+    begin
+      for i := 1 to n do
+      begin
+        if a[j, i] then ans += 1;
+      end;
+    end;
+    writeln(ans);
+  end;
+end.

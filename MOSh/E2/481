@@ -1,0 +1,102 @@
+program ZAD_7;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils,Math;
+var
+   t:array [1..200005] of integer;
+   b:array [1..50001] of integer;
+   s:string;
+   n,q,i,j,l,r,k:integer;
+   ss,z:int64;
+procedure build(v,l,r:integer);
+var
+   m:integer;
+begin
+   if (l=r) then
+      begin
+         if (s[l]='0') then t[v]:=l
+         else t[v]:=maxint;
+      end
+   else
+      begin
+         m:=(l+r) div 2;
+         build(v+v,l,m);
+         build(v+v+1,m+1,r);
+         t[v]:=min(t[v+v],t[v+v+1]);
+      end;
+end;
+procedure update(v,l,r,x,ind:integer);
+var
+   m:integer;
+begin
+   if (l=r) then t[v]:=x
+   else
+      begin
+         m:=(l+r) div 2;
+         if (ind<=m) then update(v+v,l,m,x,ind)
+         else update(v+v+1,m+1,r,x,ind);
+         t[v]:=min(t[v+v],t[v+v+1]);
+      end;
+end;
+function get(v,l,r,l1,r1:integer):integer;
+var
+   m:integer;
+begin
+   if (l1>r1) then get:=maxint
+   else if (l1=l) and (r1=r) then get:=t[v]
+   else
+      begin
+         m:=(l+r) div 2;
+         get:=min(get(v+v,l,m,l1,min(r1,m)),get(v+v+1,m+1,r,max(l1,m+1),r1));
+      end;
+end;
+begin
+   reset(input,'lamps.in');
+   assign(output,'lamps.out');
+   for i:=1 to 50001 do b[i]:=maxint;
+   readln(n,q);
+   readln(s);
+   s:=s+'0';
+   inc(n);
+   build(1,1,n);
+   ss:=0;
+   for j:=1 to n do
+            begin
+               z:=get(1,1,n,j,n);
+               if (z<maxint) then dec(z);
+               if (z<maxint) and (z>=j) and ((b[j]=maxint) or (z>b[j]))
+                 then b[j]:=z;
+               z:=b[j];
+               if (z<maxint) and (z>=j) then ss:=ss+z-j+1;
+            end;
+         writeln(ss);
+   for i:=1 to q do
+      begin
+         ss:=0;
+         readln(l,r,k);
+         for j:=l to r do
+            begin
+               if (k=1) then update(1,1,n,maxint,j)
+               else update(1,1,n,j,j);
+            end;
+         for j:=1 to n do
+            begin
+               z:=get(1,1,n,j,n);
+               if (z<maxint) then dec(z);
+               if (z<maxint) and (z>=j) and ((b[j]=maxint) or (z>b[j]))
+                 then b[j]:=z;
+               z:=b[j];
+               if (z<maxint) and (z>=j) then ss:=ss+z-j+1;
+            end;
+         writeln(ss);
+      end;
+   readln;
+end.
+7 4
+1100101
+4 6 1
+3 6 0
+3 4 1
+5 7 1

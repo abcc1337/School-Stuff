@@ -1,0 +1,43 @@
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+#include <vector>
+#include <algorithm>
+using namespace std;
+typedef long long ll;
+
+int main() {
+	ifstream in;
+	ofstream out;
+	in.open("penguins.in");
+	out.open("penguins.out");
+
+	ll t, i, j, n, k, seq;
+	char c;
+	in >> t;
+	for (i = 0; i < t; i++) {
+		in >> n >> k;
+		ll res = 1000000000, resmask, seq = 0, mask;
+		for (j = 0; j < n; j++) {
+			in >> c;
+			seq = seq * 2 + c - '0';
+		}
+		for (mask = 0; mask < (1 << n); mask++) {
+			ll bits = 0, penguins = 0, prev;
+			for (ll pow = 1 << (n - 1); pow; pow >>= 1) {
+				bits += (bool)(mask & pow);
+				penguins += (bool)(pow == (1 << (n - 1))) || (bool)((bool)((mask ^ seq) & pow) != prev);
+				prev = (bool)((mask ^ seq) & pow);
+			}
+			if ((bits < res) && (penguins <= k)) {
+				res = bits;
+				resmask = mask;
+			}
+		}
+		for (ll pow = 1 << (n - 1); pow; pow >>= 1)
+			out << (ll)((bool)(pow & (resmask ^ seq)));
+		out << '\n';
+	}
+
+	return 0;
+}

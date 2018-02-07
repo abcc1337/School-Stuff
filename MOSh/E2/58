@@ -1,0 +1,121 @@
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+bool bck(int j, int* ost)
+{
+    if(j < 0) return false;
+    if(ost[j] == 0) return false;
+    if(bck(j-1, ost))
+    {
+        ost[j]--;
+        return true;
+    }
+    else
+    {
+        if(ost[j] >= 2)
+        {
+            ost[j] -= 2;
+            return true;
+        }
+        return false;
+    }
+}
+
+bool calcABC(int x, int s, int& a, int& b, int &c)
+{
+    int ost[30];
+    int step = 1;
+    for(int i = 0; i < 30; i++)
+    {
+        if(x&step) ost[i] = 0;
+        else ost[i] = 3;
+        step *= 2;
+    }
+
+    for(int i = 0; i < 6; i++)
+    {
+        //cout << ost[i] << " ";
+    }
+    //cout << endl;
+
+    bool ok = true;
+    step = 1;
+    for(int i = 0; i < 30; i++)
+    {
+        if(s&step)
+        {
+            if(!bck(i-1, ost))
+            {
+                if(ost[i] >= 1) ost[i] -= 1;
+                else
+                {
+                    ok = false;
+                    break;
+                }
+            }
+        }
+        step *= 2;
+    }
+
+    for(int i = 0; i < 6; i++)
+    {
+        //cout << ost[i] << " ";
+    }
+    //cout << endl;
+
+    a = 0;
+    b = 0;
+    c = 0;
+    step = 1;
+    for(int i = 0; i < 30; i++)
+    {
+        int p = 0;
+        if((x&step) == 0) p = 3;
+        p -= ost[i];
+
+        //cout << p << " " << ost[i] << " " << (x&step) << endl;
+
+        if(p > 0){a = a|step; p--;}
+        if(p > 0){b = b|step; p--;}
+        if(p > 0){c = c|step; p--;}
+        step *= 2;
+    }
+    return ok;
+}
+
+
+
+int main()
+{
+    ifstream cin("grants.in");
+    ofstream cout("grants.out");
+
+    int t; cin >> t;
+    for(int i = 0; i < t; i++)
+    {
+        int n;
+        cin >> n;
+
+        int maxX = -1;
+        int _a, _b, _c;
+        for(int x = 0; x <= n/3; x++)
+        {
+            int a, b, c;
+            if(calcABC(x, n-3*x, a, b, c))
+            {
+                maxX = x;
+                _a = a;
+                _b = b;
+                _c = c;
+            }
+
+        }
+
+        cout << _a+maxX << " " << _b+maxX << " " << _c+maxX  << endl;
+    }
+    //int a, b, c;
+
+    //if(calcABC(10, 17, a, b, c)) cout << a << " " << b << " " << c << endl;
+}

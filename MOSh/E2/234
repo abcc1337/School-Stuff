@@ -1,0 +1,168 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+
+typedef long long lint;
+
+#define F(i, l, r) for(auto i = l; i != r; i++)
+#define Df(i, l, r) for(auto i = l; i != r; i--)
+#define rs resize
+#define cont continue
+#define ret return
+#define ins insert
+#define era erase
+#define brk break
+#define asg assign
+#define retn exit(0)
+#define all(x) x.begin(),x.end()
+#define mk make_pair
+#define X first
+#define Y second
+
+lint ans = 0ll;
+vector<int> x, a, y;
+int n, m, p;
+vector<pair<int, int> > bc;
+vector<lint> bsum;
+vector<lint> costsum;
+
+const string fname = "fisher";
+
+void sub1(){
+    lint totf = 0ll;
+    F(i, 0, n){
+        totf += a[i];
+    }
+    F(i, 0, m)
+        swap(bc[i].X, bc[i].Y);
+    sort(all(bc));
+    int i = m - 1;
+    while(i >= 0){
+        ans += min(totf, (lint)bc[i].Y) * 1ll * bc[i].X;
+        totf = max(0ll, totf - (lint)bc[i].Y);
+        if(totf == 0ll)
+            brk;
+        i--;
+    }
+    printf("%lld", ans);
+    retn;
+}
+
+lint getcosts(int l, int r){
+    if(r < l)
+        ret 0ll;
+    ret (l == 0) ? costsum[r] : (costsum[r] - costsum[l - 1]);
+}
+
+lint getcnt(int l, int r){
+    if(r < l)
+        ret 0ll;
+    ret (l == 0) ? bsum[r] : (bsum[r] - bsum[l - 1]);
+}
+
+int sub2_bins(lint totf){
+    int l = 0, r = m - 1;
+    if(bsum[m - 1] <= totf)
+        ret m - 1;
+    while(r - l > 1){
+        int mid = (l + r) >> 1;
+        lint cnt = (mid == 0) ? 0ll : bsum[mid - 1];
+        if(cnt > totf)
+            r = mid - 1;
+        else
+            l = mid;
+    }
+    if(r > 0 && bsum[r - 1] > totf)
+        ret l;
+    ret r;
+}
+
+void sub2(){
+    F(i, 0, m)
+        swap(bc[i].X, bc[i].Y);
+    sort(all(bc));
+    reverse(bc.begin(), bc.end());
+    bsum.rs(m); costsum.rs(m);
+    F(i, 0, m){
+        bsum[i] = (i == 0) ? 0ll : bsum[i - 1];
+        bsum[i] += bc[i].Y;
+        costsum[i] = (i == 0) ? 0ll : costsum[i - 1];
+        costsum[i] += bc[i].Y * 1ll * bc[i].X;
+    }
+    lint totf = 0ll;
+    F(i, 0, n){
+        lint curr = - x[i] * 1ll * p;
+        totf += a[i];
+        int endb = sub2_bins(totf);
+        curr += getcosts(0, endb - 1);
+        lint left = totf - getcnt(0, endb - 1);
+        curr += min(bc[endb].Y * 1ll, left) * bc[endb].X;
+        ans = max(ans, curr);
+    }
+    printf("%lld", ans);
+    retn;
+}
+
+map<int, lint> bid;
+
+void sub3(){
+    lint totf = 0ll;
+    F(i, 0, n)
+        totf += a[i];
+    lint curr = 0ll;
+    F(i, 0, m){
+        curr = curr + ((i == 0) ? 0 : y[i - 1] * 1ll * p) - y[i] * 1ll * p;
+        if(totf > 0){
+            lint sell = min(totf, 1ll * bc[i].X);
+            if(bid.count(bc[i].Y))
+                bid[bc[i].Y] += sell;
+            else
+                bid[bc[i].Y] = sell;
+            totf -= sell;
+            bc[i].X -= sell;
+            curr += sell * bc[i].Y;
+        }
+        if(bc[i].X != 0){
+            while(bc[i].X != 0){
+                int cc = bid.begin()->X;
+                if(cc >= bc[i].Y)
+                    brk;
+                lint d = min(bc[i].X * 1ll, bid.begin()->Y);
+                if(bid.begin()->Y == d)
+                    bid.erase(bid.begin());
+                else
+                    bid[cc] -= d;
+                bc[i].X -= d;
+                if(bid.count(bc[i].Y))
+                    bid[bc[i].Y] += d;
+                else
+                    bid[bc[i].Y] = d;
+                curr = curr - d * cc + d * bc[i].Y;
+            }
+        }
+        ans = max(ans, curr);
+    }
+    printf("%lld", ans);
+    retn;
+}
+
+int main(){
+    string fin = fname + ".in";
+    string fout = fname + ".out";
+    freopen(fin.c_str(), "r", stdin);
+    freopen(fout.c_str(), "w", stdout);
+    scanf("%d%d%d", &n, &m, &p);
+    x.rs(n); y.rs(m); bc.rs(m); a.rs(n);
+    F(i, 0, n){
+        scanf("%d%d", &x[i], &a[i]);
+    }
+    F(i, 0, m){
+        scanf("%d%d%d", &y[i], &bc[i].X, &bc[i].Y);
+    }
+    if(p == 0)
+        sub1();
+    if(y[m - 1] < x[0])
+        sub2();
+    sub3();
+    ret 0;
+}

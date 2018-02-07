@@ -1,0 +1,317 @@
+#include <iostream>
+#include <stdio.h>
+#include <vector>
+#include <algorithm>
+#include <set>
+#include <tuple>
+#include <map>
+#include <queue>
+
+using namespace std;
+
+#define vec vector
+#define ALL(x) (x).begin(), (x).end()
+#define mp make_pair
+#define mt make_tuple
+
+typedef long long ll;
+typedef pair< int, int > pii;
+
+const int inf = 1000 * 1000 * 1000;
+const ll inf64 = 1ll * inf * inf;
+
+char buff[1010];
+
+int N;
+vec< vec< int > > g, G;
+vec< char > mark;
+vec< int > color, used, par, dist;
+
+void add_edge(int u, int v) {
+	g[u].push_back(v);
+	G[u].push_back(v);
+	G[v].push_back(u);
+}
+
+int st, en;
+
+bool dfs(int v) {
+	color[v] = 0;
+	for (auto to : g[v]) {
+		if (color[to] == -1) {
+			par[v] = to;
+			if (dfs(to)) return 1;
+		} else if(color[to] == 0) {
+			st = to;
+			en = v;
+			return 1;
+		}
+	}
+	color[v] = 1;
+	return 0;
+}
+
+vec< int > vlist;
+
+void go(int v) {
+	used[v] = 1;
+	vlist.push_back(v);
+	for(auto to : G[v]) {
+		if (!used[to]) go(to);
+	}
+}
+
+vec< int > first;
+
+void dfs_f(int v) {
+	if (first[v] != -1) return;
+	if (dist[v] == 0) {
+		first[v] = v;
+		return;
+	}
+	for (auto to : g[v]) {
+		dfs_f(to);
+		first[v] = first[to];
+	}
+}
+
+vec< char > activated, lnk;
+set< int > Q;
+
+int link(int v) {
+	if (*Q.begin() >= v) {
+		return *(--Q.end());
+	} else return *(--Q.lower_bound(v));
+}
+
+bool cmp(int i, int j) {
+	return dist[i] < dist[j];
+}
+
+bool solve() {
+
+	freopen("robots.in", "r", stdin);
+	freopen("robots.out", "w", stdout);
+
+	int n, m, ty;
+
+	scanf("%d %d %d", &n, &m, &ty);
+
+	vec< string > mat(n);
+		
+	for (int i = 0; i < n; i++) {
+		scanf("%s", &buff);
+		mat[i] = buff;
+	}
+
+	N = n * m;
+
+	g.resize(N);
+	G.resize(N);
+	mark.resize(N);
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			if (mat[i][j] >= 'A' && mat[i][j] <= 'Z') mark[i * m + j] = 1;
+			if (mat[i][j] == 'N' || mat[i][j] == 'n')
+				add_edge(i * m + j, (i - 1) * m + j);
+			else if (mat[i][j] == 'S' || mat[i][j] == 's')
+				add_edge(i * m + j, (i + 1) * m + j);
+			else if (mat[i][j] == 'W' || mat[i][j] == 'w')
+				add_edge(i * m + j, i * m + j - 1);
+			else
+				add_edge(i * m + j, i * m + j + 1);
+		}
+	}
+
+	/*cout << '\n';
+	for (int v = 0; v < N; v++) {
+		for (auto to : g[v]) cout << v << ' ' << to << '\n';
+	}
+	cout << '\n';*/
+
+	color.resize(N, -1);
+	used.resize(N);
+	par.resize(N, -1);
+	dist.resize(N, inf);
+	first.resize(N, -1);
+
+	queue< int > q;
+
+	vec< tuple< int, int, int > > ans;
+	// {time, i, j}
+
+	vec< int > pos(N, -1);
+
+	int totres = 0;
+
+	vec< pii > mas;
+
+	for (int v = 0; v < N;v++) {
+		if (used[v]) continue;
+		
+		vlist.clear();
+		dfs(v);
+		go(v);
+
+		//for (auto u : vlist) cout << u << ' ';
+		//cout << '\n';
+		//cout << "cycle : ";
+		
+		// bfs begin
+
+		for (int u = st;; u = par[u]) {
+			dist[u] = 0;
+			q.push(u);
+			//cout << u << ' ';
+			if (u == en) break;
+		}
+		//cout << '\n';
+		
+		while (!q.empty()) {
+			int u = q.front();
+			q.pop();
+			for (auto to : G[u]) {
+				if (dist[to] > dist[u] + 1) {
+					dist[to] = dist[u] + 1;
+					q.push(to);
+				}
+			}
+		}
+
+		//cout << "\n";
+		//for (int v = 0; v < N; v++) {
+		//	cout << "d " << v << " = " << dist[v] << "\n";
+		//}
+		//cout << "\n";
+
+		// bfs end
+		
+		for (auto u : vlist) dfs_f(u);
+
+		//for (int v = 0; v < N; v++) {
+		//	cout << "f " << v << " = " << first[v] << "\n";
+		//}
+
+		//cout << "\n";
+
+		vec< int > cycle;
+
+		for (int u = st;; u = par[u]) {
+			cycle.push_back(u);
+			if (u == en) break;
+		}
+
+		for (int it = 0; it < (int)cycle.size(); it++) {
+			int u = cycle[it];
+			pos[u] = it;
+		}
+
+		activated.clear();
+		lnk.clear();
+
+		int cycle_size = (int)cycle.size();
+		int comp_size = (int)vlist.size();
+
+		activated.resize(cycle_size);
+		lnk.resize(cycle_size);
+		for (int i = 1; i < cycle_size; i++) lnk[i] = i - 1;
+		lnk[0] = cycle_size - 1;
+
+		int activated_size = 0, empt = 0;
+		for (int u : vlist) activated_size += mark[u];
+
+		Q.clear();
+		for (int i = 0; i < cycle_size; i++)
+			Q.insert(i);
+
+		for (auto u : cycle) {
+			if (mark[u]) {
+				ans.push_back(mt(1, u / m + 1, u % m + 1));
+				activated[pos[u]] = 1;
+				activated_size--;
+				totres++;
+				Q.erase(pos[u]);
+			} else empt++;
+		}
+
+		int add = min(activated_size, empt);
+		
+		totres += add;
+
+		if (!ty) continue;
+
+		int time = 1;
+
+		//for (int i = 0; i < cycle_size; i++) {
+		//	if (activated[i]) cout << i << " ";
+		//}
+		//cout << "\n";
+
+		int non_active = 0;
+
+		for (int i = 0; i < cycle_size; i++) {
+			if (!activated[i]) non_active++;
+		}
+
+		add = min(add, non_active);
+
+		sort(ALL(vlist), cmp);
+
+		for (int it2 = 0, it = 0; it < add && !Q.empty();it2++) {
+			int u = vlist[it2];
+			int p = pos[first[u]];		
+			if (!mark[u] || dist[u] == 0) continue;
+			it++;
+
+			//cout << "add " << u << ", p = " << p << ", time = " << time << "\n";
+
+			p = p - (time - 1);
+			p = p - dist[u];
+			p = (p % cycle_size + cycle_size) % cycle_size;
+
+			//cout << "nx = " << p << "\n";
+
+			//continue;
+
+			if (activated[p]) {
+				int nx = link(p);
+				time += (cycle_size + p - nx) % cycle_size;
+				ans.push_back(mt(time, u / m + 1, u % m + 1));
+				time += dist[u];
+				p = nx;
+				activated[p] = 1;
+				Q.erase(p);
+			} else {
+				ans.push_back(mt(time, u / m + 1, u % m + 1));
+				time += dist[u];
+				activated[p] = 1;
+				Q.erase(p);
+			}
+
+			//cout << "new " << p << "\n";
+		}
+	}
+
+	//sort(ALL(ans));
+
+	printf("%d\n", totres);
+
+	if (ty) {
+		for(auto i : ans) {
+			int I, J, T;
+			tie(T, I, J) = i;
+			printf("%d %d %d\n", I, J, T);
+		}
+	}
+
+	return true;
+}
+
+int main() {
+
+	//while (solve());
+	solve();
+
+	return 0;
+}

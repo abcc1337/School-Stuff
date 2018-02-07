@@ -1,0 +1,168 @@
+#include <iostream>
+#include <set>
+#include <vector>
+#include <map>
+#include <algorithm>
+
+using namespace std;
+
+struct my
+{
+    int y, buy, price;
+};
+
+inline istream & operator >> (istream & in, my & a)
+{
+    in >> a.y >> a.buy >> a.price;
+    return in;
+}
+
+inline bool cmp(my & a, my & b)
+{
+    return a.price > b.price;
+}
+
+inline long long check(map<int, int> &buy, long long caught)
+{
+    if (buy.empty()) {
+        return 0;
+    }
+    long long curr = 0;
+    auto t = buy.end();
+    t--;
+    while (caught > 0)
+    {
+        long long take = min(caught, (long long)t->second);
+        caught -= take;
+        curr += take * t->first;
+        if (t == buy.begin())
+            return curr;
+        t--;
+    }
+    return curr;
+}
+
+
+int main() {
+    freopen("fisher.in", "r", stdin);
+    freopen("fisher.out", "w", stdout);
+    long long n, m, p;
+    scanf("%lld %lld %lld", &n, &m, &p);
+    if (p == 0)
+    {
+        int i;
+        unsigned long long fish = 0;
+        for (i = 0; i < n; i++)
+        {
+            int a, b;
+            cin >> a >> b;
+            fish += b;
+        }
+        multiset<pair<long long, unsigned long long>> our;
+        for (i = 0; i < m; i++)
+        {
+            int a, b, c;
+            cin >> a >> b >> c;
+            our.insert(make_pair(c, b));
+        }
+        unsigned long long res = 0;
+        while (fish > 0 && !our.empty())
+        {
+            auto t = our.end();
+            t--;
+            auto c = *t;
+            our.erase(t);
+            long long take = min(fish, c.second);
+            fish -= take;
+            res += take * c.first;
+        }
+        cout << res;
+        return 0;
+    }
+    //  vector<pair<int, long long>> ctch(n);
+    pair<int, int> ctch[n];
+    my sell[m];
+    int i;
+    for (i = 0; i < n; i++)
+        scanf("%d %d", &ctch[i].first, &ctch[i].second);
+    for (i = 0; i < m; i++)
+        scanf("%d %d %d", &sell[i].y, &sell[i].buy, &sell[i].price);
+    if (sell[m - 1].y < ctch[0].first)
+    {
+        sort(sell, sell + m, cmp);
+        long long res = 0;
+        int here = 0;
+        long long curr = 0;
+        for (i = 0; i < n; i++)
+        {
+            auto caught = ctch[i].second;
+            while (caught > 0 && here < m)
+            {
+                unsigned long long take = min(caught, sell[here].buy);
+                caught -= take;
+                curr += take * sell[here].price;
+                sell[here].buy -= take;
+                if (sell[here].buy == 0)
+                    here++;
+            }
+            res = max(res, curr - p * ctch[i].first);
+        }
+        cout << res;
+        return 0;
+    }
+    map<int, int> buy;
+    long long res = 0;
+    int j = 0;
+    i = 0;
+    long long all = 0;
+    while (i < n || j < m)
+    {
+        long long curr;
+        if (i == n || (j < m && sell[j].y < ctch[i].first)) {
+            buy[sell[j].price] += sell[j].buy;
+            curr = p * sell[j].y;
+            j++;
+        }
+        else
+        {
+            curr = p * ctch[i].first;
+            all += ctch[i].second;
+            i++;
+        }
+        res = max(res, check(buy, all) - curr);
+    }
+    printf("%lld", res);
+}
+
+/*
+3 2 0
+1 5
+2 3
+4 5
+2 2 10
+3 6 5
+
+2 1 100
+6 5
+100 4
+5 100 2000
+
+3 3 10
+1 1
+10 100
+20 10
+2 1000 1
+11 50 50
+17 50 2
+
+1 1 1
+2 10
+1 10 2
+
+3 2 1
+1 10
+2 10
+3 10
+5 10 2
+6 10 2
+ */

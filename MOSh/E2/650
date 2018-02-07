@@ -1,0 +1,29 @@
+n = int(input())
+mas = [1] * n
+x = 1
+used = [0] * n
+used[0] = 1
+for i in range(2, n + 1):
+    print('? 1', i)
+    a = int(input())
+    if a > x:
+        mas[i - 1] = x + 1
+        x += 1
+        used[mas[i - 1] - 1] += 1
+    else:
+        use = [0] * n
+        for h in range(n):
+            use[h] = used[h]
+        y = 1
+        for j in range(i - 1, -1, -1):
+            print('?', j, i)
+            a = int(input())
+            use[mas[j - 1]] -= 1
+            if a == y and used[mas[j - 1]] == use[mas[j - 1]] + 1:
+                mas[i - 1] = mas[j - 1]
+                used[mas[j - 1] - 1] += 1
+                break
+            y = a
+print('Ready!')
+print(x)
+print(*mas)

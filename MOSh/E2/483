@@ -1,0 +1,37 @@
+import sys
+sys.setrecursionlimit(10000000)
+
+
+def f(ans, res, i):
+    global n, k, s, Min, ANS
+    if i == n:
+        prev = ans[0]
+        cnt = 1
+        for j in range(n):
+            if ans[j] != prev:
+                prev = ans[j]
+                cnt += 1
+        if cnt <= k:
+            if res < Min:
+                Min = res
+                ANS = ans
+        return
+    f(ans + s[i], res, i + 1)
+    if i != 0 and ans[i - 1] != s[i]:
+        f(ans + str(int(not(int(s[i])))), res + 1, i + 1)
+    elif i == 0:
+        f(ans + str(int(not(int(s[i])))), res + 1, i + 1)
+    
+
+fin = open("penguins.in")
+fout = open("penguins.out", "w")
+t = int(fin.readline().rstrip())
+for i in range(t):
+    n, k = map(int, fin.readline().rstrip().split())
+    s = fin.readline().rstrip()
+    Min = 10e10
+    ANS = ""
+    f("", 0, 0)
+    print(ANS, file = fout)
+fin.close()
+fout.close()

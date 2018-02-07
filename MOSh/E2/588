@@ -1,0 +1,46 @@
+def check(y):
+    if (y < 0):
+        return False
+    for i in range(60, -1, -1):
+        if (m[i] == 0):
+            p = 2 ** i     
+            if (y >= p):
+                for l in range(3):
+                    y -= p
+                    if (y < p):
+                        break
+    if (y == 0):
+        return True
+    else:
+        return False
+def check1(y):
+    for i in range(60, -1, -1):
+        if (m[i] == 0):
+            p = 2 ** i            
+            if (y >= p):
+                for l in range(3):
+                    y -= p
+                    global a
+                    a[l] += p
+                    if (y < p):
+                        break
+
+fin = open("grants.in")
+fout = open("grants.out", "w")
+t = int(fin.readline())
+for j in range(t):
+    m = [0 for i in range(61)]    
+    x = int(fin.readline())
+    a = [0, 0, 0]
+    for i in range(60, -1, -1):
+        u = 2 ** i
+        m[i] = 1
+        if (check(x - 3 * u)):
+            a[0] += u
+            a[1] += u
+            a[2] += u
+            x -= 3 * u
+        else:
+            m[i] = 0
+    check1(x)
+    print(a[0], a[1], a[2], file= fout)

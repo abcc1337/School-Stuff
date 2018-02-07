@@ -1,0 +1,108 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <climits>
+#include <algorithm>
+#include <cassert>
+
+using namespace std;
+
+typedef signed long long int64;
+typedef pair<int, int> pii;
+
+const int INF = INT_MAX;
+
+#define mp(a, b) make_pair(a, b)
+#define all(a) (a).begin(), (a).end()
+
+#define TASK "monument"
+
+struct pt {
+  int x, y;
+
+  pt() {
+  }
+
+  pt(const int &ax, const int &ay)
+  : x(ax), y(ay) {
+  }
+
+  void read() {
+    scanf("%d %d", &x, &y);
+  }
+};
+
+int n, k;
+vector<pt> polygon;
+vector<int> length;
+vector<int> minx;
+
+bool isContain(pt p1, pt p2, int y) {
+  if (p1.x != p2.x) {
+    return false;
+  }
+
+  if (p1.y > p2.y) {
+    swap(p1, p2);
+  }
+
+  return p1.y <= y && y < p2.y;
+}
+
+int main() {
+  #ifndef DEBUG
+    freopen(TASK".in", "r", stdin);
+    freopen(TASK".out", "w", stdout);
+  #endif
+
+  scanf("%d %d", &n, &k);
+  polygon.resize(n);
+
+  int miny = INF, maxy = -INF;
+  for (int i = 0; i < n; ++i) {
+    polygon[i].read();
+    miny = min(miny, polygon[i].y);
+    maxy = max(maxy, polygon[i].y);
+  }
+
+  length.resize(maxy - miny);
+  minx.resize(maxy - miny);
+
+  for (int y = miny; y < maxy; ++y) {
+    vector<int> ids;
+    ids.clear();
+
+    for (int i = 0; i < n; ++i) {
+      if (isContain(polygon[i], polygon[(i + 1) % n], y)) {
+        ids.push_back(i);
+      }
+    }
+
+    assert(ids.size() == 2);
+    int id1 = ids[0];
+    int id2 = ids[1];
+
+    length[y - miny] = abs(polygon[id1].x - polygon[id2].x);
+    minx[y - miny] = min(polygon[id1].x, polygon[id2].x);
+  }
+
+  int ans = INF;
+  for (int r = 0; r < k; ++r) {
+    int cnt = 1 + (max(0, length[0] - r - 1) + k - 1) / k;
+    int rr = r;
+    for (int i = 1; i < (int)length.size(); ++i) {
+      rr++;
+      if (rr == k) {
+        rr = 0;
+      }
+
+      int shift = (k + (minx[i - 1]) % k - (minx[i]) % k) % k;
+      rr = (rr + shift) % k;
+      cnt += 1 + (max(0, length[i] - rr - 1) + k - 1) / k;
+    }
+
+    ans = min(ans, cnt);
+  }
+
+  printf("%d\n", ans);
+}

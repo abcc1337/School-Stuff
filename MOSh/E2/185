@@ -1,0 +1,260 @@
+#include "bits/stdc++.h"
+#define ff first
+#define ss second
+#define puba push_back
+#define mapa make_pair
+#define szof(_x) (int) (_x).size()
+#define bend(_x) (_x).end(), (_x).begin()
+
+using namespace std;
+typedef long long LL;
+typedef pair <int, int> pii;
+const int MAXN = 3e5 + 5, bd = 19, bdv = 1 << bd, INF = 1e9 + 9;
+
+
+const int MEM_SIZE = 256 * 1024 * 1024;
+int NOWMEM = 0;
+char MEM[MEM_SIZE];
+
+inline void* operator new(size_t l) {
+    NOWMEM += l;
+    assert(NOWMEM <= MEM_SIZE);
+    return MEM + NOWMEM - l;
+}
+
+inline void operator delete(void*) {}
+
+int n, q;
+int inp[MAXN];
+char s[MAXN];
+pii tolr[bdv * 2], theret[bdv * 2];
+pair <int, LL> sum[bdv * 2];
+int theres[bdv * 2];
+
+inline pii mima(pii a, pii b) {
+    return mapa(min(a.ff, b.ff), max(a.ss, b.ss));
+}
+
+int tolr_set(int v, int vl, int vr, int l, int r, pii num);
+
+int tolr_pushdown(int v, int vl, int vr) {
+    if (theret[v] == mapa(-1, -1)) {
+        return 0;
+    }
+    int vm = (vl + vr) / 2;
+    tolr_set(v * 2, vl, vm, vl, vm, theret[v]);
+    tolr_set(v * 2 + 1, vm + 1, vr, vm + 1, vr, theret[v]);
+    theret[v] = mapa(-1, -1);
+    return 0;
+}
+
+int tolr_set(int v, int vl, int vr, int l, int r, pii num) {
+    if (r < vl || vr < l) {
+        return 0;
+    }
+    if (l <= vl && vr <= r) {
+        theret[v] = num;
+        tolr[v] = num;
+        return 0;
+    }
+    int vm = (vl + vr) / 2;
+    tolr_pushdown(v, vl, vr);
+    tolr_set(v * 2, vl, vm, l, r, num);
+    tolr_set(v * 2 + 1, vm + 1, vr, l, r, num);
+    tolr[v] = mima(tolr[v * 2], tolr[v * 2 + 1]);
+    return 0;
+}
+
+pii tolr_get(int v, int vl, int vr, int l, int r) {
+    if (r < vl || vr < l) {
+        return mapa(INF, -INF);
+    }
+    if (l <= vl && vr <= r) {
+        return tolr[v];
+    }
+    int vm = (vl + vr) / 2;
+    tolr_pushdown(v, vl, vr);
+    return mima(tolr_get(v * 2, vl, vm, l, r), tolr_get(v * 2 + 1, vm + 1, vr, l, r));
+}
+
+inline pair <int, LL> func(pair <int, LL> a, pair <int, LL> b) {
+    return mapa(max(a.ff, b.ff), a.ss + b.ss);
+}
+
+int sum_set(int v, int vl, int vr, int l, int r, LL num);
+
+int sum_pushdown(int v, int vl, int vr) {
+    if (theres[v] == -1) {
+        return 0;
+    }
+    int vm = (vl + vr) / 2;
+    sum_set(v * 2, vl, vm, vl, vm, theres[v]);
+    sum_set(v * 2 + 1, vm + 1, vr, vm + 1, vr, theres[v]);
+    theres[v] = -1;
+    return 0;
+}
+
+int sum_set(int v, int vl, int vr, int l, int r, LL num) {
+    if (r < vl || vr < l) {
+        return 0;
+    }
+    if (l <= vl && vr <= r) {
+        theres[v] = num;
+        sum[v] = mapa(num, num * (vr - vl + 1));
+        return 0;
+    }
+    int vm = (vl + vr) / 2;
+    sum_pushdown(v, vl, vr);
+    sum_set(v * 2, vl, vm, l, r, num);
+    sum_set(v * 2 + 1, vm + 1, vr, l, r, num);
+    sum[v] = func(sum[v * 2], sum[v * 2 + 1]);
+    return 0;
+}
+
+pair <int, LL> sum_get(int v, int vl, int vr, int l, int r) {
+    if (r < vl || vr < l) {
+        return mapa(-1, 0);
+    }
+    if (l <= vl && vr <= r) {
+        return sum[v];
+    }
+    int vm = (vl + vr) / 2;
+    sum_pushdown(v, vl, vr);
+    return func(sum_get(v * 2, vl, vm, l, r), sum_get(v * 2 + 1, vm + 1, vr, l, r));
+}
+
+int upg;
+
+int sum_find(int v, int vl, int vr, int num) {
+    //cout << v << " " << vl << " " << vr << endl;
+    if (vl > upg) {
+        return upg;
+    }
+    if (sum[v].ff < num) {
+        return vr;
+    }
+    if (vl == vr) {
+        if (sum[v].ff > num) {
+            return vl - 1;
+        }
+        return vl;
+    }
+    int vm = (vl + vr) / 2;
+    sum_pushdown(v, vl, vr);
+    int tmp = sum_find(v * 2, vl, vm, num);
+    if (tmp < vm) {
+        return tmp;
+    }
+    return sum_find(v * 2 + 1, vm + 1, vr, num);
+}
+
+int main() {
+    freopen("lamps.in", "r", stdin);
+    freopen("lamps.out", "w", stdout);
+
+    scanf("%d%d", &n, &q);
+
+    scanf("%s", s);
+    for (int i = 0; i < n; ++i) {
+        inp[i] = s[i] - '0';
+    }
+
+    int to = n;
+    LL ans = 0;
+
+    for (int i = n - 1; i >= 0; --i) {
+        if (inp[i]) {
+            ans += to - i;
+            tolr[i + bdv].ss = to - 1;
+        } else {
+            tolr[i + bdv] = mapa(INF, -INF);
+            to = i;            
+        }
+    }    
+
+    for (int i = n; i < bdv; ++i) {
+        tolr[i + bdv] = mapa(INF, -INF);
+    }
+
+    to = -1;
+
+    for (int i = 0; i < n; ++i) {
+        if (inp[i]) {            
+            tolr[i + bdv].ff = to + 1;
+        } else {
+            to = i;            
+        }
+    }
+
+    for (int i = 0; i < bdv; ++i) {
+        sum[i + bdv] = mapa(tolr[i + bdv].ss, tolr[i + bdv].ss);
+        if (tolr[i + bdv].ss == -INF) {
+            sum[i + bdv] = mapa(i - 1, i - 1);
+        }
+    }
+
+    //cout << sum[5 + bdv].ff << endl;
+
+    memset(theret, -1, sizeof theret);
+    memset(theres, -1, sizeof theres);
+
+    for (int i = bdv - 1; i > 0; --i) {
+        tolr[i] = mima(tolr[i * 2], tolr[i * 2 + 1]);
+        sum[i] = func(sum[i * 2], sum[i * 2 + 1]);
+    }
+    cout << ans << endl;
+
+    for (int i = 0; i < q; ++i) {
+        //cout << "i: " << i << endl;
+        int l, r, c;
+        scanf("%d%d%d", &l, &r, &c);
+        --l;--r;
+        if (c == 1) {
+            int lg = l, rg = r;
+            if (l > 0) {
+                lg = min(lg, tolr_get(1, 0, bdv - 1, l - 1, l - 1).ff);
+            }
+            if (r < n - 1) {
+                rg = max(rg, tolr_get(1, 0, bdv - 1, r + 1, r + 1).ss);
+            }
+            //cout << lg << " " << rg << endl;
+            tolr_set(1, 0, bdv - 1, lg, rg, mapa(lg, rg));
+            //cout << "@" << endl;
+            if (sum_get(1, 0, bdv - 1, lg, lg).ff < rg) {
+            //if (sum_get(1, 0, bdv - 1, rg, rg).ff <= rg)
+            upg = rg;
+            int tmp = sum_find(1, 0, bdv - 1, rg);
+            //cout << tmp << endl;
+            tmp = min(tmp, rg);
+            //cout << tmp << endl;
+            if (tmp >= lg) {
+                pair <int, LL> p = sum_get(1, 0, bdv - 1, lg, tmp);
+                //cout << p.ff << endl;
+                //cout << p.ss << endl;
+                ans += (LL) rg * (tmp - lg + 1) - p.ss;
+                sum_set(1, 0, bdv - 1, lg, tmp, rg);
+            }
+            }
+        } else {
+            tolr_set(1, 0, bdv - 1, l, r, mapa(INF, -INF));
+            if (l > 0) {
+                pii p = tolr_get(1, 0, bdv - 1, l - 1, l - 1);
+                if (p.ff <= l - 1) {
+                    tolr_set(1, 0, bdv - 1, p.ff, l - 1, mapa(p.ff, l - 1));
+                }
+            }
+            if (r < n - 1) {
+                pii p = tolr_get(1, 0, bdv - 1, r + 1, r + 1);
+                if (p.ss >= r + 1) {
+                    tolr_set(1, 0, bdv - 1, r + 1, p.ss, mapa(r + 1, p.ss));
+                }
+            }
+        }
+        //cout << "ans" << endl;
+        printf("%I64d\n", ans);
+    }
+
+    //cout << clock() / (double) CLOCKS_PER_SEC << endl;
+    
+    return 0;
+}

@@ -1,0 +1,48 @@
+#include <iostream>
+#include <vector>
+#include <set>
+#include <string>
+#include <algorithm>
+#include <fstream>
+
+using namespace std;
+
+long long n, s, ans;
+multiset < pair<long long, long long> > st;
+
+int main() {
+	//ifstream cin("in.txt");
+	//ofstream cout("out.txt");
+	ifstream cin("castle.in");
+	ofstream cout("castle.out");
+	cin >> n >> s;
+	for (int i = 1; i <= n; i++) {
+		long long a, b;
+		cin >> a >> b;
+		st.insert({ b, a });
+	}
+	while (s != 0) {
+		long long a, b;
+		auto it = st.rbegin();
+		if (it -> first == 0)
+			break;
+		if (it -> second / it -> first <= s) {
+			s -= it->second / it->first;
+			a = it->second;
+			b = it->second - (it->second / it->first) * it->first;
+			st.erase(*it);
+			st.insert({ a, b });
+		}
+		else {
+			a = it->second;
+			b = it->second - s * it->first;
+			st.erase(*it);
+			st.insert({ a, b });
+			s = 0;
+		}
+	}
+	for (auto it = st.begin(); it != st.end(); it++)
+		ans += it->second;
+		cout << ans;
+		return 0;
+}

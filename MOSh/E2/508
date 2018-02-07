@@ -1,0 +1,18 @@
+var
+arr:array [1..100000] of integer;
+i,n,k:integer;
+f1,f2:text;
+begin 
+  readln(n);
+  arr[1]:=1;
+  for i:=1 to n-1 do begin   
+    writeln('? ',i,' ',i+1);
+    readln(k);
+    if k=1 then arr[i+1]:=arr[i] 
+    else if arr[i]=1 then arr[i+1]:=2 else arr[i+1]:=1;
+  end;
+  writeln('Ready!');
+  writeln(k);
+  for i:=1 to n do
+    write(arr[i],' ');
+end.

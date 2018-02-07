@@ -1,0 +1,75 @@
+#include <fstream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+ifstream cin("monnument.in");
+ofstream cout("monnument.out");
+
+int se[1000*1000 + 100][2];
+
+    int n, cur = 0, k;
+void push(int is, int ie, int v)
+{
+    if (ie < is)
+        swap(ie, is);
+    for (int i = is; i < ie; i++)
+    {
+    se[i][0] = v;
+    if (se[i][0] > se[i][1])
+        swap(se[i][0], se[i][1]);
+    }
+}
+
+long long ndk(int dk)
+{
+    long long res = 0;
+    for (int i = 0; i < 1000000; i++)
+        if (se[i][1] != 0)
+    {
+        res += (se[i][1] - 1 + dk - i % k + k)/ k + 1 -  (se[i][0] + dk - i % k + k) / k;
+    }
+    return res;
+}
+
+int main()
+{
+    cin >> n >> k;
+    int ug[n][2];
+    for (int i = 0; i < n; i++)
+    {
+        cin >> ug[i][0] >> ug[i][1];
+    }
+    for (int i = 1; i < n; i++)
+    {
+        if (ug[i - 1][0] == ug[i][0])
+        {
+            push(ug[i - 1][1], ug[i][1], ug[i][0]);
+        }
+    }
+
+        if (ug[n - 1][0] == ug[0][0])
+        {
+            push(ug[n - 1][1], ug[0][1], ug[0][0]);
+        }
+    /*for (int i = 0; i < 6; i++)
+    {
+        cout << se[i][0] << ' ' << se[i][1] << endl;
+    }*/
+    vector <pair <int, int> > ks;
+    for (int i = 0; i < 1000*1000 + 100; i++)
+    {
+        if (se[i][0] != se[i][1])
+        {
+            cur += (se[i][1] - se[i][0] - 1) / k + 1;
+        }
+    }
+    long long res = 1e18;
+    for (int i = 0; i < k; i++)
+    {
+        res = min(res, ndk(i));
+    }
+    cout << res;
+    return 0;
+}

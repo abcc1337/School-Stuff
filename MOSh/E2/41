@@ -1,0 +1,72 @@
+#include <iostream>
+#include <string>
+#include <stdio.h>
+#include <vector>
+#include <map>
+
+using namespace std;
+
+const long long maxn = 50005;
+string s;
+map<string, long long> maps;
+long long maxl = 0;
+long long a[maxn];
+
+
+signed main()
+{
+    freopen("typing.in", "r", stdin);
+    freopen("typing.out", "w", stdout);
+    long long n, m, l;
+    cin >> m >> n >> l;
+    cin >> s;
+    for (long long i = 0; i < n; ++i) {
+        long long t1;
+        string ss;
+        cin >> t1 >> ss;
+        maxl = max(maxl, (long long)ss.size());
+        string st = "";
+        for (long long j = 0; j < ss.size(); ++j) {
+            st = ss[j] + st;
+            if (maps.find(st) == maps.end()) {
+                maps[st] = t1;
+            }
+            else {
+                maps[st] = min(maps[st], t1);
+            }
+        }
+        st = "";
+        for (long long j = ss.size() - 1; j >= 0; --j) {
+            st += ss[j];
+            if (maps.find(st) == maps.end()) {
+                maps[st] = t1;
+            }
+            else {
+                maps[st] = min(maps[st], t1);
+            }
+        }
+    }
+    /*for (auto i = maps.begin(); i != maps.end(); ++i) {
+        cout << (*i).first << " " << (*i).second << endl;
+    }*/
+    a[0] = 1;
+    for (long long i = 0; i < s.size(); ++i) {
+        //cout << "///////// I = " << i << endl;
+        string st = "";
+        for (long long j = i; j > max((long long)-1, i - maxl); --j) {
+            st += s[j];
+            if (maps.find(st) != maps.end()) {
+                //cout << st << " " << maps[st] << endl;
+                if (a[j] > 0 && (a[i + 1] == 0 || a[i + 1] > maps[st] + a[j])) {
+                    a[i + 1] = maps[st] + a[j];
+                    //cout << "A{I + 1} = " << a[i + 1] << endl;
+                }
+            }
+        }
+        //cout << a[i + 1] << " ";
+    }
+    //cout << endl;
+    --a[m];
+    cout << a[m] << endl;
+    return 0;
+}

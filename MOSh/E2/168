@@ -1,0 +1,119 @@
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <algorithm>
+#include <cmath>
+#include <vector>
+#include <set>
+#include <queue>
+#include <stack>
+#include <ctime>
+
+using namespace std;
+
+typedef long long ll;
+typedef long double ld;
+
+typedef pair<ll, ll> pll;
+typedef pair<ld, ld> pld;
+
+struct rmxq {
+	vector<ll> t;
+	rmxq() {
+	}
+	void build(vector<ll> &a) {
+		t.resize(a.size() + 5, -1e15);
+		for (ll i = a.size()-1; i >= 0; --i) {
+			t[i] = max(t[i + 1], a[i]);
+		}
+	}
+
+	ll mx(ll from) {
+		return t[from];
+	}
+};
+
+struct rmnq {
+	vector<ll> t;
+	rmnq() {
+	}
+	void build(vector<ll> &a) {
+		t.resize(a.size() + 5, 1e15);
+		for (ll i = 0; i < a.size(); ++i) {
+			t[i+1] = min(t[i], a[i]);
+		}
+	}
+
+	ll mn(ll to) {
+		return t[to+1];
+	}
+};
+
+int main() {
+	freopen("submarine.in", "r", stdin);
+	freopen("submarine.out", "w", stdout);
+
+	ll k;
+	cin >> k;
+	vector<ll> x('a'+k);
+	for (ll i = 0; i < k; ++i) {
+		cin >> x['a'+i];
+	}
+	ll h, w;
+	cin >> h >> w;
+	vector<vector<ll> > a(h, vector<ll>(w, 0));
+	for (ll i = 0; i < h; ++i) {
+		for (ll j = 0; j < w; ++j) {
+			char z;
+			cin >> ws >> z;
+			a[h-i-1][j] = x[z];
+		}
+	}
+
+	vector<vector<ll> > horsum(h, vector<ll>(w + 1, 0));
+	for (ll i = 0; i < h; ++i) {
+		for (ll j = 0; j < w; ++j) {
+			horsum[i][j + 1] = horsum[i][j] + a[i][j];
+		}
+	}
+
+	vector<vector<ll> > versum(w, vector<ll>(h + 1, 0));
+	for (ll i = 0; i < w; ++i) {
+		for (ll j = 0; j < h; ++j) {
+			versum[i][j+1] = versum[i][j] + a[j][i];
+		}
+	}
+
+	vector<rmxq> vermx(w), hormx(w);
+	vector<rmnq> vermn(w), hormn(w);
+
+
+	for (ll i = 0; i < w; ++i) {
+		vermx[i].build(versum[i]);
+		vermn[i].build(versum[i]);
+	}
+
+	for (ll i = 0; i < h; ++i) {
+		hormx[i].build(horsum[i]);
+		hormn[i].build(horsum[i]);
+	}
+
+	ll mx = -1e15;
+
+	for (ll y1 = 0; y1 < h; ++y1) {
+		for (ll x3 = 0; x3 < w; ++x3) {
+			for (ll x4 = x3 + 1; x4 < w; ++x4) {
+				ll sum1 = horsum[y1][x3] - hormn[y1].mn(x3);
+				ll sum2 = vermx[x3].mx(y1 + 1) - versum[x3][y1];
+				ll sum3 = horsum[y1][x4] - horsum[y1][x3+1];
+				ll sum4 = hormx[y1].mx(x4 + 1) - horsum[y1][x4+1];
+				ll sum5 = vermx[x4].mx(y1 + 1) - vermn[x4].mn(y1);
+				if (sum1 + sum2 + sum3 + sum4 + sum5 > mx) {
+					mx = sum1 + sum2 + sum3 + sum4 + sum5;
+				}
+			}
+		}
+	}
+	cout << mx << endl;
+	return 0;
+}

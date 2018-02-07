@@ -1,0 +1,115 @@
+program zad_4;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+var
+    a :array[0..123456] of char;
+    x, y, s :array[1..123456] of integer;
+    n, k, t, i, j, u, kol, w, xx, ss, sum, ll, rr :integer;
+
+procedure sort(l, r :integer);
+var
+    i, j, q, xx :integer;
+begin
+    randomize;
+    xx := s[random(r - l + 1) + l];
+    i := l;
+    j := r;
+    while (i < j) do
+    begin
+        while (s[i] < xx) do
+            inc(i);
+        while (s[j] > xx) do
+            dec(j);
+        if (i <= j) then
+        begin
+            q := s[i];
+            s[i] := s[j];
+            s[j] := q;
+
+            q := x[i];
+            x[i] := x[j];
+            x[j] := q;
+
+            q := y[i];
+            y[i] := y[j];
+            y[j] := q;
+
+            inc(i);
+            dec(j);
+        end;
+    end;
+    if (l < j) then
+        sort(l, j);
+    if (i < r) then
+        sort(i, r);
+end;
+
+begin
+    reset(input, 'penguins.in');
+    rewrite(output, 'penguins.out');
+    readln(t);
+    for u := 1 to t do
+    begin
+        readln(n, k);
+        for i := 1 to n do
+            if (i < n) then
+                read(a[i])
+            else
+                readln(a[i]);
+        kol := 0;
+        w := 0;
+        a[0] := a[1];
+        ss := 0;
+        sum := 1;
+        for i := 1 to n do
+        begin
+            if (a[i] <> a[i - 1]) then
+            begin
+                inc(sum);
+                if (w <> 0) then
+                begin
+                    inc(kol);
+                    s[kol] := ss;
+                    x[kol] := xx;
+                    y[kol] := i - 1;
+                end
+                else
+                    inc(w);
+                ss := 0;
+                xx := i;
+            end;
+            inc(ss);
+        end;
+        if (sum > k) then
+        begin
+            sort(1, kol);
+            for j := 1 to sum - k do
+            begin
+                ll := x[j];
+                rr := y[j];
+                for i := ll to rr do
+                    a[i] := a[ll - 1];
+
+            end;
+        end;
+        for i := 1 to n do
+            write(a[i]);
+        writeln;
+    end;
+
+end.
+
+
+3
+9 3
+000111000
+10 3
+0111011010
+4 4
+0001
+
+

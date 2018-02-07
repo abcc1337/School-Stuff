@@ -1,0 +1,143 @@
+{$O-}
+uses Math,SysUtils;
+type mass=array[0..1001] of longint;
+     maxx=array[0..1000,0..1,0..1000] of longint;
+var l,x2,kol1,q,y1,kol,x1,j,d,x,y,b,c,ans,i,n,k,z:longint;
+    res,res1,e,a:int64;
+    u:boolean;
+    m:mass;
+    dp,dp1,dp2:maxx;
+    s,s1:string;
+procedure swap(var a,b:longint);
+var c:longint;
+Begin
+   c:=a;
+   a:=b;
+   b:=c;
+end;
+begin
+   assign(input,'repair.in');
+   assign(output,'repair.out');
+ //  assign(input,'input.txt');
+ //  assign(output,'output.txt');
+   reset(input);
+   rewrite(output);
+   readln(q);
+   for i:=1 to q do
+     Begin
+        readln(n,k);
+        readln(s);
+        for z:=1 to length(s) do
+           m[z]:=ord(s[z])-ord('0');
+        for z:=0 to n do
+           for j:=0 to n do
+              Begin
+                 dp[z,0,j]:=maxlongint-10;
+                 dp[z,1,j]:=maxlongint-10;
+              end;
+        if m[1]=0
+        then Begin
+                dp[1,0,0]:=1;
+                dp[1,1,1]:=1;
+             end
+        else Begin
+                dp[1,0,1]:=1;
+                dp[1,1,0]:=1;
+             end;
+        s1:='';
+        for z:=2 to n do
+           Begin
+              if m[z]=1
+              then Begin
+                      for j:=0 to n do
+                       Begin
+                         if dp[z-1,1,j]<dp[z-1,0,j]+1
+                         then Begin
+                                 dp[z,1,j]:=min(dp[z-1,1,j],dp[z-1,0,j]+1);
+                                 dp1[z,1,j]:=1;
+                                 dp2[z,1,j]:=j;
+                              end
+                         else Begin
+                                 dp[z,1,j]:=min(dp[z-1,1,j],dp[z-1,0,j]+1);
+                                 dp1[z,1,j]:=0;
+                                 dp2[z,1,j]:=j;
+                              end;
+                         if j<>n
+                         then if dp[z-1,0,j]<dp[z-1,1,j]
+                              then Begin
+                                      dp[z,0,j+1]:=min(dp[z-1,0,j],dp[z-1,1,j]+1);
+                                      dp1[z,0,j+1]:=0;
+                                      dp2[z,0,j+1]:=j;
+                                   end
+                              else Begin
+                                      dp[z,0,j+1]:=min(dp[z-1,0,j],dp[z-1,1,j]+1);
+                                      dp1[z,0,j+1]:=1;
+                                      dp2[z,0,j+1]:=j;
+                                   end;
+                       end;
+                   end
+              else Begin
+                      for j:=0 to n do
+                         Begin
+                            if dp[z-1,0,j]<dp[z-1,1,j]+1
+                            then Begin
+                                    dp[z,0,j]:=min(dp[z-1,0,j],dp[z-1,1,j]+1);
+                                    dp1[z,0,j]:=0;
+                                    dp2[z,0,j]:=j;
+                                 end
+                            else Begin
+                                    dp[z,0,j]:=min(dp[z-1,0,j],dp[z-1,1,j]+1);
+                                    dp1[z,0,j]:=1;
+                                    dp2[z,0,j]:=j;
+                                 end;
+                            if j<>n
+                            then if dp[z-1,1,j]<dp[z-1,0,j]+1
+                                 then Begin
+                                         dp[z,1,j+1]:=min(dp[z-1,1,j],dp[z-1,0,j]+1);
+                                         dp1[z,1,j+1]:=1;
+                                         dp2[z,1,j+1]:=j;
+                                      end
+                                 else Begin
+                                        dp[z,1,j+1]:=min(dp[z-1,1,j],dp[z-1,0,j]+1);
+                                        dp1[z,1,j+1]:=0;
+                                        dp2[z,1,j+1]:=j;
+                                     end;
+                         end;
+                   end;
+           end;
+        for z:=0 to n do
+          Begin
+           if dp[n,0,z]<=k
+           then Begin
+                   s1:='0';
+                   a:=0;
+                   b:=z;
+                   for j:=n downto 2 do
+                      Begin
+                         c:=a;
+                         d:=b;
+                         a:=dp1[j,c,d];
+                         b:=dp2[j,c,d];
+                         s1:=chr(ord('0')+a)+s1;
+                      end;
+                   break;
+                end;
+           if dp[n,1,z]<=k
+           then Begin
+                   s1:='1';
+                   a:=1;
+                   b:=z;
+                   for j:=n downto 2 do
+                      Begin
+                         c:=a;
+                         d:=b;
+                         a:=dp1[j,c,d];
+                         b:=dp2[j,c,d];
+                         s1:=chr(ord('0')+a)+s1;
+                      end;
+                   break;
+                end;
+          end;
+        writeln(s1);
+     end;
+end.

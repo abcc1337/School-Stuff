@@ -1,0 +1,84 @@
+type mass=array[0..30] of int64;
+var n,a,b,c,res:int64;j,q,kol,i,z:longint;
+    m,m1,m2,m3,m4,ans1,ans2:mass;
+procedure rec(i:longint);
+Begin
+   if m[i]*3>n
+   then Begin
+           a:=0;
+           for z:=0 to 30 do
+             Begin
+              a:=a+m[z]*m1[z]*3;
+              if a>n
+              then exit;
+             end;
+           c:=n-a;
+           kol:=-1;
+           while c>0 do
+              Begin
+                  inc(kol);
+                  m2[kol]:=c mod 2;
+                  c:=c div 2;
+              end;
+           fillchar(m3,sizeof(m3),0);
+           for z:=kol downto 0 do
+              if m2[z]=1
+              then if (m1[z]=1) and (m3[z]<>2)
+                   then Begin
+                           if z=0
+                           then exit;
+                           if m1[z-1]=1
+                           then exit;
+                           m3[z-1]:=2;
+                        end
+                   else if m3[z]=2
+                        then exit
+                        else m3[z]:=1;
+           if res<a
+           then Begin
+                   res:=a;
+                   ans1:=m1;
+                   ans2:=m3;
+                end;
+           exit;
+        end;
+   m1[i]:=1;
+   rec(i+1);
+   m1[i]:=0;
+   rec(i+1);
+end;
+begin
+   assign(input,'grants.in');
+   assign(output,'grants.out');
+  // assign(input,'input.txt');
+  // assign(output,'output.txt');
+   reset(input);
+   rewrite(output);
+   readln(q);
+   m[0]:=1;
+   for z:=1 to 30 do
+      m[z]:=m[z-1]*2;
+   for i:=1 to q do
+      Begin
+         res:=-1;
+         readln(n);
+         rec(0);
+         for z:=1 to 3 do
+            m4[z]:=0;
+         for z:=0 to 30 do
+            if ans1[z]=1
+            then for j:=1 to 3 do
+                    inc(m4[j],m[z]);
+         for z:=0 to 30 do
+            if ans2[z]=1
+            then inc(m4[1],m[z])
+            else if ans2[z]=2
+                 then Begin
+                          inc(m4[1],m[z]);
+                          inc(m4[2],m[z]);
+                       end;
+         for z:=1 to 3 do
+            write(m4[z],' ');
+         writeln;
+      end;
+end.

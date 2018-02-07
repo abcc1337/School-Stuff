@@ -1,0 +1,87 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <array>
+#include <bitset>
+#include <set>
+
+using namespace std;
+
+array<array<int, 3003>, 3003> subs;
+
+array<int, 3003> numbers;
+
+int getsub(int l, int r)
+{
+    if (l > r)
+    {
+        return 0;
+    }
+    if (l == r)
+    {
+        return 1;
+    }
+    if (subs[l][r] > 0)
+    {
+        return subs[l][r];
+    }
+    cout << "? " << l + 1 << " " << r + 1 << endl;
+    int s;
+    cin >> s;
+    subs[l][r] = s;
+    return s;
+}
+
+int main()
+{
+    int n;
+    cin >> n;
+    numbers[0] = 1;
+    int maxno = 1;
+    for (int no = 1; no < n; no++)
+    {
+        set<int> can;
+        int l = -1;
+        int r = no;
+        while (r - l > 1)
+        {
+            if (can.size() >= maxno)
+            {
+                r = 0;
+                l = -1;
+            }
+            else
+            {
+                int m = (r + l) / 2;
+                if ((getsub(m, no) > getsub(m, no - 1)))
+                {
+                    r = m;
+                    for (int i = m; i < no; i++)
+                    {
+                        can.insert(numbers[i]);
+                    }
+                }
+                else
+                {
+                    l = m;
+                }
+            }
+        }
+        if (l < 0)
+        {
+            maxno++;
+            numbers[no] = maxno;
+        }
+        else
+        {
+            numbers[no] = numbers[l];
+        }
+    }
+    cout << "Ready!" << endl;
+    cout << maxno << endl;
+    for (int i = 0; i < n; i++)
+    {
+        cout << numbers[i] << " ";
+    }
+    return 0;
+}

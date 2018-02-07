@@ -1,0 +1,49 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <cstdio>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+typedef pair <int, int> pii;
+const int mn = 100010;
+const int MINT = 1000000007;
+int m, n, l, c[mn], dp[mn];
+string s, w[mn];
+
+int main() {
+	freopen("typing.in", "r", stdin);
+	freopen("typing.out", "w", stdout);
+	cin >> m >> n >> l;
+	cin >> s;
+	for (int i = 0; i <= m; i++) {
+		dp[i] = MINT;
+	}
+	for (int i = 0; i < n; i++) {
+		cin >> c[i] >> w[i];
+		c[i + n] = c[i];
+		w[i + n] = "";
+		for (int j = w[i].size() - 1; j >= 0; j--) {
+			w[i + n] = w[i + n] + w[i][j];
+		}
+	}
+	n *= 2;
+	dp[0] = 0;
+	for (int i = 0; i < m; i++) {
+		for (int j = 0; j < n; j++) {
+			int q = 0;
+			while (q < w[j].size() && q + i < m) {
+				if (w[j][q] == s[i + q]) {
+					dp[i + q + 1] = min(dp[i + q + 1], dp[i] + c[j]);
+				} else {
+					break;
+				}
+				q++;
+			}
+		}
+	}
+	cout << dp[m];
+	return 0;
+}

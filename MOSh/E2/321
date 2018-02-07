@@ -1,0 +1,104 @@
+#include <iostream>
+#include <vector>
+#include <map>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <string>
+
+using namespace std;
+
+const long long INF = 1e18;
+
+struct Trie {
+    int cost;
+    bool term;
+    Trie *t0, *t1;
+    Trie(int c = 0) : cost(c), term(false), t0(NULL), t1(NULL) { }
+};
+
+Trie *mem = NULL;
+int allocated = 0;
+
+inline Trie *new_Trie(int cost) {
+    Trie *t = mem + allocated++;
+    *t = Trie(cost);
+    return t;
+}
+
+void insert(Trie *root, string str, int len, int cost, bool rev) {
+    for (int idx = 0; idx < len; idx++) {
+        int i = rev ? (len - idx - 1) : idx;
+        if (str[i] == '1') {
+            if (!root->t1) {
+                root->t1 = new_Trie(cost);
+            } else {
+                root->t1->cost = min(root->t1->cost, cost);
+            }
+            root = root->t1;
+        } else {
+            if (!root->t0) {
+                root->t0 = new_Trie(cost);
+            } else {
+                root->t0->cost = min(root->t0->cost, cost);
+            }
+            root = root->t0;
+        }
+    }
+    root->term = true;
+}
+
+
+inline Trie *go(Trie *t, bool ch) {
+    return t ? ch ? t->t1 : t->t0 : NULL;
+}
+
+int main() {
+#ifndef LOCAL
+    freopen("typing.in", "r", stdin);
+    freopen("typing.out", "w", stdout);
+#endif
+    int m, n, L;
+    // scanf("%d %d %d\n", &m, &n, &L);
+    cin >> m >> n >> L;
+    vector<bool> text(m);
+    string str; // = new char[max(m, L) + 1];
+    str.reserve(max(m, L) + 10);
+    //scanf("%s\n", str);
+    cin >> str;
+    for (int i = 0; i < m; i++) {
+        text[i] = str[i] == '1';       
+    }
+
+    mem = new Trie[2 * L + 100];
+    Trie *forward  = new_Trie(0);
+    Trie *backward = new_Trie(0);
+    for (int i = 0; i < n; i++) {
+        int cost;
+        //scanf("%d %s\n", &cost, str);
+        cin >> cost >> str;
+        int l = str.length();
+        insert(forward, str, l, cost, false);
+        insert(backward, str, l, cost, true);
+    }
+    vector<Trie *> tries(m, forward);
+    vector<long long> dp(m + 1, INF);
+    dp[0] = 0;
+    for (int i = 0; i < m; i++) {
+        for (int j = i; j >= 0; j--) {
+            tries[j] = go(tries[j], text[i]);
+            if (tries[j]) {
+                dp[i + 1] = min(dp[i + 1], dp[j] + tries[j]->cost);
+            }
+        }
+        Trie *t = backward;
+        for (int j = i; j >= 0 && t; j--) {
+            t = go(t, text[j]);
+            if (t) {
+                dp[i + 1] = min(dp[i + 1], dp[j] + t->cost);
+            }
+        }
+    }
+    cout << (dp.back() == INF ? -1 : dp.back()) << endl;
+    return 0;    
+}

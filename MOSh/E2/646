@@ -1,0 +1,79 @@
+const xn = 3001;
+var
+  a:array [0..xn, 0..xn, 0..3] of boolean;
+  v:array [0..xn, 0..xn] of boolean;
+  used:array [0..xn, 0..xn] of boolean;
+  j, i, t, n, q, aa, bb, k, ans, x, y, xx, yy:longint;
+  c:char;
+procedure dfs(j, i:longint);
+var
+  u:longint;
+begin
+  used[j, i] := True;
+  for u := 0 to 3 do
+  begin
+    if a[j, i, u] then
+    begin
+      if (u mod 2 = 0) and (not (used[j, i + u - 1]))  and (i + u - 1 >= y) and (i + u - 1 <= yy) then dfs(j, i + u - 1);
+      if (u mod 2 = 1) and (not (used[j + 2 - u, i]))  and (j + 2 - u >= x) and (j + 2 - u <= xx) then dfs(j + 2 - u, i); 
+    end;
+  end;
+end;
+begin
+  assign(input, 'repair.in');
+  reset(input);
+  assign(output, 'repair.out');
+  rewrite(output);
+  for j := 1 to xn do
+  begin
+    for i := 1 to xn do
+    begin
+      a[j, i, 0] := False;
+      a[j, i, 1] := False;
+      a[j, i, 2] := False;
+      a[j, i, 3] := False;
+    end;
+  end;
+  readln(aa, bb);
+  readln(n, q);
+  for j := 1 to n - 1 do
+  begin
+    read(c);
+    readln(aa, bb);
+    if c = 'h' then
+    begin
+      v[aa, bb] := True;
+      v[aa + 1, bb] := True;
+      a[aa, bb, 1] := True;
+      a[aa + 1, bb, 3] := True;
+    end
+    else
+    begin
+      v[aa, bb] := True;
+      v[aa, bb + 1] := True;
+      a[aa, bb, 2] := True;
+      a[aa, bb + 1, 0] := True
+    end;
+  end;
+  for k := 1 to q do
+  begin
+    for j := 0 to xn do
+      for i := 0 to xn do
+        used[j, i] := False;
+    ans := 0;
+    readln(x, y, xx, yy);
+    for j := x to xx do
+    begin
+      for i := y to yy do
+      begin
+        if (v[j, i]) and (not(used[j, i])) then
+        begin
+          dfs(j, i);
+          ans := ans + 1;
+        end;
+      end;
+    end;
+    writeln(ans);
+  end;
+    
+end.

@@ -1,0 +1,137 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cmath>
+#include <map>
+#include <set>
+
+using namespace std;
+
+int timer = 1e+7;
+int timing[1000000];
+int n = 1000, m = 1000, need;
+pair <int, int> used[1000 * 1000];
+int d[1000000], r[1000000];
+vector < pair<int, int> > answer[1000000];
+
+int to, col = 3, wh, go;
+void dfs(int v)
+{
+	used[v].first = 1;
+	to = d[v];
+	wh = to;
+	if (used[to].first == 1)
+		++col;
+	else
+		if (used[to].first == 0)
+			dfs(to);
+	while (used[to].first == 1)
+	{
+		go = d[wh];
+		wh = go;
+		used[go] = make_pair(3, col);
+	}
+	if (used[v].first == 1)
+		used[v].second = used[to].second, used[v].first = 2;
+}
+
+void make_time(int v, int last)
+{
+	if (v == last)
+		timing[v] = 0;
+	else
+	{
+		make_time(d[v], last);
+		timing[v] = timing[d[v]] + 1;
+	}
+}
+
+int main()
+{
+	freopen("robots.in", "r", stdin);
+	freopen("robots.out", "w", stdout);
+	cin >> n >> m >> need;
+	char c;
+	for (int i = 0; i < n; ++i)
+	{
+		for (int j = 0; j < m; ++j)
+		{
+			cin >> c;
+			if (c >= 'A' && c <= 'Z')
+			{
+				r[i * m + j] = 1;
+				c = c - 'A' + 'a';
+			}
+			else
+				r[i * m + j] = 0;
+			if (c == 'n')
+				d[i * m + j] = i * m + j - m;
+			if (c == 's')
+				d[i * m + j] = i * m + j + m;
+			if (c == 'e')
+				d[i * m + j] = i * m + j + 1;
+			if (c == 'w')
+				d[i * m + j] = i * m + j - 1;
+		}
+	}
+	for (int i = 0; i < n; ++i)
+		for (int j = 0; j < m; ++j)
+		{
+			if (used[i * m + j].first == 0)
+				dfs(i * m + j);
+		}
+
+	int fr;
+	vector <int> g[col + 3];//, cool(col, 0);
+	for (int i = 0; i < n; ++i)
+		for (int j = 0; j < m; ++j)
+		{
+			fr = i * m + j;
+			wh = -1;
+			if (used[fr].first == 3 && g[used[fr].second].size() == 0)
+			{
+				while (wh != fr)
+				{
+					if (wh == -1)
+						wh = fr;
+					g[used[fr].second].push_back(wh);
+					go = d[wh];
+					wh = go;
+				}
+			}
+
+		}
+	for (int i = 0; i <= n * m; ++i)
+		timing[i] = -1;
+	int red;
+	for (int i = 0; i < n; ++i)
+		for (int j = 0; j < m; ++j)
+		{
+			fr = i * m + j;
+			red = used[fr].second;
+			if (r[fr] == 1 && g[red].size() > answer[red].size())
+			{
+				if (timing[fr] == -1 && n * m < 20000)
+					make_time(fr, g[red][0]);
+				answer[red].push_back(make_pair(timing[fr] % g[red].size(), fr));
+			}
+
+		}
+	long long ans = 0;
+	for (int i = 0; i < col + 3; ++i)
+		ans += answer[i].size();
+	cout << ans << endl;
+	int mn = 1e+9;
+	if (need == 1)
+	{
+		for (int i = 0; i < col + 3; ++i)
+		{
+			sort(answer[i].begin(), answer[i].end());
+			for (int j = 0; j < answer[i].size(); ++j)
+				cout << answer[i][j].second / m + 1 << ' ' << answer[i][j].second % m + 1 << ' ' << j + 1  - answer[i].second + timer << endl;
+		}
+
+	}
+
+
+}

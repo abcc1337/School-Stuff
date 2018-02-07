@@ -1,0 +1,214 @@
+#include <cstdlib>
+#include <cstdio>
+#include <cassert>
+#include <iostream>
+#include <vector>
+#include <set>
+#include <algorithm>
+#include <map>
+
+using namespace std;
+
+#define pii pair<int, int>
+
+const int N = 5e5;
+
+const long long a1 = 239;
+const long long b1 = 137;
+const long long c1 = 100000000054534LL;
+long long k = 13;
+
+inline long long rnd()
+{
+	return (k = (k * a1 + b1) % c1);
+}
+
+struct node
+{
+	node* l, *r;
+	long long sz;
+	int x;
+	long long cnt;
+	long long y, sum;
+	node()
+	{
+
+	}
+};
+
+node Mem[(int)1e6];
+int counter = 0;
+
+node* newnode(int x, int cnt)
+{
+	Mem[counter].x = x;
+	Mem[counter].l = NULL;
+	Mem[counter].r = NULL;
+	Mem[counter].y = rnd();
+	Mem[counter].cnt = cnt;
+	Mem[counter].sz = cnt;
+	Mem[counter].sum = (long long)(cnt)* x;
+	return &Mem[counter++];
+}
+
+long long size(node *i)
+{
+	if (i == NULL)
+		return 0;
+	return i->sz;
+}
+
+long long sum(node* i)
+{
+	if (i == NULL)
+		return 0;
+	return i->sum;
+}
+
+inline void update(node *i)
+{
+	i->sz = i->cnt + size(i->l) + size(i->r);
+	i->sum = (long long)i->x * i->cnt + sum(i->l) + sum(i->r);
+}
+
+node* merge(node *a, node* b)
+{
+	if (a == NULL) return b;
+	if (b == NULL) return a;
+	if (a->y > b->y)
+	{
+		a->r = merge(a->r, b);
+		update(a);
+		return a;
+	}
+	else
+	{
+		b->l = merge(a, b->l);
+		update(b);
+		return b;
+	}
+}
+
+pair <node*, node*> split(node *t, long long key)
+{
+	if (t == NULL)
+		return{ NULL, NULL };
+	if (t->x <= key)
+	{
+		auto lr = split(t->r, key);
+		t->r = lr.first;
+		update(t);
+		lr.first = t;
+		return lr;
+	}
+	else
+	{
+		auto lr = split(t->l, key);
+		t->l = lr.second;
+		update(t);
+		lr.second = t;
+		return lr;
+	}
+}
+
+pair <node*, node*> splitsz(node *t, long long sz)
+{
+	if (t == NULL)
+		return{ NULL, NULL };
+	if (size(t->l) + t->cnt <= sz)
+	{
+		auto lr = splitsz(t->r, sz - size(t->l) - t->cnt);
+		t->r = lr.first;
+		update(t);
+		lr.first = t;
+		return lr;
+	}
+	else
+	{
+		auto lr = splitsz(t->l, sz);
+		t->l = lr.second;
+		update(t);
+		lr.second = t;
+		return lr;
+	}
+}
+
+int a[N];
+int x[N];
+
+int b[N];
+int y[N];
+int c[N];
+
+vector <pii> v;
+
+node* t = NULL;
+
+node * insert(node* t, node* a)
+{
+	auto lr = split(t, a->x);
+	auto lr2 = split(lr.first, a->x - 1);
+	if (lr2.second != NULL)
+	{
+		lr2.second->cnt += a->cnt;
+		lr2.second->sz += a->cnt;
+		lr2.second->sum += a->cnt * a->x;
+	}
+	else
+		lr2.second = a;
+	return merge(merge(lr2.first, lr2.second), lr.second);
+}
+
+inline long long getmax(node* &t, long long &amount)
+{
+	auto lr = splitsz(t, amount);
+	long long returning = -sum(lr.first);
+	if (size(lr.first) < amount)
+		if (size(lr.second) != 0)
+		{
+			int maximal = 0;
+			node* t = lr.second;
+			while (t != NULL)
+				maximal = t->x, t = t->l;
+			returning -= maximal * (amount - size(lr.first));
+		}
+	t = merge(lr.first, lr.second);
+	return returning;
+}
+
+int main()
+{
+	freopen("fisher.in", "r", stdin);
+	freopen("fisher.out", "w", stdout);
+	::ios_base::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int n, m;
+	srand(13);
+	long long p;
+	scanf("%d %d %lld", &n, &m, &p);
+	for (int i = 0; i < n; ++i)
+		scanf("%d %d", &x[i], &a[i]),
+		v.push_back({ x[i], -i - 1 });
+	for (int i = 0; i < m; ++i)
+		scanf("%d %d %d", &y[i], &b[i], &c[i]),
+		v.push_back({ y[i], i });
+	sort(v.begin(), v.end());
+	long long ans = 0;
+	long long amount = 0;
+	for (int i = 0; i < v.size(); ++i)
+	{
+		if (v[i].second < 0)
+			amount += a[-v[i].second - 1];
+		else
+		{
+			node *a = newnode(-c[v[i].second], b[v[i].second]);
+			t = insert(t, a);
+		}
+		long long temp = -p * v[i].first + getmax(t, amount);
+		if (ans < temp)
+			ans = temp;
+	}
+	printf("%lld\n", ans);
+	return 0;
+}

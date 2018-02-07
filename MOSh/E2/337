@@ -1,0 +1,164 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <algorithm>
+#include <string>
+#include <set>
+#include <map>
+#include <queue>
+#include <deque>
+#include <stack>
+
+using namespace std;
+
+#define ll long long
+#define ld long double
+#define pb push_back
+#define mp make_pair
+#define chr unsigned char
+#define Ls 300007
+#define maxn 300007
+
+const ll inf = 1LL * ((ll) 1e18 + 7);
+
+struct item{
+    int l, r;
+    ll c;
+    bool term;
+};
+
+item t[Ls];
+ll dp[maxn];
+int k = 0, n, m, len;
+string w;
+
+void ins(string s, ll cost){
+    int v = 0, u;
+    chr c;
+    for (size_t i = 0; i < s.length(); ++i){
+        c = s[i];
+        if (c == '0'){
+            if (t[v].l == -1){
+                k++;
+                t[v].l = k;
+                u = k;
+            //    t[u].c = cost;
+            }
+            u = t[v].l;
+         //   t[u].c = min(t[u].c, cost);
+            v = u;
+        }
+        else{
+            if (t[v].r == -1){
+                k++;
+                t[v].r = k;
+                u = k;
+              //  t[u].c = cost;
+            }
+            u = t[v].r;
+          //  t[u].c = min(t[u].c, cost);
+            v = u;
+        }
+    }
+
+    t[v].term = true;
+    t[u].c = min(t[u].c, cost);
+}
+
+
+void go(int s){
+    int v = 0;
+    int u = s + 1;
+    while (u <= m && v != -1){
+        if (w[u] == '0'){
+            v = t[v].l;
+            if (v == -1)
+                break;
+        }
+        else{
+            v = t[v].r;
+            if (v == -1)
+                break;
+        }
+
+        if (t[v].term)
+            dp[u] = min(dp[u], dp[s] + t[v].c);
+        u++;
+    }
+}
+
+
+int main()
+{
+    freopen("typing.in", "r", stdin);
+    freopen("typing.out", "w", stdout);
+
+    for (int i = 0; i < Ls; ++i){
+        t[i].l = t[i].r = -1;
+        t[i].c = inf;
+        t[i].term = false;
+    }
+
+    cin >> m >> n >> len;
+    cin >> w;
+    w = ' ' + w;
+
+  /*  if (m <= 50){
+        dp[0] = 0;
+        for (int i = 1; i <= m; ++i)
+            dp[i] = inf;
+
+        vector<int> c(n);
+        vector<string> s(n);
+        vector<string> t(n);
+        for (int i = 0; i < n; ++i){
+            cin >> c[i] >> s[i];
+            t[i] = s[i];
+            reverse(t[i].begin(), t[i].end());
+        }
+
+        for (int i = 0; i < m; ++i){
+            for (int j = 1; j <= m - i; ++j)
+                for (int z = 0; z < n; ++z)
+                    if (w.substr(i + 1, j) == s[z].substr(0, j) ||
+                        w.substr(i + 1, j) == t[z].substr(0, j))
+                        dp[i + j] = min(dp[i + j], dp[i] + c[z]);
+        }
+
+        cout << (dp[m] == inf ? -1 : dp[m]) << endl;
+        return 0;
+    } */
+
+    string v;
+    ll cost;
+    for (int i = 0; i < n; ++i){
+        cin >> cost >> v;
+        for (size_t j = 0; j < v.length(); ++j){
+            ins(v.substr(0, j + 1), cost);
+        }
+        for (size_t j = 0; j < v.length(); ++j){
+            ins(v.substr(j, v.length() - j), cost);
+        }
+    }
+
+    dp[0] = 0;
+    for (int i = 1; i <= m; ++i)
+        dp[i] = inf;
+
+    for (int i = 0; i < m; ++i)
+        go(i);
+
+  //  for (int i = 0; i < m; ++i)
+   //     cout << i << ' ' << dp[i] << endl;
+
+    cout << (dp[m] == inf ? -1 : dp[m]) << endl;
+
+    fclose(stdout);
+    return 0;
+}
+
+
+
+
+
+

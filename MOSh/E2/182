@@ -1,0 +1,55 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <stdio.h>
+
+using namespace std;
+
+vector <pair <long long, long long> > wall;
+vector <long long> def;
+vector <long long> en;
+
+int main() {
+    long long n, s, x, y, enemy = 0;
+    freopen("castle.in", "r", stdin);
+    freopen("castle.out", "w", stdout);
+    cin >> n >> s;
+    for (int i = 0; i < n; i++) {
+        cin >> x >> y;
+        enemy += x;
+        if (x >= y) {
+            wall.push_back(make_pair(y, x / y));
+            if (x % y != 0) {
+                wall.push_back(make_pair(x % y, 1));
+            }
+        }
+        else {
+            wall.push_back(make_pair(x, 1));
+        }
+    }
+    //cout << enemy << endl;
+    sort(wall.begin(), wall.end());
+    //for (int i = 0; i < wall.size(); i++) {
+        //cout << wall[i].first << " " << wall[i].second << endl;
+    //}
+    int i = wall.size() - 1;
+    while (i >= 0 && s > 0) {
+        if (s >= wall[i].second) {
+            s -= wall[i].second;
+            enemy -= (wall[i].second * wall[i].first);
+        }
+        else {
+            enemy -= (s * wall[i].first);
+            s = 0;
+        }
+        i -= 1;
+    }
+    if (enemy <= 0) {
+        cout << 0;
+    }
+    else {
+        cout << enemy;
+    }
+    fclose(stdin);
+    fclose(stdout);
+}

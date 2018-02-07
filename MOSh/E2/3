@@ -1,0 +1,122 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+
+void print(vector<vector<int> > &v){
+    for(int i = 0; i < v.size(); ++i){
+        for(int j = 0; j < v[i].size(); ++j){
+            cout << v[i][j] << ' ';
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
+
+void print(map<int, pair<int, long long> > &baz){
+    for(auto i = baz.begin(); i != baz.end(); ++i){
+        cout << (*i).first << ' ' <<(*i).second.first << " " << (*i).second.second << endl;
+    }
+    cout << endl;
+}
+
+class yy{
+public:
+    int y, b, c;
+    yy(int y, int b, int c):
+        y(y), b(b), c(c){}
+};
+
+int main(){
+    ifstream fin("fisher.in");
+    ofstream fout("fisher.out");
+    #define cin fin
+    #define cout fout
+    #define int long long
+    int n, m, p;
+    cin >> n >> m >> p;
+    vector<pair<int, int> > vx(n);
+    for(int i = 0; i < n; ++i){
+        int x, ai;
+        cin >> x >> ai;
+        vx[i] = {x, ai};
+    }
+    vector<yy> vy;
+    vy.reserve(m);
+    for(int i = 0; i < m; ++i){
+        int Y, b, c;
+        cin >> Y >> b >> c;
+        vy.push_back(yy(Y, b, c));
+    }
+    if(p == 0){
+        int k = 0;
+        for(int i = 0; i < n; ++i){
+            k += vx[i].second;
+        }
+        map<int, int> mp;
+        for(int i = 0; i < m; ++i){
+            mp[vy[i].c] += vy[i].b;
+        }
+        auto i = mp.end();
+        --i;
+        int ans = 0;
+        while(true){
+            if((*i).second < k){
+                ans += (*i).first * (*i).second;
+                k -= (*i).second;
+            }
+            else{
+                ans += (*i).first * k;
+                k = 0;
+                break;
+            }
+            if(i == mp.begin()){
+                break;
+            }
+            --i;
+        }
+        cout << ans;
+        return 0;
+    }
+    return 0;
+}
+
+
+/**
+3 2 0
+1 5
+2 3
+4 5
+2 2 10
+3 6 5
+
+
+2 1 100
+6 5
+100 4
+5 100 2000
+
+3 3 10
+1 1
+10 100
+20 10
+2 1000 1
+11 50 50
+17 50 2
+
+3 5 30
+1 20
+7 2
+
+100000 10000
+
+2 15 100
+3 19 200
+4 2 1
+5 2 2
+6 5 70
+
+
+*/
+
+
+

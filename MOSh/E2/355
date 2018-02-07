@@ -1,0 +1,72 @@
+#include <algorithm>
+#include <fstream>
+#include <utility>
+#include <vector>
+
+using namespace std;
+
+typedef long long ll;
+
+ifstream cin("fisher.in");
+ofstream cout("fisher.out");
+
+const int MAXN = 50007;
+
+ll x[MAXN];
+ll a[MAXN];
+ll y[MAXN];
+ll b[MAXN];
+ll c[MAXN];
+
+int n, m;
+ll p;
+
+void Solve1() {
+	ll sum = 0;
+	for (int i = 0; i < n; ++i) {
+		sum += a[i];
+	}
+	// cout << sum << '\n';
+	vector<pair<ll, ll>> sells;
+	for (int i = 0; i < m; ++i) {
+		sells.push_back(make_pair(-c[i], b[i]));
+	}
+	sort(sells.begin(), sells.end());
+	ll res = 0;
+	for (pair<ll, ll> q: sells) {
+		ll b = q.second, c = -q.first;
+		if (sum < b) {
+			res += sum * c;
+			sum = 0;
+		} else {
+			sum -= b;
+			res += b * c;
+		}
+	}
+	cout << res << '\n';
+}
+
+void Solve2() {}
+
+void Solve3() {}
+
+int main() {
+	cin >> n >> m >> p;
+	for (int i = 0; i < n; ++i) {
+		cin >> x[i] >> a[i];
+	}
+	for (int i = 0; i < m; ++i) {
+		cin >> y[i] >> b[i] >> c[i];
+	}
+	if (p == 0) {
+		Solve1();
+	}
+	if (x[n - 1] < y[0]) {
+		Solve3();
+		return 0;
+	}
+	if (x[0] > y[m - 1]) {
+		Solve2();
+		return 0;
+	}
+}

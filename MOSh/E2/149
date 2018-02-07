@@ -1,0 +1,161 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define forn(i, n) for (int i = 0; i < n; i++)
+#define sz(a) (int)a.size()
+#define re return
+#define fi first
+#define se second
+
+typedef long long ll;
+typedef pair<int, int> pii;
+typedef pair<ll, ll> pll;
+const ll pr = 239, mod = 1e9 + 9, ma = 131072 * 2;
+ll ans = 0, n, m, l, hs[2 * ma], p[2 * ma], dp[2 * ma], tr[2 * ma], c;
+
+map<int, int> qq, qp;
+string s, s2;
+
+int hash1(int l, int r) {
+    re ((hs[r] - hs[l] * p[r - l]) % mod + mod) % mod;
+}
+
+void relax(int nu, int l, int r, int ql, int qr, ll k) {
+    if (r < ql || l > qr) re;
+    if (ql <= l && r <= qr) {
+        dp[nu] = min(dp[nu], k);
+        re;
+    }
+    relax(2 * nu, l, (l + r) / 2, ql, qr, k);
+    relax(2 * nu + 1, (l + r) / 2 + 1, r, ql, qr, k);
+}
+
+ll min1(int l, int r) {
+    if (l > r) re 100000ll * 100000ll * 100000ll;
+    if (l % 2)
+        re min(tr[l], min1(l + 1, r));
+    if (r % 2 == 0)
+        re min(tr[r], min1(l, r - 1));
+    re min1(l / 2, r / 2);
+}
+int main() {
+    iostream::sync_with_stdio(0);
+    assert(freopen("typing.in", "r", stdin));
+    freopen("typing.out", "w", stdout);
+    cin >> m >> n >> l;
+    cin >> s;
+    forn (i, 2 * ma) {
+        dp[i] = 100000ll * 100000ll * 100000ll;
+        tr[i] = dp[i];
+    }
+    p[0] = 1;
+    forn (i, 200000) {
+        p[i + 1] = p[i] * pr % mod;
+    }
+    dp[ma] = 0;
+    hs[0] = 0;
+    forn (i, m) {
+        hs[i + 1] = (hs[i] * pr + s[i]) % mod;
+    }
+    forn (i, n) {
+        cin >> c >> s2;
+        ll hs = 0;
+        forn (j, sz(s2)) {
+            hs = (hs * pr + s2[j]) % mod;
+            if (qq[hs] == 0 || qq[hs] > c) qq[hs] = c;
+        }
+        hs = 0;
+        for (int j = sz(s2) - 1; j >= 0; j--) {
+            hs = (s2[j] * p[sz(s2) - 1 - j] + hs) % mod;
+            if (qp[hs] == 0 || qp[hs] > c) qp[hs] = c;
+        }
+    }
+    forn (i, m) {
+        ll cc = 100000ll * 100000ll * 100000ll, nu = ma + i;
+        while (nu) {
+            cc = min(cc, dp[nu]);
+            nu /= 2;
+        }
+        int pl = -1, pr = i;
+        while (pr - pl > 1) {
+            int mid = (pl + pr) / 2;
+            if (qp[hash1(mid, i)]) pr = mid;
+            else pl = mid;
+        }
+        pl = pr;
+        while (pl < i) {
+            ll p = qp[hash1(pl, i)];
+            int mid, ql = pl, qr = i;
+            while (qr - ql > 1) {
+                mid = (ql + qr) / 2;
+                if (qp[hash1(mid, i)] == p) ql = mid;
+                else
+                qr = mid;
+            }
+            cc = min(cc, min1(pl + ma, qr + ma - 1) + p);
+            pl = qr;
+        }
+        tr[i + ma] = cc;
+        int nuk = i + ma;
+        while (nuk / 2) {
+            nuk /= 2;
+            tr[nuk] = min(tr[2 * nuk], tr[2 * nuk + 1]);
+        }
+        if (cc == 100000ll * 100000ll * 100000ll) {
+            cout << -1;
+            re 0;
+        }
+        int l = i - 1, r = m;
+        while (r - l > 1) {
+            int mid = (l + r) / 2;
+            if (qq[hash1(i, mid + 1)]) l = mid;
+            else r = mid;
+        }
+
+        int ql, qr, mid;
+        while (l > i - 1) {
+            ll p = qq[hash1(i, l + 1)];
+            relax(1, ma, 2 * ma - 1, ma, ma + l + 1, cc + p);
+            ql = i - 1, qr = l;
+            while (qr - ql > 1) {
+                mid = (ql + qr) / 2;
+                if (qq[hash1(i, mid + 1)] == p) qr = mid;
+                else ql = mid;
+            }
+            l = ql;
+        }
+        //re 0;
+    }
+    ll cc = 100000ll * 100000ll * 100000ll, nu = ma + m;
+    while (nu) {
+        cc = min(cc, dp[nu]);
+        nu /= 2;
+    }
+    int i = m;
+    int pl = -1, pr = i;
+    while (pr - pl > 1) {
+        int mid = (pl + pr) / 2;
+        if (qp[hash1(mid, i)]) pr = mid;
+        else pl = mid;
+    }
+    pl = pr;
+    while (pl < i) {
+        ll p = qp[hash1(pl, i)];
+        int mid, ql = pl, qr = i;
+        while (qr - ql > 1) {
+            mid = (ql + qr) / 2;
+            if (qp[hash1(mid, i)] == p) ql = mid;
+            else
+            qr = mid;
+        }
+        cc = min(cc, min1(pl + ma, qr + ma - 1) + p);
+        pl = qr;
+    }
+    if (cc == 100000ll * 100000ll * 100000ll) {
+        cout << -1;
+        re 0;
+    }
+    cout << cc;
+    re 0;
+}

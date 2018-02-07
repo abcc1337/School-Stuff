@@ -1,0 +1,101 @@
+#include <iostream>
+#include <vector>
+#include <map>
+#include <cstdio>
+using namespace std;
+
+
+struct ask
+{
+    int x, y, z;
+    void in()
+    {
+        cin >> x >> y >> z;
+    }
+    int get(int ind)
+    {
+        if (ind == 0)
+            return x;
+        if (ind == 1)
+            return y;
+        return z;
+    }
+    void Set(int ind, int elem)
+    {
+        if (ind == 0){
+            x = elem;
+            return;
+        }
+        if (ind == 1)
+        {
+            y = elem;
+            return;
+        }
+        z = elem;
+        return;
+    }
+    const bool operator < (ask other) const
+    {
+        return x < other.x or (x== other.x and y < other.y or (x == other.x and y == other.y and z < other.z));
+    }
+
+};
+map<int, long long> am_x;
+map<int, long long> am_y;
+map<int, long long> am_z;
+map<pair<int, int>, long long> am_xy;
+map<pair<int, int>, long long> am_xz;
+map<pair<int, int>, long long> am_yz;
+map<ask, long long> was;
+int maxes[3];
+bool valid(ask x, ask y)
+{
+    int res = 0;
+    res += (x.x == y.x);
+    res += (x.y == y.y);
+    res += (x.z == y.z);
+    return (res == 1);
+
+}
+long long check(ask curr, int ind1)
+{
+    long long ans;
+    if (ind1 == 0)
+    {
+        ans = am_x[curr.x] - am_xy[make_pair(curr.x, curr.y)] - am_xz[make_pair(curr.x, curr.z)] + was[curr];
+    }
+    if (ind1 == 1)
+    {
+        ans = am_x[curr.y] - am_xy[make_pair(curr.x, curr.y)] - am_yz[make_pair(curr.y, curr.z)] + was[curr];
+    }
+    if (ind1 == 2)
+    {
+        ans = am_x[curr.z] - am_xz[make_pair(curr.x, curr.z)] - am_yz[make_pair(curr.y, curr.z)] + was[curr];
+    }
+    return ans;
+}
+int main()
+{
+    freopen("onlyone.in", "r", stdin);
+    freopen("onlyone.out", "w", stdout);
+    int n;
+    long long int ans = 0;
+    cin >> n;
+    ask curr;
+    for (int i = 0; i < n; i++)
+    {
+        curr.in();
+        ans += check(curr, 0);
+        ans += check(curr, 1);
+        ans += check(curr, 2);
+        //cout << check(curr, 1 ,2);
+        was[curr]++;
+        am_x[curr.x]++;
+        am_y[curr.y]++;
+        am_z[curr.z]++;
+        am_xy[make_pair(curr.x, curr.y)]++;
+        am_xz[make_pair(curr.x, curr.z)]++;
+        am_yz[make_pair(curr.y, curr.z)]++;
+    }
+    cout <<ans<< endl;
+}

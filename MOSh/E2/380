@@ -1,0 +1,116 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <algorithm>
+#include <set>
+#include <string>
+#pragma comment(linker, "/stack:268435456")
+#define cs(x) (int)x.size()
+#define ll long long
+#define ld long double
+#define mp make_pair
+
+using namespace std;
+
+
+
+int main() {
+	iostream::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	freopen("mountain.in", "r", stdin);
+	freopen("mountain.out", "w", stdout);
+	int n, q;
+	cin >> n >> q;
+	vector<pair<ll, ll> > coord(n+1);
+	coord[0] = mp(0, 0);
+	vector<pair<ll, ll> > param(n);
+	int tasknum = 4;
+	for (int i = 0; i < n; i++) {
+		ll d, k;
+		cin >> d >> k;
+		if (abs(k) != 1)
+			tasknum = 5;
+		param[i] = mp(d, k);
+		coord[i + 1] = mp(coord[i].first + d, coord[i].second + d * k);
+	}
+	vector<pair<ll, ll> > query;
+	for (int i = 0; i < q; i++) {
+		ll a, b;
+		cin >> a >> b;
+		query.push_back(mp(a, b));
+	}
+	ll first = query[0].first;
+	bool ok = 1;
+	for (int i = 1; i < q; i++) {
+		if (query[i].first != first)
+			ok = 0;
+	}
+	if (ok) {
+		sort(query.begin(), query.end());
+		ll left, right;
+		for (int j = 0; j < n; j++) {
+			if (coord[j].first == first) {
+				left = max(j - 1, 0);
+				right = min(j + 1, n);
+				break;
+			}
+			if (coord[j].first < first && coord[j + 1].first > first) {
+				left = j;
+				right = j + 1;
+				break;
+			}
+		}
+		if (coord[n].first <= first)
+			right = n, left = n;
+		for (int i = 0; i < q; i++) {
+			while (left - 1 >= 0) {
+				ll willy = coord[left - 1].second + param[left - 1].second * (first - coord[left - 1].first);
+				if (willy > query[i].second)
+					break;
+				left--;
+			}
+			while (right + 1 <= n) {
+				ll willy = coord[right + 1].second + param[right].second * (first - coord[right + 1].first);
+				if (willy > query[i].second)
+					break;
+				right++;
+			}
+			cout << coord[left].first << " " << coord[right].first << "\n";
+		}
+		return 0;
+	}
+	for (int i = 0; i < q; i++) {
+		pair<ll, ll> tower;
+		tower = query[i];
+		ll left, right;
+		for (int j = 0; j < n; j++) {
+			if (coord[j].first == tower.first) {
+				left = max(j - 1, 0);
+				right = min(j + 1, n);
+				break;
+			}
+			if (coord[j].first < tower.first && coord[j + 1].first > tower.first) {
+				left = j;
+				right = j + 1;
+				break;
+			}
+		}
+		if (coord[n].first <= tower.first)
+			right = n, left = n;
+		while (left - 1 >= 0) {
+			ll willy = coord[left - 1].second + param[left - 1].second * (tower.first - coord[left - 1].first);
+			if (willy > tower.second)
+				break;
+			left--;
+		}
+		while (right + 1 <= n) {
+			ll willy = coord[right + 1].second + param[right].second * (tower.first - coord[right + 1].first);
+			if (willy > tower.second)
+				break;
+			right++;
+		}
+		cout << coord[left].first << " " << coord[right].first << "\n";
+	}
+	return 0;
+}

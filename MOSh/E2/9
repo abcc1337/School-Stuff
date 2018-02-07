@@ -1,0 +1,87 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define pb push_back
+#define mp make_pair
+#define size(x) (int) x.size()
+#define all(x) x.begin(), x.end()
+
+const int maxn = 1005;
+const int inf = (int) 1e9;
+const long long mod = (long long) 1e9 + 7;
+const long long l_inf = (long long) 4e18;
+
+int n, m, type;
+int g[maxn * maxn];
+bool isRobot[maxn * maxn];
+bool used[maxn * maxn];
+int inCycle[maxn * maxn];
+int dep[maxn * maxn], sz[maxn * maxn], add[maxn * maxn];
+
+void dfs(int v) {
+    used[v] = true;
+    if (used[g[v]]) {
+        if (inCycle[g[v]] == -1) {
+            inCycle[v] = v;
+            sz[inCycle[v]] = dep[v] - dep[g[v]] + 1;
+        } else {
+            inCycle[v] = inCycle[g[v]];
+        }
+    } else {
+        dep[g[v]] = dep[v] + 1;
+        dfs(g[v]);
+        inCycle[v] = inCycle[g[v]];
+    }
+    add[inCycle[v]] += isRobot[v];
+}
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(nullptr);
+	cout.precision(10);
+	cout << fixed;
+	srand(566);
+
+#ifndef LOCAL
+#define FILE "robots"
+	freopen(FILE".in", "r", stdin);
+	freopen(FILE".out", "w", stdout);
+#endif
+
+    cin >> n >> m >> type;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            char side;
+            cin >> side;
+            if (side == toupper(side))
+                isRobot[i * m + j] = true;
+            side = toupper(side);
+            if (side == 'S')
+                g[i * m + j] = ((i + 1) * m + j);
+            if (side == 'N')
+                g[i * m + j] = ((i - 1) * m + j);
+            if (side == 'E')
+                g[i * m + j] = (i * m + (j + 1));
+            if (side == 'W')
+                g[i * m + j] = (i * m + (j - 1));
+        }
+    }
+
+    memset(inCycle, -1, sizeof inCycle);
+    for (int i = 0; i < n * m; i++) {
+        if (!used[i]) {
+            dfs(i);
+        }
+    }
+
+    int ans = 0;
+    for (int i = 0; i < n * m; i++) {
+        ans += min(add[i], sz[i]);
+    }
+    cout << ans;
+
+	return 0;
+}
+
+

@@ -1,0 +1,106 @@
+#include <iostream>
+#include <cstdio>
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <cstring>
+#include <bitset>
+#include <cmath>
+
+using namespace std;
+
+const long long MOD = 1000000007;
+const long long p = 3;
+const int MAXX = 10000;
+
+struct str
+{
+    long long Hash, w;
+    int len;
+
+    str()
+    {
+        Hash = 0;
+        len = 0;
+        w = 0;
+    }
+
+    str(string s, int pos, bool f, long long t)
+    {
+        if (f)
+        {
+            long long h = 0;
+            for (int i = 0; i < pos; i++)
+                h = (p * h + (s[i] - '0' + 1)) % MOD;
+            len = pos;
+            w = t;
+            Hash = h;
+        }
+        else
+        {
+            long long h = 0;
+            for (int i = pos; i < s.length(); i++)
+                h = (p * h + (s[i] - '0' + 1)) % MOD;
+            len = s.length() - pos;
+            w = t;
+            Hash = h;
+        }
+    }
+};
+
+vector<str> a;
+long long dp[MAXX], pref[MAXX], st[MAXX];
+int n, m, L;
+string s;
+
+long long get_hash(int l, int r)
+{
+    long long ans = (pref[r + 1] - pref[l] * st[r - l + 1]) % MOD;
+    if (ans < 0)
+        ans += MOD;
+}
+
+int main()
+{
+    #define fname "typing"
+    freopen(fname".in", "r", stdin);
+    freopen(fname".out", "w", stdout);
+    cin.sync_with_stdio(0);
+    st[0] = 1;
+    for (int i = 1; i < MAXX; i++)
+        st[i] = (p * st[i - 1]) % MOD;
+    cin >> m >> n >> L >> s;
+    pref[0] = 0;
+    for (int i = 0; i < s.length(); i++)
+        pref[i + 1] = (p * pref[i] + (s[i] - '0' + 1)) % MOD;
+    for (int i = 0; i < n; i++)
+    {
+        string u;
+        long long e;
+        cin >> e >> u;
+        for (int j = 1; j <= u.length(); j++)
+            a.push_back(str(u, j, 1, e));
+        for (int j = 1; j < u.length(); j++)
+            a.push_back(str(u, j, 0, e));
+    }
+    dp[0] = 0;
+    for (int i = 1; i <= s.length(); i++)
+    {
+        dp[i] = -1;
+        for (int j = 0; j < a.size(); j++)
+        {
+            if (a[j].len > i)
+                continue;
+            int len = a[j].len;
+            if (get_hash(i - len, i - 1) == a[j].Hash && dp[i - len] != -1)
+            {
+                if (dp[i] == -1)
+                    dp[i] = dp[i - len] + a[j].w;
+                else
+                    dp[i] = min(dp[i], dp[i - len] + a[j].w);
+            }
+        }
+    }
+    cout << dp[s.length()];
+    return 0;
+}

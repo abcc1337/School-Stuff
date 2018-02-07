@@ -1,0 +1,30 @@
+import sys
+sys.stdin = open("typing.in")
+sys.stdout = open("typing.out", "w")
+def func(ss):
+    if len(ss) == 0:
+        return 0
+    if ss in b:
+        return a[ss]
+    minret = 10**9
+    for i in range(1, min(len(ss) + 1, 51)):
+        for j in range(n):
+            if len(mass[j][1]) >= i and (mass[j][1][:i] == ss[:i] or mass[j][1][len(mass[j][1]) - i:] == ss[:i]):
+                minret = min(minret, int(mass[j][0]) + func(ss[i:]))
+                #if ss == s and ss[:i] == '000':
+                #   print(mass[j][1])
+    a[ss] = minret
+    b.add(ss)
+    return minret
+m, n, l = map(int, input().split())
+a = dict()
+b = set()
+s = input()
+mass = []
+for i in range(n):
+    t = input().split()
+    mass.append(t)
+if func(s) >= 1000000000:
+    print(-1)
+    exit()
+print(func(s))

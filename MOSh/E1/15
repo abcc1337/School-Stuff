@@ -1,0 +1,52 @@
+f = open('grants.in', 'r')
+ff = open('grants.out', 'w')
+t = int(f.readline().rstrip())
+for j in range(t):
+    n = int(f.readline().rstrip())
+    a = list(bin(n))
+    aa = 0
+    bb = 0
+    cc = 0
+    ans = 0
+    a[1] = '0'
+    a = list(map(int, a))
+    mx = 0
+    j = len(a) - 1
+    while j > 2 :
+        q = a[j - 2] * 100 + a[j - 1] * 10 + a[j]
+        if q == 101:
+            aa += 2 ** mx
+            bb += 2 ** mx
+            cc += 2 ** mx
+            a[j] = 0
+            a[j - 2] = 0
+            a[j - 1] = 1
+            mx += 1
+            j -= 1
+        elif q == 100 and j < len(a) - 1:
+            aa += 2 ** mx
+            bb += 2 ** mx
+            cc += 2 ** mx
+            mx += 1
+            a[j] = 0
+            a[j - 1] = 0
+            a[j - 2] = 0
+            j -= 1
+        elif q == 11:
+            aa += 2 ** mx
+            bb += 2 ** mx
+            cc += 2 ** mx
+            a[j] = 0
+            a[j - 1] = 0
+            mx += 1
+            j -= 1
+        else:
+            j -= 1
+            mx += 1
+    mx = len(a) - 3
+    for j in range(2, len(a)):
+        if a[j] == 1:
+            cc += 2 ** mx
+        mx -= 1
+    print(aa, bb, cc, file = ff)
+ff.close()

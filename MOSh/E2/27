@@ -1,0 +1,125 @@
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <algorithm>
+#include <vector>
+#include <map>
+#include <cassert>
+#include <set>
+#include <bitset>
+#include <ctime>
+#include <unordered_set>
+
+using namespace std;
+
+#define pii pair<int, int>
+
+const int N = 1e5;
+const int K = 20;
+
+vector <int> g[N];
+int jump[N][K];
+int p[N];
+int depth[N];
+int tin[N];
+int tout[N];
+int timer = 0;
+
+int lca(int a, int b)
+{
+	for (int i = K - 1; i >= 0; --i)
+		if (depth[jump[a][i]] >= depth[b])
+			a = jump[a][i];
+	for (int i = K - 1; i >= 0; --i)
+		if (depth[jump[b][i]] >= depth[a])
+			b = jump[b][i];
+	for (int i = K - 1; i >= 0; --i)
+		if (jump[b][i] != jump[a][i])
+			a = jump[a][i],
+			b = jump[b][i];
+	if (a == b)
+		return a;
+	return p[a];
+}
+
+void dfs(int i)
+{
+	tin[i] = ++timer;
+	for (auto x : g[i])
+		dfs(x);
+	tout[i] = ++timer;
+}
+
+vector <pii> v;
+
+int intersect(int a, int l1, int c, int l2)
+{
+	if (depth[c] < depth[l1])
+		return 0;
+	if (depth[a] < depth[l2])
+		return 0;
+	int v = lca(a, c);
+	//if (depth[v] < depth[l1] || depth[v] < depth[l2])
+//		return 0;
+	int dp = max(depth[l1], depth[l2]);
+	int ans = 0;
+	for (int i = K - 1; i >= 0; --i)
+		if (depth[jump[v][i]] > dp)
+			ans += (1 << i),
+			v = jump[v][i];
+	if (depth[v] != dp)
+		++ans;
+	return ans;
+}
+
+int intersect(pii a, pii b)
+{
+	int l1 = lca(a.first, a.second);
+	int l2 = lca(b.first, b.second);
+	return intersect(a.first, l1, b.first, l2) + intersect(a.second, l1, b.second, l2);
+}
+
+int main()
+{
+	freopen("twopaths.in", "r", stdin);
+	freopen("twopaths.out", "w", stdout);
+	int n, k;
+	scanf("%d %d", &n, &k);
+	for (int i = 1; i < n; ++i) {
+		scanf("%d", &p[i]);
+		--p[i];
+		depth[i] = depth[p[i]] + 1;
+		g[p[i]].push_back(i);
+	}
+	for (int i = 0; i < n; ++i)
+		jump[i][0] = p[i];
+	for (int j = 1; j < K; ++j)
+		for (int i = 0; i < n; ++i)
+			jump[i][j] = jump[jump[i][j - 1]][j - 1];
+	v.resize(k);
+	dfs(0);
+	for (int j = 0; j < k; ++j)
+	{
+		int a, b;
+		scanf("%d %d", &a, &b);
+		--a, --b;
+		if (tout[a] > tout[b])
+			swap(a, b);
+		v[j] = { a, b };
+	}
+	int best = -1;
+	pii ans = { -1, -1 };
+	for (int i = 0; i < k; ++i)
+		for (int j = i + 1; j < k; ++j)
+		{
+			int temp = intersect(v[i], v[j]);
+			if (best < temp)
+			{
+				best = temp;
+				ans = { i, j };
+			}
+		}
+	cout << best << endl;
+	cout << ans.first + 1 << " " << ans.second + 1 << endl;
+	return 0;
+}

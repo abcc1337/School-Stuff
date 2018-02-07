@@ -1,0 +1,41 @@
+var min,t,n,k,j,i,x,y,z:longint;
+s:string;
+input,output:text;
+c,d:char;
+begin
+assign(input,'penguins.in');
+reset(input);
+assign(output,'penguins.out');
+rewrite(output);
+read(input,t);
+for i:=1 to t do
+begin
+ readln(input,n,k);
+ x:=1;
+ min:=n+1;
+ for j:=1 to n do
+ begin
+  read(input,c);
+  s:=s+c;
+  if c='1' then inc(y);
+  if (c='1')and(j<min)then begin z:=j; min:=j; end;
+  if j=1 then x:=1
+         else if c<>d then inc(x);
+  d:=c;
+ end;
+ if x<=k then writeln(output,s)
+         else begin
+              for j:=1 to z-1 do
+               write(output,0);
+              for j:=1 to y do
+               write(output,1);
+              for j:=1 to n-z-y+1 do
+               write(output,0);
+              writeln(output{,z,' ',y});
+              end;
+
+ s:='';y:=0;
+end;
+close(input);
+close(output);
+end.

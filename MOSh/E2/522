@@ -1,0 +1,119 @@
+program Project2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+var
+f : textfile;
+n, i, j, count : integer;
+a, b, c : array of byte;
+
+procedure qsa(min, max : integer);
+var
+work : byte;
+begin
+  if a[min] > a[max] then begin
+    work := a[min];
+    a[min] := a[max];
+    a[max] := work;
+  end;
+  if max-min > 1 then begin
+    qsa(min, (max+min) div 2);
+    qsa((max+min) div 2, max);
+  end;
+end;
+
+procedure qsb(min, max : integer);
+var
+work : byte;
+begin
+  if b[min] > b[max] then begin
+    work := b[min];
+    b[min] := b[max];
+    b[max] := work;
+  end;
+  if max-min > 1 then begin
+    qsb(min, (max+min) div 2);
+    qsb((max+min) div 2, max);
+  end;
+end;
+
+procedure qsc(min, max : integer);
+var
+work : byte;
+begin
+  if c[min] > c[max] then begin
+    work := c[min];
+    c[min] := c[max];
+    c[max] := work;
+  end;
+  if max-min > 1 then begin
+    qsc(min, (max+min) div 2);
+    qsc((max+min) div 2, max);
+  end;
+end;
+
+procedure qsortc();
+begin
+  qsc(0, high(c));
+end;
+
+procedure qsortb();
+begin
+  qsb(0, high(b));
+end;
+
+procedure qsorta();
+begin
+  qsa(0, high(a));
+end;
+
+begin
+assignfile(f, 'onlyone.in');
+reset(f);
+readln(f, n);
+setlength(a, n); 
+setlength(b, n);
+setlength(c, n);
+for i := 0 to n-1 do begin
+  readln(f, a[i], b[i], c[i]);
+end;
+closefile(f);
+count := 0;
+if n <= 100 then begin
+for i := 0 to n-2 do begin
+  for j := i+1 to n-1 do begin
+    if (a[i] = a[j])and(b[i] <> b[j])and(c[i] <> c[j])then begin
+      count := count + 1;
+    end;
+    if (a[i] <> a[j])and(b[i] = b[j])and(c[i] <> c[j])then begin
+      count := count + 1;
+    end;
+    if (a[i] <> a[j])and(b[i] <> b[j])and(c[i] = c[j])then begin
+      count := count + 1;
+    end;
+  end;
+end;
+end else begin
+for i := 0 to n-2 do begin
+  for j := i+1 to n-1 do begin
+    if (a[i] = a[j])and(b[i] <> b[j])and(c[i] <> c[j])then begin
+      count := count + 1;
+    end;
+   { if (a[i] <> a[j])and(b[i] = b[j])and(c[i] <> c[j])then begin
+      count := count + 1;
+    end;
+    if (a[i] <> a[j])and(b[i] <> b[j])and(c[i] = c[j])then begin
+      count := count + 1;
+    end; }
+  end;
+end;
+end;
+assignfile(f, 'onlyone.out');
+rewrite(f);
+writeln(f, count);
+closefile(f);
+  { TODO -oUser -cConsole Main : Insert code here }
+end.

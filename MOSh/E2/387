@@ -1,0 +1,121 @@
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+
+typedef long long ll;
+
+using namespace std;
+
+const int maxn=50111, maxm=50111;
+
+int m, n;
+ll p;
+
+struct fish_s
+{
+    int x;
+    int a;
+};
+struct sell_s
+{
+    int y;
+    int b;
+    int c;
+};
+
+fish_s fish[maxn];
+sell_s sell[maxm];
+ll m_sum[maxm], p_sum[maxm];
+
+bool sort_f1(sell_s s1, sell_s s2)
+{
+    return s1.c>s2.c;
+}
+
+void input()
+{
+    cin >>n >>m >>p;
+    int i;
+    for (i=0; i<n; ++i)
+        cin >>fish[i].x >> fish[i].a;
+    for (i=0; i<m; ++i)
+        cin >>sell[i].y >>sell[i].b >>sell[i].c;
+}
+void solve_I_group()
+{
+    int i;
+    long long f_sum=0; //сколько рыбы всего
+    for (i=0; i<n; ++i) f_sum+=fish[i].a;
+
+    long long ans=0;
+    sort(&sell[0], &sell[m], sort_f1);
+
+    long long d; //сколько куплено на этом участке
+    for (i=0; i<m; ++i)
+    {
+        d=min(f_sum, (long long) sell[i].b);
+        ans+=ll(d)*ll(sell[i].c);
+        f_sum-=d;
+    }
+    cout <<ans <<endl;
+    return;
+}
+
+ll profit (ll f_sum)
+{
+    int l=0, r=m+1, x;
+    while (r-l>1)
+    {
+        x=(l+r)/2;
+        if (m_sum[x]<=f_sum) l=x;
+        else r=x;
+    }
+    //l - сколько точно выкуплено целиком
+    ll ans=p_sum[l];
+    if (l!=m)
+    {
+        ans+=(f_sum-m_sum[l])*ll( sell[l].c );
+    }
+    return ans;
+}
+
+void solve_II_group()
+{
+    sort(&sell[0], &sell[m], sort_f1);
+    m_sum[0]=0;
+    p_sum[0]=0;
+    int i;
+    for (i=1; i<=m; ++i)
+    {
+        m_sum[i]=m_sum[i-1]+sell[i-1].b;
+        p_sum[i]=p_sum[i-1]+ll( sell[i-1].b )*ll( sell[i-1].c);
+    }
+    p_sum[m+1]=(1<<61);
+    m_sum[m+1]=(1<<61);
+
+    long long ans=0, f_sum=0; //сколько рыбы всего
+    for (i=0; i<n; ++i)
+    {
+        f_sum+=fish[i].a;
+        ans=max(ans, profit(f_sum)-ll(fish[i].x)*p);
+        //cout <<f_sum <<' ' <<profit(f_sum) <<endl;
+    }
+    cout <<ans <<endl;
+    return;
+}
+
+int main()
+{
+    freopen("fisher.in", "r", stdin);
+    freopen("fisher.out", "w", stdout);
+    input();
+    if (p==0) solve_I_group();
+    else if (fish[0].x>=sell[m-1].y) solve_II_group();
+    return 0;
+}
+/*
+2 1 100
+6 5
+100 4
+5 100 2000
+*/

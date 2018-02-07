@@ -1,0 +1,100 @@
+#include<fstream>
+#include<algorithm>
+#include<string>
+#include<set>
+#include<vector>
+#include<time.h>
+
+using namespace std;
+
+typedef long long ll;
+const int maxn = 500005;
+const ll inf = 2000000000000000000;
+
+ll n, m, p;
+ll x[maxn], a[maxn], y[maxn], b[maxn], c[maxn];
+set < pair<pair<ll, ll>, int> > mys;
+
+bool operator<(const pair<pair<ll, ll>, int> &a, const pair<pair<ll, ll>, int> &b) {
+	if (a.first != b.first)return a.first.first < b.first.first;
+	else return a.second < b.second;
+}
+
+int main() {
+	ifstream cin("fisher.in");
+	ofstream cout("fisher.out");
+	ios_base::sync_with_stdio(false);
+	cin >> n >> m >> p;
+	ll all = 0;
+	for (int i = 1; i <= n; ++i)
+		cin >> x[i] >> a[i], all += a[i];
+	ll cntall = 0;
+	ll costall = 0;
+	for (int i = 1; i <= m; ++i) {
+		cin >> y[i] >> b[i] >> c[i];
+		mys.insert({ { c[i],b[i] },i });
+		cntall += b[i];
+		costall += c[i] * b[i];
+	}
+	if (p == 0) {
+		if (cntall <= all) cout << costall;
+		else {
+			while (cntall > all) {
+				auto a = *mys.begin();
+				mys.erase(a);
+				if (cntall - all >= a.first.second) {
+					costall -= a.first.second*a.first.first;
+					cntall -= a.first.second;
+				}
+				else {
+					costall -= (cntall - all)*a.first.first;
+					a.first.second -= cntall - all;
+					cntall = all;
+					mys.insert(a);
+				}
+			}
+			cout << costall;
+		}
+	}
+	else {
+		ll ans = -inf;
+		mys.clear();
+		cntall = 0;
+		costall = 0;
+		ll mdb = -1;
+		for (int i = 1; i <= m; ++i) {
+			ll dob = y[i] * p;
+			if (mys.size() > 0 && mdb >= 0) {
+				auto a = *mys.begin();
+				mys.erase(a);
+				cntall += mdb - a.first.second;
+				costall += (mdb - a.first.second)*a.first.first;
+				a.first.second = mdb;
+				mys.insert(a);
+			}
+			mys.insert({ { c[i],b[i] },i });
+			cntall += b[i];
+			costall += b[i] * c[i];
+			while (cntall > all) {
+				auto a = *mys.begin();
+				mys.erase(a);
+				if (cntall - all >= a.first.second) {
+					costall -= a.first.second*a.first.first;
+					cntall -= a.first.second;
+					mdb = -1;
+				}
+				else {
+					mdb = a.first.second;
+					costall -= (cntall - all)*a.first.first;
+					a.first.second -= cntall - all;
+					cntall = all;
+					mys.insert(a);
+				}
+			}
+			if (cntall == all) ans = max(ans, costall - dob);
+		}
+		cout << max((ll)0, ans);
+	}
+
+	return 0;
+}

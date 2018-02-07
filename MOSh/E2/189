@@ -1,0 +1,91 @@
+#include <bits/stdc++.h>
+
+#define size(cont) int(cont.size())
+#define forn(i, n) for (int i = 0; i < int(n); ++i)
+#define llong long long
+
+#ifdef HOME
+    #define filename "file"
+#else
+    #define filename "typing"
+#endif // HOME
+
+const llong inf = (llong) 1e9 + 7ll;
+char buff[(int) 1e6 + 17];
+
+inline void config_io()
+{
+    freopen(filename".in", "r", stdin);
+
+#ifndef HOME
+    freopen(filename".out", "w", stdout);
+#endif
+}
+
+using namespace std;
+
+const int maxn = (int) 1e3 + 17;
+
+int n, m, l;
+string s;
+string t[maxn];
+unordered_map<string, int> x;
+llong dp[maxn];
+
+int main()
+{
+    config_io();
+
+    scanf("%d %d %d", &n, &m, &l);
+    x.rehash(2281488);
+    scanf("%s", buff);
+    s = string(buff);
+
+    for (int i = 0; i < m; ++i)
+    {
+        int cur;
+        scanf("%d %s", &cur, buff);
+        t[i] = string(buff);
+
+        for (int len = 1; len <= size(t[i]); ++len)
+        {
+            string curs = t[i].substr(0, len);
+
+            if (!x.count(curs))
+                x[curs] = cur;
+            else
+                x[curs] = min(x[curs], cur);
+        }
+
+        for (int len = 1; len <= size(t[i]); ++len)
+        {
+            string curs = t[i].substr(size(t[i]) - len, len);
+
+            if (!x.count(curs))
+                x[curs] = cur;
+            else
+                x[curs] = min(x[curs], cur);
+        }
+    }
+
+    dp[0] = x[s.substr(0, 1)];
+
+    for (int i = 1; i < n; ++i)
+    {
+        dp[i] = inf;
+
+        if (x.count(s.substr(0, i + 1)))
+            dp[i] = x[s.substr(0, i + 1)];
+
+        for (int j = 0; j < i; ++j)
+            if (x.count(s.substr(j + 1, i - j)))
+                dp[i] = min(dp[i], dp[j] + x[s.substr(j + 1, i - j)]);
+    }
+
+    if (dp[n - 1] == inf)
+        printf("-1");
+    else
+        printf("%d", dp[n - 1]);
+
+    return 0;
+}

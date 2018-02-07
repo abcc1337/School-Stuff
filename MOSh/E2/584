@@ -1,0 +1,90 @@
+{$mode delphi}
+{$minstacksize 134217728}
+var
+ i,j,n,k:longint;
+ txl,txr,py,otl,otr:longint;
+ x:array[1..100000] of longint;
+ y:array[1..100000] of longint;
+ xyl:array[0..2000000] of longint;
+ xyr:array[0..2000000] of longint;
+ sum:array[0..1000000] of int64;
+ ans:int64;
+begin
+ assign(input,'monument.in');
+ assign(output,'monument.out');
+ reset(input);
+ rewrite(output);
+ read(n,k);
+ for i:=1 to n do
+ begin
+  read(x[i],y[i]);
+ end;
+ For i:=0 to 1000000 do
+ begin
+  xyl[i]:=high(longint);
+  xyr[i]:=-1;
+ end;
+ py:=y[1];
+ For i:=2 to n do
+ begin
+  For j:=py downto y[i] do
+  begin
+   If xyl[j]>x[i] Then xyl[j]:=x[i];
+  end;
+  For j:=py to y[i] do
+  begin
+   If xyr[j]<x[i] Then xyr[j]:=x[i];
+  end;
+  py:=y[i];
+ end;
+
+  py:=y[n];
+  For j:=py downto y[1] do
+  begin
+   If xyl[j]>x[i] Then xyl[j]:=x[i];
+  end;
+  For j:=py to y[1] do
+  begin
+   If xyr[j]<x[i] Then xyr[j]:=x[i];
+  end;
+
+ For i:=0 to 1000000 do
+ begin
+  txl:=xyl[i];
+  If txl<xyl[i+1] Then
+  begin
+   txl:=xyl[i+1];
+  end;
+  txr:=xyr[i];
+  If txr>xyr[i+1] Then
+  begin
+   txr:=xyr[i+1];
+  end;
+  If (txl<txr) and (xyl[i+1]<xyr[i+1]) and (xyl[i]<xyr[i]) Then
+  begin
+   otl:=(txl-i) mod k;
+   otr:=(txr-i) mod k;
+   If otr<0 then otr:=otr+k;
+   If otl<0 then otl:=otl+k;
+   otl:=(2*k-otl) mod k;
+   If otr<>0 then inc(ans);
+   inc(ans,((txr-otr)-(txl+otl)) div k + 1);
+   If otr =0 then otr:=k;
+   inc(sum[k-otr+1]);
+   dec(sum[otl]);
+  end;
+ end;
+ j:=0;
+ For i:=1 to k-1 do
+ begin
+  sum[i]:=sum[i]+sum[i-1];
+ end;
+ For i:=1 to k-1 do
+ begin
+  If sum[i]<sum[j] then
+  begin
+   j:=i;
+  end;
+ end;
+ writeln(ans+sum[j]);
+end.

@@ -1,0 +1,46 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <cstdio>
+#include <algorithm>
+using namespace std;
+
+typedef long long lng;
+
+struct pt
+{
+	lng a, k;
+};
+bool operator<(pt a, pt b)
+{
+	return a.a / a.k > b.a / b.k;
+}
+pt in[100];
+pt pool[1000100]; int pn = 0;
+
+int main()
+{
+	freopen("castle.in", "r", stdin);
+	freopen("castle.out", "w", stdout);
+	lng n, s; scanf("%lld%lld", &n, &s);
+	lng ans = 0;
+	for (int i = 0; i < n; ++i)
+	{
+		scanf("%lld%lld", &in[i].a, &in[i].k);
+		ans += in[i].a;
+		lng a = in[i].a;
+		lng k = in[i].k;
+		lng t = a / k;
+		pool[pn++] = { k * t, t };
+		if (a - k * t > 0)
+			pool[pn++] = { a - k * t, 1 };
+	}
+	sort(pool, pool + pn);
+	for (int i = 0; i < s && i < pn; ++i)
+	{
+		lng t = min(pool[i].k, s);
+		ans -= (pool[i].a / pool[i].k) * t;
+		s -= t;
+	}
+	printf("%lld", ans);
+	return 0;
+}

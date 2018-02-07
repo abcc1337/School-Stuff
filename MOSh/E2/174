@@ -1,0 +1,133 @@
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <vector>
+#include <set>
+#include <map>
+#include <algorithm>
+#include <ctime>
+#include <cmath>
+#include <cstring>
+
+using namespace std;
+
+typedef long long ll;
+typedef long double ld;
+
+const int MAXN = 3e5+5;
+const ll INF = 1LL<<60;
+
+struct P
+{
+    ll c;
+    int l, r;
+
+    P(){c = INF; l = r = -1;}
+};
+
+int m, n, L;
+string s;
+ll dp[MAXN];
+vector <P> bor1;
+vector <P> bor2;
+
+int main()
+{
+    //freopen("in.txt", "r", stdin);
+    freopen("typing.in", "r", stdin), freopen("typing.out", "w", stdout), ios_base::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+
+    cin >> m >> n >> L;
+    cin >> s;
+
+    bor1.push_back(P());
+    bor2.push_back(P());
+    for (int i = 0; i < n; i++)
+    {
+        static string t;
+        static ll c;
+        static int w;
+
+        cin >> c >> t;
+
+        w = 0;
+        for (int j = 0; j < t.size(); j++)
+        {
+            if (t[j] == '0')
+            {
+                if (bor1[w].l == -1) bor1[w].l = bor1.size(), bor1.push_back(P());
+                w = bor1[w].l;
+            }
+            else
+            {
+                if (bor1[w].r == -1) bor1[w].r = bor1.size(), bor1.push_back(P());
+                w = bor1[w].r;
+            }
+
+            bor1[w].c = min(bor1[w].c, c);
+        }
+
+        w = 0;
+        for (int j = t.size()-1; j >= 0; j--)
+        {
+            if (t[j] == '0')
+            {
+                if (bor2[w].l == -1) bor2[w].l = bor2.size(), bor2.push_back(P());
+                w = bor2[w].l;
+            }
+            else
+            {
+                if (bor2[w].r == -1) bor2[w].r = bor2.size(), bor2.push_back(P());
+                w = bor2[w].r;
+            }
+
+            bor2[w].c = min(bor2[w].c, c);
+        }
+    }
+
+    for (int i = 0; i <= m; i++) dp[i] = INF;
+
+    dp[0] = 0;
+    for (int i = 0; i < m; i++)
+    {
+        static int w;
+        if (dp[i] == INF) continue;
+
+        w = 0;
+        for (int j = i; j < m; j++)
+        {
+            if (s[j] == '0')
+            {
+                if (bor1[w].l == -1) break;
+                w = bor1[w].l;
+            }
+            else
+            {
+                if (bor1[w].r == -1) break;
+                w = bor1[w].r;
+            }
+
+            dp[j+1] = min(dp[j+1], dp[i] + bor1[w].c);
+        }
+
+        w = 0;
+        for (int j = i; j >= 0; j--)
+        {
+            if (s[j] == '0')
+            {
+                if (bor2[w].l == -1) break;
+                w = bor2[w].l;
+            }
+            else
+            {
+                if (bor2[w].r == -1) break;
+                w = bor2[w].r;
+            }
+
+            dp[i+1] = min(dp[i+1], dp[j] + bor2[w].c);
+        }
+    }
+
+    cout << ((dp[m] >= INF) ? -1 : dp[m]);
+
+    return 0;
+}

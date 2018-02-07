@@ -1,0 +1,119 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int w, h, n, q;
+vector<vector<vector<bool> > > g;
+set<pair<int, int> > vertexes;
+vector<vector<bool> > used, is_vertex;
+
+pair<int, int> delta[4] = {make_pair(1, 0), make_pair(0, 1), make_pair(-1, 0), make_pair(0, -1)};
+
+bool is_inside(int y, int x, int y1, int x1, int y2, int x2) {
+    return ((y1 <= y) && (y <= y2) && (x1 <= x) && (x <= x2));
+}
+
+void dfs(int y, int x) {
+    if (used[y][x])
+        return;
+
+    //cerr << y << " " << x << "\n";
+    used[y][x] = true;
+    for (int d = 0; d < 4; d++) {
+        if (g[y][x][d]) {
+            dfs(y + delta[d].first, x + delta[d].second);
+        }
+    }
+}
+
+int main() {
+    freopen("repair.in", "r", stdin);
+    freopen("repair.out", "w", stdout);
+
+    cin >> w >> h >> n >> q;
+    g.resize(h, vector<vector<bool> >(w, vector<bool> (4, false)));
+    is_vertex.resize(h, vector<bool> (w, false));
+    int cnt = 1;
+    for (int i = 0; i < n - 1; i++) {
+        char c;
+        int x, y;                                       ///      0
+        cin >> c >> x >> y;                             ///    3 + 1
+        x--;                                            ///      2
+        y--;
+        if (c == 'h') {
+            g[y][x][1] = true;
+            vertexes.insert(make_pair(y, x));
+            g[y][x + 1][3] = true;
+            vertexes.insert(make_pair(y, x + 1));
+        }
+        else {
+            g[y][x][0] = true;
+            vertexes.insert(make_pair(y, x));
+            g[y + 1][x][2] = true;
+            vertexes.insert(make_pair(y + 1, x));
+        }
+    }
+
+    for (int q_ = 0; q_ < q; q_++) {
+        int x1, y1, x2, y2;
+        cin >> x1 >> y1 >> x2 >> y2;
+        x1--;y1--;x2--;y2--;
+        vector<pair<pair<int, int>, int> > deleted;
+
+        int cur_x = x1, cur_y = y1;
+        while (cur_x <= x2) {
+            if (g[cur_y][cur_x][2]) {
+                deleted.push_back(make_pair(make_pair(cur_y, cur_x), 2));
+                //cerr << "deleted " << cur_y << " " << cur_x << " " << 2 << "\n";
+                g[cur_y][cur_x][2] = false;
+            }
+            cur_x++;
+        }
+        cur_x--;
+        while (cur_y <= y2) {
+            if (g[cur_y][cur_x][1]) {
+                deleted.push_back(make_pair(make_pair(cur_y, cur_x), 1));
+                g[cur_y][cur_x][1] = false;
+                //cerr << "deleted " << cur_y << " " << cur_x << " " << 1 << "\n";
+            }
+            cur_y++;
+        }
+        cur_y--;
+        while (cur_x >= x1) {
+            if (g[cur_y][cur_x][0]) {
+                deleted.push_back(make_pair(make_pair(cur_y, cur_x), 0));
+                //cerr << "deleted " << cur_y << " " << cur_x << " " << 0 << "\n";
+                g[cur_y][cur_x][0] = false;
+            }
+            cur_x--;
+        }
+        cur_x++;
+        while (cur_y >= y1) {
+            if (g[cur_y][cur_x][3]) {
+                deleted.push_back(make_pair(make_pair(cur_y, cur_x), 3));
+                //cerr << "deleted " << cur_y << " " << cur_x << " " << 3 << "\n";
+                g[cur_y][cur_x][3] = false;
+            }
+            cur_y--;;
+        }
+        cur_y++;
+
+        int ans = 0;
+        used.assign(h, vector<bool> (w, false));
+        for (set<pair<int, int> >::iterator iter = vertexes.begin(); iter != vertexes.end(); iter++) {
+            int cur_y = iter->first, cur_x = iter->second;
+            if (is_inside(cur_y, cur_x, y1, x1, y2, x2) && (!(used[cur_y][cur_x]))) {
+                dfs(cur_y, cur_x);
+                ans++;
+            }
+        }
+        cout << ans << "\n";
+        for (int j = 0; j < deleted.size(); j++) {
+            g[deleted[j].first.first][deleted[j].first.second][deleted[j].second] = true;
+            //cerr << "restored " << deleted[j].first.first << " " << deleted[j].first.second << " " << deleted[j].second << "\n";
+        }
+        //deleted.clear();
+        //cerr << "\n";
+    }
+    return 0;
+}

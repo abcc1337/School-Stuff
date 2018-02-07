@@ -1,0 +1,138 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <cmath>
+#include <set>
+
+
+#define mapa make_pair
+#define puba push_back
+#define ff first
+#define ss second
+#define pii pair < int, int >
+
+
+using namespace std;
+
+
+const int INF = (int) 1e9;
+
+
+typedef struct {
+    int x, y;
+} TPoint;
+
+
+typedef struct {
+    int num, xl, len, ts, yd;
+} TSeg;
+
+
+int main() {
+    freopen("monument.in", "r", stdin);
+    freopen("monument.out", "w", stdout);
+    int n, k;
+    cin >> n >> k;
+    vector < TPoint > ps (n);
+    int y_min = INF;
+    int y_max = -INF;
+    for (int i = 0; i < n; ++i) {
+        cin >> ps[i].x >> ps[i].y;
+        y_min = min(y_min, ps[i].y);
+        y_max = max(y_max, ps[i].y);
+    }
+    
+    ps.push_back(ps[0]);
+
+    set < pair < int, pii > > vs;
+    for (int i = 0; i < n; ++i) {
+        if (ps[i].x == ps[i + 1].x) {
+            vs.insert(mapa(min(ps[i].y, ps[i + 1].y), mapa(ps[i].x, fabs(ps[i].y - ps[i + 1].y))));
+        }
+    }
+
+    vector < TSeg > segs;
+
+    for (; vs.size() > 0 ; ) {
+        pair < int, pii > seg1, seg2; 
+        seg1 = *(vs.begin());
+        vs.erase(seg1);
+        seg2 = *(vs.begin());
+        vs.erase(seg2);
+        TSeg z;
+        z.xl = seg1.ss.ff;
+        z.num = min(seg1.ss.ss, seg2.ss.ss);
+        z.len = fabs(seg1.ss.ff - seg2.ss.ff);
+        z.yd = seg1.ff;
+        seg1.ff += z.num;
+        seg2.ff += z.num;
+        seg1.ss.ss -= z.num;
+        seg2.ss.ss -= z.num;
+        if (seg1.ss.ss > 0) {
+            vs.insert(seg1);
+        }
+        if (seg2.ss.ss > 0) {
+            vs.insert(seg2);
+        }
+        segs.puba(z);
+    }
+
+    int dx = segs[0].xl;
+    int dy = segs[0].yd;
+    for (int i = 0; i < (int) segs.size(); ++i) {
+        segs[i].xl -= dx;
+        segs[i].yd -= dy;
+        if (segs[i].xl < 0) {
+            segs[i].xl -= (segs[i].xl / k - 1) * k;
+        }
+        segs[i].xl %= k;
+        //cout << segs[i].xl << " " << segs[i].num << " " << segs[i].len << " " << segs[i].yd << endl; 
+    }
+    int csum = 0;
+
+    int m = segs.size();
+    int cy = 0;
+    vector < int > line (k, 0);
+    int cans = 0;
+    for (int i = 0; i < m; ++i) {
+        for (int j = 0; j < segs[i].num; ++j) {
+            int tx = cy % k;
+            int znum = (segs[i].len + k - 1) / k;
+            cans += znum;
+            int gt = ((k - segs[i].len % k)) % k + 1;
+            int sd = (k - tx + segs[i].xl) % k;
+            if (gt == k) {
+                ++cy;
+                continue;
+            }
+            if (sd == 0) {
+                
+                ++line[gt];
+                ++cy;
+                continue;
+            }
+
+            if (sd <= gt) {
+                ++line[(gt - sd) % k];
+                --line[(k - sd) % k];    
+            }
+            else {
+                ++line[0];
+                --line[(k - sd) % k];
+                ++line[(k + gt - sd) % k];
+
+            }
+            ++cy;
+        } 
+    } 
+    int cd = 0;
+    int md = INF;
+    
+    for (int i = 0; i < k; ++i) {
+        cd += line[i];
+        md = min(md, cd);
+    }
+    //cout << cans << endl;
+    cout << cans + md << endl;
+    return 0;
+}

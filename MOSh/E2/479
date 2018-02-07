@@ -1,0 +1,150 @@
+program ProjectC2;
+
+{$O-}
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils, Math;
+
+var n, k : longint;
+    i, j, qw, rt : longint;
+    used : array[1..50000, 0..1000] of longint;
+    first, next, data, p, way : array[0..300000] of longint;
+    size : longint;
+    f : boolean;
+    was : array[1..100000] of boolean;
+    a, b : longint;
+    kol, mx, q : longint;
+
+procedure add(a, b : longint);
+begin
+  inc(size);
+  next[size] := first[a];
+  first[a] := size;
+  data[size] := b;
+end;
+
+procedure dfs(v : longint);
+var u : longint;
+begin
+  if v = b then
+    begin
+      f := True;
+      way[0] := 1;
+      way[1] := v;
+      exit;
+    end;
+
+  was[v] := True;
+  u := first[v];
+  while u <> 0 do
+  begin
+    if not(was[data[u]]) then
+      dfs(data[u]);
+    if f then
+      begin
+        inc(way[0]);
+        way[way[0]] := v;
+        exit;
+      end;
+    u := next[u];
+  end;
+
+end;
+
+begin
+  assign(input, 'twopaths.in');  assign(output, 'twopaths.out');
+//  assign(input, 'input.txt');  assign(output, 'output.txt');
+  reset(input); rewrite(output);
+
+  readln(n, k);
+
+  for i := 2 to n do
+  begin
+    read(p[i]);
+    add(i, p[i]);
+    add(p[i], i);
+  end;
+
+  for i := 1 to k do
+  begin
+    readln(a, b);
+    for j := 1 to n do
+      was[j] := False;
+    f := False;
+    dfs(a);
+
+    used[i][0] := way[0];
+    for j := 1 to way[0] do
+      used[i][j] := way[j];
+
+    {for j := 1 to way[0]-1 do
+      if p[way[j]] = way[j+1] then
+        used[i][way[j]] := True
+      else
+        used[i][way[j+1]] := True; }
+  end;
+
+  mx := 0;
+  a := 1;
+  b := 2;
+  
+  for i := 1 to k-1 do
+    for j := i+1 to k do
+    begin
+
+      for qw := 1 to used[i][0] - 1 do
+      begin
+        kol := 0;
+
+        rt := 1;
+        while used[j][0] > rt do
+          if used[j][rt] = used[i][qw] then
+            break
+          else
+            inc(rt);
+
+        if used[j][rt] = used[i][qw] then
+          begin
+            kol := 1;
+            while (rt+kol <= used[j][0]) and (qw + kol <= used[i][0]) and (used[j][rt+kol] = used[i][qw+kol]) do
+              inc(kol);
+          end;
+
+        kol := kol - 1;
+        if kol > mx then
+          begin
+            mx := kol;
+            a := i;
+            b := j;
+          end;
+
+        kol := 0;
+
+        rt := used[j][0];
+        while rt > 0 do
+          if used[j][rt] = used[i][qw] then
+            break
+          else
+            dec(rt);
+
+        if rt <> 0 then
+          begin
+            kol := 1;
+            while (rt-kol > 0) and (qw + kol <= used[i][0]) and (used[j][rt-kol] = used[i][qw+kol]) do
+              inc(kol);
+          end;
+
+        kol := kol - 1;
+        if kol > mx then
+          begin
+            mx := kol;
+            a := i;
+            b := j;
+          end;
+      end;
+    end;
+
+  writeln(mx);
+  writeln(a, ' ', b);
+end.

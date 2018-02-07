@@ -1,0 +1,52 @@
+import sys
+
+def dfs2(v, v0, s):
+    global cnt
+    B[v0][v] = s
+    B[v][v0] = s
+    if (not Was[v]):
+        Was[v] = True
+        cnt += 1
+    if (cnt < n):
+        for u in range(n):
+            if ((A[v][u] != 0) and (not Was[u])):
+                dfs2(u, v0, s + A[v][u]);
+
+
+def dfs(v):
+    global cnt
+    Was[v] = True
+    cnt += 1
+    for u in range(n):
+        if (B[v][u] != 0) and (B[v][u] <= D[v]) and (not Was[u]):
+            dfs(u)
+
+fin = open("alarm.in")
+fout = open("alarm.out", "w")
+n = int(fin.readline().rstrip())
+D = list(map(int, fin.readline().rstrip().split()))
+D1 = [0]*n
+for i in range(n):
+    D1[i] = (D[i], i)
+D1.sort(reverse = True)
+A = [[0 for i in range(n)] for j in range(n)]
+B = [[0 for i in range(n)] for j in range(n)]
+for i in range(n - 1):
+    u, v, l = map(int, fin.readline().rstrip().split())
+    A[u - 1][v - 1] = l
+    A[v - 1][u - 1] = l
+cnt = 0
+res = 0
+Was = [False] * n
+for i in range(n):
+    dfs2(i, i, 0)
+    cnt = 0
+    Was = [False] * n
+while cnt < n:
+    for v in range(n):
+        if not Was[D1[v][1]]:
+            dfs(D1[v][1])
+            res += 1
+print(res, file = fout)
+fin.close()
+fout.close()

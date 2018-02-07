@@ -1,0 +1,12 @@
+inf = open("castle.in", "r")
+outf = open("castle.out", "w")
+n, s = map(int, inf.readline().split())
+pref = []
+ans = 0
+for i in range(n):
+    a, b = map(int, inf.readline().split())
+    pref.append([b, a // b])
+    if a % b != 0:
+        pref.append([a % b, 1])
+    ans += a
+outf.write(str(max(0, ans - s)))

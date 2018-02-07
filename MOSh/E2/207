@@ -1,0 +1,145 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+
+#define int long long
+#define mp make_pair
+
+
+
+
+
+struct block
+{
+    int cost;
+    int cnt;
+    int now;
+    int num;
+    block(){}
+    block(int a, int b, int c, int d)
+    {
+        cnt = a;
+        cost = b;
+        now = c;
+        num = d;
+    }
+};
+block a[100001];
+
+bool operator <(block a, block b)
+{
+    return(a.now > b.now) || (a.now == b.now && a.cnt > b.cnt) || (a.now == b.now && a.cnt == b.cnt && a.cost < b.cost) || (a.now == b.now && a.cnt == b.cnt && a.cost == b.cost && a.num < b.num);
+}
+
+
+int n, m;
+int d[1000000];
+bool w[1000000];
+int c[1000000];
+int cnt;
+int check = 0;
+vector <pair <int, int> > cicles;
+
+
+int z_cicle(int v, int k, int start)
+{
+    if (d[v] == start)
+        return k;
+    z_cicle(d[v], k + 1, start);
+}
+
+void moving(int v)
+{
+    if (c[v] != 0)
+    {
+        if (c[v] == cnt)
+        {
+            int len = z_cicle(v, 1, v);
+            cicles.push_back(make_pair(v, len));
+        }
+        else
+            check = c[v];
+    }
+    else
+    {
+        c[v] = cnt;
+        moving(d[v]);
+    }
+}
+
+
+
+void painting(int v, int col)
+{
+    if (c[v] == col)
+        return;
+    c[v] = col;
+    painting(d[v], col);
+}
+
+signed main()
+{
+//    freopen("input.txt", "r", stdin);
+//    freopen("output.txt", "w", stdout);
+
+    freopen("robots.in", "r", stdin);
+    freopen("robots.out", "w", stdout);
+
+
+    ios_base::sync_with_stdio(0);
+
+
+    cin >> n >> m;
+    int g;
+    cin >> g;
+    for (int i = 0; i < n * m; ++i)
+    {
+        char c;
+        cin >> c;
+        w[i] = (c < 'Z');
+        if (c < 'Z')
+            c += 32;
+        if (c == 's')
+            d[i] = i + m;
+        if (c == 'w')
+            d[i] = i - 1;
+        if (c == 'e')
+            d[i] = i + 1;
+        if (c == 'n')
+            d[i] = i - m;
+    }
+
+    cnt = 0;
+    for (int i = 0; i < n * m; ++i)
+    {
+        cnt++;
+        check = -1;
+        moving(i);
+        if (check != -1)
+        {
+            cnt--;
+            painting(i, check);
+        }
+    }
+//    cout << cnt << '\n';
+//    for (auto i : cicles)
+//        cout << i.first << ' ' << i.second << '\n';
+//    for (int i = 0; i < n; ++i)
+//    {
+//        for (int j = 0; j < m; ++j)
+//        {
+//            cout << c[i * m + j] << ' ';
+//        }
+//        cout << '\n';
+//    }
+    int ans = 0;
+    for (auto i : cicles)
+        ans += i.second;
+    if (cnt != cicles.size())
+        cout << "kek";
+    cout << ans;
+
+
+
+}

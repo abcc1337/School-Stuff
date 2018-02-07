@@ -1,0 +1,106 @@
+const mxcord = 2000000;
+const mxn = 100001;
+var
+  otr :array[1..mxn, 0..1] of longint;
+  a: array[0..mxcord, 0..1] of longint;
+  b: array[0..mxcord, 0..3] of longint;
+  j, i, k, n, mn, mx, ans, tek, tekpr: longint;
+begin
+  assign(input, 'monument.in');
+  reset(input);
+  assign(output, 'monument.out');
+  rewrite(output);
+  readln(n, k);
+  for j := 0 to mxcord do
+  begin
+    a[j, 0] := -1;
+    a[j, 1] := -1;
+    b[j, 0] := -1;
+    b[j, 1] := -1;
+    b[j, 2] := -100000000;
+    b[j, 3] := -100000000;
+  end;
+  for j := 1 to n do
+  begin
+    readln(otr[j, 0], otr[j, 1]);
+  end;
+  otr[n + 1, 0] := otr[1, 0];
+  otr[n + 1, 1] := otr[1, 1];
+  for j := 2 to n + 1 do
+  begin
+    if otr[j, 0] = otr[j - 1, 0] then
+    begin
+      if otr[j, 1] > otr[j - 1, 1] then
+      begin
+        mx := otr[j, 1];
+        mn := otr[j - 1, 1];
+      end
+      else
+      begin
+        mx := otr[j - 1, 1];
+        mn := otr[j, 1]
+      end;
+      for i := mn to mx do
+      begin
+        if a[i, 0] = -1 then
+        begin
+          a[i, 0] := otr[j, 0];
+        end
+        else
+        begin
+          if a[i, 0] > otr[j, 0] then
+          begin
+            if a[i, 1] = -1 then a[i, 1] := a[i, 0];
+            a[i, 0] := otr[j, 0];
+          end
+          else
+          begin
+            if a[i, 1] < otr[j, 0] then a[i, 1] := otr[j, 0];
+          end;
+        end;
+      end;
+    end;
+  end;
+  ans := 0;
+  for j := 0 to mxcord - 1 do
+  begin
+    if (a[j, 0] > -1) and (a[j + 1, 0] > -1) then
+    begin
+      if a[j, 0] < a[j + 1, 0] then b[j, 0] := a[j + 1, 0]
+      else b[j, 0] := a[j, 0];
+      if a[j, 1] > a[j + 1, 1] then b[j, 1] := a[j + 1, 1]
+      else b[j, 1] := a[j, 1];
+      b[j, 2] := b[j, 0] - (((b[j, 0] - j) mod k + k) mod k);
+      b[j, 3] := b[j, 1] - (((b[j, 1] - j) mod k + k) mod k);
+      if b[j, 3] <> b[j, 1] then
+      begin
+        b[j, 3] := b[j, 3] + k;
+      end;
+      ans := ans + (b[j, 3] - b[j, 2]) div k
+    end;
+  end;
+  tek := ans;
+  for j := 1 to k do
+  begin
+    for i := 0 to mxcord do
+    begin
+      if b[i, 0] <> -1 then
+      begin
+        b[i, 0] := b[i, 0] + 1;
+        b[i, 1] := b[i, 1] + 1;
+        if b[i, 2] + k = b[i, 0] then
+        begin
+          tek := tek - 1;
+          b[i, 2] := b[i, 2] + k;
+        end;
+        if b[i, 3] < b[i, 1] then
+        begin
+          tek := tek + 1;
+          b[i, 3] := b[i, 3] + k;
+        end;
+      end;
+    end;
+    if ans > tek then ans := tek;
+  end;
+  writeln(ans);
+end.

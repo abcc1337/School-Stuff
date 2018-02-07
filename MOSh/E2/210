@@ -1,0 +1,162 @@
+#define _ijps 0
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <map>
+#include <set>
+#include <cmath>
+
+using namespace std;
+
+#define name "robots"
+typedef long long ll;
+#define forn(i, n) for(int i = 0; i < n; i++)
+#define fornn(i, a, n) for(int i = a; i < n; i++)
+#define mk make_pair
+
+const int dd = 1e5 + 7;
+const int infi = 1e9 + 7;
+const ll inf = 1e18 + 7;
+
+vector<int> P[dd], Z[dd];
+bool ok[dd];
+int n, m, g;
+
+int go(int x, int y) {
+	return x * m + y;
+}
+
+pair<int, int> ugo(int t) {
+	return mk(t / m, t % m);
+}
+
+int us[dd], Col[dd], Ci[dd], us1[dd], H[dd], L[dd];
+
+int dfs(int t) {
+	if (us[t]) {
+		if (us[t] == 2) {
+			return -1;
+		}
+		return t;
+	}
+	us[t] = 1;
+	int g = dfs(P[t][0]);
+	us[t] = 2;
+	if (g != -1) {
+		Ci[t] = 1;
+		if (t != g) {
+			return g;
+		}
+	}
+	return -1;
+}
+
+vector<vector<int> > W;
+
+void dfs2(int t, int co, int h = 0, int l = 0) {
+	if (us1[t]) {
+		return;
+	}
+	if (Ci[t]) {
+		h = 0;
+		l++;
+	}
+	W.back().push_back(t);
+	us1[t] = 1;
+	Col[t] = co;
+	L[t] = l;
+	H[t] = h;
+	forn(i, Z[t].size()) {
+		dfs2(Z[t][i], co, h + 1, l);
+	}
+}
+
+
+
+int main() {
+	if (_ijps) {
+		freopen("input.txt", "r", stdin);
+		freopen("output.txt", "w", stdout);
+	}
+	else {
+		freopen(name".in", "r", stdin);
+		freopen(name".out", "w", stdout);
+	}
+
+
+	cin >> n >> m >> g;
+
+	forn(i, n) {
+		forn(j, m) {
+			char c;
+			scanf(" %c", &c);
+			int g = go(i, j);
+			if (c >= 'A' && c <= 'Z') {
+				c -= 'A';
+				c += 'a';
+				ok[g] = 1;
+			}
+			if (c == 'n') {
+				P[g].push_back(go(i - 1, j));
+			}
+			if (c == 's') {
+				P[g].push_back(go(i + 1, j));
+			}
+			if (c == 'e') {
+				P[g].push_back(go(i, j + 1));
+			}
+			if (c == 'w') {
+				P[g].push_back(go(i, j - 1));
+			}
+		}
+	}
+	forn(i, n * m) {
+		Z[P[i][0]].push_back(i);
+	}
+	forn(i, n * m) {
+		dfs(i);
+	}
+
+	int ti = 0;
+
+	vector<pair<int, int> > RR;
+
+	forn(i, n * m) {
+		if (Ci[i] && !us1[i]) {
+			W.push_back(vector<int>());
+			dfs2(i, ti);
+			ti++;
+			vector<int> &E = W.back();
+			int l = 0, s = 0;
+			vector<int> R;
+			forn(j, E.size()) {
+				if (Ci[E[j]]) {
+					l++;
+					s++;
+				}
+				if (ok[E[j]]) {
+					R.push_back(E[j]);
+				}
+			}
+			l = min(l, (int)R.size());
+			forn(j, l) {
+				int h0 = H[R[j]];
+				int l0 = L[R[j]];
+				int t = j + h0 - l0 + (j + 1) * s; // »«Ã≈Õ»!!!!!
+				RR.push_back(mk(R[j], t));
+			}
+		}
+	}
+	cout << RR.size() << '\n';
+	if (g) {
+		forn(i, RR.size()) {
+			cout << ugo(RR[i].first).first + 1 << ' ' << ugo(RR[i].first).second + 1 << ' ' << RR[i].second << '\n';
+		}
+	}
+
+}

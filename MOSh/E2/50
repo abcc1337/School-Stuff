@@ -1,0 +1,155 @@
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <vector>
+#include <set>
+#include <map>
+#include <algorithm>
+#include <cstring>
+#include <ctime>
+#include <cmath>
+
+using namespace std;
+
+typedef long long ll;
+typedef long double ld;
+
+const ll MAXN = 1e6+5;
+const ll MAXC = 1e6;
+
+struct P
+{
+    ll cnt, cst;
+    P *l, *r;
+
+    P(){l=r=NULL;}
+    P(P* p)
+    {
+        cnt = p->cnt;
+        cst = p->cst;
+        l = p->l;
+        r = p->r;
+    }
+};
+
+ll n, m;
+ll p;
+ll x[MAXN];
+ll y[MAXN];
+ll a[MAXN];
+ll b[MAXN];
+ll c[MAXN];
+P *t[MAXN];
+ll ans = 0;
+
+P* build(P* t, ll tl, ll tr)
+{
+    t = new P;
+
+    if (tl == tr)
+    {
+        t->cnt = 0;
+        t->cst = 0;
+        return t;
+    }
+
+    ll tm = (tl+tr)/2;
+    t->l = build(t->l, tl, tm);
+    t->r = build(t->r, tm+1, tr);
+    t->cnt = 0;
+    t->cst = 0;
+
+    return t;
+}
+
+P* update(P* t, ll tl, ll tr, ll pos, ll x)
+{
+    P *nt = new P(t);
+
+    if (tl == tr)
+    {
+        nt->cnt = t->cnt+x;
+        nt->cst = nt->cnt*pos;
+        return nt;
+    }
+
+    ll tm = (tl+tr)/2;
+    if (pos <= tm) nt->l = update(nt->l, tl, tm, pos, x);
+    else           nt->r = update(nt->r, tm+1, tr, pos, x);
+
+    nt->cnt = nt->l->cnt + nt->r->cnt;
+    nt->cst = nt->l->cst + nt->r->cst;
+
+    return nt;
+}
+
+ll get(P* t, ll tl, ll tr, ll cnt)
+{
+    if (t->cnt < cnt) return t->cst;
+    if (tl == tr) return cnt*tl;
+
+    ll tm = (tl+tr)/2;
+    if (t->r->cnt >= cnt) return get(t->r, tm+1, tr, cnt);
+    else return t->r->cst + get(t->l, tl, tm, cnt-t->r->cnt);
+}
+
+int main()
+{
+    //freopen("in.txt", "r", stdin);
+    freopen("fisher.in", "r", stdin), freopen("fisher.out", "w", stdout), ios_base::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+
+    cin >> n >> m >> p;
+    for (ll i = 0; i < n; i++) cin >> x[i] >> a[i];
+    for (ll i = 0; i < m; i++) cin >> y[i] >> b[i] >> c[i];
+
+    t[0] = NULL;
+    t[0] = build(t[0], 0, MAXC);
+    for (ll i = 0; i < m; i++) t[i+1] = update(t[i], 0, MAXC, c[i], b[i]);
+
+    while (1)
+    {
+        static ll i=0, j=0;
+        static ll cnt=0, oil;
+
+        oil = p*max((i > 0 ? x[i-1] : 0), (j > 0 ? y[j-1] : 0));
+
+        ans = max(ans, get(t[j], 0, MAXC, cnt)-oil);
+
+        if (i == n && j == m) break;
+
+        if (i == 0)
+        {
+            cnt += a[i];
+            i++;
+            continue;
+        }
+        if (j == 0)
+        {
+            j++;
+            continue;
+        }
+
+        if (i == n)
+        {
+            j++;
+            continue;
+        }
+        if (j == m)
+        {
+            cnt += a[i];
+            i++;
+            continue;
+        }
+
+        if (x[i-1] < y[j-1])
+        {
+            cnt += a[i];
+            i++;
+        }
+        else j++;
+    }
+
+    cout << ans;
+
+    return 0;
+}

@@ -1,0 +1,75 @@
+
+import threading
+import sys
+
+sys.setrecursionlimit(10 ** 9)
+threading.stack_size(2 ** 26)
+tp = []
+used = []
+ans = []
+sm = 0
+n = 0
+m = 0
+def dfs(x, y):
+        global used, g, ans, tp, n, m
+        used[x][y] = True
+        ans.append([x, y])
+        if y < m - 1 and g[x][y + 1] == 'W' and used[x][y + 1] == False:
+            dfs(x, y + 1)
+        if y > 0     and g[x][y - 1] == 'E' and used[x][y - 1] == False:
+            dfs(x, y - 1)
+        if x < n - 1 and g[x + 1][y] == 'N' and used[x][y + 1] == False:
+            dfs(x + 1, y)
+        if x > 0     and g[x - 1][y] == 'S' and used[x - 1][y] == False:
+            dfs(x - 1, y)
+def top(x, y):
+        global used, g, ans, tp, n, m
+        used[x][y] = True
+        if g[x][y] == 'S' and (not used[x + 1][y]):
+            top(x + 1, y)
+        elif g[x][y] == 'N' and (not used[x - 1][y]):
+            top(x - 1, y)
+        elif g[x][y] == 'W' and (not used[x][y - 1]):
+            top(x, y - 1)
+        elif g[x][y] == 'E' and (not used[x][y + 1]):
+            top(x, y + 1)
+        tp.append([x, y])
+def main():
+    global used, g, ans, tp, n, m
+    #f = open('input.txt', 'r')
+    f = open('robots.in', 'r')
+    ff = open('robots.out', 'w')
+    n, m, g = map(int, f.readline().split())
+    used = [[False for i in range(m)] for j in range(n)]
+    g = [list(f.readline().rstrip()) for i in range(n)]
+    used = [[False for i in range(m)] for j in range(n)]
+    
+    for i in range(n):
+        for j in range(m):
+            if not used[i][j]:
+                top(i, j)
+    '''for i in range(n):
+        for j in range(m):
+            if g[i][j] == 'S':
+                g[i][j] = 'N'
+            elif g[i][j] == 'N':
+                g[i][j] = 'S'
+            elif g[i][j] == 'W':
+                g[i][j] = 'E'
+            else:
+                g[i][j] == 'W'
+    '''
+    used = [[False for i in range(m)] for j in range(n)]
+    sm = 0
+    for elem in tp[::-1]:
+        ans = []
+        if not used[elem[0]][elem[1]]:
+            dfs(elem[0], elem[1])
+        if len(ans) > 1:
+            sm += len(ans)
+    if g == 1:
+        psdjgweiojwj
+    print(sm, file = ff)
+    ff.close()
+    #print(sm)
+threading.Thread(target = main).start()

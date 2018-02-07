@@ -1,0 +1,45 @@
+var a,k: array[1..100000] of integer;
+n, s: integer;
+max, imax, o, dm, i: integer;
+z: int64;
+f: text;
+
+begin
+assign(f,'castle.in');
+reset(f);
+read(f,n,s);
+for i:=1 to n do
+readln(f,a[i],k[i]);
+close(f);
+
+while (s>0) do begin
+max:=0;
+for i:=1 to n do
+begin
+if (a[i]<k[i]) then o:=a[i] else o:=k[i];
+if (o>max) then
+begin
+max:=o;
+imax:=i;
+end;
+end;
+if (max=0) then break;
+
+dm:=a[imax] div max;
+if dm>s then dm:=s;
+//z:=z-dm*max;
+s:=s-dm;
+a[imax]:=a[imax] mod max;
+//write(dm,'x',max,' at ',imax,' ',s);
+end;
+
+z:=0;
+for i:=1 to n do
+z:=z+a[i];
+
+assign(f,'castle.out');
+rewrite(f);
+write(f,z);
+close(f);
+
+end.

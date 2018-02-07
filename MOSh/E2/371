@@ -1,0 +1,108 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <string>
+#include <vector>
+#include <set>
+#include <algorithm>
+#include <cassert>
+#include <bitset>
+#include <unordered_set>
+#include <unordered_map>
+
+using namespace std;
+
+typedef long long ll;
+typedef long double ld;
+
+#define forn(i, n) for (int i = 0; i < (int)n; i++)
+#define fornn(i, q, n) for (ll i = q; i < ll(n); i++)
+#define all(v) v.begin(), v.end()
+
+#define TASK "monument"
+
+const int INF = (int)2e9 + 7;
+const ll LINF = (ll)(1e18) + 7;
+
+int solve();
+
+int main() {
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+#else
+	freopen(TASK".in", "r", stdin);
+	freopen(TASK".out", "w", stdout);
+#endif
+	solve();
+	return 0;
+}
+
+const int MAXN = 1000007;
+
+ll l[MAXN], r[MAXN], k1, n, k;
+
+ll f(ll beg) {
+	if (beg < 0 || beg >= k) return INF;
+	ll ans = 0;
+	forn(i, MAXN) {
+		if (l[i] > r[i]) continue;
+		int lpos = l[i] + beg, rpos = r[i] + beg;
+		lpos = lpos - (lpos + k - (i - 1) % k) % k ;
+		rpos = rpos + (k - (rpos - (i - 1) % k) % k) % k;
+		ans += (rpos - lpos) / k;
+	}
+	return ans;
+}
+
+int solve() {
+	cin >> n >> k;
+	forn(i, MAXN)
+		r[i] = 0, l[i] = MAXN + 7;
+	ll curx, cury, x0 = -1, y0 = -1;
+	forn(i, n)  {
+		ll x, y; cin >> x >> y;
+		if (x0 == -1) x0 = x, y0 = y;
+		if (i && curx == x) {
+			if (cury < y)
+				for (int i = cury; i < y; i++)
+					l[i] = min(l[i], x),
+					r[i] = max(r[i], x);
+			else
+				for (int i = cury - 1; i >= y; i--)
+					l[i] = min(l[i], x),
+					r[i] = max(r[i], x);
+		}
+		curx = x, cury = y;
+	}
+	if (curx == x0) {
+		if (cury < y0)
+			for (int i = cury; i < y0; i++)
+				l[i] = min(l[i], x0),
+				r[i] = max(r[i], x0);
+		else
+			for (int i = cury - 1; i >= y0; i--)
+				l[i] = min(l[i], x0),
+				r[i] = max(r[i], x0);
+	}
+	ll ans = INF;
+	if (n <= 1000)
+		forn(i, k)
+			ans = min(ans, f(i));
+	else {
+		ll left = 0, right = k;
+		while (right - left > 3) {
+			ll m1 = left + (right - left) / 3,
+				m2 = right - (right - left) / 3;
+			if (f(m1) > f(m2))
+				left = m1;
+			else
+				right = m2;
+		}
+		for (int i = left - 5; i <= right + 5; i++)
+			ans = min(ans, f(i));
+	}
+	cout << ans;
+	return 0;
+}

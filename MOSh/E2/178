@@ -1,0 +1,133 @@
+#include<iostream>
+#include<vector>
+#include<algorithm>
+#include<stdio.h>
+#include<iomanip>
+#include<set>
+#pragma warning(disable : 4996)
+
+using namespace std;
+
+vector<vector<int> > resh(1000000, vector<int>());
+vector<vector<int> > resh1(1000000, vector<int>());
+vector<int> used(1000000);
+vector<int> used1(1000000);
+vector<int> usedp(1000000);
+vector<int> usedp1(1000000);
+vector<int> otv;
+vector<vector<char> > mat(1000, vector<char>(1000));
+int h;
+int y;
+int po;
+
+int ver;
+int c;
+int n, m, g;
+
+
+void dfs1(int a) {
+	used1[a] = 1;
+	if (mat[a / m][a%m] >= 'A' && mat[a / m][a%m] <= 'Z')
+		ver++;
+	for (int i = 0; i < resh1[a].size(); i++) {
+		if (used1[resh1[a][i]] == 0)
+			dfs1(resh1[a][i]);
+	}
+}
+
+
+void dfs(int a) {
+	for (int i = 0; i < resh[a].size(); i++) {
+		if (used[resh[a][i]] == -1) {
+			used[resh[a][i]] = a;
+			dfs(resh[a][i]);
+		}
+		else {
+			if (used1[resh[a][i]] != 1) {
+				h = -1;
+				po = resh[a][i];
+			}
+		}
+		if (h == -1 && a != po) {
+			otv.push_back(a);
+			c++;
+			used1[a] = 1;
+			return;
+		}
+		if (a == po) {
+			otv.push_back(a);
+			c++;
+			po = -1;
+			h = 0;
+			used1[a] = 1;
+		}
+	}
+	used1[a] = 1;
+}
+
+int main() {
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+#else
+	freopen("robots.in", "r", stdin);
+	freopen("robots.out", "w", stdout);
+#endif
+
+	cin >> n >> m >> g;
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			cin >> mat[i][j];
+		}
+	}
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			if (mat[i][j] == 's' || mat[i][j] == 'S') {
+				resh[i*m + j].push_back((i + 1)*m + j);
+				resh1[(i + 1)*m + j].push_back(i*m + j);
+			}
+			if (mat[i][j] == 'n' || mat[i][j] == 'N') {
+				resh[i*m + j].push_back((i - 1)*m + j);
+				resh1[(i - 1)*m + j].push_back(i*m + j);
+			}
+			if (mat[i][j] == 'w' || mat[i][j] == 'W') {
+				resh[i*m + j].push_back(i*m + j - 1);
+				resh1[i*m + j - 1].push_back(i*m + j);
+			}
+			if (mat[i][j] == 'e' || mat[i][j] == 'E') {
+				resh[i*m + j].push_back(i*m + j + 1);
+				resh1[i*m + j + 1].push_back(i*m + j);
+			}
+		}
+	}
+
+	y = 0;
+	h = 0;
+	po = -1;
+	for (int i = 0; i < n*m; i++)
+		used[i] = -1;
+
+	for (int i = 0; i < n*m; i++) {
+		ver = 0;
+		c = 0;
+		if (used[i] == -1) {
+			dfs(i);
+			if (c > 0) {
+				for (int i = 0; i < otv.size(); i++) {
+					used1[otv[i]] = 1;
+				}
+				for (int i = 0; i < otv.size(); i++) {
+					dfs1(otv[i]);
+				}
+				while (otv.size() > 0)
+					otv.pop_back();
+			}
+			y += min(ver, c);
+		}
+	}
+
+	cout << y;
+	return 0;
+}

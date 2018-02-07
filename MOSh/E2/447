@@ -1,0 +1,183 @@
+#define _CRT_SECURE_NO_WARNINGS
+#define _SCL_SECURE_NO_WARNINGS
+#include <iostream>
+#include <iomanip>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <ciso646>
+#include <cmath>
+#include <cassert>
+#include <cstring>
+#include <vector>
+#include <set>
+#include <map>
+#include <unordered_map>
+#include <unordered_set>
+#include <queue>
+#include <stack>
+#include <deque>
+#include <list>
+#include <initializer_list>
+#include <algorithm>
+#include <string>
+using namespace std;
+typedef long long ll;
+typedef long double ld;
+
+time_t _timer;
+void _pre()
+{
+	_timer = clock();
+	ios_base::sync_with_stdio(false);
+	cin.tie(nullptr);
+#ifdef ANDREIKKAA
+	assert(freopen("input.txt", "r", stdin) != nullptr);
+#else
+	assert(freopen("mountain.in", "r", stdin) != nullptr);
+	assert(freopen("mountain.out", "w", stdout) != nullptr);
+#endif
+}
+
+void _post()
+{
+#ifdef ANDREIKKAA
+	cout << "\n\n\nTime: " << (clock() - _timer) / (ld)CLOCKS_PER_SEC << endl;
+	while (228);
+#endif
+}
+
+struct Point
+{
+	int x, y;
+};
+
+Point operator+(const Point &a, const Point &b)
+{
+	return{ a.x + b.x, a.y + b.y };
+}
+
+Point operator-(const Point &a, const Point &b)
+{
+	return{ a.x - b.x, a.y - b.y };
+}
+
+const int MAX_N = 100228;
+const int C = 1000000228;
+Point v[MAX_N];
+int d[MAX_N];
+int k[MAX_N];
+int qx[MAX_N];
+int qy[MAX_N];
+int n, q;
+
+void solve_123()
+{
+	for (int i = 0; i < q; ++i)
+	{
+		int x = qx[i];
+		int y = qy[i];
+
+		int xl = v[0].x, xr = v[n].x;
+		for (int j = 1; j <= n and v[j].x < x; ++j)
+		{
+			int dx = x - v[j - 1].x;
+			if (v[j - 1].y + dx * (ld)k[j] > y)
+			{
+				xl = v[j].x;
+			}
+		}
+		for (int j = n - 1; j >= 0 and x < v[j].x; --j)
+		{
+			int dx = v[j + 1].x - x;
+			if (v[j + 1].y - dx * (ld)k[j + 1] > y)
+			{
+				xr = v[j].x;
+			}
+		}
+
+		cout << xl << " " << xr << endl;
+	}
+}
+
+void solve_5()
+{
+	vector<pair<int, int>> lft, rgt;
+	int x = qx[0];
+	for (int j = 1; j <= n and v[j].x < x; ++j)
+	{
+		int dx = x - v[j - 1].x;
+		if(abs(v[j - 1].y + dx * (ld)k[j]) <= C)
+			lft.push_back({ v[j - 1].y + dx * k[j] , v[j].x});
+		else
+			lft.push_back({ C , v[j].x });
+	}
+	for (int j = n - 1; j >= 0 and x < v[j].x; --j)
+	{
+		int dx = v[j + 1].x - x;
+		if(abs(v[j + 1].y - dx * (ld)k[j + 1]) <= C)
+			rgt.push_back({ v[j + 1].y - dx * k[j + 1] , v[j].x });
+		else
+			rgt.push_back({ C , v[j].x });
+	}
+
+	lft.push_back({ C, 0 });
+	rgt.push_back({ C, v[n].x });
+	sort(lft.begin(), lft.end());
+	sort(rgt.begin(), rgt.end());
+
+	for (int i = (int)lft.size() - 2; i >= 0; --i)
+	{
+		lft[i].second = max(lft[i].second, lft[i + 1].second);
+	}
+
+	for (int i = (int)rgt.size() - 2; i >= 0; --i)
+	{
+		rgt[i].second = min(rgt[i].second, rgt[i + 1].second);
+	}
+
+	for (int i = 0; i < q; ++i)
+	{
+		int y = qy[i];
+		cout << upper_bound(lft.begin(), lft.end(), make_pair(y, C))->second << " " << upper_bound(rgt.begin(), rgt.end(), make_pair(y, C) )->second << endl;
+	}
+}
+
+void _solve()
+{
+	cin >> n >> q;
+	
+	
+	for (int i = 1; i <= n; ++i)
+	{
+		cin >> d[i] >> k[i];
+		Point vec{d[i], d[i] * k[i]};
+		v[i] = v[i - 1] + vec;
+	}
+	assert(v[n].y == 0);
+
+	bool gr5 = true;
+	for (int i = 0; i < q; ++i)
+	{
+		cin >> qx[i] >> qy[i];
+		if (qx[i] != qx[0])
+		{
+			gr5 = false;
+		}
+	}
+	if (gr5)
+	{
+		solve_5();
+	}
+	else
+	{
+		solve_123();
+	}
+}
+
+int main()
+{
+	_pre();
+	_solve();
+	_post();
+}

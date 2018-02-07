@@ -1,0 +1,285 @@
+#define _ijps 0
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <map>
+#include <set>
+#include <cmath>
+
+using namespace std;
+
+#define name "mountain"
+typedef long long ll;
+#define forn(i, n) for(int i = 0; i < n; i++)
+#define fornn(i, a, n) for(int i = a; i < n; i++)
+#define mk make_pair
+
+const int dd = 1e6 + 7;
+const int infi = 1e9 + 7;
+const ll inf = 1e18 + 7;
+
+vector<int> X, Y;
+vector<int> L, K;
+
+int main() {
+
+	if (_ijps) {
+		freopen("input.txt", "r", stdin);
+		freopen("output.txt", "w", stdout);
+	}
+	else {
+		freopen(name".in", "r", stdin);
+		freopen(name".out", "w", stdout);
+	}
+
+	int n, q;
+	cin >> n >> q;
+	ll x, y;
+	x = y = 0;
+	if (n <= 3000 && q <= 3000 && !_ijps){
+		forn(i, n) {
+			int l, k;
+			cin >> l >> k;
+			X.push_back(x);
+			Y.push_back(y);
+			K.push_back(k);
+			x += l;
+			y += l * k;
+		}
+		X.push_back(x);
+		K.push_back(0);
+		Y.push_back(y);
+		forn(i, q) {
+			int x, y;
+			cin >> x >> y;
+			{
+				int t = 0;
+				forn(j, n) {
+					if (X[j] <= x && x <= X[j + 1]) {
+						t = j;
+						break;
+					}
+				}
+				int a, b;
+				a = 0;
+				b = X.back();
+				for (int j = t + 1; j < n; j++) {
+					ll h = Y[j] - 1ll * (X[j] - x) * K[j];
+					if (h > y) {
+						b = X[j];
+						break;
+					}
+				}
+				for (int j = t; j >= 0; j--) {
+					ll h = Y[j] + 1ll * (x - X[j]) * K[j];
+					if (h > y) {
+						a = X[j + 1];
+						break;
+					}
+				}
+				cout << a << ' ' << b << '\n';
+			}
+		}
+		return 0;
+	}
+	int z = 0;
+	forn(i, n) {
+		int l, k;
+		scanf("%d%d", &l, &k);
+		L.push_back(l);
+		K.push_back(k);
+		z = max(z, abs(k));
+	}
+	if (z <= 1 && !_ijps) {
+		vector<pair<int, int> > Le, Re;
+		forn(i, n) {
+			int l = L[i], k = K[i];
+			X.push_back(x);
+			Y.push_back(y);
+			K.push_back(k);
+			if (k < 0) {
+				int xx = x + y;
+				Re.push_back(mk(xx, i));
+			}
+			else {
+				int xx = x - y;
+				Le.push_back(mk(xx, i));
+			}
+			x += l;
+			y += l * k;
+		}
+		X.push_back(x);
+		K.push_back(0);
+		Y.push_back(y);
+		sort(Re.begin(), Re.end());
+		sort(Le.begin(), Le.end());
+		forn(i, q) {
+			int x, y;
+			int a, b;
+			a = 0, b = X.back();
+			scanf("%d%d", &x, &y);
+			{
+				int xx = x + y;
+				auto e = upper_bound(Re.begin(), Re.end(), mk(xx, infi));
+				if (e != Re.end()) {
+
+					b = X[e->second];
+				}
+			}
+			{
+				int xx = x - y;
+				auto e = upper_bound(Le.begin(), Le.end(), mk(xx, -infi));
+				if (e != Le.begin()) {
+					e--;
+					a = X[e->second + 1];
+				}
+			}
+			cout << a << ' ' << b << '\n';
+		}
+		return 0;
+	}
+
+	vector<pair<int, int> > T;
+
+	forn(i, q) {
+		int x, y;
+		scanf("%d%d", &x, &y);
+		T.push_back(mk(x, y));
+	}
+	
+	bool okx, oky;
+	okx = oky = 1;
+	forn(i, q) {
+		if (T[i].first != T[0].first) {
+			okx = 0;
+		}
+		if (T[i].second != T[0].second) {
+			oky = 0;
+		}
+	}
+	if (okx && !_ijps) {
+		forn(i, n) {
+			ll l = L[i], k = K[i];
+			X.push_back(x);
+			Y.push_back(y);
+			K.push_back(k);
+			x += l;
+			y += l * k;
+		}
+		X.push_back(x);
+		K.push_back(0);
+		Y.push_back(y);
+		vector<int> L(q), R(q, X.back());
+
+
+		int x = T[0].first;
+		vector<pair<int, int> > W;
+		forn(i, q) {
+			W.push_back(mk(T[i].second, i));
+		}
+		sort(W.begin(), W.end());
+
+		int t = 0;
+		forn(j, n) {
+			if (X[j] <= x && x <= X[j + 1]) {
+				t = j;
+				break;
+			}
+		}
+		int l = t, r = t + 1;
+		forn(i, W.size()) {
+			int y = W[i].first;
+			int a, b;
+			a = 0;
+			b = X.back();
+			for (; r < n; r++) {
+				ll h = Y[r] - 1ll * (X[r] - x) * K[r];
+				if (h > y) {
+					b = X[r];
+					break;
+				}
+			}
+			for (; l >= 0; l--) {
+				ll h = Y[l] + 1ll * (x - X[l]) * K[l];
+				if (h > y) {
+					a = X[l + 1];
+					break;
+				}
+			}
+			L[W[i].second] = a;
+			R[W[i].second] = b;
+		}
+		forn(i, q) {
+			cout << L[i] << ' ' << R[i] << '\n';
+		}
+		return 0;
+	}
+	if (oky) {
+		forn(i, n) {
+			ll l = L[i], k = K[i];
+			X.push_back(x);
+			Y.push_back(y);
+			K.push_back(k);
+			x += l;
+			y += l * k;
+		}
+		X.push_back(x);
+		K.push_back(0);
+		Y.push_back(y);
+
+		vector<int> L(q), R(q, X.back());
+		ll y = T[0].second;
+		vector<pair<int, int> > E;
+		forn(i, q) {
+			E.push_back(mk(T[i].first, i));
+		}
+		sort(E.begin(), E.end());
+
+		{
+			int r = 0;
+			forn(i, E.size()) {
+				ll x = E[i].first;
+				while (r + 1 < X.size() && x > X[r + 1]) {
+					r++;
+				}
+				int b = X.back();
+				for (; r < n; r++) {
+					ll h = Y[r] - 1ll * (X[r] - x) * K[r];
+					if (h > y) {
+						b = X[r];
+						break;
+					}
+				}
+				R[E[i].second] = b;
+			}
+		}
+
+		{
+			int l = n;
+			for (int i = E.size() - 1; i >= 0; i--) {
+				ll x = E[i].first;
+				while (l - 1 >= 0&& x < X[l - 1]) {
+					l--;
+				}
+				int a = 0;
+				for (; l >= 0; l--) {
+					ll h = Y[l] + 1ll * (x - X[l]) * K[l];
+					if (h > y) {
+						a = X[l + 1];
+						break;
+					}
+				}
+				L[E[i].second] = a;
+			}
+		}
+		forn(i, q) {
+			cout << L[i] << ' ' << R[i] << '\n';
+		}
+		return 0;
+	}
+}

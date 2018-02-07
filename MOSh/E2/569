@@ -1,0 +1,140 @@
+program zad_6;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils,
+  Math;
+
+var
+    a, dv, dh, d :array[0..510, 0..510] of integer;
+    para :array[1..510, 1..510, 1..510] of integer;
+    book :array[1..1234] of integer;
+    i, j, u, k, h, w, maxi, sum, lodka, pal, maxr, maxh :integer;
+    ch :char;
+begin
+    reset(input, 'submarine.in');
+    rewrite(output, 'submarine.out');
+    readln(k);
+    for i := 1 to k do
+        read(book[ord('a') + i - 1]);
+
+    readln(h, w);
+    for i := 1 to h do
+        for j := 1 to w do
+        begin
+            if (j < w) then
+                read(ch)
+            else
+                readln(ch);
+            a[i][j] := book[ord(ch)];
+        end;
+
+    for i := 1 to h do
+        for j := 1 to w do
+            d[i][j] := d[i][j - 1] + a[i][j];
+
+    for i := 1 to h do
+    begin
+        for j := 1 to w do
+        begin
+            maxi := 0;
+            sum := 0;
+            for u := i - 1 downto 1 do
+            begin
+                sum := sum + a[u][j];
+                maxi := max(maxi, sum);
+            end;
+            dv[i][j] := maxi;
+        end;
+    end;
+
+    for i := 1 to h do
+    begin
+        for j := 1 to w do
+        begin
+            sum := 0;
+            maxi := 0;
+            for u := i + 1 to h do
+            begin
+                sum := sum + a[u][j];
+                maxi := max(maxi, sum);
+            end;
+            dh[i][j] := maxi;
+        end;
+    end;
+
+
+    for u := 1 to h do
+        for i := 1 to w do
+        begin
+            maxr := dv[u][i];
+            maxh := 0;
+            for j := i + 1 to w do
+            begin
+                maxh := max(maxh, dv[u][j] + dh[u][j]);
+                para[u][i][j] := max(para[u][i][j - 1], maxr + maxh);
+
+                if (dv[u][j - 1] > maxr) and (dv[u][j - 1] + dv[u][j] + dh[u][j] >= para[u][i][j]) then
+                begin
+                    maxr := dv[u][j - 1];
+                    maxh := dv[u][j] + dh[u][j];
+                    para[u][i][j] := max(para[u][i][j], maxr + maxh);
+                end;
+            end;
+        end;
+
+    lodka := -maxint;
+    for u := 1 to h do
+        for i := 1 to w do
+            for j := i + 1 to w do
+            begin
+                sum := d[u][j] - d[u][i - 1];
+
+                lodka := max(lodka, sum + para[u][i][j]);
+            end;
+
+
+    writeln(lodka);
+end.
+
+
+2
+-10 1
+6 11
+aaaaaaaaaaa
+aaabaaaaaaa
+aaabaaaabaa
+abbbbbbbbba
+aaaaaaaabaa
+aaaaaaaaaaa
+
+3
+-4 -3 4
+5 5
+bbabc
+ccaac
+accba
+baccb
+baaaa
+
+3
+-2 4 0
+5 5
+abccb
+cccac
+cbcba
+cccbb
+accba
+
+4
+-1 -5 -3 0
+5 5
+bbabc
+ccaac
+acdba
+baccb
+baaaa
+
+
+

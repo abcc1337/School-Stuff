@@ -1,0 +1,45 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+typedef pair<int, int> pii;
+
+bool cmp(pii a1, pii a2)
+{
+    return a1 >= a2;
+}
+
+void sol(int n)
+{
+    int s;
+    scanf("%d", &s);
+    int a[n], k[n];
+    vector<pii> v;
+    long long ans = 0;
+    for (int i = 0; i < n; ++i)
+    {
+        scanf("%d%d", &a[i], &k[i]);
+        v.push_back(make_pair(k[i], a[i] / k[i]));
+        if (a[i] % k[i] > 0)
+            v.push_back(make_pair(a[i] % k[i], 1));
+        ans = ans + a[i];
+    }
+    sort(v.begin(), v.end(), cmp);
+    for (int i = 0; i < v.size() && s > 0; ++i)
+    {
+        long long cnt = min(s, v[i].second);
+        s -= cnt;
+        ans -= cnt * v[i].first;
+    }
+    cout << ans << "\n";
+}
+
+int main()
+{
+    freopen("castle.in", "r", stdin);
+    freopen("castle.out", "w", stdout);
+    int n, s;
+    while (scanf("%d", &n) == 1)
+        sol(n);
+    return 0;
+}

@@ -1,0 +1,77 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define forn(i, n) for(int i = 0; i < n; i++)
+#define sz(a) int(a.size())
+#define re return
+#define fi first
+#define se second
+#define mp(a, b) make_pair(a, b)
+typedef long long ll;
+typedef long double ld;
+typedef pair<int, int> pii;
+typedef pair<ll, ll> pll;
+const ll ma = 512 * 1024;
+ll n, m, p, x, k, ans, tr[2 * ma], sum2[2 * ma];
+vector<pair<ll, pair<ll, ll> > > a;
+vector<ll> c2, cp;
+unordered_map<ll, ll> qq, c1;
+
+ll sum1(int nu, int l, int r, int k) {
+    if (nu >= ma) {
+        ll pp = k * c2[nu - ma];
+        re pp;
+    }
+    if (k <= sum2[2 * nu]) {
+        re sum1(2 * nu, l, r, k);
+     }
+    re tr[2 * nu] + sum1(2 * nu + 1, l, r, k - sum2[2 * nu]);
+}
+
+int main() {
+    //iostream::sync_with_stdio(0), cin.tie(0);
+    freopen("fisher.in", "r", stdin);
+    freopen("fisher.out", "w", stdout);
+    //cin >> n >> m >> p;
+    scanf("%lld%lld%lld", &n, &m, &p);
+    forn (i, n) {
+        scanf("%lld%lld", &x, &k);
+        //cin >> x >> k;
+        a.push_back({x, {k, 0}});
+    }
+
+    forn (i, m) {
+        ll cc;
+        scanf("%lld%lld%lld", &x, &k, &cc);
+        //cin >> x >> k >> cc;
+        a.push_back({x, {k, cc}});
+        c2.push_back(cc);
+    }
+    sort(c2.begin(), c2.end());
+    reverse(c2.begin(), c2.end());
+    int k = 0;
+    forn (i, sz(c2)) {
+        if (i == 0 || c2[i] != c2[i - 1]) {cp.push_back(c2[i]); qq[c2[i]] = k + ma; k++;}
+    }
+    sort(a.begin(), a.end());
+    ll cc = 0, sum = 0;
+    for (int i = 0; i < sz(a); i++) {
+        if (a[i].se.se == 0) {
+            cc += a[i].se.fi;
+        }
+        else {
+            ll pp = qq[a[i].se.se];
+            sum2[pp] += a[i].se.fi;
+            tr[pp] += a[i].se.se * a[i].se.fi;
+            while (pp / 2) {
+                pp /= 2;
+                tr[pp] = tr[2 * pp] + tr[2 * pp + 1];
+                sum2[pp] = sum2[2 * pp] + sum2[2 * pp + 1];
+            }
+        }
+        ans = max(ans, sum1(1, ma, 2 * ma + 1, cc) - p * a[i].fi);
+    }
+    printf("%lld", ans);
+    re 0;
+}

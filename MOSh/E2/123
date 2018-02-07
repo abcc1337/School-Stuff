@@ -1,0 +1,177 @@
+#include <iostream>
+#include <vector>
+#include <cstdio>
+#include <algorithm>
+
+using namespace std;
+
+#define SIZE 200228
+#define LOG 20
+#define ll long long
+#define pll pair<ll, ll>
+#define mp make_pair
+#define sz(v) (ll)v.size()
+
+ll n, k;
+ll d[SIZE];
+vector<ll> gr[SIZE];
+ll tin[SIZE], tout[SIZE];
+vector<ll> way[SIZE][2];
+ll dp[SIZE][LOG];
+ll ask[SIZE][2];
+ll lca[SIZE];
+ll timer;
+
+void dfs(ll v, ll p = -1)
+{
+	d[v] = p == -1 ? 0 : d[p] + 1;
+	tin[v] = timer;
+	timer++;
+	dp[v][0] = (p == -1 ? 0 : p);
+	for (ll i = 1; i < LOG; i++)
+		dp[v][i] = dp[dp[v][i - 1]][i - 1];
+	for (size_t i = 0; i < gr[v].size(); i++)
+		dfs(gr[v][i], v);
+	tout[v] = timer;
+	timer++;
+}
+
+bool isp(ll v1, ll v2)
+{
+	if (tin[v2] >= tin[v1] && tout[v2] <= tout[v1])
+		return true;
+	return false;
+}
+
+ll GetLca(ll v1, ll v2)
+{
+	if (isp(v1, v2))
+		return v1;
+	if (isp(v2, v1))
+		return v2;
+	ll v = v1;
+	while (!isp(dp[v][0], v2))
+	{
+		for (ll i = LOG - 1; i > -1; i--)
+		{
+			if (!isp(dp[v][i], v2))
+			{
+				v = dp[v][i];
+				break;
+			}
+		}
+	}
+	return dp[v][0];
+}
+
+void count(ll k, ll p)
+{
+	ll v = lca[k];
+	while (v != ask[k][p])
+	{
+		for (size_t i = 0; i < gr[v].size(); i++)
+		{
+			if (isp(gr[v][i], ask[k][p]))
+			{
+				v = gr[v][i];
+				way[k][p].push_back(v);
+				break;
+			}
+		}
+	}
+}
+
+ll match(ll v, ll v1, ll k1, ll pos1, ll v2, ll k2, ll pos2)
+{
+	ll l = -1, r = min(sz(way[v1][k1]) - pos1, sz(way[v2][k2]) - pos2);
+	while (l < r - 1)
+	{
+		ll m = (l + r) / 2;
+		if (way[v1][k1][pos1 + m] == way[v2][k2][pos2 + m])
+			l = m;
+		else
+			r = m;
+	}
+	return l + 1;
+}
+
+int main()
+{
+	freopen("twopaths.in", "r", stdin);
+	freopen("twopaths.out", "w", stdout);
+	ios_base::sync_with_stdio(false);
+	cin.tie(0);
+	cin >> n >> k;
+	ll p;
+	for (ll i = 0; i < n - 1; i++)
+	{
+		cin >> p;
+		gr[p - 1].push_back(i + 1);
+	}
+	timer = 0;
+	dfs(0);
+	bool group6 = true;
+	for (ll i = 0; i < k; i++)
+	{
+		cin >> ask[i][0] >> ask[i][1];
+		ask[i][0]--;
+		ask[i][1]--;
+		if (!isp(ask[i][0], ask[i][1]) && !isp(ask[i][1], ask[i][0]))
+			group6 = false;
+		lca[i] = GetLca(ask[i][0], ask[i][1]);
+	}
+	if (group6)
+	{
+		timer += 0;
+	}
+	ll maxans = 0;
+	pll ans = mp(1, 2);
+	for (ll i = 0; i < k; i++)
+	{
+		count(i, 0);
+		count(i, 1);
+	}
+	for (ll i = 0; i < k - 1; i++)
+	{
+		for (ll q = i + 1; q < k; q++)
+		{
+			if (lca[i] == lca[q])
+			{
+				ll r1 = match(lca[i], i, 0, 0, q, 0, 0) + match(lca[i], i, 1, 0, q, 1, 0), r2 = match(lca[i], i, 0, 0, q, 1, 0) + match(lca[i], i, 1, 0, q, 0, 0);
+				if (r1 > maxans || r2 > maxans)
+				{
+					maxans = max(r1, r2);
+					ans = mp(i + 1, q + 1);
+				}
+			}
+			else if (isp(lca[i], lca[q]) || isp(lca[q], lca[i]))
+			{
+				ll x = i, y = q;
+				if (isp(lca[y], lca[x]))
+					swap(x, y);
+				if (isp(lca[y], ask[i][0]))
+				{
+					ll r1 = match(lca[y], x, 0, d[lca[y]] - d[lca[x]], y, 0, 0), r2 = match(lca[y], x, 0, d[lca[y]] - d[lca[x]], y, 1, 0);
+					if (r1 > maxans || r2 > maxans)
+					{
+						maxans = max(r1, r2);
+						ans = mp(i + 1, q + 1);
+					}
+				}
+				else if (isp(lca[y], ask[i][1]))
+				{
+					ll r1 = match(lca[y], x, 1, d[lca[y]] - d[lca[x]], y, 0, 0), r2 = match(lca[y], x, 1, d[lca[y]] - d[lca[x]], y, 1, 0);
+					if (r1 > maxans || r2 > maxans)
+					{
+						maxans = max(r1, r2);
+						ans = mp(i + 1, q + 1);
+					}
+				}
+			}
+			else
+				continue;
+		}
+	}
+	cout << maxans << endl << ans.first << ' ' << ans.second << endl;
+	return 0;
+}

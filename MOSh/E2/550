@@ -1,0 +1,74 @@
+program zad_5;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+var
+    mark :array[1..123] of boolean;
+    power :array[0..123] of int64;
+    t, u, i, j :integer;
+    n, s, a, b, c, maxi :int64;
+
+function prov(vv, t :int64):boolean;
+var
+    v :int64;
+    i, j :integer;
+begin
+    v := vv;
+    mark[t] := true;
+    for i := 60 downto 0 do
+        for j := 1 to 3 do
+            if not(mark[i]) and (power[i] <= v) then
+                v := v - power[i];
+    mark[t] := false;
+    if (v = 0) then
+        prov := true
+    else
+        prov := false;
+end;
+
+begin
+    reset(input, 'grants.in');
+    rewrite(output, 'grants.out');
+    readln(t);
+    power[0] := 1;
+    for i := 1 to 61 do
+        power[i] := trunc(1.0 * power[i - 1] * 2);
+    for u := 1 to t do
+    begin
+        readln(n);
+        for i := 0 to 61 do
+            mark[i] := false;
+        a := 0;
+        b := 0;
+        c := 0;
+
+        for i := 60 downto 0 do
+            if (trunc(1.0 * power[i] * 3) <= n) and (prov(n - trunc(1.0 * power[i] * 3), i)) then
+            begin
+                a := a + power[i];
+                b := b + power[i];
+                c := c + power[i];
+                mark[i] := true;
+                n := n - trunc(1.0 * power[i] * 3);
+            end;
+        for i := 60 downto 0 do
+            for j := 1 to 3 do
+                if not(mark[i]) and (power[i] <= n) then
+                begin
+                     n := n - power[i];
+                    if (j = 1) then
+                        a := a + power[i]
+                    else
+                        if (j = 2) then
+                            b := b + power[i]
+                        else
+                            c := c + power[i];
+                end;
+        writeln(a, ' ', b , ' ', c);
+    end;
+end.
+
+

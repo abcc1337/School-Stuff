@@ -1,0 +1,53 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define ALL(x) begin(x), end(x)
+
+typedef long long ll;
+typedef unsigned uint;
+typedef pair<int, int> ipair;
+typedef pair<ll, ll> llpair;
+
+int main() {
+#ifndef MY
+    freopen("grants.in", "r", stdin);
+    freopen("grants.out", "w", stdout);
+#else
+    freopen("in.txt", "r", stdin);
+#endif
+
+    int t;
+    cin >> t;
+
+    while (t--) {
+        ll n;
+        cin >> n;
+        tuple<ll, ll, ll, ll> ans;
+        for (int msk = 0; msk < (1 << 17); ++msk) {
+            ll n0 = n;
+            ll s3 = 0, a = 0, b = 0, c = 0;
+            for (int i = 16; i >= 0; --i) {
+                if (msk & (1 << i)) {
+                    if (n >= (1LL << i)) {
+                        n -= 1LL << i;
+                        a += 1LL << i;
+                    }
+                } else {
+                    if (n >= (3LL << i)) {
+                        n -= 3LL << i;
+                        s3 += 3LL << i;
+                        a += 1LL << i;
+                        b += 1LL << i;
+                        c += 1LL << i;
+                    }
+                }
+            }
+            if (n == 0) {
+                ans = max(ans, make_tuple(s3, a, b, c));
+            }
+            n = n0;
+        }
+        cout << get<1>(ans) << " " << get<2>(ans) << " " << get<3>(ans) << "\n";
+    }
+}

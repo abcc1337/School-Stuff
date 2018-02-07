@@ -1,0 +1,71 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+typedef long long ll;
+const ll INF = 1e18;
+
+struct node {
+    node *to[2];
+    ll cost;
+    node() {
+        cost = INF;
+        to[0] = to[1] = NULL;
+    }
+};
+
+
+ll dp[50050];
+node *root;
+
+void ins(const string &st, ll c) {
+    node *cur = root;
+    for (int i = 0; i < st.length(); i++) {
+        if (cur->to[st[i] - '0'] == NULL)
+            cur->to[st[i] - '0'] = new node();
+        cur = cur->to[st[i] - '0'];
+        cur->cost = min(cur->cost, c);
+    }
+}
+
+string s;
+int m, n, l;
+
+int main()
+{
+    freopen("typing.in", "r", stdin);
+    freopen("typing.out", "w", stdout);
+    ios::sync_with_stdio(0);
+    root = new node();
+    cin >> m >> n >> l;
+    cin >> s;
+    for (int i = 0; i < n; i++) {
+        int c;
+        string t;
+        cin >> c >> t;
+        ins(t, c);
+        reverse(t.begin(), t.end());
+        ins(t, c);
+    }
+    for (int i = 0; i < m; i++)
+        dp[i] = INF;
+    for (int i = 0; i < m; i++) {
+        node *cur = root;
+        int j = i;
+        while (j < m) {
+            cur = cur->to[s[j] - '0'];
+            if (cur == NULL)
+                break;
+            //cout << i << " " << j << " " << cur->cost << endl;
+            if (i == 0)
+                dp[j] = min(dp[j], cur->cost);
+            else
+                dp[j] = min(dp[j], dp[i - 1] + cur->cost);
+            j++;
+        }
+    }
+    if (dp[m - 1] == INF)
+        cout << -1;
+    else
+        cout << dp[m - 1];
+    return 0;
+}

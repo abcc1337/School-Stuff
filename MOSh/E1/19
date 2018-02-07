@@ -1,0 +1,39 @@
+var q:array[1..50000,1..2] of integer;
+    i,j,w,e,a,s,d,n,m,ma,p:integer;
+    t:text;
+function max:longint;
+var i,j:integer;
+begin
+j:=1;
+for i:=2 to m do
+if q[i,1]>q[j,1] then j:=i;
+max:=j;
+end;
+begin
+assign(t,'fisher.in');
+reset(t);
+readln(t,n,m,p);
+for i:=1 to n do
+begin
+readln(t,w,e);
+inc(a,e);
+end;
+for i:=1 to m do
+begin
+readln(t,d,w,e);
+q[i,1]:=e;
+q[i,2]:=w;
+end;
+ma:=max;
+while (a>0)and(q[ma,1]=0) do
+begin
+if a>=q[ma,2] then s:=s+q[ma,2]*q[ma,1] else
+s:=s+a*q[ma,1];
+ma:=max;
+end;
+close(t);
+assign(t,'fisher.out');
+rewrite(t);
+writeln(t,s);
+close(t);
+end. 

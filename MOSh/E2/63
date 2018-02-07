@@ -1,0 +1,85 @@
+#include <iostream>
+#include <stdio.h>
+#include <math.h>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+bool s[3000][3000][4], p[3000][3000];
+
+int dfs(int x, int y, int x1, int y1, int x2, int y2){
+    p[x - x1][y - y1] = false;
+    if (s[x][y][0] && y < y2 - 1 && p[x - x1][y - y1 + 1]){
+        dfs(x, y + 1, x1, x2, y1, y2);
+
+    }
+    if (s[x][y][1] && x + 1 < x2 && p[x - x1 + 1][y - y1]){
+        dfs(x + 1, y, x1, x2, y1, y2);
+    }
+    if (s[x][y][2] && y > y1 && p[x - x1][y - y1 - 1]){
+        dfs(x, y - 1, x1, x2, y1, y2);
+    }
+    if (s[x][y][3] && x > x1 && p[x - x1 - 1][y - y1]){
+        dfs(x - 1, y, x1, x2, y1, y2);
+    }
+
+}
+
+int main(){
+    freopen("repair.in", "r", stdin);
+    freopen("repair.out", "w", stdout);
+    int a, b, n, q, c, d, x1, x2, y1, y2;
+    char g;
+    bool f;
+    cin >> a >> b >> n >> q;
+    for (int i = 0; i < 3000; i++){
+        for (int j = 0; j < 3000; j++){
+            for (int k = 0; k < 4; k++){
+                s[i][j][k] = false;
+            }
+            p[i][j] = true;
+        }
+    }
+    for (int i = 0; i < n; i++){
+        cin >> g >> c >> d;
+        c -= 1;
+        d -= 1;
+        if (g == 'v'){
+            s[c][c][0] = true;
+            s[c + 1][c][2] = true;
+        }
+        else{
+            s[c][d][1] = true;
+            s[c + 1][d][3] = true;
+        }
+    }
+    for (int qwe = 0; qwe < q; qwe++){
+        cin >> x1, y1, x2, y2;
+        c = 0;
+        x1 -= 1;
+        x2 -= 1;
+        for (int i = 0; i < x2 - x1; i++){
+            for (int j = 0; j < y2 - y1; j++){
+                if (p[i][j]){
+                    f = false;
+                    for (int ii = 0; ii < 4; ii++){
+                        if (s[x1 + i][y1 + i][ii]){
+                            f = true;
+                        }
+                    }
+                    if (f){
+                        dfs(x1 + i, y1 + i, x1, x2, y1, y2);
+                        c += 1;
+                    }
+                }
+            }
+        }
+        cout << c << "\n";
+        for (int i = 0; i < x2 - x1; i++){
+            for (int j = 0; j < y2 - y1; j++){
+                p[i][j] = false;
+            }
+        }
+    }
+    return 0;
+}

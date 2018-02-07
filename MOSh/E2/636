@@ -1,0 +1,109 @@
+type qwe=array[1..5,1..5]of byte;
+var   q:set of qwe;
+      qq:array[1..10]of qwe;
+t:text;
+w,e:qwe;
+n,m,i,j,a,s,l,r:integer;
+
+
+function up(q:qwe):qwe;
+var i,j:integer;
+begin
+for i:=1 to n do
+for j:=1 to m-1 do
+(q[i,j],q[i,j+1]):=(q[i,j+1],q[i,j]);
+up:=q;
+end;
+
+function down(q:qwe):qwe;
+var i,j:integer;
+begin
+for i:=1 to n do
+for j:=m downto 2 do
+(q[i,j],q[i,j-1]):=(q[i,j-1],q[i,j]);
+down:=q;
+end;
+
+function left(q:qwe):qwe;
+var i,j:integer;
+begin
+for i:=1 to m do
+for j:=1 to n-1 do
+(q[j,i],q[j+1,i]):=(q[j+1,i],q[j,i]);
+left:=q;
+end;
+
+function rit(q:qwe):qwe;
+var i,j:integer;
+begin
+for j:=1 to m do
+for i:=n downto 2 do
+(q[i,j],q[i-1,j]):=(q[i-1,j],q[i,j]);
+rit:=q;
+end;
+
+function qw(q:qwe):integer;
+var i,j,z:integer;
+begin
+z:=0;
+for i:=1 to n-1 do
+for j:=1 to m-1 do
+if (q[i,j]=q[i,j+1])and(q[i,j]=q[i+1,j+1])and(q[i,j]=q[i+1,j]) then inc(z);
+qw:=z;
+end;
+
+function ewq(q:qwe):boolean;
+var i:integer;
+    w:boolean;
+begin
+w:=true;
+for i:= 1 to r do
+if qq[i]=q then w:=false;
+ewq:=w;
+end;
+
+
+begin
+assign(t,'video.in');
+reset(t);
+readln(t,n,m);
+for i:=1 to n do
+begin
+for j:=1 to m do
+read(t,w[i,j]);
+readln(t);
+end;
+
+q:=q+[w];a:=0;
+qq[1]:=w;
+r:=1;
+while r<>l do
+begin
+inc(l);
+w:=qq[l];
+s:=qw(w);
+{for i:=1 to n do
+begin 
+for j:=1 to m do
+write(w[i,j]:2);
+writeln;
+end;
+writeln;}
+//write(s,' ');
+if s>a then a:=s;
+e:=up(w);
+if ewq(e) then begin inc(r); qq[r]:=e; end; 
+e:=down(w);
+if ewq(e) then begin inc(r); qq[r]:=e; end; 
+e:=left(w);
+if ewq(e) then begin inc(r); qq[r]:=e; end; 
+e:=rit(w);
+if ewq(e) then begin inc(r); qq[r]:=e; end; 
+end;
+close(t);
+assign(t,'video.out');
+rewrite(t);
+
+writeln(a);
+close(t);
+end.

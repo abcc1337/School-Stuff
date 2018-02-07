@@ -1,0 +1,82 @@
+type arr=array[0..5000] of integer;
+
+
+
+var
+rubka, tail, s_v, s_g:array[0..100,0..100] of integer;
+c:array['a'..'z'] of integer;
+a:array[1..100,1..100] of char;
+ans, sum, k, k0, i, j, x1, x2, x3, x4, y1, h, w, x, y, l, r:longint;
+qw:char;
+begin
+{assign(input, 'input.txt');
+reset(input);}
+
+assign(input, 'submarine.in');
+reset(input);
+assign(output, 'submarine.out');
+rewrite(output);
+ 
+readln(k);
+qw:='a';
+k0:=1;
+read(i);
+c[qw]:=i;
+while k0<k do begin
+ inc(k0);
+ inc(qw);
+ read(i);
+ c[qw]:=i;
+end;
+readln;
+readln(h, w);
+for i:=h downto 1 do begin
+ for j:=1 to w do
+  read(a[i,j]);
+ readln; 
+end;  
+
+for y:=1 to h do begin  
+  sum:=0;
+  s_g[y,0]:=0;
+  for x:=1 to w do
+   s_g[y,x]:=s_g[y,x-1]+c[a[y,x]];
+   
+end;    
+ 
+for x:=1 to w do begin
+ sum:=0;
+ s_v[x,0]:=0;
+ for y:=1 to h do
+  s_v[x,y]:=s_v[x,y-1]+c[a[y,x]];
+end; 
+
+for y:=1 to h do
+ for x:=1 to w do begin
+  sum:=-1000000000;
+  for l:=1 to y do
+   for r:=y to h do
+    if s_v[x,r]-s_v[x,l-1]>sum then sum:=s_v[x,r]-s_v[x,l-1];
+  tail[y,x]:=sum;   
+  sum:=-1000000000;
+  for r:=y to h do
+   if s_v[x,r]-s_v[x,y-1]>sum then sum:=s_v[x,r]-s_v[x,y-1];
+  rubka[y,x]:=sum; 
+ end;
+
+
+ans:=-100000000000000;
+for y1:=1 to h do
+ for x1:=1 to w-1 do
+  for x2:=x1+1 to w do 
+   for x3:=x1 to x2-1 do
+    for x4:=x3+1 to x2 do begin
+     sum:=s_g[y1,x2]-s_g[y1,x1-1]+rubka[y1,x3]-c[a[y1,x3]]+tail[y1,x4]-c[a[y1,x4]];
+     if sum>ans then ans:=sum;
+    end;
+     
+write(ans);
+
+close(input);
+close(output);
+end.

@@ -1,0 +1,54 @@
+input_file = open("penguins.in","r")
+output_file = open("penguins.out", "w")
+t = int(input_file.readline())
+photos = []
+our_list = []
+for i in range(t):
+    n, k = map(int, input_file.readline().split())
+    our_list.append(k)
+    photos.append(list(input_file.readline().rstrip()))
+print(our_list)
+print(photos)
+for i in range(len(photos)):
+    begin_1 = int(photos[i][0])
+    ans = []
+    j = 0
+    while j < len(photos[i]):
+        j += 1
+        begin = j - 1
+        while j < len(photos[i]) and photos[i][j] == photos[i][j - 1]:
+            j += 1
+        ans.append(j - begin)
+    while len(ans) > our_list[i]:
+        while len(ans) - our_list[i] > 2: 
+            k = ans.index(min(ans[1 : len(ans) - 1]))
+            ans[k - 1 : k + 2] = [sum(ans[k - 1 : k + 2])]
+        if len(ans) - our_list[i] == 1:
+            k = ans.index(min(ans))
+            ans[max(0, k - 1) : k + 2] =[sum(ans[max(0, k - 1) : k + 2])]
+            if k == 0:
+                begin_1 += 1
+        elif len(ans) - our_list[i] == 2:
+            k = ans.index(min(ans))
+            if k != 0 and k != len(ans) - 1:
+                k = ans.index(min(ans))
+                ans[k - 1 : k + 2] = [ans[k]]
+            elif ans[0] + ans[-1] < min(ans[1 : len(ans) - 1]):
+                ans[0 : 2] = [sum(ans[0 : 2])]
+                begin_1 += 1
+                ans[len(ans) - 2 :] = sum(ans[len(ans) - 2 :])
+            else:
+                k = ans.index(min(ans))
+                ans[k - 1 : k + 2] = [sum(ans[k - 1 : k + 2])]
+    for i in range(len(ans)):
+        print(str(begin_1 % 2), end='', file = output_file)
+        begin_1 += 1
+    print(file = output_file)
+                
+                
+        
+    
+    
+
+
+    

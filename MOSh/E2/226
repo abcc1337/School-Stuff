@@ -1,0 +1,139 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+long long n, m, p;
+long long x[50000], y[50000], a[50000], b[500000], c[50000];
+pair<long long, long long> d[50000];
+vector<long long> check;
+
+long long f(long long M) {
+    long long sum = 0;
+    long long ans = 0;
+    for (int i = 0; i < n; i++) {
+        if (x[i] <= M) {
+            sum += a[i];
+        }
+    }
+    set<pair<pair<long long, long long>, long long>  > s;
+    for (int i = 0; i < m; i++) {
+        if (y[i] <= M) {
+            s.insert({{c[i], b[i]}, y[i]});
+        }
+    }
+    while (sum > 0 && s.size() > 0) {
+        auto itr = s.end();
+        itr--;
+        if (sum <= itr->first.second) {
+            ans += sum * itr->first.first;
+            break;
+        }
+        ans += itr->first.first * itr->first.second;
+        sum -= itr->first.second;
+        s.erase(itr);
+    }
+    return ans + p * M;
+}
+
+int main() {
+    freopen("fisher.in", "r", stdin);
+    freopen("fisher.out", "w", stdout);
+    iostream::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    cin >> n >> m >> p;
+    p *= -1;
+    for (int i = 0; i < n; i++) {
+        cin >> x[i] >> a[i];
+        check.push_back(x[i]);
+    }
+    for (int i = 0; i < m; i++) {
+        cin >> y[i] >> b[i] >> c[i];
+        check.push_back(y[i]);
+    }
+    if (p == 0 || y[m - 1] < x[0]) {
+        for (int i = 0; i < m; i++) {
+            d[i] = {c[i], b[i]};
+        }
+        sort(d, d + m);
+        long long mx = 0;
+        long long prev = 0;
+        int pos = m - 1;
+        for (int j = 0; j < n; j++) {
+            long long sum = a[j];
+            long long de = x[j] * p;
+            for (int i = pos; i >= 0; i--) {
+                if (sum <= d[i].second) {
+                    de += sum * d[i].first;
+                    d[i].second -= sum;
+                    pos = i;
+                    break;
+                }
+                de += d[i].first * d[i].second;
+                sum -= d[i].second;
+                d[i].second = 0;
+            }
+            mx = max(mx, de + prev);
+            de -= x[j] * p;
+            prev += de;
+            }
+        cout << mx << "\n";
+        return 0;
+    }
+    if (x[n - 1] < y[0]) {
+        long long sum = 0;
+        for (int i = 0; i < n; i++) {
+            sum += a[i];
+        }
+        long long mx = 0;
+        long long al = 0;
+        set<pair<pair<long long, long long>, long long> >  s;
+        long long pl = 0;
+        for (int i = 0; i < m; i++) {
+            long long d = 0;
+            if (al + b[i] <= sum) {
+                al += b[i];
+                d = b[i];
+            } else if (al < sum) {
+                d += sum - al;
+                al = sum;
+                b[i] -= sum - al;
+            }
+            int cnt = 0;
+            pair<pair<long long, long long>,  long long> p = {{-1, -1}, -1};
+            for (auto itr = s.begin(); itr != s.end(); itr++) {
+                if (itr->first.first < c[i]) {
+                    if (itr->first.second <= b[i]) {
+                        d += itr->first.second;
+                        b[i] -= itr->first.second;
+                        pl -= itr->first.second * itr->first.first;
+                        cnt++;
+                    } else {
+                        d = b[i];
+                        p = *itr;
+                        p.first.second -= b[i];
+                        cnt++;
+                        break;
+                    }
+                }
+            }
+            for (int i = 0; i < cnt; i++) {
+                s.erase(s.begin());
+            }
+            if (p.second != -1) {
+                s.insert(p);
+            }
+            pl += d * c[i];
+            s.insert({{c[i], d}, i});
+            mx = max(mx, pl + p * y[i]);
+        }
+        cout << mx << "\n";
+        return 0;
+    }
+    long long mx = 0;
+    for (int i = 0; i < check.size(); i++) {
+        mx = max(mx, f(check[i]));
+    }
+    cout << mx << "\n";
+}
+

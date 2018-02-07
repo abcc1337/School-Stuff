@@ -1,0 +1,58 @@
+#include <iostream>
+#include <vector>
+#include <cstdio>
+
+using namespace std;
+
+void get(vector<short> &st, long long m)
+{
+    long long step = 576460752303423488;
+    int p = 59;
+    while (m > 0)
+    {
+        if (m >= step)
+        {
+            m -= step;
+            st[p] = 1;
+        }
+        step /= 2;
+        p--;
+    }
+}
+
+int main()
+{
+    freopen("grants.in", "r", stdin);
+    freopen("grants.out", "w", stdout);
+    int t;
+    cin >> t;
+    for (int _ = 0; _ < t; _++)
+    {
+        long long money;
+        cin >> money;
+        for (long long i = money / 3 + 1; i > -1; i--)
+        {
+            long long left = money - i * 3;
+            if (left < 0)
+                continue;
+            for (long long first = 0; first <= left; first++)
+            {
+                if ((first & i) != 0)
+                    break;
+                for (long long second = 0; second <= left - first; second++)
+                {
+                    int third = left - first - second;
+                    if ((i & second) == 0 && (i & third) == 0)
+                    {
+                        cout << money << " - " << i + first << ' ' << i + second << ' ' << i + left - first - second << ' ' << i << endl;
+                        //cout << i + first << ' ' << i + second << ' ' << i + left - first - second << endl;
+                        goto en;
+                    }
+                }
+            }
+        }
+    en:
+        continue;
+    }
+    return 0;
+}

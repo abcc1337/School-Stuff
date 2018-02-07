@@ -1,0 +1,27 @@
+n = int(input())
+field = [0]
+k = 0
+used = [0] + [-1] * 299
+for i in range(1, n):
+    for j in range(len(used)):
+        if used[j] != -1:
+            print("?", used[j] + 1, i + 1)
+            res1 = int(input())
+            if res1 == (i + 1 - used[j]):
+                continue
+            if used[j] + 2 != i + 1:
+                print("?", used[j] + 2, i + 1)
+                res2 = int(input())
+            else:
+                res2 = 1
+            if res1 == res2:
+                used[j] = i
+                field.append(j)
+                break
+    else:
+        k += 1
+        used[k] = i
+        field.append(k)
+print("Ready!")
+print(k + 1)
+print(*[i + 1 for i in field])

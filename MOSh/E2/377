@@ -1,0 +1,97 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+#include <queue>
+#include <string>
+#include <map>
+#include <cassert>
+#include <algorithm>
+#include <iterator>
+#include <functional>
+
+#define mp make_pair
+#define ff first
+#define ss second
+
+using namespace std;
+
+using pii = pair<long long, long long>;
+
+const string problem_name = "fisher";
+
+const int FISH_T = -1, SELL_T = +1;
+struct Event {
+	int coord;
+	int type;
+	long long free_fish;
+	long long max_fish, price;
+
+	bool operator<(const Event& o) {
+		return mp(coord, type) < mp(o.coord, o.type);
+	}
+};
+
+int main() {
+	ios_base::sync_with_stdio(0);
+	ifstream fin(problem_name + ".in");
+	ofstream fout(problem_name + ".out");
+	int n, m, p; fin >> n >> m >> p;
+	vector<Event> fish(n), sell(m);
+	for (auto& f : fish) {
+		fin >> f.coord >> f.free_fish;
+		f.max_fish = f.price = 0;
+		f.type = FISH_T;
+	}
+	for (auto& s : sell) {
+		fin >> s.coord >> s.max_fish >> s.price;
+		s.free_fish = 0;
+		s.type = SELL_T;
+	}
+	vector<Event> all_events;
+	merge(fish.begin(), fish.end(),
+		sell.begin(), sell.end(),
+		back_inserter(all_events));
+	priority_queue<pii, vector<pii>, less<pii>> gaps;
+	priority_queue<pii, vector<pii>, greater<pii>> sold_fish;
+	long long running_cash = 0, running_petrol = 0;
+	long long best_answer = 0;
+	for (Event e : all_events) {
+		running_petrol = e.coord;
+		running_petrol *= p;
+		if (e.type == FISH_T) {
+			sold_fish.push(mp(0, e.free_fish));
+		}
+		else {
+			gaps.push(mp(e.price, e.max_fish));
+		}
+		while (!gaps.empty() && !sold_fish.empty()) {
+			auto g = gaps.top();
+			auto s = sold_fish.top();
+			if (s.ff >= g.ff) break;
+			else {
+				gaps.pop(); sold_fish.pop();
+				auto delta = min(g.ss, s.ss);
+				g.ss -= delta;
+				s.ss -= delta;
+				running_cash -= s.ff * 1ll * delta;
+				if (g.ss)
+					gaps.push(g);
+				if (s.ss)
+					sold_fish.push(s);
+				auto new_s = mp(g.ff, delta);
+				running_cash += g.ff * 1ll * delta;
+				sold_fish.push(new_s);
+				auto new_g = mp(s.ff, delta);
+				gaps.push(new_g);
+			}
+		}
+		best_answer = max(
+			best_answer,
+			running_cash - running_petrol
+			);
+	}
+	fout << best_answer << "\n";
+	fout.flush();
+	return 0;
+}

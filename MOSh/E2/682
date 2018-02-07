@@ -1,0 +1,119 @@
+var
+
+deg,next,head,color,x,y:array[0..500000] of longint;
+jj,ox,oy,maxcolor,col,vn,rx,ry,ii,en,x1,x2,y1,y2,n,a,b,q:longint;
+k:array[0..2000,0..2000] of longint;
+p,space:char;
+t1,t2:text;
+
+procedure clear(n:longint);
+ var
+  z1:longint;
+ begin
+ for z1:=1 to n do
+  color[z1]:=0;
+ end;
+
+procedure add(u,v:longint);
+ begin
+ en:=en+1;
+ deg[en]:=v;
+ next[en]:=head[u];
+ head[u]:=en;
+ end;
+
+procedure dfs(st,o:longint);
+ var
+ i:longint;
+ begin
+ color[st]:=o;
+ if maxcolor<o then maxcolor:=o;
+ col:=o;
+ i:=head[st];
+ while i<>0 do
+  begin
+  if (color[deg[i]]=0) and (x[deg[i]]>=x1) and (x[deg[i]]<=x2)
+  and (y[deg[i]]>=y1) and (y[deg[i]]<=y2) then dfs(deg[i],o);
+  i:=next[i];
+  end;
+ end;
+
+begin
+
+assign(t1,'repair.in');
+reset(t1);
+
+vn:=0;
+read(t1,a,b);
+read(t1,n,q);
+readln(t1);
+
+for ii:=1 to n-1 do
+ begin
+ read(t1,p);
+ read(t1,space);
+ read(t1,rx,ry);
+ readln(t1);
+
+
+
+ if k[rx,ry]=0 then
+   begin
+   vn:=vn+1;
+   k[rx,ry]:=vn;
+   x[vn]:=rx;
+   y[vn]:=ry;
+   end;
+
+ if p='v' then
+  begin
+
+  if k[rx,ry+1]=0 then
+   begin
+   vn:=vn+1;
+   k[rx,ry+1]:=vn;
+   x[vn]:=rx;
+   y[vn]:=ry+1;
+   end;
+
+  add(k[rx,ry],k[rx,ry+1]);
+  add(k[rx,ry+1],k[rx,ry]);
+  end;
+
+ if p='h' then
+  begin
+
+  if k[rx+1,ry]=0 then
+   begin
+   vn:=vn+1;
+   k[rx+1,ry]:=vn;
+   x[vn]:=rx+1;
+   y[vn]:=ry;
+   end;
+
+  add(k[rx,ry],k[rx+1,ry]);
+  add(k[rx+1,ry],k[rx,ry]);
+  end;
+ end;
+
+assign(t2,'repair.out');
+rewrite(t2);
+
+
+ for ii:=1 to q do
+  begin
+  read(t1,x1,y1,x2,y2);
+  col:=0;
+  maxcolor:=0;
+  clear(vn);
+  for ox:=x1 to x2 do
+   for oy:=y1 to y2 do
+    if (color[k[ox,oy]]=0) and (k[ox,oy]<>0) then dfs(k[ox,oy],col+1);
+  writeln(t2,maxcolor);
+  end;
+
+close(t2);
+
+close(t1);
+
+end.

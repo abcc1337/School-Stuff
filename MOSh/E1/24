@@ -1,0 +1,45 @@
+inf = open("robots.in", "r")
+outf = open("robots.out", "w")
+n, m, p = map(int, inf.readline().split())
+lst = []
+for i in range(n):
+    lst.append(list(map(str, inf.readline().split()))[0])
+ 
+grp = []
+cr = 0
+kvr = 0
+for i in range(n):
+    for j in range(m):
+        if lst[i][j] == 'S' or lst[i][j] == 'W' or lst[i][j] == 'E' or lst[i][j] == 'N':
+            kvr += 1
+        if lst[i][j] == 'S' or lst[i][j] == 's':
+            k = cr + m
+        if lst[i][j] == 'N' or lst[i][j] == 'n':
+            k = cr - m
+        if lst[i][j] == 'W' or lst[i][j] == 'w':
+            k = cr - 1
+        if lst[i][j] == 'E' or lst[i][j] == 'e':
+            k = cr + 1
+        grp.append(k)
+        cr += 1
+
+used = [0] * (m * n)
+ans = 0
+
+for j in range(len(grp)):
+    if used[j] == 0:
+        i = j
+        rused = [0] * (m * n)
+        tim = 0
+        while i < len(grp):
+            tim += 1
+            rused[i] = tim
+            used[i] = 1
+            if used[grp[i]] == 0:
+                i = grp[i]
+            else:
+                if rused[grp[i]] > 0:
+                    ans += tim + 1 - rused[grp[i]]
+                i = len(grp)
+outf.write(str(min(kvr,ans)))
+outf.close()

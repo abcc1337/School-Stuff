@@ -1,0 +1,44 @@
+def f():
+    return hor[y1][x2] - hor[y1][x1-1] + ver[y1-1][x3] - ver[y2-1][x3] + ver[y4][x4] - ver[y3-1][x4] - inp[y1][x4]
+    
+
+fi = open("submarine.in", "r")
+fo = open("submarine.out", "w")
+
+k = int(fi.readline().strip())
+c = list(map(int, fi.readline().strip().split()))
+h, w = map(int, fi.readline().strip().split())
+a = fi.readlines()
+inp = [0]*h
+hor = [0]*(h+1)
+ver = [0]*(h+1)
+for i in range(h):
+    inp[i] = [0]*w
+    hor[i] = [0]*(w+1)
+    ver[i] = [0]*(w+1)
+    for j in range(w):
+        inp[i][j] = c[ord(a[i][j])-97]
+hor[i+1] = [0]*(w+1)
+ver[i+1] = [0]*(w+1)
+for i in range(h):
+    for j in range(w):
+        hor[i][j] = hor[i][j-1]+inp[i][j]
+        ver[i][j] = ver[i-1][j]+inp[i][j]
+cou = -1
+ans = [-1,-1,-1,-1,-1, -1, -1, -1, -1]
+for x1 in range(w):
+    for y1 in range(h):
+        for x2 in range(x1+1, w):
+            for y2 in range(y1+1):
+                for x3 in range(x1, x2):
+                    for x4 in range(x3+1, x2+1):
+                        for y3 in range(y1+1):
+                            for y4 in range(y1, h):
+                                r = f()
+                                if r > cou:
+                                    cou = r
+                                    ans = [x1,x2,x3,x4,y1,y2,y3,y4]
+x1,x2,x3,x4,y1,y2,y3,y4 = ans
+print(f(), file = fo)
+fi.close()
+fo.close()

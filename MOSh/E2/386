@@ -1,0 +1,171 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <set>
+using namespace std;
+
+struct tp
+{
+    int a, k;
+};
+
+struct tp2
+{
+    int a, k;
+};
+
+struct tp3
+{
+    int a, k;
+};
+
+int n, s;
+multiset <tp> a;
+multiset <tp2> aa;
+multiset <tp3> aaa;
+
+bool operator < (const tp &a, const tp &b)
+{
+    if (a.k != b.k)
+    {
+        return a.k > b.k;
+    }
+
+    return a.a < b.a;
+}
+
+bool operator < (const tp2 &a, const tp2 &b)
+{
+    if (a.k != b.k)
+    {
+        return a.k > b.k;
+    }
+
+    return a.a - (a.a / a.k) * a.k > b.a - (b.a / b.k) * b.k;
+}
+
+bool operator < (const tp3 &a, const tp3 &b)
+{
+    if (a.k != b.k)
+    {
+        return a.k > b.k;
+    }
+
+    return a.a - (a.a / a.k) * a.k < b.a - (b.a / b.k) * b.k;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    freopen("castle.in", "r", stdin);
+    freopen("castle.out", "w", stdout);
+    //freopen("input.txt", "r", stdin);
+    //freopen("output.txt", "w", stdout);
+    int ss;
+    cin >> n >> ss;
+
+    s = ss;
+    for (int i = 1; i <= n; i++)
+    {
+        int a1, k1;
+        cin >> a1 >> k1;
+        a.insert({a1, min(k1, a1)});
+        aa.insert({a1, min(k1, a1)});
+        aaa.insert({a1, min(k1, a1)});
+    }
+
+    while (s > 0 && a.size() > 0)
+    {
+        int a1 = ((a.begin()) -> a);
+        int k1 = ((a.begin()) -> k);
+
+        int del1 = (a1 / k1) * k1;
+        if (s < del1 / k1)
+        {
+            del1 -= s * k1;
+            a.erase(a.begin());
+            a.insert({del1, k1});
+
+            s = 0;
+        } else
+        {
+            s -= del1 / k1;
+            a.erase(a.begin());
+            if (a1 - del1 > 0)
+            {
+                a.insert({a1 - del1, a1 - del1});
+            }
+        }
+    }
+
+    long long ans1 = 0;
+    for (auto x : a)
+    {
+        ans1 += x.a;
+    }
+
+    s = ss;
+    while (s > 0 && aa.size() > 0)
+    {
+        int a1 = ((aa.begin()) -> a);
+        int k1 = ((aa.begin()) -> k);
+
+        int del1 = (a1 / k1) * k1;
+        if (s < del1 / k1)
+        {
+            del1 -= s * k1;
+            aa.erase(aa.begin());
+            aa.insert({del1, k1});
+
+            s = 0;
+        } else
+        {
+            s -= del1 / k1;
+            aa.erase(aa.begin());
+            if (a1 - del1 > 0)
+            {
+                aa.insert({a1 - del1, a1 - del1});
+            }
+        }
+    }
+
+    long long ans2 = 0;
+    for (auto x : a)
+    {
+        ans2 += x.a;
+    }
+
+    s = ss;
+    while (s > 0 && aaa.size() > 0)
+    {
+        int a1 = ((aaa.begin()) -> a);
+        int k1 = ((aaa.begin()) -> k);
+
+        int del1 = (a1 / k1) * k1;
+        if (s < del1 / k1)
+        {
+            del1 -= s * k1;
+            aaa.erase(aaa.begin());
+            aaa.insert({del1, k1});
+
+            s = 0;
+        } else
+        {
+            s -= del1 / k1;
+            aaa.erase(aaa.begin());
+            if (a1 - del1 > 0)
+            {
+                aaa.insert({a1 - del1, a1 - del1});
+            }
+        }
+    }
+
+    long long ans3 = 0;
+    for (auto x : aa)
+    {
+        ans3 += x.a;
+    }
+
+    cout << min(min(ans1, ans2), ans3) << endl;
+    return 0;
+}

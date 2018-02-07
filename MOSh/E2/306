@@ -1,0 +1,97 @@
+#include <iostream>
+#include <cstdio>
+#include <algorithm>
+#define For(i, a, b) for(int i = a; i < b; ++i)
+#define read(s1, s2) freopen(s1, "r", stdin); freopen(s2, "w", stdout);
+#define int long long
+using namespace std;
+
+int t, sum;
+bool check(int M, bool prt) {
+    int a = M, b = M, c = M;
+    //cout << a << ' ' << b << ' ' << c << endl;
+    int sum1 = sum - M * 3;
+    if (sum1 < 0) {
+        return 0;
+    }
+    if (sum1 & 1ll) {
+        if (!(a & 1ll)) {
+            ++a;
+        }
+        else if (!(b & 1ll)) {
+            ++b;
+        }
+        else if (!(c & 1ll)) {
+            ++c;
+        }
+        else {
+            return false;
+        }
+        --sum1;
+    }
+    For(i, 1, 61){
+        bool OK = false;
+        if (sum1 & (1ll << i)) {
+            int counter = 0;
+            if (!(a & (1ll << (i - 1)))) {
+                ++counter;
+            }
+            if (!(b & (1ll << (i - 1)))) {
+                ++counter;
+            }
+            if (!(c & (1ll << (i - 1)))) {
+                ++counter;
+            }
+            if (counter >= 2) {
+                OK = true;
+                counter = 2;
+                if (!(a & (1ll << (i - 1)))) {
+                    a = a | (1ll << (i - 1));
+                    --counter;
+                }
+                if (!(b & (1ll << (i - 1)))) {
+                    b = b | (1ll << (i - 1));
+                    --counter;
+                }
+                if (!(c & (1ll << (i - 1))) && (counter > 0)) {
+                    c = c | (1ll << (i - 1));
+                }
+            }
+            if (!OK) {
+                if (!(a & (1ll << i))) {
+                    a = a | (1ll << i);
+                }
+                else if (!(b & (1ll << i))) {
+                    b = b | (1ll << i);
+                }
+                else if (!(c & (1ll << i))) {
+                    c = c | (1ll << i);
+                }
+                else {
+                    return false;
+                }
+            }a = a | 1 << i;
+            sum1 ^= (1ll << i);
+        }
+    }
+    if (prt) {
+        cout << a << ' ' << b << ' ' << c << endl;
+    }
+    return true;
+}
+
+main(){
+    read("grants.in", "grants.out")
+    cin >> t;
+    For(q, 0, t) {
+        cin >> sum;
+        int ans = 0;
+        for (int i = 60; i >= 0; --i) {
+            //cout << (1ll << i) << ' ' << i << endl;
+            if (check(ans | (1ll << i), 0)) {
+                ans = ans | (1ll << i);
+            }
+        }
+        check(ans, 1);
+    }
+}

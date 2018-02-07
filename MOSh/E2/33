@@ -1,0 +1,59 @@
+#include <bits/stdc++.h>
+using namespace std;
+const int N = 1100;
+
+int main()
+{
+    ios::sync_with_stdio(false);
+    freopen("monument.in", "r", stdin);
+    freopen("monument.out", "w", stdout);
+
+    int n, k;
+    cin >> n >> k;
+
+    int x[n], y[n];
+
+    for (int i=0; i<n; i++)
+        cin >> x[i] >> y[i];
+
+    int fr[N+1] = {}, to[N+1] = {};
+    for (int i=0; i<n; i++)
+    {
+        if (x[i] == x[(i+1) % n])
+        {
+            if (y[(i+1) % n] > y[i])
+            for (int j=y[(i+1) % n] - 1; j>=y[i]; j--)
+            {
+                to[j] = x[i];
+            }
+            else
+            for (int j=y[i] - 1; j>=y[(i+1) % n]; j--)
+            {
+                fr[j] = x[i];
+            }
+        }
+    }
+
+    int sob[N] = {};
+    long long bs = 0;
+    int mi = 1000000000;
+    for (int ts = 0; ts<k; ts++)
+    {
+    int tr = 0;
+        for (int i=0; i<N + 1; i++)
+            if (fr[i] != to[i])
+            {
+                int l = (to[i] - fr[i]) % k;
+                if (!l) l = k;
+                int b = ((i - fr[i] + ts) % k + k) % k;
+         //       cout << i << " " << b << " " << to[i] - fr[i] << " ";
+                tr += (to[i] - fr[i] - 1) / k + 1;
+                if (b > 0 && b <= l)
+                {
+                    tr+=1;
+                }
+          //      cout << tr << "\n";
+            }
+    mi = min(mi, tr);
+    }cout << mi;
+}

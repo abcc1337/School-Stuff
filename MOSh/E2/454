@@ -1,0 +1,106 @@
+#include <fstream>
+#include <vector>
+#include <algorithm>
+#include <ctime>
+#define long long long
+
+using namespace std;
+
+vector<vector<int>> graph;
+vector<vector<int>> w;
+long cnt = 0;
+vector<long> d;
+vector<bool> used;
+
+void dfs(int v, long maxd)
+{
+	if (used[v] || maxd < 0)
+		return;
+	used[v] = true;
+	for (int i = 0; i < graph[v].size(); ++i)
+		dfs(graph[v][i], max(d[v], maxd) - w[v][i]);
+}
+
+bool cmp(int a, int b)
+{
+	return d[a] < d[b];
+}
+
+int solveGreedy()
+{
+	vector<int> vert(graph.size());
+	for (int i = 0; i < graph.size(); ++i)
+		vert[i] = i;
+	int minx = INT_MAX;
+	while (cnt < 10000000)
+	{
+		int ans = 0;
+		random_shuffle(vert.begin(), vert.end());
+		used = vector<bool>(graph.size(), false);
+		for (int v : vert)
+		{
+			if (!used[v])
+			{
+				++ans;
+				dfs(v, 0);
+			}
+		}
+		minx = min(minx, ans);
+		cnt += graph.size() * 10;
+	}
+	return minx;
+}
+
+int Floyd()
+{
+	int n = graph.size();
+	vector<vector<long>> matr(n, vector<long>(n, LLONG_MAX / 2));
+	for (int i = 0; i < n; ++i)
+		for (int k = 0; k < graph[i].size(); ++k)
+			matr[i][graph[i][k]] = w[i][k];
+	for (int k = 0; k < n; ++k)
+		for (int i = 0; i < n; ++i)
+			for (int j = 0; j < n; ++j)
+			{
+				matr[i][j] = min(matr[i][j], matr[i][k] + matr[k][j]);
+			}
+	cnt += n * n * n;
+	for (int i = 0; i < n; ++i)
+	{
+		for (int j = 0; j < n; ++j)
+		{
+			d[j] = max(d[j], d[i] - matr[i][j]);
+		}
+	}
+	return solveGreedy();
+}
+
+
+int main()
+{
+	ifstream in("alarm.in");
+	ofstream out("alarm.out");
+	int n;
+	in >> n;
+	d = vector<long>(n);
+	for (int i = 0; i < n; ++i)
+	{
+		int x; in >> x;
+		d[i] = x;
+	}
+	graph = vector<vector<int>>(n);
+	w = vector<vector<int>>(n);
+	for (int i = 0; i < n - 1; ++i)
+	{
+		int a, b, w1;
+		in >> a >> b >> w1;
+		--a, --b;
+		graph[a].push_back(b);
+		w[a].push_back(w1);
+		graph[b].push_back(a);
+		w[b].push_back(w1);
+	}
+	srand(time(NULL));
+	out << Floyd() << endl;
+	return 0;
+}

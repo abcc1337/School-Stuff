@@ -1,0 +1,67 @@
+def f():
+    global color, counter, b
+
+    def new_dfs(i):
+        global color
+        color[i] = False
+        for j in b[i]:
+            if color[j]:
+                new_dfs(j)
+    
+    def top(i):
+        global color, counter
+        color[i] = False
+        for j in b[i]:
+            if color[j]:
+                top(j)
+        mas[counter] = i
+        counter+=1
+    
+    def dfs(i, x):
+        global color, b
+        color[i] = False
+        if x<0:
+            return
+        if i != il:
+            b[il].append(i)
+        for j, y in a[i]:
+            if color[j]:
+                dfs(j, x-y)
+            
+    
+    fi = open("alarm.in", "r")
+    fo = open("alarm.out", "w")
+    
+    n = int(fi.readline().strip())
+    d = list(map(int, fi.readline().strip().split()))
+    cou = 1
+    a = [0]*n
+    b = [0]*n
+    for i in range(n):
+        a[i] = []
+        b[i] = []
+    for i in range(n-1):
+        u, v, l = (map(int, fi.readline().strip().split()))
+        u-=1
+        v-=1
+        a[u].append([v, l])
+        a[v].append([u, l])
+    for il in range(n):
+        color = [True]*n
+        dfs(il, d[il])
+    counter = 0
+    color = [True]*n
+    mas = [0]*n
+    for il in range(n):
+        if color[il]:
+            top(il)
+    color = [True]*n
+    ans_cou = 0
+    for il in range(n-1, -1, -1):
+        il = mas[il]
+        if color[il]:
+            ans_cou +=1
+            new_dfs(il)
+    print(ans_cou, file = fo)
+    fi.close()
+    fo.close()

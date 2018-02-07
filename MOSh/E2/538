@@ -1,0 +1,58 @@
+import sys
+def solve(a, k):
+    if a % 3 != 0:
+        return [False, 0, 0]
+    x = a // 3
+    bin_x = str(bin(x))[2:]
+    #bin_ost = str(bin(k - a))[2:]
+    #dlin = min(len(bin_x), len(bin_ost))
+    tmp11 = True
+    for x1 in range(k - a + 1):
+        for y1 in range(k - a + 1):
+            for z1 in range(k - a + 1):
+                if (x1 + y1 + z1) == k - a:
+                    tmp11 = True
+                    bin_ost1 = str(bin(x1))[2:]
+                    bin_ost2 = str(bin(y1))[2:]
+                    bin_ost3 = str(bin(z1))[2:]
+                    dlin1 = min(len(bin_x), len(bin_ost1))
+                    dlin2 = min(len(bin_x), len(bin_ost2)) 
+                    dlin3 = min(len(bin_x), len(bin_ost3)) 
+                    for i in range(1, dlin1 + 1):
+                        if bin_x[-i] == "1" and (bin_ost1[-i] == "1"):
+                            #print(x1, y1, z1, 1)
+                            tmp11 = False
+                            #return [False, 0, 0]
+                    for i in range(1, dlin2 + 1):
+                            if bin_x[-i] == "1" and (bin_ost2[-i] == "1"):
+                                #print(x1, y1, z1, 2)
+                                tmp11 = False
+                                #return [False, 0, 0]
+                    for i in range(1, dlin3 + 1):
+                        if bin_x[-i] == "1" and (bin_ost3[-i] == "1"):
+                            #print(x1, y1, z1, i, 3)
+                            tmp11 = False
+                            #return [False, 0, 0] 
+                    if tmp11:
+                        return [True , x1, y1, z1]
+    return [False, 0]
+sys.stdin = open("grants.in")
+sys.stdout = open("grants.out", "w")
+t = int(input())
+maximum = 0
+#zapr = [2, 8, 16, 32, 64]
+#print(solve(18, 20))
+for j in range(t):
+    tmp = int(input())
+    #if tmp in zapr:
+    #    exit(1)
+    for i in range(0, tmp + 1):
+        if solve(i, tmp)[0]:
+            if i >= maximum:
+                maximum = i
+                x1 = solve(i, tmp)[1]
+                y1 = solve(i, tmp)[2]
+                z1 = solve(i, tmp)[3]
+    print(maximum // 3 + x1, end = " ")
+    print(maximum // 3 + y1, end = " ")
+    print(maximum // 3 + z1)

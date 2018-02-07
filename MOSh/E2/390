@@ -1,0 +1,132 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+#define LOCAL1
+using namespace std;
+int k;
+inline int dist(int i, int x1, int x2, int sdvig)
+{
+	int a1 = min(x1, x2) + sdvig,
+		b1 = max(x1, x2) + sdvig;
+		int ind1 = (a1 - (i % k)) / k,
+			ind2 = (b1 - (i % k)) / k;
+		if ((b1 - (i % k)) % k == 0)
+		{
+			ind2--;
+		}
+		return (ind2 - ind1 + 1);
+}
+
+int main()
+{
+	ios::sync_with_stdio(0);
+#ifdef LOCAL
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+#else
+	freopen("monument.in", "r", stdin);
+	freopen("monument.out", "w", stdout);
+#endif
+
+	int n;
+	cin >> n >> k;
+	vector<pair<int, int> > coord(n);
+	for (int i = 0; i < n; i++)
+	{
+		int x, y;
+		cin >> x >> y;
+		x += k;
+		coord[i] = { x, y };
+
+	}
+//	reverse(coord.begin(), coord.end());
+	vector<pair<int, int> > sdv(1e6 + 1, make_pair(-1, -1));
+	vector<pair<int, int> > sd(1e6 + 1, make_pair(-1, -1));
+	vector<int> cnt(k);
+	for (int i = 0; i < n; i++)
+	{
+		pair<int, int> c1 = coord[i],
+			c2 = coord[(i + 1) % n];
+		if (c1 != c2)
+		{
+			if (c1.first == c2.first)
+			{
+				int x = c1.first;
+				int y1 = c1.second,
+					y2 = c2.second;
+				if (y1 > y2)
+				{
+					swap(y1, y2);
+				}
+				for (int j = y1; j < y2; j++)
+				{
+					int sdvig = (k - ((x - (j % k)) % k)) % k;
+					if (sd[j].first == -1)
+					{
+						sd[j].first = x;
+						sdv[j].first = sdvig;
+					}
+					else
+					{
+						sd[j].second = x;
+						sdv[j].second = sdvig;
+					}
+				}
+			}
+		}
+	}
+	for (int i = 0; i <= 1e6; i++)
+	{
+		if (sdv[i].second == -1)
+		{
+			continue;
+		}
+		int x1 = sd[i].first,
+			x2 = sd[i].first;
+		if (sdv[i].first == sdv[i].second)
+		{
+			cnt[sdv[i].first] += dist(i, x1, x2, 0) - dist(i, x1, x2, sdv[i].first);
+		}
+		else
+		{
+			cnt[sdv[i].first] += dist(i, x1, x2, 0) - dist(i, x1, x2, sdv[i].first);
+			cnt[sdv[i].second] += dist(i, x1, x2, 0) - dist(i, x1, x2, sdv[i].second);
+		}
+	}
+
+	int mx = -1,
+		ind = -1;
+	for (int i = 0; i < k; i++)
+	{
+		if (cnt[i] > mx)
+		{
+			mx = cnt[i];
+			ind = i;
+		}
+	}
+
+		long long ans = 0;
+		for (int i = 0; i <= 1e6; i++)
+		{
+			if (sd[i].second != -1)
+			{
+
+				int a1 = min(sd[i].first, sd[i].second) + ind,
+					b1 = max(sd[i].first, sd[i].second) + ind;
+				if (a1 != b1)
+				{
+					int ind1 = (a1 - (i % k)) / k,
+						ind2 = (b1 - (i % k)) / k;
+					if ((b1 - (i % k)) % k == 0)
+					{
+						ind2--;
+					}
+					ans += ind2 - ind1 + 1;
+				}
+			}
+		}
+
+	cout << ans;
+	return 0;
+}

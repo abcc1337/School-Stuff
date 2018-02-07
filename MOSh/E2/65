@@ -1,0 +1,200 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+
+#define int long long
+#define mp make_pair
+#define pb push_back
+
+int kek = 500000;
+
+int x[51000], y[51000], a[51000];
+
+struct base
+{
+    int cnt;
+    int cost;
+    int num;
+    base(){}
+    base(int a, int b, int c)
+    {
+        cnt = a;
+        cost = b;
+        num = c;
+    }
+};
+
+base b[51000];
+
+bool operator<(base a, base b)
+{
+    return (a.cost > b.cost) || (a.cost == b.cost && a.cnt > b.cnt) || (a.cost == b.cost && a.cnt == b.cnt && a.num < b.num);
+}
+int coor[101000];
+
+signed main()
+{
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+//
+//    freopen("fisher.in", "r", stdin);
+//    freopen("fisher.out", "w", stdout);
+
+
+    ios_base::sync_with_stdio(0);
+
+
+    int n, m, p;
+    cin >> n >> m >> p;
+
+    for (int i = 0; i < n; ++i)
+        cin >> x[i] >> a[i];
+    for (int i = 0; i < m; ++i)
+    {
+        cin >> y[i];
+        int t, q;
+        cin >> t >> q;
+        b[i] = base(t, q, i);
+    }
+
+    if (p == 0)
+    {
+        int weight = 0;
+        for (int i = 0; i < n; ++i)
+            weight += a[i];
+        sort(b, b + m);
+        int ans = 0;
+        for (int i = 0; i < m; ++i)
+        {
+            int k = min(weight, b[i].cnt);
+            ans += k * b[i].cost;
+            weight -= k;
+        }
+        cout << ans;
+        return 0;
+    }
+    if (y[m - 1] < x[0])
+    {
+        sort(b, b + m);
+        pair <int, int> profit[50000];
+        profit[0] = mp(b[0].cnt, b[0].cost * b[0].cnt);
+        for (int i = 1;i < m; ++i)
+        {
+            profit[i] = mp(profit[i - 1].first + b[i].cnt, profit[i - 1].second + b[i].cnt * b[i].cost);
+        }
+        int ans = 0;
+        int weight = 0;
+        for (int it = 0; it < n; ++it)
+        {
+            weight += a[it];
+            int sum = -p * x[it];
+            int l = -1, r = m - 1;
+            while (r - l > 1)
+            {
+                int mid = l + (r- l) / 2;
+                if (profit[mid].first >= weight)
+                    r = mid;
+                else
+                    l = mid;
+            }
+
+
+            if (profit[r].first < weight)
+                sum += profit[r].second;
+            else
+            {
+                if (r == 0)
+                {
+                    sum += weight * b[0].cost;
+                }
+                else
+                {
+                    sum += profit[r - 1].second + (weight - profit[r - 1].first) * b[r].cost;
+                }
+            }
+            ans = max(ans, sum);
+        }
+        cout << ans;
+        return 0;
+    }
+
+    if (x[n - 1] < y[0])
+    {
+
+        int ans = 0, weight = 0;
+        for (int i = 0; i < n; ++i)
+            weight += a[i];
+        if (m == 1)
+        {
+            int c = min(weight, b[0].cnt);
+            ans = max(ans, c * b[0].cost - p * y[0]);
+            cout << ans;
+            return 0;
+        }
+        int wes = 0;
+        int profit = 0;
+        multiset <pair <int, int> > s;
+        for (int i = 0; i < m; ++i)
+        {
+            int k = 0;
+            if (weight > 0)
+            {
+                k = min(weight, b[i].cnt);
+//                s.insert(mp(b[i].cost, k));
+                weight -= k;
+                profit += k * b[i].cost;
+            }
+            while (k < b[i].cnt && (*(s.begin())).first < b[i].cost)
+            {
+                auto t = *(s.begin());
+                s.erase(t);
+//                s.erase(mp(b[i].cost, k));
+                int c = min(t.second, b[i].cnt - k);
+                k += c;
+                t.second -= c;
+                profit += c * (b[i].cost - t.first);
+                if (t.second > 0)
+                    s.insert(t);
+//                s.insert(mp(b[i].cost, k));
+            }
+            if (k > 0)
+                s.insert(mp(b[i].cost, k));
+            ans = max(ans, profit - p *  y[i]);
+        }
+        cout << ans;
+        return 0;
+    }
+
+
+    for (int i = 0; i < n; ++i)
+        coor[i] = x[i];
+    for (int i = 0; i < m; ++i)
+        coor[i + n] = y[i];
+    sort(coor, coor + n + m);
+    int ans = 0;
+    for(int it = 0; it < (n + m); ++it)
+    {
+        int dist = coor[it];
+        int weight = 0;
+        for (int i = 0; i < n; ++i)
+            if (x[i] <= dist)
+                weight += a[i];
+        int sum = - p * dist;
+        int m1 = 0;
+        vector <base> v;
+        for (int i = 0; i < m; ++i)
+            if (y[i] <= dist)
+                v.push_back(b[i]);
+        m1 = v.size();
+        sort(v.begin(), v.end());
+        for (int i = 0; i < m1; ++i)
+        {
+            int k = min(weight, v[i].cnt);
+            sum += k * v[i].cost;
+            weight -= k;
+        }
+        ans = max(ans, sum);
+    }
+    cout << ans;
+}

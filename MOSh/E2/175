@@ -1,0 +1,185 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+struct treap
+{
+    long long sum, ans;
+    int cost, cnt;
+    int y;
+    treap *l, *r;
+
+};
+
+treap *root;
+
+long long sum(treap *a)
+{
+    return a ? a->sum : 0;
+}
+
+long long ans(treap *a)
+{
+    return a ? a->ans : 0;
+}
+
+void recalc(treap *a)
+{
+    if(a)
+    {
+        a->sum = sum(a->l) + sum(a->r) + a->cnt;
+        a->ans = ans(a->l) + ans(a->r) + a->cnt * 1ll * a->cost;
+    }
+}
+
+void treap_merge(treap *&res, treap *a, treap *b)
+{
+    if(!a)
+    {
+        res = b;
+        return;
+    }
+    if(!b)
+    {
+        res = a;
+        return;
+    }
+    if(a->y >= b->y)
+    {
+        res = a;
+        treap_merge(res->r, res->r, b);
+    }
+    else
+    {
+        res = b;
+        treap_merge(res->l, a, res->l);
+    }
+    recalc(res);
+}
+void treap_split(treap *res, treap *&a, treap *&b, int val)
+{
+    if(!res)
+    {
+        a = b = res;
+        return;
+    }
+    if(res->cost > val)
+    {
+        a = res;
+        treap_split(a->r, a->r, b, val);
+    }
+    else
+    {
+        b = res;
+        treap_split(b->l, a, b->l, val);
+    }
+    recalc(a);
+    recalc(b);
+}
+
+void treap_new(int cost, int cnt)
+{
+    treap *t = new treap();
+    t->cnt = cnt;
+    t->cost = cost;
+    t->y = rand() << 16 + rand();
+    t->l = t->r = NULL;
+    recalc(t);
+    if(!root)
+        root = t;
+    else
+    {
+        treap *p1, *p2, *p3;
+        treap_split(root, p1, p2, cost);
+        treap_merge(p1, p1, t);
+        treap_merge(root, p1, p2);
+    }
+}
+
+long long treap_sum_cnt(int cnt)
+{
+    if(!root)
+        return 0;
+    treap *p1, *p2;
+    long long l = 1, r = 1000000009;
+    while(l + 1 < r)
+    {
+        long long m = (l + r) / 2;
+        treap_split(root, p1, p2, m);
+        if(sum(p1) >= cnt)
+        {
+            l = m;
+        }
+        else
+        {
+            r = m;
+        }
+        treap_merge(root, p1, p2);
+    }
+    treap_split(root, p1, p2, l);
+    long long res = ans(p1);
+    if(sum(p1) < cnt)
+    {
+        treap* p3 = p2;
+        if(p3)
+        {
+            while(p3 -> l)
+                p3 = p3->l;
+            res += p3->cost * (cnt - sum(p1));
+        }
+    }
+    treap_merge(root, p1, p2);
+    return res;
+}
+
+struct event
+{
+    int kind, x, cnt, cost;
+    event(int kind_, int x_, int cnt_, int cost_):kind(kind_),x(x_),cnt(cnt_),cost(cost_){};
+    bool operator<(const event& a) const
+    {
+        if(a.x == this->x)
+            return this->kind < a.kind;
+        return this->x < a.x;
+    }
+};
+
+vector<event> evtarr;
+long long curfish = 0;
+
+int main()
+{
+    freopen("fisher.in", "r", stdin);
+    freopen("fisher.out", "w", stdout);
+    ios_base::sync_with_stdio(0);
+    int n, m, p;
+    cin >> n >> m >> p;
+    for(int i=0;i<n;i++)
+    {
+        int x,c;
+        cin >> x>> c;
+        evtarr.push_back(event(1,x,c,0));
+    }
+    for(int i=0;i<m;i++)
+    {
+        int x,c,p;
+        cin >> x>> c >> p;
+        evtarr.push_back(event(2,x,c,p));
+    }
+    sort(evtarr.begin(), evtarr.end());
+    long long ans = 0;
+    for(auto& i : evtarr)
+    {
+        if(i.kind == 1)
+        {
+            curfish += i.cnt;
+        }
+        else
+        {
+            treap_new(i.cost, i.cnt);
+        }
+        ans = max(ans, treap_sum_cnt(curfish) - p * i.x);
+    }
+    cout << ans;
+    return 0;
+}

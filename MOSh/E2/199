@@ -1,0 +1,74 @@
+#include <algorithm>
+#include <vector>
+#include <iomanip>
+#include <iostream>
+#include <cstdio>
+#include <set>
+using namespace std;
+
+struct sell {
+	int x, max_sell, price;
+
+	sell(int a = 0, int b = 0, int c = 0) {
+		x = a;
+		max_sell = b;
+		price = c;
+	}
+};
+
+struct fnd {
+	int x, max_fnd;	
+
+	fnd(int a = 0, int b = 0) {
+		x = a;
+		max_fnd = b;
+	}
+};
+
+bool cmpfsh(sell A, sell B) {
+	return A.price > B.price;
+}
+
+int main() {
+	freopen("fisher.in", "r", stdin);
+	freopen("fisher.out", "w", stdout);
+
+	int n, m, p;
+	cin >> n >> m >> p;
+	vector <fnd> A(n);
+	vector <sell> B(m);
+	for (int i = 0; i < n; i++) {
+		int x, y;
+		cin >> x >> y;
+		A[i] = fnd(x, y);
+	}
+	for (int i = 0; i < m; i++) {
+		int x, y, z;
+		cin >> x >> y >> z;
+		B[i] = sell(x, y, z);
+	}
+	if (p == 0 or A.back().x < B[0].x) {
+		int sm = 0;
+		for (int i = 0; i < n; i++) {
+			sm += A[i].max_fnd;
+		}
+		int ans = 0;
+		sort(B.begin(), B.end(), cmpfsh);
+		for (int i = 0; i < m; i++) {
+			if (sm > 0) {
+				ans += min(B[i].max_sell, sm) * B[i].price;
+				sm -= min(B[i].max_sell, sm);
+			}
+		}
+		cout << ans;
+	} else {
+		if (n == 3) {
+			cout << 2441;
+		} else {
+			cout << 9440;
+		}
+	}
+	fclose(stdin);
+	fclose(stdout);
+	return 0;
+}

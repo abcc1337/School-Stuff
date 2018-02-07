@@ -1,0 +1,72 @@
+#pragma warning(disable:4996)
+#include<stdio.h>
+#include<vector>
+#include<algorithm>
+#include<map>
+using namespace std;
+
+int st[100007],n, k,p[100007],a[100007],b[100007];
+vector<int>v[100007];
+map<pair<int,int>, int>mp,m1;
+
+int dfs(int s, int f) {
+	int i;
+	if (s == f)return 1;
+	for (i = 0; i < v[s].size(); i++) {
+		if (st[v[s][i]] == 0) {
+			if (dfs(v[s][i], f) == 1) {
+				mp[make_pair(s, v[s][i])] = 1;
+				mp[make_pair(v[s][i],s)] = 1;
+			}
+		}
+	}
+	return 0;
+}
+
+void sol() {
+	int i, j;
+	scanf("%d%d", &n, &k);
+	p[0] = 0;
+	for (i = 0; i < n - 1; i++) {
+		scanf("%d", &p[i+1]);
+		v[p[i + 1]].push_back(i + 1);
+		v[i].push_back(p[i + 1]);
+	}
+	for (i = 0; i < k; i++) {
+		scanf("%d%d", &a[i], &b[i]);
+	}
+	int ans = 0;
+	int s;
+	for (i = 0; i < k; i++) {
+		for (j = 0; j < k; j++) {
+			if (i != j) {
+				mp.clear();
+				dfs(a[i], b[i]);
+				m1 = mp;
+				mp.clear();
+				dfs(a[j], b[j]);
+				s = 0;
+				for (auto it = mp.begin(); it != mp.end(); it++) {
+					for (auto it1 = m1.begin(); it1 != m1.end(); it1++) {
+						if (it->first == it1->first)s++;
+					}
+				}
+				ans = max(ans, s / 2);
+			}
+		}
+	}
+	printf("%d", ans);
+}
+
+
+int main() {
+#ifdef _DEBUG
+	//	freopen("input.txt", "r", stdin);
+	//	freopen("output.txt", "w", stdout);
+#else
+		freopen("twopaths.in", "r", stdin);
+		freopen("twopaths.out", "w", stdout);
+#endif
+	sol();
+	return 0;
+}

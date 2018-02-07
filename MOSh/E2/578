@@ -1,0 +1,87 @@
+  type arra=array [1..1000,1..1000] of integer;
+       arrb=array [1..1000] of integer;
+  var n,m,i,j,sum,minN,minM,indN,indM:int64;
+    s:integer;
+   arr,arr2:arra;
+   arrN,arrM:arrb;
+   f1,f2:text;
+procedure readT();
+var i,j:int64;
+begin
+  readln(f1,n,m);
+  for i:=1 to n do
+  begin
+    readln(f1,s);
+    for j:=m downto 1 do
+    begin
+      arr[i,j]:=s mod 10;
+      s:=s div 10; 
+    end;   
+  end;
+end;//readT
+procedure writeMas(arr:arra);
+var i,j:integer;
+begin
+  for i:=1 to n do begin
+    for j:=1 to m do
+      write(arr[i][j],' ');
+    writeln();
+  end;
+end;//writeMas
+procedure writeMas(arr:arrb;n:integer);
+var i:integer;
+begin
+  for i:=1 to n do begin 
+    write(arr[i],' ');
+  end;
+  writeln();
+end;//wrm
+
+procedure modarr(arr:arra);
+var i,j,s:integer;
+begin
+  s:=0;
+  for i:=1 to n-1 do
+    for j:=1 to m-1 do
+    begin
+      if (arr[i][j]=arr[i][j+1])and(arr[i][j]=arr[i+1][j])and(arr[i][j]=arr[i+1][j+1]) then begin s:=s+1;arr2[i][j]:=1;end;
+    end;
+  for j:=1 to m-1 do
+    if (arr[n][j]=arr[n][j+1])and(arr[n][j]=arr[1][j])and(arr[n][j]=arr[1][j+1]) then begin s:=s+1;arr2[n][j]:=1;end;
+  for i:=1 to n-1 do
+    if (arr[i][m]=arr[i][1])and(arr[i][m]=arr[i+1][m])and(arr[i][m]=arr[i+1][1]) then begin s:=s+1;arr2[i][m]:=1;end;
+  if (arr[n][m]=arr[n][1])and(arr[n][m]=arr[1][m])and(arr[n][m]=arr[1][1]) then begin s:=s+1;arr2[n][m]:=1;end;
+  sum:=s;
+end;//modArr
+begin
+  assign(f1,'video.in');
+  assign(f2,'video.out');
+  reset(f1);
+  readT();
+  close(f1);
+  //writeMas(arr,n,m);
+  modArr(arr);
+  //writeln('sum ',sum);
+  //writeMas(arr2);
+  for i:=1 to n do
+    for j:=1 to m do
+    begin
+      arrN[i]:=arrN[i]+arr2[i,j];
+      arrM[j]:=arrM[j]+arr2[i,j];
+    end;
+  
+  //writeMas(arrN,n);
+  //writeMas(arrM,m);
+  minN:=1000000;
+  minM:=minN;
+  indN:=0;
+  indM:=0;
+  for i:=1 to n do
+    if arrN[i]<minN then begin minN:=arrN[i];indN:=i;if minN = 0 then break;end;
+  for j:=1 to m do
+    if arrM[J]<minM then begin minM:=arrM[j];indm:=j;if minM = 0 then break;end;
+  sum:=sum-minN-minM+arr2[indN,indM];
+  rewrite(f2);
+  writeln(f2,sum);
+  close(f2);
+end.

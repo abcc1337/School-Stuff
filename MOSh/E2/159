@@ -1,0 +1,154 @@
+#include <bits/stdc++.h>
+#define fr(i, n) for (int i = 0; i < n; i++)
+#define frab(i, a, b) for (int i = a; i < b; i++)
+#define pb push_back
+#define mp make_pair
+
+using namespace std;
+
+typedef long long ll;
+
+const ll N = 1e3 + 1;
+const int MAX = 1000000;
+
+char a[N][N];
+int used[N][N], dist[N][N], col[N][N], len[N][N];
+vector <pair <int, int> > g[N][N], revg[N][N];
+
+void dfs(int x, int y, int cur, int dst) {
+    used[x][y] = 1;
+    col[x][y] = cur;
+    dist[x][y] = dst;
+    fr(i, g[x][y].size()) {
+        pair <int, int> to = g[x][y][i];
+        if (col[to.first][to.second] > 0 && col[to.first][to.second] != cur)
+            continue;
+        if (used[to.first][to.second] == 1) {
+            len[x][y] = dst - dist[to.first][to.second] + 1;
+            continue;
+        }
+        if (!used[to.first][to.second])
+            dfs(to.first, to.second, cur, dst + 1);
+    }
+    used[x][y] = 2;
+}
+
+vector <pair <int, int> > robs;
+int used3[N][N], distc[N][N];
+pair <int, int> par[N][N];
+vector <pair <int, int> > freep, robused;
+
+int dfs2(int x, int y, int dist) {
+    int ans = 0;
+    distc[x][y] = dist;
+    if (isupper(a[x][y])) {
+        ans = 1;
+        if (!used3[x][y])
+            robs.pb(mp(x, y));
+    }
+    used[x][y] = 1;
+    fr(i, revg[x][y].size()) {
+        pair <int, int> to = revg[x][y][i];
+        int add = 0;
+        if (used3[to.first][to.second] == 0)
+            add++;
+        if (used3[x][y] && add) {
+            par[to.first][to.second] = mp(x, y);
+        }
+        //if (!used[to.first][to.second])
+        //    ans += isupper(a[to.first][to.second]);
+        if (!used[to.first][to.second])
+            ans += dfs2(to.first, to.second, dist + add);
+    }
+    return ans;
+}
+
+void dfs3(int x, int y, int num) {
+    used3[x][y] = num;
+    if (islower(a[x][y]))
+        freep.pb(mp(x, y));
+    else
+        robused.pb(mp(x, y));
+    fr(i, g[x][y].size()) {
+        pair <int, int> to = g[x][y][i];
+        if (!used3[to.first][to.second])
+            dfs3(to.first, to.second, num + 1);
+    }
+}
+
+bool cmpr(pair <int, int> a, pair <int, int> b) {
+    return distc[a.first][a.second] < distc[b.first][b.second];
+}
+
+int answ[N][N];
+
+int main() {
+    freopen("robots.in", "r", stdin);
+    freopen("robots.out", "w", stdout);
+    int n, m, g1;
+    cin >> n >> m >> g1;
+    fr(i, n)
+        fr(j, m)
+            cin >> a[i][j];
+    fr(i, n)
+        fr(j, m) {
+            if (toupper(a[i][j]) == 'N')
+                g[i][j].pb(mp(i - 1, j));
+            if (toupper(a[i][j]) == 'S')
+                g[i][j].pb(mp(i + 1, j));
+            if (toupper(a[i][j]) == 'W')
+                g[i][j].pb(mp(i, j - 1));
+            if (toupper(a[i][j]) == 'E')
+                g[i][j].pb(mp(i, j + 1));
+        }
+
+    fr(i, n)
+        fr(j, m)
+            fr(k, g[i][j].size()) {
+                pair <int, int> to = g[i][j][k];
+                revg[to.first][to.second].pb(mp(i, j));
+            }
+
+    int cur = 1;
+    fr(i, n)
+        fr(j, m)
+            if (!used[i][j])
+                dfs(i, j, cur++, 1);
+
+    int ans = 0;
+
+    fr(i, n)
+        fr(j, m)
+            used[i][j] = 0;
+
+    fr(i, n)
+        fr(j, m)
+            if (len[i][j] && !used[i][j]) {
+                robs.clear();
+                freep.clear();
+                robused.clear();
+                dfs3(i, j, 1);
+                int cnt1 = dfs2(i, j, 0);
+                ans += min(cnt1, len[i][j]);
+                sort(robs.begin(), robs.end(), cmpr);
+                fr(i1, robused.size())
+                    answ[robused[i1].first][robused[i1].second] = 1 + MAX;
+                fr(i1, min(freep.size(), robs.size())) {
+                    pair <int, int> tmp = par[robs[i1].first][robs[i1].second];
+                    int tmpans = (used3[tmp.first][tmp.second] - used3[freep[i1].first][freep[i1].second] + len[i][j])
+                        % len[i][j] - dist[robs[i1].first][robs[i1].second] + 2;
+                    //cout << robs[i1].first << " " << robs[i1].second << " " << dist[robs[i1].first][robs[i1].second] << endl;
+                    //while (tmpans <= 0)
+                     //   tmpans +=
+                    answ[robs[i1].first][robs[i1].second] = tmpans + MAX;
+                }
+            }
+    cout << ans << endl;
+    if (g1) {
+        fr(i, n)
+            fr(j, m)
+                if (answ[i][j] != 0)
+                    cout << i + 1 << " " << j + 1 << " " << answ[i][j] << endl;
+
+    }
+}

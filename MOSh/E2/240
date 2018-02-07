@@ -1,0 +1,99 @@
+#include <iostream>
+#include <stdio.h>
+#include <algorithm>
+#include <vector>
+#include <cmath>
+#include <cstring>
+#include <map>
+#include <string>
+using namespace std;
+
+int k;
+
+map<char, int> mp;
+
+int h, w;
+
+int x[2013][2013];
+
+int dp[2013][2013], d[2013][2013];
+
+int s[2013][2013];
+
+int st[2013][2013];
+
+int nm[2013][2013];
+
+int xm[2013][2013];
+
+int main() {
+	freopen("submarine.in", "r", stdin);
+	freopen("submarine,out", "w", stdout);
+	cin >> k;
+	for (char i = 'a'; i <= 'a' + k - 1; i++) {
+		int a;
+		cin >> a;
+		mp[i] = a;
+	}
+	cin >> h >> w;
+	for (int i = 1; i <= h; i++) {
+		string s;
+		cin >> s;
+		for (int j = 0; j < s.size(); j++) {
+			x[i][j + 1] = mp[s[j]];
+		}
+	}
+	for (int i = 1; i <= h; i++) {
+		for (int j = 1; j <= w; j++) {
+			s[i][j] = s[i][j - 1] + x[i][j];
+			st[i][j] = st[i - 1][j] + x[i][j];
+		}
+	}
+	for (int i = 1; i <= h; i++) {
+		for (int j = 1; j <= w; j++) {
+			int mn = 1e9, mx = -1e9;
+			for (int k = 0; k < i; k++) {
+				mn = min(mn, st[k][j]);
+			}
+			
+			dp[i][j] = st[i][j] - mn;
+			
+		}
+	}
+
+	for (int i = 1; i <= h; i++) {
+		for (int j = 1; j <= w; j++) {
+			int mx = -1e9, mn = 1e9;
+			for (int k = i; k <= h; k++) {
+				mx = max(mx, st[k][j]);
+			}
+			for (int k = 0; k < i; k++) {
+				mn = min(mn, st[k][j]);
+			}
+			d[i][j] = mx - mn;
+		}
+	}
+	
+	for (int i = 1; i <= h; i++) {
+		for (int j = 1; j <= w; j++) {
+			for (int k = 0; k < j; k++) {
+				nm[i][j] = min(nm[i][j], s[i][k]);
+			}
+			xm[i][j] = -1e9;
+			for (int k = j; k <= w; k++) {
+				xm[i][j] = max(xm[i][j], s[i][k]);
+			}
+		}
+	}
+	int ans = -1e9;
+	for (int y1 = 1; y1 <= h; y1++) {
+		for (int x1 = 1; x1 <= w; x1++) {
+			for (int x2 = x1 + 1; x2 <= w; x2++) {
+				int cnt = xm[y1][x2] - nm[y1][x1] + dp[y1][x1] + d[y1][x2] - x[y1][x1] - x[y1][x2];
+				ans = max(ans, cnt);
+			}
+		}
+	}
+	cout << ans;
+	return 0;
+}

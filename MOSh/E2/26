@@ -1,0 +1,109 @@
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <algorithm>
+#include <vector>
+#include <set>
+#include <map>
+#include <unordered_map>
+#include <queue>
+#include <ctime>
+#include <climits>
+
+using namespace std;
+
+unordered_map<int, int> history;
+
+int ask(int l, int r) {
+	l++, r++;
+
+	if (history[l * 40000 + r] != 0) return history[l * 40000 + r];
+
+	printf("? %d %d\n", l, r);
+	fflush(stdout);
+	int ans;
+	scanf("%d", &ans);
+
+	history[l * 40000 + r] = ans;
+	return ans;
+}
+vector<int> ans;
+int n;
+void paint_it(int v, int color) {
+	ans[v] = color;
+	int before = 0;
+	for (int i = v + 1; i < n; i++)
+		if (ask(v, i) == before + 1) { before++; }
+		else {
+			if (ask(v + 1, i) == before) ans[i] = color;
+		}
+	return;
+}
+
+
+int main() {
+	//freopen("input.txt", "r", stdin);
+	//freopen("output.txt", "w", stdout);
+
+	cin >> n;
+	int suf = ask(0, n - 1);
+	vector<vector<int> > v(n);
+	vector<int> gett(suf + 1);
+	ans.resize(n);
+	ans[0] = 1;
+	gett[1] = 1;
+	for (int i = 0; i < n; i++)
+		v[i].resize(suf + 1, true);
+	for (int i = 0; i < n - 1; i++) {
+		if (ans[i] == 0) {
+			for (int j = 1; j <= suf; j++)
+				if (!gett[j] && v[i][j]) {
+					paint_it(i, j);
+					gett[j] = 1;
+					break;
+				}
+		}
+		if (ans[i] == 0) {
+			for (int j = 1; j <= suf; j++)
+				if (v[i][j]) {
+					paint_it(i, j);
+					gett[j] = 1;
+					break;
+				}
+		}
+		if (ask(i, i + 1) == 1) {
+			ans[i + 1] = ans[i];
+			continue;
+		}
+
+		int m = i + 1;
+		while (m < n && ask(i, m) == m - i + 1) m++;
+		for (int j = i + 1; j < m; j++)
+			v[j][ans[i]] = false;
+	}
+	int i = n - 1;
+	if (ans[i] == 0) {
+		for (int j = 1; j <= suf; j++)
+			if (!gett[j] && v[i][j]) {
+				ans[i] = j;
+				gett[j] = 1;
+				break;
+			}
+	}
+	if (ans[i] == 0) {
+		for (int j = 1; j <= suf; j++)
+			if (v[i][j]) {
+				ans[i] = j;
+				gett[j] = 1;
+				break;
+			}
+	}
+
+	printf("Ready!\n%d\n", suf);
+	for (int i = 0; i < n; i++)
+		printf("%d ", ans[i]);
+	printf("\n");
+	fflush(stdout);
+
+	return 0;
+}

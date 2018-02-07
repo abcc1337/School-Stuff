@@ -1,0 +1,112 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+const int Max = 5555;
+int n;
+
+struct _magic_
+{
+	int id;
+	long long d;
+};
+
+bool cmp(_magic_ m1, _magic_ m2)
+{
+	if (m1.d != m2.d)
+		return m1.d > m2.d;
+	return m1.id < m2.id;
+}
+
+_magic_ m[Max];
+vector <_magic_> way[Max];
+long long dist[Max][Max];
+
+void dfs(int start, int v, long long D)
+{
+	dist[start][v] = D;
+	for (int i = 0; i < way[v].size(); i++)
+	{
+		int u = way[v][i].id;
+		if (dist[start][u] == -1)
+		{
+			dfs(start, u, D + way[v][i].d);
+		}
+	}
+	return;
+}
+
+bool mark[Max];
+int answer, ost;
+
+int main()
+{
+	freopen("alarm.in", "r", stdin);
+	freopen("alarm.out", "w", stdout);
+	scanf(" %d", &n);
+	for (int i = 1; i <= n; i++)
+	{
+		scanf(" %lld", &m[i].d);
+		m[i].id = i;
+	}
+	sort(m + 1, m + n + 1, cmp);
+	for (int i = 1; i < n; i++)
+	{
+		int a, b;
+		_magic_ now;
+		scanf(" %d %d %lld", &a, &b, &now.d);
+		now.id = b;
+		way[a].push_back(now);
+		now.id = a;
+		way[b].push_back(now);
+	}
+	for (int i = 1; i <= n; i++)
+	{
+		for (int j = 1; j <= n; j++)
+			dist[i][j] = -1;
+		dfs(i, i, 0);
+	}
+	for (int i = 1; i <= n; i++)
+		mark[i] = false;
+	ost = n;
+	answer = 0;
+	for (int i = 1; i <= n; i++)
+	{
+		int v = m[i].id;
+		if (!mark[v])
+		{
+			answer++;
+			long long len = m[i].d;
+			for (int j = 1; j <= n; j++)
+				if (dist[v][j] <= len)
+				{
+					if (!mark[j])
+					{
+						mark[j] = true;
+						ost--;
+						if (ost == 0)
+						{
+							printf("%d\n", answer);
+							return 0;
+						}
+					}
+				}
+		}
+	}
+}
+/*
+10
+1 2 2 2 6 3 4 5 4 3
+1 2 5
+2 3 1
+2 4 5
+4 5 2
+4 6 4
+4 7 3
+1 8 1
+8 9 5
+8 10 4
+*/

@@ -1,0 +1,89 @@
+#include <iostream>
+
+using namespace std;
+
+const int MAXN = 4096;
+const int SHIFT = MAXN;
+
+int RMQ[MAXN + SHIFT];
+int last[MAXN];
+int ans[MAXN];
+
+void SetRMQ() {
+	for (int i = SHIFT - 1; i; --i) {
+		RMQ[i] = RMQ[i * 2] + RMQ[i * 2 + 1];
+	}
+}
+
+void Change(int i, int value) {
+	i += SHIFT;
+	RMQ[i] = value;
+	i /= 2;
+	while (i) {
+		RMQ[i] = RMQ[i * 2] + RMQ[i * 2 + 1];
+		i /= 2;
+	}
+}
+
+int Get(int l, int r, int v, int vl, int vr) {
+	if (l > r) return 0;
+	if (l == vl && r == vr) return RMQ[v];
+	int m = (vl + vr) / 2;
+	return Get(l, min(r, m), v * 2, vl, m)
+		 + Get(max(l, m + 1), r, v * 2 + 1, m + 1, vr);
+}
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	int n, k = 1;
+	cin >> n;
+	RMQ[SHIFT] = 1;
+	SetRMQ();
+	for (int i = 1; i < n; ++i) {
+		// for (int j = 0; j < i; ++j) {
+		// 	cout << ans[j] + 1 << ' ';
+		// }
+		// cout << endl;
+		// for (int j = 0; j < k; ++j) {
+		// 	cout << last[j] + 1 << ' ';
+		// }
+		// cout << endl;
+		// for (int j = 0; j < i; ++j) {
+		// 	cout << RMQ[j + SHIFT] << ' ';
+		// }
+		// cout << endl;
+		cout << "? 1 " << i + 1 << endl;
+		int res;
+		cin >> res;
+		Change(i, 1);
+		if (res == k + 1) {
+			ans[i] = k;
+			last[k] = i;
+			++k;
+		} else {
+			int l = 0, r = i;
+			while (r - l > 1) {
+				int m = (l + r) / 2;
+				// cout << l + 1 << ' ' << r + 1 << '\n';
+				// cout << "!! " << Get(m, i, 1, 0, MAXN - 1) << '\n';
+				cout << "? " << m + 1 << ' ' << i + 1 << endl;
+				int res;
+				cin >> res;
+				if (res == Get(m, i, 1, 0, MAXN - 1)) {
+					r = m;
+				} else {
+					l = m;
+				}
+			}
+			ans[i] = ans[l];
+			Change(l, 0);
+			last[ans[i]] = i;
+		}
+	}
+	cout << "Ready!\n";
+	cout << k << '\n';
+	for (int i = 0; i < n; ++i) {
+		cout << ans[i] + 1 << ' ';
+	}
+	cout << '\n';
+}

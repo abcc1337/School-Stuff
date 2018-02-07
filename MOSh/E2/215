@@ -1,0 +1,59 @@
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <string>
+
+using namespace std;
+
+ifstream fin("penguins.in");
+ofstream fout("penguins.out");
+
+int t, n, k, ans;
+string s, s_ans;
+
+void solve(int ind, int col, int ch) {
+	if ((ind == n) ) {
+		if ((ch < ans) && (col <= k)) {
+			s_ans = s;
+			ans = ch;
+		}
+		return;
+	}
+	if (s[ind - 1] == s[ind]) {
+		char u = s[ind];
+		if (s[ind] == '0')
+			s[ind] = '1';
+		else
+			s[ind] = '0';
+		solve(ind + 1, col + 1, ch + 1);
+		s[ind] = u;
+		solve(ind + 1, col, ch);
+	}
+	else {
+		char u = s[ind];
+		s[ind] = s[ind - 1];
+		solve(ind + 1, col, ch + 1);
+		s[ind] = u;
+		solve(ind + 1, col + 1, ch);
+
+	}
+}
+
+int main() {
+	fin >> t;
+	for (int _ = 0; _ < t; _++) {
+		fin >> n >> k;
+		s = "";
+		fin >> s;
+		ans = n + 1;
+		s_ans = "";
+		solve(1, 1, 0);
+		if (s[0] == '0')
+			s[0] = '1';
+		else
+			s[0] = '0';
+		solve(1, 1, 1);
+		fout << s_ans << endl;
+	}
+	return 0;
+}

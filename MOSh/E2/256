@@ -1,0 +1,158 @@
+#include <fstream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <cassert>
+
+using namespace std;
+
+int solve(
+	int x0, int x1,
+	int y0, int y1,
+	vector<string>& F) {
+	int cnt = 0;
+	x0 = max(0, x0); y0 = max(0, y0);
+	for (int i = x0; i <= x1 - 1; ++i) {
+		for (int j = y0; j <= y1 - 1; ++j) {
+			char a = F[i][j], b = F[i + 1][j],
+				c = F[i][j + 1], d = F[i + 1][j + 1];
+			if (a == b && b == c && c == d) {
+				cnt++;
+			}
+		}
+	}
+	return cnt;
+}
+
+int n, m;
+
+vector<vector<int>> dp_v, dp_h;
+
+bool check(int i, int j, vector<string>& F) {
+	char a = F[i][j], b = F[i - 1][j],
+		c = F[i][j - 1], d = F[i - 1][j - 1];
+	return a == b && b == c && c == d;
+}
+
+void precalc_v(vector<string>& field) {
+	dp_v.assign(field.size(), vector<int>(field[0].size(), 0));
+	int h = field.size() / 2;
+	for (int j = 1; j < field[0].size(); ++j) {
+		for (int i = 1; i < h; ++i) {
+			dp_v[i][j] = dp_v[i - 1][j];
+			if (check(i, j, field)) ++dp_v[i][j];
+		}
+	}
+	for (int j = 1; j < field[0].size(); ++j) {
+		for (int i = h; i < 2*h; ++i) {
+			dp_v[i][j] = dp_v[i - 1][j];
+			if (check(i, j, field)) ++dp_v[i][j];
+			if (check(i - h + 1, j, field)) --dp_v[i][j];
+		}
+	}
+}
+
+void precalc_h(vector<string>& field) {
+	dp_h.assign(field.size(), vector<int>(field[0].size(), 0));
+	int w = field[0].size() / 2;
+	for (int i = 1; i < field.size(); ++i) {
+		for (int j = 1; j < w; ++j) {
+			dp_h[i][j] = dp_h[i][j-1];
+			if (check(i, j, field)) ++dp_h[i][j];
+		}
+	}
+	for (int i = 1; i < field.size(); ++i) {
+		for (int j = w; j < 2 * w; ++j) {
+			dp_h[i][j] = dp_h[i][j-1];
+			if (check(i, j, field)) ++dp_h[i][j];
+			if (check(i, j - w + 1, field)) --dp_h[i][j];
+		}
+	}
+}
+int solve_v(int x0, int x1, int y0, int y1, vector<string>& field) {
+	assert(y1 - y0 == 1);
+	return dp_v[x1][y1];
+}
+
+int solve_h(int x0, int x1, int y0, int y1, vector<string>& field) {
+	assert(x1 - x0 == 1);
+	return dp_h[x1][y1];
+}
+
+void shift_left(
+	int& x0, int& y0, int x1, int y1,
+	int& next_answer,
+	vector<string>& field) {
+	assert(y0 > 0);
+	int delta = solve_v(x0, x1, y0 - 1, y0, field);
+	delta -= solve_v(x0, x1, y1 - 1, y1, field);
+	next_answer += delta;
+	y0--;
+}
+void shift_right(
+	int& x0, int& y0, int x1, int y1,
+	int& next_answer,
+	vector<string>& field) {
+	assert(y0 < m);
+	int delta = -solve_v(x0, x1, y0, y0 + 1, field);
+	delta += solve_v(x0, x1, y1, y1 + 1, field);
+	next_answer += delta;
+	y0++;
+}
+
+void shift_up(
+	int& x0, int& y0, int x1, int y1,
+	int& next_answer,
+	vector<string>& field) {
+	assert(x0 > 0);
+	int delta = solve_h(x0 - 1, x0, y0, y1, field);
+	delta -= solve_h(x1 - 1, x1, y0, y1, field);
+	next_answer += delta;
+	x0--;
+}
+void shift_down(
+	int& x0, int& y0, int x1, int y1,
+	int& next_answer,
+	vector<string>& field) {
+	assert(x0 < n);
+	int delta = -solve_h(x0, x0 + 1, y0, y1, field);
+	delta += solve_h(x1, x1 + 1, y0, y1, field);
+	next_answer += delta;
+	x0++;
+}
+
+int main() {
+	ifstream fin("video.in");
+	ofstream fout("video.out");
+	fin >> n >> m;
+	vector<string> field(2 * n);
+	for (int i = 0; i < n; ++i) {
+		fin >> field[i];
+		field[i] += field[i];
+		field[n + i] = field[i];
+	}
+	precalc_v(field);
+	precalc_h(field);
+	int max_answer = 0, x0 = 0, y0 = 0;
+	max_answer = solve(0, n - 1, 0, m - 1, field);
+	int next_answer = max_answer;
+	for (int stage = 1; stage <= min(n, m); ++stage) {
+		for (int i = 0; i < m - stage; ++i) {
+			if (stage & 1)
+				shift_right(x0, y0, x0 + n - 1, y0 + m - 1, next_answer, field);
+			else
+				shift_left(x0, y0, x0 + n - 1, y0 + m - 1, next_answer, field);
+			max_answer = max(max_answer, next_answer);
+		}
+		for (int i = 0; i < n - stage; ++i) {
+			if (stage & 1)
+				shift_down(x0, y0, x0 + n - 1, y0 + m - 1, next_answer, field);
+			else
+				shift_up(x0, y0, x0 + n - 1, y0 + m - 1, next_answer, field);
+
+			max_answer = max(max_answer, next_answer);
+		}
+	}
+	fout << max_answer << "\n";
+	return 0;
+}

@@ -1,0 +1,33 @@
+def main():
+    fin = open('castle.in')
+    fout = open('castle.out', 'w')
+    n, s = map(int, fin.readline().split())
+    a = [0] * n
+    k = [0] * n
+    X = 0
+    Xi = [0] * n
+    OST = [0] * n
+    for i in range(n):
+        a[i], k[i] = map(int, fin.readline().split())
+        X += a[i] // k[i]
+        Xi[i] = a[i] // k[i]
+        OST[i] = a[i] % k[i]
+    if X == s:
+        fout.write(str(sum(OST)))
+    elif X < s:
+        OST.sort()
+        fout.write(str((sum(OST[:X - s]))))
+    else:
+        ans = sum(OST)
+        while X > s:
+            K = min(k)
+            i = k.index(K)
+            ans += min(X - s, Xi[i]) * K
+            X -= min(X - s, Xi[i])
+            k[i] = 10 ** 10
+        fout.write(str(ans))
+    fin.close()
+    fout.close()
+    
+    
+main()

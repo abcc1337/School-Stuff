@@ -1,0 +1,77 @@
+#include <iostream>
+#include <fstream>
+#include <set>
+#include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
+#include <cstring>
+#include <cmath>
+#include <cstdlib>
+
+#define NAME "penguins"
+
+typedef long long ll;
+typedef double ld;
+
+using namespace std;
+
+vector<pair<int, int> > vv;
+
+const int MAXN = 220000;
+
+int n, k;
+
+char s[MAXN];
+
+int dp[2][1200][1200];
+
+
+void solve() {
+	scanf("%d%d", &n, &k);
+	scanf(" %s", s);
+	int l = 0;
+	vv.clear();
+	for (int i = 0; i < n; ++i)
+		if (i == n - 1 || s[i] != s[i + 1])
+			vv.push_back(make_pair(l, i + 1)), l = i + 1;
+
+
+	for (int i = 1; i <= k; ++i)
+		dp[0][0][i] = 0, dp[1][0][i] = vv[0].second - vv[0].first;
+	for (int i = 0; i < n; ++i)
+		dp[0][i][0] = n + 1, dp[1][i][0] = n + 1;
+	n = vv.size();
+	for (int i = 1; i < n; ++i) {
+		int d = i % 2;
+		int l = vv[i].second - vv[i].first;
+		for (int j = k; j >= 1; --j) {
+			dp[d][i][j] = min(dp[d][i - 1][j], dp[d ^ 1][i - 1][j - 1]);
+			dp[d ^ 1][i][j] = min(dp[d][i - 1][j - 1], dp[d ^ 1][i - 1][j]) + l;
+		}
+	}
+	int nowk = k;
+	int now = 0;
+	if (dp[1][n - 1][nowk] < dp[0][n - 1][nowk])
+		now = 1;
+	for (int i = n - 1; i >= 0; --i) {
+		if (now != i % 2)
+			for (int j = vv[i].first; j < vv[i].second; ++j)
+				s[j] = (1 - (s[j] - '0')) + '0';
+		if (dp[now][i - 1][nowk] > dp[now ^ 1][i - 1][nowk - 1]) {
+			now ^= 1;
+			--nowk;
+		}
+	}
+	printf("%s\n", s);
+}
+
+int main() {
+	freopen(NAME ".in", "r", stdin);
+	freopen(NAME ".out", "w", stdout);
+	int t;
+	scanf("%d", &t);
+	for (int i = 0; i < t; ++i)
+		solve();
+	return 0;
+}

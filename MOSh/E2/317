@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <set>
+
+using namespace std;
+
+struct t{
+	__int64 z, q;
+};
+
+t w[100001];
+int n, f = 1;
+__int64 a, k, ans, s;
+
+int compare(const void * a, const void * b)
+{
+	t x = *(t*)a;
+	t y = *(t*)b;
+	if (y.q > x.q)
+		return 1;
+	if (y.q < x.q)
+		return -1;
+	if (y.q == x.q)
+		return 0;
+}
+
+multiset<__int64> ost, ost1;
+int main()
+{
+	freopen("castle.in", "r", stdin);
+	freopen("castle.out", "w", stdout);
+	scanf("%d%I64d", &n, &s);
+	for (int i = 0; i < n; i++)
+	{
+		scanf("%I64d%I64d", &a, &k);
+		w[i].z = a;
+		w[i].q = k;
+	}
+	qsort(w, n, sizeof(__int64) * 2, compare);
+		for (int i = 0; i < n; i++)
+		{
+			if (!ost.empty())
+			while (__min(w[i].q, w[i].z) < -*(ost.begin()) && s)
+			{
+				s--;
+				ost.erase(ost.begin());
+				if (ost.empty())
+					break;
+			}
+			s -= w[i].z / w[i].q;
+			w[i].z %= w[i].q;
+			if (s < 0)
+			{
+				w[i].z += (-s) * w[i].q;
+				s = 0;
+			}
+			if (!s)
+				ost1.insert(-w[i].z);
+			else
+				ost.insert(-w[i].z);
+		}
+	if (!ost.empty())
+		while (s)
+		{
+			s--;
+			ost.erase(ost.begin());
+			if (ost.empty())
+				break;
+		}
+	ans = 0;
+	for (auto i = ost.begin(); i != ost.end(); i++)
+		ans -= *i;
+	for (auto i = ost1.begin(); i != ost1.end(); i++)
+		ans -= *i;
+	printf("%I64d", ans);
+	return 0;
+}

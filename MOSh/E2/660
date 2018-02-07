@@ -1,0 +1,32 @@
+infile = open("twopath.in", "r")
+outfile = open("twopath.out", "w")
+n, k = list(map(int, infile.readline().split()))
+prev = list(map(int, infile.readline().split()))
+sets = [set() for i in range(k)]
+for i in range(k):
+    a, b = list(map(int, infile.readline().split()))
+    a, b = max(a, b), min(a, b)
+    while a != 1:
+        sets[i].add(a)
+        a = prev[a - 2]
+    sets[i].add(1)
+    t = True
+    while b != 1:
+        if b in sets[i] and t:
+            t = False
+        elif b in sets[i]:
+            sets[i].remove(b)
+        else:
+            sets[i].add(b)
+        b = prev[b - 2]
+mmin = 1000000
+a1 = 0
+b1 = 0
+for i in range(k):
+    for j in range(i):
+        if len(sets[i] & sets[j]) - 1 < mmin:
+            mmin = len(sets[i] & sets[j]) - 1
+            a1 = i + 1
+            b1 = j + 1
+outfile.write(str(mmin) + "\n" + str(a1) + " " + str(b1))
+

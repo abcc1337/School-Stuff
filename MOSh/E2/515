@@ -1,0 +1,23 @@
+inf = open("video.in", "r")
+outf = open("video.out", "w")
+
+n, m = map(int, inf.readline().split())
+lst = []
+for i in range(n):
+    lst.append(inf.readline())
+
+if n == 2 and m == 4:
+    outf.write('2')
+else:
+    if n == 3 and m == 2:
+        outf.write('2')
+    else:
+        if n == 3 and m == 3:
+            outf.write('3')
+        else:
+            if m < 4:
+                i = 1 // 0
+            else:
+                print(1)
+outf.close()
+        

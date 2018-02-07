@@ -1,0 +1,30 @@
+#include <stdio.h>
+
+int main()
+{
+    freopen("grants.in", "r", stdin);
+    freopen("grants.out", "w", stdout);
+
+    int t;
+    scanf("%d", &t);
+    for (int w = 0; w < t; w++) {
+        int n;
+        scanf("%d", &n);
+    //for (int n = 1; n < 1000; n++) {
+        int mx = -1, mxa, mxb, mxc;
+        for (int a = 0; a < (n / 3) + 1; a++)
+        for (int b = a; b <= a+1; b++) {
+            int c = n - a - b;
+            if (c < b)
+                continue;
+            if ((a & b & c) > mx) {
+                mx = (a & b) & c;
+                mxa = a;
+                mxb = b;
+                mxc = c;
+            }
+        }
+        printf ("%d %d %d\n", mxa, mxb, mxc);
+    }
+    return 0;
+}

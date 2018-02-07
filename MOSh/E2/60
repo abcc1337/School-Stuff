@@ -1,0 +1,75 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+string s[600];
+
+
+int main()
+{
+    ifstream cin("video.in");
+    ofstream cout("video.out");
+    int n, m;
+    cin >> n >> m;
+    for (int i = 0; i < n; i++){
+        cin >> s[i];
+    }
+
+    int ans = 0;
+    for (int i = 0; i < n - 1; i++)
+        for (int j = 0; j < m - 1; j++)
+            ans += s[i][j] == s[i + 1][j] && s[i][j] == s[i][j + 1] && s[i][j] == s[i + 1][j + 1];
+
+    for (int i = 0; i < n; i++){
+        s[i] += s[i];
+        s[i + n] = s[i];
+    }
+
+    int now = ans;
+    int ii = 0, jj = 0;
+
+    int t = 1;
+    for (int kek = 0; kek < (n + 1) * (m + 1) - 1; kek++){
+        if (t == 1 && jj != m){
+            for (int i = ii; i < ii + n - 1; i++){
+                if (t == 1){
+                    now -= s[i][jj] == s[i + 1][jj] && s[i][jj] == s[i][jj + 1] && s[i][jj] == s[i + 1][jj + 1];
+                    now += s[i][jj + m - 1] == s[i + 1][jj + m - 1] && s[i][jj + m - 1] == s[i][jj + m] && s[i][jj + m - 1] == s[i + 1][jj + m];
+                }
+            }
+            jj++;
+            ans = max(ans, now);
+            continue;
+        }
+
+        if (t == -1 && jj != 0){
+            for (int i = ii; i < ii + n - 1; i++){
+                if (t == 1){
+                    now += s[i][jj] == s[i + 1][jj - 1] && s[i][jj] == s[i][jj - 1] && s[i][jj] == s[i + 1][jj];
+                    now -= s[i][jj + m - 1] == s[i + 1][jj + m - 1] && s[i][jj + m - 1] == s[i][jj + m - 2] && s[i][jj + m - 1] == s[i + 1][jj + m - 2];
+                }
+            }
+            jj--;
+            ans = max(ans, now);
+            continue;
+        }
+
+        for (int j = jj; j < jj + m - 1; j++){
+            now += s[ii + n - 1][j] == s[ii + n][j + 1] && s[ii + n - 1][j] == s[ii + n - 1][j + 1] && s[ii + n - 1][j] == s[ii + n][j];
+            now -= s[ii][j] == s[ii + 1][j + 1] && s[ii][j] == s[ii][j + 1] && s[ii][j] == s[ii + 1][j];
+        }
+
+        if (t == 1)
+            t = -1;
+        else
+            t = 1;
+        ii++;
+        ans = max(ans, now);
+        continue;
+
+    }
+
+
+    cout << ans;
+    return 0;
+}

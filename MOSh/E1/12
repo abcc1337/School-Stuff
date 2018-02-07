@@ -1,0 +1,265 @@
+Uses
+  Math;
+Type
+  mass=array[1..500000]of int64;
+  msss=array[1..4*1000000]of int64;
+Var
+  n,m,p,i,j,tkn,tkm,mkol,mnn:longint;suma,pr,ans,r,qwe,tk:int64;
+  x,a,y,b,c:mass;
+  tmn,tmx,tmnp,tmxp:msss;
+  mt,mtb,mtc:array[1..1000000]of int64;
+  posl:array[1..10000000]of longint;
+Procedure Swap(Var a,b:int64);
+Var
+  c:int64;
+Begin
+  c:=a;
+  a:=b;
+  b:=c;
+end;
+Procedure qSort(Var m1,m2:mass;l,r:int64);
+Procedure sort(l,r:int64);
+Var
+  i,j,sr,x1,x2:int64;
+Begin
+  i:=l;j:=r;
+  sr:=i+random(j-i+1);
+  x1:=m1[sr];
+  x2:=m2[sr];
+  repeat
+    while (m1[i]<x1)or((m1[i]=x1)and(m2[i]<x2))do inc(i);
+    while (x1<m1[j])or((x1=m1[j])and(x2<m2[j]))do dec(j);
+    if i<=j then
+      begin
+        Swap(m1[i],m1[j]);
+        Swap(m2[i],m2[j]);
+        inc(i);dec(j);
+      end;
+  until i>j;
+  if i<r then
+    sort(i,r);
+  if l<j then
+    sort(l,j);
+end;
+Begin
+  sort(l,r);
+end;
+Procedure update(v,tl,tr,ps,zn1,zn2:int64);
+Var
+  tm:int64;
+Begin
+  if tl=tr then
+    begin
+      tmx[v]:=zn1;
+      tmxp[v]:=tl;
+      tmn[v]:=zn2;
+      tmnp[v]:=tl;
+    end
+  else
+    begin
+      tm:=(tl+tr)div 2;
+      if ps<=tm then
+        update(v*2,tl,tm,ps,zn1,zn2)
+      else
+        update(v*2+1,tm+1,tr,ps,zn1,zn2);
+      if tmn[v*2]<tmn[v*2+1] then
+        begin
+          tmn[v]:=tmn[v*2];
+          tmnp[v]:=tmnp[v*2];
+        end
+      else
+        begin
+          tmn[v]:=tmn[v*2+1];
+          tmnp[v]:=tmnp[v*2+1];
+        end;
+      if tmx[v*2]>tmx[v*2+1] then
+        begin
+          tmx[v]:=tmx[v*2];
+          tmxp[v]:=tmxp[v*2];
+        end
+      else
+        begin
+          tmx[v]:=tmx[v*2+1];
+          tmxp[v]:=tmxp[v*2+1];
+        end;
+    end;
+end;
+begin
+//  assign(input,'input.txt');assign(output,'output.txt');
+  assign(input,'fisher.in');assign(output,'fisher.out');
+  readln(n,m,p);
+  for i:=1 to n do
+    readln(x[i],a[i]);
+  for i:=1 to m do
+    readln(y[i],b[i],c[i]);
+  if p=0 then
+    begin
+      suma:=0;
+      for i:=1 to n do
+        inc(suma,a[i]);
+      qSort(c,b,1,m);
+      ans:=0;
+      for i:=m downto 1 do
+        begin
+          ans:=ans+min(suma,b[i])*c[i];
+          dec(suma,min(suma,b[i]));
+        end;
+      writeln(ans);
+      exit;
+    end;
+  if y[m]<x[1] then
+    begin
+      ans:=0;
+      tk:=0;
+      qSort(c,b,1,m);
+      r:=m;
+      suma:=0;
+      pr:=0;
+      for i:=1 to n do
+        begin
+          dec(tk,(x[i]-pr)*p);
+          pr:=x[i];
+          inc(suma,a[i]);
+          while (suma>0)and(r>=1)do
+            begin
+              qwe:=min(suma,b[r]);
+              inc(tk,qwe*c[r]);
+              dec(suma,qwe);
+              dec(b[r],qwe);
+              if b[r]=0 then
+                dec(r);
+            end;
+          ans:=max(ans,tk);
+          if r<1 then
+            break;
+        end;
+      writeln(ans);
+      exit;
+    end;
+  for i:=1 to 5*m do
+    begin
+      tmx[i]:=low(longint);
+      tmxp[i]:=low(longint);
+      tmn[i]:=high(longint);
+      tmnp[i]:=high(longint);
+    end;
+  tkn:=1;
+  tkm:=1;
+  for i:=1 to n+m do
+    begin
+      if (tkn<=n)and(tkm<=m) then
+        begin
+          if (x[tkn]=y[tkm])or(x[tkn]<y[tkm]) then
+            begin
+              posl[i]:=tkn;
+              inc(tkn);
+            end
+          else
+            begin
+              posl[i]:=-tkm;
+              inc(tkm);
+            end;
+        end
+      else
+        if (tkn<=n) then
+          begin
+            posl[i]:=tkn;
+            inc(tkn);
+          end
+        else
+          begin
+            posl[i]:=-tkm;
+            inc(tkm);
+          end;
+    end;
+  ans:=0;
+  pr:=0;
+  tk:=0;
+  suma:=0;
+  mkol:=0;
+  for i:=1 to n+m do
+    begin
+      if posl[i]>0 then
+        begin
+          dec(tk,(x[posl[i]]-pr)*p);
+          pr:=x[posl[i]];
+          inc(suma,a[posl[i]]);
+          while true do
+            begin
+              if (tmx[1]=low(longint))or(suma=0) then
+                break;
+              mnn:=tmxp[1];
+              qwe:=min(suma,mtb[mnn]);
+              inc(tk,qwe*mtc[mnn]);
+              dec(suma,qwe);
+              dec(mtb[mnn],qwe);
+              if mtb[mnn]=0 then
+                update(1,1,m,mnn,low(longint),mtc[mnn]);
+              if suma=0 then
+                break;
+            end;
+        end
+      else
+        begin
+          dec(tk,(y[-posl[i]]-pr)*p);
+          pr:=y[-posl[i]];
+          inc(mkol);
+          mtb[mkol]:=b[-posl[i]];
+          mtc[mkol]:=c[-posl[i]];
+          if suma<>0 then
+            begin
+              qwe:=min(mtb[mkol],suma);
+              dec(suma,qwe);
+              inc(tk,qwe*mtc[mkol]);
+              dec(mtb[mkol],qwe);
+            end;
+          if mtb[mkol]=0 then
+            update(1,1,m,-posl[i],low(longint),mtc[mkol])
+          else
+            while true do
+              if tmn[1]=high(longint) then
+                if mtb[mkol]=0 then
+                  begin
+                    update(1,1,m,-posl[i],low(longint),mtc[mkol]);
+                    break;
+                  end
+                else
+                  begin
+                    update(1,1,m,-posl[i],mtc[mkol],mtc[mkol]);
+                    break;
+                  end
+              else
+                begin
+                  mnn:=tmnp[1];
+                  if mtc[mnn]<mtc[mkol] then
+                    begin
+                      qwe:=min(mtb[mkol],b[mnn]-mtb[mnn]);
+                      inc(mtb[mnn],qwe);
+                      dec(mtb[mkol],qwe);
+                      dec(tk,qwe*mtc[mnn]);
+                      inc(tk,qwe*mtc[mkol]);
+                      if mtb[mnn]=b[mnn] then
+                        update(1,1,m,mnn,mtc[mnn],high(longint))
+                      else
+                        begin
+                          update(1,1,m,-posl[i],low(longint),mtc[mkol]);
+                          break;
+                        end;
+                    end
+                  else
+                    begin
+                      if mtb[mkol]=0 then
+                        update(1,1,m,-posl[i],low(longint),mtc[mkol])
+                      else
+                        if mtb[mkol]=b[mkol] then
+                          update(1,1,m,-posl[i],mtc[mkol],high(longint))
+                        else
+                          update(1,1,m,-posl[i],mtc[mkol],mtc[mkol]);
+                      break;
+                    end;
+                end;
+        end;
+      ans:=max(ans,tk);
+    end;
+  writeln(ans);
+end.

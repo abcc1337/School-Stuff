@@ -1,0 +1,93 @@
+
+#include <iostream>
+#include <stdio.h>
+#include <algorithm>
+#include <vector>
+#include <set>
+#include <map>
+#include <queue>
+#include <cmath>
+#include <cassert>
+#include <stdlib.h>
+#include <ctime>
+#define mp make_pair
+#define pb push_back
+#define NAME "submarine"
+ 
+using namespace std;
+ 
+typedef long long ll;
+typedef long double ld;
+ 
+const int nmax = 3002;
+const int inf = 1000 * 1000 * 1000;
+const ll infll = 1000ll * 1000ll * 1000 * 1000 * 1000 * 1000;
+const ld pi = acos(-1.0);
+ 
+int a[nmax][nmax], answer = -inf, up[nmax][nmax], down[nmax][nmax];
+string s;
+ 
+int geta(int x1, int y1, int x2, int y2)
+{
+    if (x1 > x2)
+        return 0;
+    if (y1 > y2)
+        return 0;
+    return (a[y2 + 1][x2 + 1] - a[y1][x2 + 1] - a[y2 + 1][x1] + a[y1][x1]);
+}
+ 
+int get(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
+{
+    return (geta(x1, y1, x2, y1) + geta(x3, y1 + 1, x3, y2) + geta(x4, y1 + 1, x4, y4) + geta(x4, y3, x4, y1 - 1));
+}
+ 
+int forc, n, m, eq[nmax];
+ 
+int main()
+{
+    freopen(NAME".in", "r", stdin);freopen(NAME".out", "w", stdout);
+    cin >> forc;
+    for (int i = 0; i < forc; i++)
+        cin >> eq[i];
+    cin >> n >> m;
+    getline(cin, s);
+    for (int i = 0; i < n; i++)
+    {
+        getline(cin, s);
+        for (int j = 0; j < m; j++)
+            a[n - i][j + 1] = eq[(int)(s[j] - 'a')];
+    }
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= m; j++)
+            a[i][j] += a[i][j - 1] + a[i - 1][j] - a[i - 1][j - 1];
+    for (int x = 0; x < m; x++)
+        for (int y = 0; y < n; y++)
+        {
+            up[x][y] = y;
+            for (int y1 = y + 1; y1 < n; y1++)
+                if (geta(x, y + 1, x, y1) > geta(x, y + 1, x, up[x][y]))
+                    up[x][y] = y1;
+            down[x][y] = y;
+            for (int y1 = y - 1; y1 >= 0; y1--) 
+                if (geta(x, y1, x, y - 1) > geta(x, down[x][y], x, y - 1))
+                    down[x][y] = y1;
+        }
+	for (int y1 = 0; y1 < n; y1++)
+	   	for (int x1 = 0; x1 < m; x1++)
+		{
+			int x3 = x1;
+            for (int x4 = x1 + 1; x4 < m; x4++)
+			{
+                for (int x2 = x4; x2 < m; x2++)
+                {
+                       int y2 = up[x3][y1];
+                       int y4 = up[x4][y1];
+                       int y3 = down[x4][y1];
+                       answer = max(answer, get(x1, y1, x2, y2, x3, y3, x4, y4)); 
+                }
+				if (geta(x3, y1 + 1, x3, up[x3][y1]) < geta(x4, y1 + 1, x4, up[x4][y1]))
+					x3 = x4;
+			}
+		}
+    cout << answer << endl;
+}

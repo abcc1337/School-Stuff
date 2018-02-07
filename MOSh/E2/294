@@ -1,0 +1,100 @@
+#include <iostream>
+#include <unordered_map>
+#include <algorithm>
+#define MAXN 10000
+#define ll long long
+#define MOD ((ll)1e9 + 7)
+#define INF 1e18
+using namespace std;
+
+ll s[MAXN], d[MAXN], cost, cur[MAXN], l, p[MAXN], m, n, L;
+ll h[MAXN];
+unordered_map<ll, ll> dict[MAXN];
+char c;
+
+ll getH(ll l, ll r)//[l;r]
+{
+	if (l == 0)
+		return h[r];
+	return (h[r] - ((h[l - 1] * p[r - l + 1] + MOD) % MOD) + MOD) % MOD;
+}
+
+int main()
+{
+	freopen("typing.in", "r", stdin);
+	freopen("typing.out", "w", stdout);
+	p[0] = 1;
+	p[1] = 179;
+	for (ll i = 2; i < MAXN; i++)
+		p[i] = (p[i - 1] * p[1] + MOD) % MOD;
+	cin >> m >> n >> L;
+	for (ll i = 0; i < m; i++)
+	{
+		cin >> c;
+		s[i] = (c == '1');
+	}
+	for (ll i = 0; i < n; i++)
+	{
+		l = 0;
+		cin >> cost;
+		c = getc(stdin);
+		while (1)
+		{
+			c = getc(stdin);
+			if (c != '0' && c != '1')
+				break;
+			cur[l++] = (c == '1');
+		}
+		h[0] = cur[0];
+		for (ll i = 1; i < l; i++)
+		{
+			h[i] = (h[i - 1] * p[1] + cur[i]) % MOD;
+		}
+		for (ll j = 0; j < l; j++)
+		{
+			ll o = getH(0, j);
+			if (dict[j + 1].find(o) != dict[j + 1].end())
+				dict[j + 1][o] = min(cost, dict[j + 1][o]);
+			else
+				dict[j + 1][o] = cost;
+		}
+		for (ll i = 0; i < l; i++)
+		{
+		    ll o = getH(i, l - 1);
+			if (dict[l - i].find(o) != dict[l - i].end())
+				dict[l - i][o] = min(cost, dict[l - i][o]);
+			else
+				dict[l - i][o] = cost;
+		}
+	}
+//    for (int i = 0; i < MAXN; i++) if (dict[i].size() != 0)
+//    {
+//        cerr << "Len: " << i << '\n';
+//        for (auto j : dict[i])
+//            cerr << j.first << ' ' << j.second << '\n';
+//    }
+	h[0] = s[0];
+	for (ll i = 1; i < m; i++)
+	{
+		h[i] = (h[i - 1] * p[1] + s[i]) % MOD;
+	}
+	for (ll i = 0; i < m; i++)
+		d[i] = INF;
+	ll cs = 0;
+	for (ll i = 0; i < m; i++)
+	{
+		if (i)
+			cs = d[i - 1];
+		for (ll j = i; j < m; j++) if (dict[j - i + 1].size() != 0)
+		{
+			ll ch = getH(i, j);
+			if (dict[j - i + 1].find(ch) != dict[j - i + 1].end())
+				d[j] = min(d[j], cs + dict[j - i + 1][ch]);
+		}
+	}
+	if (d[m - 1] == INF)
+		d[m - 1] = -1;
+	cout << d[m - 1] << '\n';
+	cerr << d[m - 1] << '\n';
+	return 0;
+}

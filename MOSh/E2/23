@@ -1,0 +1,159 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+char pole[1001][1001];
+
+vector<int> rob_in_cycle;
+vector<vector<int> > color;
+vector<vector<int> > depth;
+vector<vector<pair<int, int> > > next_;
+vector<int> size_cycle;
+
+/*void print(vector<vector<int> > cl)
+{
+    for (int i = 0; i < cl.size(); ++i)
+    {
+        for (int j = 0; j < cl[i].size(); ++j)
+        {
+            cout << cl[i][j] << " ";
+        }
+        cout << endl;
+    }
+    cout << endl;
+}*/
+
+void dich(int a, int b, int c)
+{
+    if (a > 10 || b > 10)
+    {
+        cout << "kek";
+        exit(0);
+    }
+}
+
+void fil(vector<pair<int, int> > w, int cm)
+{
+    for (int i = 0; i < w.size(); ++i)
+    {
+        int xa = w[i].first;
+        int ya = w[i].second;
+        color[xa][ya] = cm;
+    }
+}
+
+void dfs(int x, int y, int c, int d, vector<pair<int, int> > way)
+{
+    vector<pair<int, int> > way2 = way;
+    way2.push_back(make_pair(x, y));
+    depth[x][y] = d;
+    color[x][y] = c;
+    pair<int, int> v = next_[x][y];
+    int vx = v.first; int vy = v.second;
+    if (color[vx][vy] == 1000000000)
+    {
+        dfs(vx, vy, c, d + 1, way2);
+    }
+    else if(color[vx][vy] == c)
+    {
+        size_cycle[c] = depth[x][y] - depth[vx][vy] + 1;
+    }
+    fil(way2, color[vx][vy]);
+
+}
+
+
+int main()
+{
+    freopen("robots.in", "r", stdin);
+    freopen("robots.out", "w", stdout);
+    int n, m, g;
+    cin >> n >> m >> g;
+    rob_in_cycle.assign(n * m + 1, 0);
+    next_.resize(n);
+    size_cycle.assign(n * m + 1, 0);
+    color.resize(n);
+    depth.resize(n);
+    for (int i = 0; i < n; ++i)
+    {
+        color[i].assign(m, 1000000000);
+        next_[i].resize(m);
+        depth[i].assign(m, 0);
+        for(int j = 0 ; j < m; ++j)
+        {
+            cin >> pole[i][j];
+            if (pole[i][j] == '\n')
+            {
+                cout << "kek";
+                return 0;
+            }
+            if ((pole[i][j] == 'w') || (pole[i][j] == 'W'))
+            {
+                next_[i][j] = make_pair(i, j - 1);
+            }
+            if ((pole[i][j] == 'e') || (pole[i][j] == 'E'))
+            {
+                next_[i][j] = make_pair(i, j + 1);
+            }
+            if ((pole[i][j] == 'n') || (pole[i][j] == 'N'))
+            {
+                next_[i][j] = make_pair(i - 1, j);
+            }
+            if ((pole[i][j] == 's') || (pole[i][j] == 'S'))
+            {
+                next_[i][j] = make_pair(i + 1, j);
+            }
+            //cerr << "(" << next_[i][j].first << " " << next_[i][j].second << ") ";
+            //cerr << pole[i][j] << " ";
+        }
+        //cin >> trash;
+        //cerr << endl;
+    }
+    int curr_color = 0;
+    //print(color);
+    vector<pair<int, int> > emp;
+    for (int i = 0; i < n; ++i)
+    {
+        for (int j = 0; j < m; ++j)
+        {
+            if (color[i][j] == 1000000000)
+            {
+                dfs(i, j, curr_color, 0, emp);
+                dich(n, m, g);
+                //print(color);
+                curr_color++;
+            }
+            //cout << color[i][j] << " ";
+        }
+        //cout << endl;
+    }
+    /*for (int i = 0; i < n * m; ++i)
+    {
+        if (size_cycle[i] != 0)
+        {
+            cout << i << " - " << size_cycle[i] << endl;
+        }
+    }/**/
+    for (int i = 0; i < n ; ++i)
+    {
+        for (int j = 0; j < m; ++j)
+        {
+            if ((pole[i][j] == 'E') || (pole[i][j] == 'W') || (pole[i][j] == 'N') || (pole[i][j] == 'S'))
+            {
+                //cerr << i << " " << j << " " << color[i][j] << endl;
+                rob_in_cycle[color[i][j]]++;
+            }
+        }
+    }
+    int ans = 0, md;
+    for (int i = 0; i < (n * m); ++i)
+    {
+        //cerr << i << endl;fil(way, color[vx][vy]);
+        md = rob_in_cycle[i];
+        //if (size_cycle[i] != 0)
+            //cerr << min(size_cycle[i], m) << endl;
+        ans += min(size_cycle[i], md);
+    }
+    cout << ans;
+    return 0;
+}

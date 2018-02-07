@@ -1,0 +1,104 @@
+#include <iostream>
+#include <algorithm>
+#include <set>
+#include <vector>
+#define ll long long
+using namespace std;
+int cycle;
+vector<vector<int> > dir, rob, u;
+vector<vector<int> > p;
+struct pnt {
+	int x, y;
+	pnt(int x, int y) {
+		this->x = x;
+		this->y = y;
+	}
+	void move() {
+		int tox = x, toy = y;
+		if (dir[x][y] == 1) tox--;
+		if (dir[x][y] == 2) toy--;
+		if (dir[x][y] == 3) tox++;
+		if (dir[x][y] == 4) toy++;
+		x = tox, y = toy;
+	}
+	void move1() {
+		int tox = x, toy = y;
+		if (dir[x][y] == 3) tox--;
+		if (dir[x][y] == 4) toy--;
+		if (dir[x][y] == 1) tox++;
+		if (dir[x][y] == 2) toy++;
+		x = tox, y = toy;
+	}
+};
+vector<pair<int, int>> c;
+int n, m, g;
+void dfs(pnt a) {
+	u[a.x][a.y] = 1;
+	pnt s = a;
+	a.move();
+	int k1 = 1, k2 = 0;
+	if (u[a.x][a.y] == 2) {
+		int t = p[a.x][a.y];
+		c[t].first += rob[s.x][s.y];
+		u[s.x][s.y] = 2;
+		return;
+	}
+	while (!u[a.x][a.y]) {
+		u[a.x][a.y] = 1;
+		k1 += rob[a.x][a.y];
+		a.move();
+	}
+	int fl = 0;
+	if (u[a.x][a.y] == 1) {
+		pnt b = a;
+		b.move();
+		cycle++;
+		p[a.x][a.y] = cycle-1;
+		c.resize(cycle);
+		k2 = 1;
+		while (b.x != a.x || b.y != a.y) {
+			k2++;
+			p[b.x][b.y] = cycle-1;
+			b.move();
+		}
+		c.back().first = min(k1, k2);
+		c.back().second = k2;
+	}
+	
+	while (u[s.x][s.y] == 1) {
+		u[s.x][s.y] = 2;
+		p[s.x][s.y] = cycle-1;
+		s.move();
+	}
+}
+int main() {
+	freopen("robots.in", "r", stdin);
+	freopen("robots.out", "w", stdout);
+	cin >> n >> m >> g;
+	p.resize(m, vector<int>(n, -1));
+	dir.resize(m, vector<int>(n));
+	rob.resize(m, vector<int>(n)); 
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < m; j++){
+			char c;
+			cin >> c;
+			if (c >= 'A' && c <= 'Z')
+			rob[j][i] = 1;
+			c = toupper(c);
+			if (c == 'E') dir[j][i] = 3;
+			if (c == 'N') dir[j][i] = 2;
+			if (c == 'S') dir[j][i] = 4;
+			if (c == 'W') dir[j][i] = 1;
+		}
+	u.resize(m, vector<int>(n));
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < m; j++) {
+			pnt a = pnt(j, i);
+			if ((!u[j][i]) && rob[j][i])
+				dfs(a);
+		}
+	int ans = 0;
+	for (int i = 0; i < c.size(); i++)
+		ans += min(c[i].first, c[i].second);
+	cout << ans << endl;
+}

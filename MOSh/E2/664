@@ -1,0 +1,48 @@
+program Project2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils,
+  Math;
+
+var a:array[1..300000]of longint;u:array[1..5000,1..5000]of longint;i,l,r,c,n,q,j:longint;s:string;
+procedure ds;
+var i,j:longint;ans:int64;bool:boolean;
+begin
+  for i:=1 to n do
+  begin
+    j:=0;
+    bool:=true;
+    while bool do
+    begin
+      if a[i+j]=0 then bool:=false else u[i,j+1]:=1;
+      inc(j);
+    end;
+  end;
+  ans:=0;
+  for i:=1 to n do
+    for j:=1 to n do
+      inc(ans,u[i,j]);
+  writeln(ans);
+end;
+begin
+  assign(input,'lamps.in');
+  assign(output,'lamps.out');//}
+  readln(n,q);
+  readln(s);
+  for i:=1 to n do
+    a[i]:=strtoint(s[i]);
+  for i:=1 to n do
+    for j:=1 to n do
+      u[i,j]:=0;
+  a[n+1]:=0;
+  ds;
+  for i:=1 to q do
+  begin
+    read(l,r,c);
+    for j:=l to r do a[j]:=c;
+    ds;
+  end;
+  readln;readln;
+end.

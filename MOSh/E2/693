@@ -1,0 +1,73 @@
+x1, y1, x2, y2 = 0,0,0,0
+cou = 0
+
+def inp(i, j):
+     if x1<=i<=x2 and y1<=j<=x2:
+          return True
+     return False
+
+def dfs(i,j, fun):
+     global color, cou
+     fun1 = inp(i,j)
+     if fun1 and fun1 != fun:
+          cou+=1
+     color[(i, j)] = False
+     for x, y in de[(i, j)]:
+          if color[(x,y)]:
+               dfs(x, y, fun1)
+
+fi = open ("repair.in", "r")
+fo = open ("repair.out", "w")
+a, b =  map(int, fi.readline().strip().split())
+n, q = map(int, fi.readline().strip().split())
+de = {}
+se = set()
+for i in range(n-1):
+     fl1 = False
+     fl2 = False
+     s, x, y = fi.readline().strip().split()
+     x = int(x)
+     y = int(y)
+     
+     if s == 'v':
+          if (x, y) not in se:
+               se.add((x,y))
+               fl1 = True
+          if (x, y+1) not in se:
+               se.add((x, y+1))
+               fl2 = True
+          if fl1:
+               de[(x,y)] = [(x, y+1)]
+          else:
+               de[(x, y)].append((x, y+1))
+          if fl2:
+               de[(x, y+1)] = [(x,y)]
+          else:
+               de[(x, y+1)].append((x,y))
+     else:
+          if (x, y) not in se:
+               se.add((x,y))
+               fl1 = True
+          if (x+1, y) not in se:
+               se.add((x+1, y))
+               fl2 = True
+          if fl1:
+               de[(x,y)] = [(x+1, y)]
+          else:
+               de[(x, y)].append((x+1, y))
+          if fl2:
+               de[(x+1, y)] = [(x,y)]
+          else:
+               de[(x+1, y)].append((x,y))
+          
+
+for i in range(q):
+     color = {}
+     for x1, y1 in se:
+          color[(x1, y1)] = True     
+     x1, y1, x2, y2 = map(int, fi.readline().strip().split())
+     cou = 0
+     dfs(x, y, False)
+     print(cou, file = fo)
+fo.close()
+fi.close()

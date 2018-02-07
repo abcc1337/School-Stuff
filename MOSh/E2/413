@@ -1,0 +1,98 @@
+#include <iostream>
+#include <vector>
+#include <map>
+#include <set>
+#include <cstdio>
+//#define int long long int
+
+
+using namespace std;
+
+vector<vector<vector<int> > > D;
+vector<vector<vector<int> > > p;
+vector<int> A;
+
+
+main()
+{
+    freopen("penguins.in", "r", stdin);
+    freopen("penguins.out", "w", stdout);
+    int T;
+    scanf("%d\n", &T);
+    for(int qq = 0; qq < T; ++ qq)
+    {
+        int N, K;
+        scanf("%d %d\n", &N, &K);
+        A.resize(N);
+        for(int i = N-1; i >= 0; -- i)
+        {
+            char cc;
+            scanf("%c", &cc);
+            A[i] = cc - '0';
+        }
+        //vector<vector<int> > best(K, vector<int>(2));
+        int inf = 1e9;
+        D.assign(2, vector<vector<int> > (K, vector<int>(2, inf)));
+        p.assign(N, vector<vector<int> > (K, vector<int>(2, inf)));
+        D[0][0][0] = A[0];
+        D[0][0][1] = !A[0];
+        for(int i = 1; i < N; ++ i)
+        {
+            int k = 0;
+            for(int color = 0; color < 2; ++ color)
+            {
+                D[i%2][k][color] = D[(i-1)%2][k][color] + (A[i]!=color);
+                p[i][k][color] = k;
+                //cout<<D[i][k][color]<<' ';
+            }
+            //cout<<' ';
+            for(int k = 1; k < K; ++ k)
+            {
+                for(int color = 0; color < 2; ++ color)
+                {
+                    D[i%2][k][color] = D[(i-1)%2][k][color] + (A[i]!=color);
+                    p[i][k][color] = k;
+                    int res =  D[(i-1)%2][k-1][1^color] + (A[i]!=color);
+                    if (D[i%2][k][color] > res)
+                    {
+                        D[i%2][k][color] = res;
+                        p[i][k][color] = k-1;
+                    }
+                    //cout<<D[i][k][color]<<' ';
+                }
+                //cout<<' ';
+            }
+            //cout<<endl;
+        }
+        int minn = inf;
+        int bestk = 0;
+        int bestcolor = 0;
+        for(int k = 0; k < K; ++ k)
+        {
+            for(int color = 0; color < 2; ++ color)
+            {
+                if (minn > D[(N-1)%2][k][color])
+                {
+                    minn = D[(N-1)%2][k][color];
+                    bestk = k;
+                    bestcolor = color;
+                }
+            }
+        }
+        //cout<<minn<<endl;
+        //cout<<bestk<<' '<<bestcolor<<endl;
+        int k = bestk;
+        int color = bestcolor;
+        for(int i = N-1; i >= 0; --i)
+        {
+            printf("%d", color);
+            int newk = p[i][k][color];
+            if (newk != k)
+            {
+                color = 1^color;
+            }
+            k = newk;
+        }
+        printf("\n");
+    }
+}

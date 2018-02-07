@@ -1,0 +1,205 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <set>
+#include <map>
+#include <unordered_map>
+#include <cmath>
+#include <string>
+#include <cstring>
+#include <algorithm>
+#include <ctime>
+#include <cassert>
+#include <tuple>
+#include <bitset>
+#define mp make_pair
+#define pb push_back
+#define NAME "fisher"
+#define mt make_tuple
+#define y1 y1_123
+
+using namespace std;
+
+typedef long long ll;
+typedef long double ld;
+
+const int nmax = 500 * 1000 + 100;
+const ld pi = acos(-1.0);
+const int mod = 1000 * 1000 * 1000 + 7;
+const int inf = 1000 * 1000 * 1000;
+const ll infl = 1000ll * 1000 * 1000 * 1000 * 1000 * 1000;
+
+inline ll rnd() {
+	return rand();
+	return ((ll)rand() * RAND_MAX + rand()) & ((1 << 30) - 1);
+}
+
+struct node {
+	ll sum, c, cnt, cost, y;
+	int l, r;
+	node() {
+		sum = 0;
+		y = rnd();
+		cost = cnt = c = 0;
+		l = r = -1;
+	}
+};
+
+int n, m, top;
+ll p;
+ll x1[nmax], y1[nmax], x2[nmax], c2[nmax], c1[nmax];
+node a[nmax];
+vector<ll> x;
+vector<pair<int, int> > ev[nmax];
+
+inline ll gsum(int i) {
+	return (i == -1 ? 0 : a[i].sum);
+}
+
+inline ll gcnt(int i) {
+	return (i == -1 ? 0 : a[i].cnt);
+}
+
+inline ll gcost(int i) {
+	return (i == -1 ? 0 : a[i].cost);
+}
+
+inline ll gc(int i) {
+	return (i == -1 ? 0 : a[i].c);
+}
+
+inline void refr(int i) {
+	if (i == -1) {
+		return;
+	}
+	a[i].sum = gsum(a[i].l) + gsum(a[i].r) + a[i].cost * a[i].c;
+	a[i].cnt = gcnt(a[i].l) + gcnt(a[i].r) + a[i].c;
+}
+
+void split(int root, int &l1, int &r1, ll c) {
+	if (root == -1) {
+		l1 = r1 = -1;
+		return;
+	}
+	if (a[root].cost >= c) {
+		l1 = root;
+		split(a[root].r, a[root].r, r1, c);
+	} else {
+		r1 = root;
+		split(a[root].l, l1, a[root].l, c);
+	}
+	refr(l1);
+	refr(r1);
+}
+
+void split1(int root, int &l1, int &r1, ll c) {
+	if (root == -1) {
+		l1 = r1 = -1;
+		return;
+	}
+	//cerr << "hey " << gcnt(a[root].l) << " " << a[root].c << " " << c << endl;
+	if (gcnt(a[root].l) + a[root].c > c) {
+		r1 = root;
+		split1(a[root].l, l1, a[root].l, c);
+	} else {
+		l1 = root;
+		split1(a[root].r, a[root].r, r1, c - gcnt(a[root].l) - a[root].c);
+	}
+	refr(l1);
+	refr(r1);
+}
+
+ll lefta(int root, ll cc) {
+	if (root == -1) {
+		return 0;
+	}
+	while (a[root].l != -1) {
+		root = a[root].l;
+	}
+	assert(a[root].c >= cc);
+	return a[root].cost * cc;
+}
+
+int merge(int l1, int r1) {
+	if (l1 == -1) {
+		return r1;
+	} else if (r1 == -1) {
+		return l1;
+	}
+	if (a[l1].y > a[r1].y) {
+		a[l1].r = merge(a[l1].r, r1);
+		refr(l1);
+		refr(r1);
+		return l1;
+	} else {
+		a[r1].l = merge(l1, a[r1].l);
+		refr(r1);
+		refr(l1);
+		return r1;
+	}
+}
+
+void write(int root) {
+	if (root == -1) {
+		return;
+	}
+	write(a[root].l);
+	cerr << a[root].c << " " << a[root].cost << endl;
+	write(a[root].r);
+}
+
+int main() {
+	freopen(NAME".in", "r", stdin); freopen(NAME".out", "w", stdout);
+	cin >> n >> m >> p;
+	for (int i = 0; i < n; i++) {
+		scanf("%lld%lld", &x1[i], &y1[i]);
+		x.pb(x1[i]);
+	}
+	for (int i = 0; i < m; i++) {
+		scanf("%lld%lld%lld", &x2[i], &c1[i], &c2[i]);
+		x.pb(x2[i]);
+	}
+	sort(x.begin(), x.end());
+	x.resize(unique(x.begin(), x.end()) - x.begin());
+	for (int i = 0; i < n; i++) {
+		x1[i] = lower_bound(x.begin(), x.end(), x1[i]) - x.begin();
+		ev[x1[i]].pb(mp(1, i));
+	}
+	for (int i = 0; i < m; i++) {
+		x2[i] = lower_bound(x.begin(), x.end(), x2[i]) - x.begin();
+		ev[x2[i]].pb(mp(2, i));
+	}
+	ll answer = 0;
+	int root = -1;
+	ll now = 0;
+	int top = 0;
+	for (int i = 0; i < (int)x.size(); i++) {
+		//cerr << "MOMENT " << x[i] << endl;
+		for (auto v : ev[i]) {
+			if (v.first == 1) {
+				now += y1[v.second];
+			} else {
+				a[top].sum = c1[v.second] * c2[v.second];
+				a[top].c = a[top].cnt = c1[v.second];
+				a[top].cost = c2[v.second];
+				
+				int l1, r1;
+				split(root, l1, r1, c2[v.second]);
+				root = merge(l1, top);
+				root = merge(root, r1);
+				top++;
+			}
+		}
+		//cerr << "now = " << now << endl;
+		//cerr << "WRITE!!!" << endl;
+		//write(root);
+		int l1, r1;
+		split1(root, l1, r1, now);
+		//cerr << "l1 r1 = " << l1 << " " << r1 << endl;
+		ll ansa = lefta(r1, now - gcnt(l1));
+		//cerr << "ansa = " << ansa << " " << gsum(l1) << endl;
+		answer = max(answer, ansa + gsum(l1) - p * x[i]);
+		root = merge(l1, r1);
+	}
+	cout << answer << endl;
+}

@@ -1,0 +1,46 @@
+def number(a, b, n):
+    return (b - 1) * n + a - 1
+
+def numberb(a, n):
+    return (a % n + 1, a // n + 1)
+
+def dfs(u):
+    global used, g, x1, y1, x2, y2
+    used[u] = True
+    for v in g[u]:
+        t = numberb(v, a)
+        if t[0] >= x1 and t[0] <= x2 and t[1] >= y1 and t[1] <= y2:
+            if not used[v]:
+                dfs(v)
+f = open('input.txt', 'r')
+x = f.readlines()
+f.close()
+f = open('output.txt', 'w')
+a, b = map(int, x[0].split())
+n, q = map(int, x[1].split())
+g = [[] for i in range(a * b)]
+for i in range(n - 1):
+    s = str(x[i + 2])
+    w1 = s[0]
+    w2 = int(s[2])
+    w3 = int(s[4])
+    if w1 == 'h':
+        t1 = number(w2, w3, a)
+        t2 = t1 + 1
+    else:
+        t1 = number(w2, w3, a)
+        t2 = t1 + a
+    g[t1].append(t2)
+    g[t2].append(t1)
+for i in range(q):
+    x1, y1, x2, y2 = map(int, x[n + 1 + i].split())
+    ncomp = 0
+    used = [False] * (a * b)
+    for l in range(y1, y2 + 1):
+        for m in range(x1, x2 + 1):
+            s = number(m, l, a)
+            if len(g[s]) != 0 and not used[s]:
+                ncomp += 1
+                dfs(s)
+    f.write(str(ncomp) + '\n')
+f.close()

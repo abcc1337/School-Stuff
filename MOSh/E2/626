@@ -1,0 +1,32 @@
+fin = open('lamps.in', 'r')
+fout = open('lamps.out', 'w')
+a, b = [int(x) for x in fin.readline().split()]
+line = fin.readline()
+line = [i for i in line]
+mat = [[False for i in range(a)] for j in range(a)]
+for i in range(a):
+    for j in range(i, a):
+        if line[i:j + 1] == ['1'] * (j + 1 - i):
+            mat[i][j] = True
+c = 0
+for i in mat:
+    for j in i:
+        if j:
+            c += 1    
+print(c, file = fout)
+for k in range(b):
+    cur = fin.readline().split()
+    for j in range(int(cur[0]) - 1, int(cur[1])):
+        line[j] = cur[2]
+    for i in range(a):
+        for j in range(i, a):
+            if line[i:j + 1] == ['1'] * (j + 1 - i):
+                mat[i][j] = True  
+    c = 0
+    for i in mat:
+        for j in i:
+            if j:
+                c += 1    
+    print(c, file = fout)
+fin.close()
+fout.clse()

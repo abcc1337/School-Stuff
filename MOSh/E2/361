@@ -1,0 +1,204 @@
+#include <iostream>
+#include <algorithm>
+#include <map>
+using namespace std;
+#define ll long long
+#pragma comment(linker, "/STACK:536870911")
+const int maxn = 1000001;
+const int maxseg = 131072;
+const ll inf = 2352453451;
+
+int seg[2 * maxseg];
+
+void incc(int v, int l, int r, int L, int R)
+{
+	if ((R < l) || (r < L))
+		return;
+	if ((L >= l) && (R <= r))
+	{
+		++seg[v];
+		return;
+	}
+	incc(v * 2, l, r, L, (L + R) / 2);
+	incc(v * 2 + 1, l, r, (L + R) / 2 + 1, R);
+}
+
+void inc(int l, int r)
+{
+	incc(1, l, r, 0, maxseg - 1);
+	return;
+}
+
+int zn(int n)
+{
+	int ans = 0;
+	n += maxseg;
+	while (n != 0)
+	{
+		ans += seg[n];
+		n /= 2;
+	}
+	return ans;
+}
+
+int main()
+{
+	//freopen("monument.in", "r", stdin);
+	//freopen("monument.out", "w", stdout);
+	int y1[maxn], y2[maxn], n, k, x, y, prex, prey, zzn[maxn], maxx, ans, xf, yf;
+	cin >> n >> k;
+	prex = -1;
+	prey = -1;
+	for (int i = 0; i < maxn; ++i)
+	{
+		y1[i] = inf;
+		y2[i] = inf;
+	}
+	for (int i = 0; i <= n; ++i)
+	{
+		if (i != n)
+			cin >> x >> y;
+		else
+			x = xf, y = yf;
+		if (i == 0)
+		{
+			prex = x;
+			xf = x;
+			prey = y;
+			yf = y;
+			continue;
+		}
+		if ((prex == x) && (prey < y))
+			for (int i = prey + 1; i <= y; ++i)
+				y2[i] = x;
+		if ((prex == x) && (prey > y))
+			for (int i = prey; i > y; --i)
+				y1[i] = x;
+		prex = x;
+		prey = y;
+	}
+	ans = 0;
+	int len, mod, sdv, k1, k2, nummm, y1s, y2s;
+	for (int i = 0; i < maxn; ++i)
+		if (y1[i] != y2[i])
+		{
+			nummm = i;
+			y1s = y1[i];
+			break;
+		}
+	for (int i = 0; i < n; ++i)
+		y1[i] = y1[nummm + i] - y1s, y2[i] = y2[nummm + i] - y1s;
+	ll ansr = inf;
+	for (int i = 0; i < k; ++i)
+	{
+		for (int j = 0; j < maxn; ++j)
+		{
+			if (y1[j] == y2[j])
+				break;
+			k1 = i + y1[j] - j % k;
+			k2 = i + y2[j] - j % k;
+			sdv = (k * inf - k1) % k;
+			mod = (k2 + k * inf) % k;
+			ans += (k2 - k1 - sdv - mod) / k + (bool)sdv + (bool)mod;
+		}
+		ansr = min((ll)ans, ansr);
+		ans = 0;
+	}
+	cout << ansr;
+	/*
+	for (int i = 0; i < maxn; ++i)
+	{
+		if (y1[i] == y2[i])
+			break;
+		len = y2[i] - y1[i];
+		ans += len / k + 1;
+		if (len % k > 0)
+			++ans;
+		mod = len % k;
+		sdv = i % k;
+		k1 = (y1[i] + sdv) % k;
+		k2 = k1 + (k - mod);
+		k2 %= k;
+		if (k1 <= k2)
+			inc(k1, k2);
+		else
+			inc(0, k2), inc(k1, k - 1);
+ 	}
+	for (int i = 0; i < k; ++i)
+		zzn[i] = zn(i);
+	maxx = 0;
+	for (int i = 0; i < k; ++i)
+		if (maxx < zzn[i])
+			maxx = zzn[i];
+	cout << ans - maxx;*/
+	return 0;
+}
+/*
+12 3
+2 3
+1 3
+1 2
+3 2
+3 1
+8 1
+8 2
+10 2
+10 3
+8 3
+8 4
+2 4
+
+4 2
+0 0
+2 0
+2 2
+0 2
+
+12 3
+0 0
+3 0
+3 1
+5 1
+5 2
+6 2
+6 3
+0 3
+0 2
+-1 2
+-1 1
+0 1
+
+8 4
+1 0
+5 0
+5 2
+4 2
+4 3
+2 3
+1 3
+1 1
+
+
+20 2
+2 0
+3 0
+3 1
+4 1
+4 2
+5 2
+5 3
+4 3
+4 4
+3 4
+3 5
+2 5
+2 4
+1 4
+1 3
+0 3
+0 2
+1 2
+1 1
+2 1
+
+*/

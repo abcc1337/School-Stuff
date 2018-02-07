@@ -1,0 +1,304 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+typedef long long ll;
+
+const int maxn = 4e5 + 10;
+
+const double inf = 1e18, eps = 1e-9;
+
+struct point{
+    double x, y;
+};
+
+double dot_product(point a, point b){
+    return a.x * b.x + a.y * b.y;
+}
+
+double cross_product(point a, point b){
+    return a.x * b.y - a.y * b.x;
+}
+
+double ang(point a, point b){
+    return atan2(cross_product(a, b), dot_product(a, b));
+}
+
+point make_point(double x, double Y){
+    point ret;
+    ret.x = x;
+    ret.y = Y;
+    return ret;
+}
+
+int n, zap;
+
+ll q[2][maxn * 4];
+
+point def = make_point(1, 0);
+
+point a[maxn];
+
+void build(int v, int l, int r){
+    q[0][v] = inf;
+    q[1][v] = -inf;
+    if (l == r){
+        return;
+    }
+    int m = (l + r) / 2;
+    build(2 * v, l, m);
+    build(2 * v + 1, m + 1, r);
+}
+
+void upd(int v, int tl, int tr, int l, int r, ll val, int t){
+    if (l > r)
+        return;
+    if (tl == l && tr == r){
+        if (t == 0)
+            q[0][v] = min(q[0][v], val);
+        else
+            q[1][v] = max(q[1][v], val);
+        return;
+    }
+    int m = (tl + tr) / 2;
+    upd(2 * v, tl, m, l, min(r, m), val ,t);
+    upd(2 * v + 1, m + 1, tr, max(l, m + 1), r, val, t);
+}
+
+struct line{
+    ll a, b, c;
+};
+
+line make_line(int A, int B, int C){
+    line ret;
+    ret.a = A;
+    ret.b = B;
+    ret.c = C;
+    return ret;
+}
+
+line make_line(point a, point b){
+    line ret;
+    ret.a = a.y - b.y;
+    ret.b = b.x - a.x;
+    ret.c = -ret.a * a.x - ret.b * a.y;
+    return ret;
+}
+
+pair<int, int> y[maxn], x[maxn];
+
+pair<ll, ll> p[maxn];
+
+pair<ll, ll> answer[maxn];
+
+pair<int, int> zapr[maxn];
+
+ll fun(ll X, ll Y, ll t){
+    if (t == 0)
+        return min(X, Y);
+    return max(X, Y);
+}
+
+void sum(int v, int l, int r, ll vnow, int t){
+    vnow = fun(vnow, q[t][v], t);
+    if (l == r){
+        if (t == 0)
+            p[l].first = vnow;
+        else
+            p[l].second = vnow;
+        return;
+    }
+    int m = (l + r) / 2;
+    sum(2 * v, l, m, vnow, t);
+    sum(2 * v + 1, m + 1, r, vnow, t);
+}
+
+int main()
+{
+    ifstream cin("mountain.in");
+    ofstream cout("mountain.out");
+    ios::sync_with_stdio(0);
+    cin >> n >> zap;
+    a[0] = make_point(0, 0);
+    for (int i = 1; i <= n; i++){
+        int d, k;
+        cin >> d >> k;
+        a[i] = make_point(a[i - 1].x + d, a[i - 1].y + k * d);
+    }
+    if (n <= 3e3){
+        for (int iter = 0; iter < zap; iter++){
+            double xv, yv;
+            cin >> xv >> yv;
+            int l = 0, r = n + 1;
+            while (r - l > 1){
+                int m = (l + r) / 2;
+                if (a[m].x <= xv)
+                    l = m;
+                else
+                    r = m;
+            }
+            int ind = l;
+            pair<ll, ll> ans = make_pair(inf, -inf);
+            for (int i = ind - 1; i >= 0; i--){
+                line nw = make_line(a[i], a[i + 1]);
+                double yn = -(nw.c + nw.a * xv) / nw.b;
+                if (yn - yv > eps){
+                    ans.first = a[i + 1].x;
+                    break;
+                }
+            }
+            if (ans.first == inf)
+                ans.first = a[0].x;
+            for (int i = ind + 1; i < n; i++){
+                line nw = make_line(a[i], a[i + 1]);
+                double yn = -(nw.c + nw.a * xv) / nw.b;
+                if (yn - yv > eps){
+                    ans.second = a[i].x;
+                    break;
+                }
+            }
+            if (ans.second == -inf)
+                ans.second = a[n].x;
+            cout << ans.first << ' ' << ans.second << '\n';
+        }
+        return 0;
+    }
+    bool typey = 1, typex = 1;
+    for (int i = 0; i < zap; i++){
+        cin >> zapr[i].first >> zapr[i].second;
+        if (zapr[i].first != zapr[0].first)
+            typey = 0;
+        if (zapr[i].second != zapr[0].second)
+            typex = 0;
+    }
+    if (typex == 1){
+        double yv = zapr[0].second;
+        for (int i = 0; i < zap; i++)
+            x[i] = make_pair(zapr[i].first, i);
+        sort(x, x + zap);
+        build(1, 0, zap - 1);
+        for (int i = 0; i < zap; i++)
+            p[i].first = inf, p[i].second = -inf;
+        for (int i = 0; i < n; i++){
+            line nw = make_line(a[i], a[i + 1]);
+            double xn = -(nw.c + nw.b * yv) / nw.a;
+            int l = -1, r = zap, L, R;
+            while (r - l > 1){
+                int m = (l + r) / 2;
+                if (x[m].first - a[i].x >= -eps)
+                    r = m;
+                else
+                    l = m;
+            }
+            L = r;
+            if (a[i].y < a[i + 1].y){
+            l = -1, r = zap;
+            while (r - l > 1){
+                int m = (l + r) / 2;
+                if (xn - x[m].first >= -eps)
+                    l = m;
+                else
+                    r = m;
+            }
+            R = l;
+            }
+            else
+                R = zap - 1;
+            upd(1, 0, zap - 1, L, R, a[i].x, 0);
+            l = -1, r = zap;
+            while (r - l > 1){
+                int m = (l + r) / 2;
+                if (a[i + 1].x - x[m].first >= -eps)
+                    l = m;
+                else
+                    r = m;
+            }
+            R = l;
+            if (a[i].y > a[i + 1].y){
+            l = -1, r = zap;
+            while (r - l > 1){
+                int m = (l + r) / 2;
+                if (x[m].first - xn >= -eps)
+                    r = m;
+                else
+                    l = m;
+            }
+            L = r;
+            }
+            else
+                L = 0;
+            upd(1, 0, zap - 1, L, R, a[i + 1].x, 1);
+        }
+        sum(1, 0, zap - 1, inf, 0);
+        sum(1, 0, zap - 1, -inf, 1);
+        for (int i = 0; i < zap; i++){
+            if (x[i].first <= a[0].x)
+                p[i].first = a[0].x;
+            if (x[i].first >= a[n].x)
+                p[i].second = a[n].x;
+        }
+        for (int i = 0; i < zap; i++)
+            answer[x[i].second] = p[i];
+        for (int i = 0; i < zap; i++)
+            cout << answer[i].first << ' ' << answer[i].second << '\n';
+        return 0;
+    }
+    if (typey == 1){
+        int xv = zapr[0].first;
+        for (int i = 0; i < zap; i++)
+            y[i] = make_pair(zapr[i].second, i);
+        sort(y, y + zap);
+        int l = 0, r = n + 1;
+        while (r - l > 1){
+            int m = (l + r) / 2;
+            if (a[m].x <= xv)
+                l = m;
+            else
+                r = m;
+        }
+        for (int i = 0; i < zap; i++)
+            p[i].first = inf, p[i].second = -inf;
+        int ind = l;
+        int len = 0;
+        p[0].first = a[ind].x;
+        for (int i = ind - 1; i >= 0; i--){
+            line nw = make_line(a[i], a[i + 1]);
+            double yn = -(nw.c + nw.a * xv) / nw.b;
+            l = len - 1, r = zap;
+            while (r - l > 1){
+                int m = (l + r) / 2;
+                if ((double)y[m].first - yn >= -eps)
+                    r = m;
+                else
+                    l = m;
+            }
+            len = r;
+            p[len].first = a[i].x;
+        }
+        len = 0;
+        p[0].second = a[ind + 1].x;
+        for (int i = ind + 1; i < n; i++){
+            line nw = make_line(a[i], a[i + 1]);
+            double yn = -(nw.c + nw.a * xv) / nw.b;
+            l = len - 1, r = zap;
+            while (r - l > 1){
+                int m = (l + r) / 2;
+                if (y[m].first - yn >= -eps)
+                    r = m;
+                else
+                    l = m;
+            }
+            len = r;
+            p[len].second = a[i + 1].x;
+        }
+        ll now = inf;
+        for (int i = 0; i < zap; i++)
+            now = min(now, p[i].first), answer[y[i].second].first = now;
+        now = -inf;
+        for (int i = 0; i < zap; i++)
+            now = max(now, p[i].second), answer[y[i].second].second = now;
+        for (int i = 0; i < zap; i++)
+            cout << answer[i].first << ' ' << answer[i].second << '\n';
+        return 0;
+    }
+}

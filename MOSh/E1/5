@@ -1,0 +1,26 @@
+import sys
+def solve(a, k):
+    if a % 3 != 0:
+        return False
+    x = a // 3
+    bin_x = str(bin(x))[2:]
+    bin_ost = str(bin(k - a))[2:]
+    dlin = min(len(bin_x), len(bin_ost))
+    for i in range(1, dlin + 1):
+        if bin_x[-i] == "1" and bin_ost[-i] == "1":
+            return False
+    return True
+#sys.stdin = open("grants.in")
+#sys.stdout = open("grants.out", "w")
+t = int(input())
+maximum = 0
+#print(solve(21, 21))
+for j in range(t):
+    tmp = int(input())
+    for i in range(0, tmp + 1):
+        if solve(i, tmp):
+            if i > maximum:
+                maximum = i
+    print(maximum // 3 + tmp - maximum, end = " ")
+    for i in range(3 - 1):
+        print(maximum // 3, end = " ")

@@ -1,0 +1,105 @@
+#include <iostream>
+#include <vector>
+#include <set>
+#include <map>
+#include <cmath>
+#include <fstream>
+#include <algorithm>
+
+using namespace std;
+
+void dfs(int v, vector<pair<vector<int>, set<int>>> & g)
+{
+    for (auto i : g[v].first)
+    {
+        dfs(i, g);
+        for (auto j: g[i].second)
+        {
+            g[v].second.insert(j);
+        }
+    }
+    g[v].second.insert(v);
+}
+
+vector<int> get(vector<pair<vector<int>, set<int>>> const& g, vector<int> const& parents, int x, int y)
+{
+    vector<int> cur;
+    cur.push_back(x);
+    int v = x;
+    int cnt = 0;
+    while (v != y)
+    {
+        if (g[v].second.find(y) != g[v].second.end())
+        {
+            int i = 0;
+            while (g[g[v].first[i]].second.find(y) == g[g[v].first[i]].second.end())
+            {
+                i += 1;
+            }
+            v = g[v].first[i];
+            cur.push_back(v);
+        }
+        else
+        {
+            v = parents[v];
+            cur.push_back(v);
+        }
+    }
+    return cur;
+}
+
+int main()
+{
+    ifstream cin("twopath.in");
+    ofstream out("twopath.out");
+    int n, k;
+    cin >> n >> k;
+    vector<pair<vector<int>, set<int>>> g(n);
+    vector<int> parents(n, 0);
+    for (int i = 1; i < n; i++)
+    {
+        int q;
+        cin >> q;
+        q--;
+        parents[i] = q;
+        g[q].first.push_back(i);
+        g[q].second.insert(i);
+    }
+    dfs(0, g);
+    /**for (int i = 0; i < n; i++)
+    {
+        cout << i << " parent: " << parents[i] << endl;
+        cout << "can_go_to: ";
+        for (auto j : g[i].first) {cout << j << ' ';}
+        cout << endl;
+        cout << "can_finish_in: ";
+        for (auto j : g[i].second) {cout << j << ' ';}
+        cout << endl;
+    }/**/
+    vector<vector<int>> h(k);
+    for (int i = 0; i < k; i++)
+    {
+        int x, y;
+        cin >> x >> y;
+        x--;
+        y--;
+        h[i] = get(g, parents, x, y);
+        sort(h[i].begin(), h[i].end());
+        //for (auto w : h[i]) {cout << w << ' ';} cout << endl;
+    }
+
+    pair<int, pair<int, int>> ans = {0, make_pair(1, 2)};
+    for (int i = 0; i < k - 1; i++)
+    {
+        for (int j = i + 1; j < k; j++)
+        {
+            //cout << i << ' ' << j << ' ' << h.size() <<endl;
+            vector<int> c(n, -1);
+            int y = set_intersection(h[i].begin(), h[i].end(), h[j].begin(), h[j].end(), c.begin()) - c.begin();
+            //for (auto w : c) {cout << w << ' ';} cout << endl;
+            ans = max(ans, {y - 1, make_pair(i + 1, j + 1)});
+        }
+    }
+    out << ans.first << '\n' << ans.second.first << ' ' << ans.second.second << endl;
+    return 0;
+}

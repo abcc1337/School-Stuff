@@ -1,0 +1,126 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <math.h>
+
+using namespace std;
+
+typedef long long ll;
+
+const int inf=(1<<20);
+
+int m, n, l_sum;
+
+int dp[511][511];
+int bor[5011][2];
+long long data[5011];
+int bor_l=1; //только корень (пустая строка)
+
+string s0, s;
+ll c;
+
+void add()
+{
+    int ind=0;
+    for (int i=0; i<(int)s.length(); ++i)
+    {
+        if (bor[ind][s[i]=='1']==-1)
+        {
+            bor[ind][s[i]=='1']=bor_l;
+
+            ind=bor_l;
+            bor[ind][0]=-1;
+            bor[ind][1]=-1;
+            data[ind]=c;
+            bor_l++;
+        }
+        else
+        {
+            data[ind]=min(data[ind], c);
+            ind=bor[ind][s[i]=='1'];
+        }
+        data[ind]=min(data[ind], c);
+    }
+}
+
+void reverse_s()
+{
+    char tmp;
+    int len=(int)s.length();
+
+    for (int i=0; i<len/2; ++i)
+    {
+        tmp=s[i];
+        s[i]=s[len-i-1];
+        s[len-i-1]=tmp;
+    }
+}
+
+void input()
+{
+    cin >>m >>n >>l_sum;
+    cin >>s0;
+    int i;
+
+    data[0]=0;
+    bor[0][0]=-1; bor[0][1]=-1;
+    for (i=0; i<n; ++i)
+    {
+        cin >>c >>s;
+        add();
+
+        reverse_s();
+
+        add();
+    }
+   //cout <<bor_l <<endl;
+   //for (i=0; i<bor_l; ++i)
+   //cout <<i <<' ' <<bor[i][0] <<' ' <<bor[i][1] <<' ' <<data[i] <<endl;
+}
+
+//минимальная цена за подстроку [i1..i2] целиком
+long long kek(int ind1, int ind2)
+{
+    int ind=0;
+    for (int i=ind1; i<=ind2; ++i)
+    {
+        ind=bor[ind][s0[i]=='1'];
+        if (ind==-1) return inf;
+    }
+    return data[ind];
+}
+
+void count_dp()
+{
+    int i, j, k, l;
+
+    for (i=0; i<m; ++i)
+        for (j=i; j<m; ++j) dp[i][j]=kek(i, j);
+
+    //for (i=0; i<m; ++i)
+    //    for (j=i; j<m; ++j)
+    //    cout <<i <<' ' <<j <<' ' <<dp[i][j] <<endl;
+
+    for (l=2; l<=m; ++l)
+    for (i=0; i+l-1<m; ++i)
+    {
+        j=i+l-1;
+        for (k=i; k<j; ++k)
+            dp[i][j]=min(dp[i][j], dp[i][k]+dp[k+1][j]);
+    }
+
+    //for (i=0; i<m; ++i)
+    //    for (j=i; j<m; ++j)
+    //    cout <<i <<' ' <<j <<' ' <<dp[i][j] <<endl;
+}
+
+int main()
+{
+    freopen("typing.in", "r", stdin);
+    freopen("typing.out", "w", stdout);
+    input();
+    count_dp();
+    if (dp[0][m-1]>=inf) cout <<-1;
+    else cout <<dp[0][m-1];
+    return 0;
+}

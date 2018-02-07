@@ -1,0 +1,144 @@
+//#define DEBUG
+
+#ifdef DEBUG
+#include <iostream>
+#else
+#include <fstream>
+std::ifstream cin("robots.in");
+std::ofstream cout("robots.out");
+#endif
+#include <algorithm>
+#include <cmath>
+#include <climits>
+using namespace std;
+
+#define pb push_back 
+#define mp make_pair 
+typedef long long ll;
+
+vector<vector<int> > f;
+vector<vector<int> > r;
+vector<vector<int> > q;
+vector<vector<int> > unc;
+
+const int dx[] = {-1, 0, 1,  0};
+const int dy[] = { 0 ,1, 0, -1};
+//                 N  E  S  W
+int main()
+{
+    int cu = 1;
+    int n, m, g;
+    cin >> n >> m >> g;
+    
+    f.resize(n);
+    r.resize(n);
+    q.resize(n);
+    unc.resize(n);
+    
+    for (int i = 0; i < n; ++i)
+    {
+        f[i].resize(m, 0);
+        r[i].resize(m, 0);
+        q[i].resize(m, 0);
+        unc[i].resize(m, 0);
+    }
+    
+    vector<pair<int, int> > rs;
+        
+    for (int i = 0; i < n; ++i)
+    {
+        for (int j = 0; j < m; ++j)
+        {
+            char c;
+            cin >> c;
+            if (c < 'a')
+            {
+                rs.pb(mp(i, j));
+            }
+            else
+            {
+                c = (c - 'a' + 'A');
+            }
+            switch (c) 
+            {
+                case 'N': f[i][j] = 0; break;
+                case 'E': f[i][j] = 1; break;
+                case 'S': f[i][j] = 2; break;
+                case 'W': f[i][j] = 3; break;
+            }
+        }
+    }
+    
+    for (auto rb : rs)
+    {
+        vector<vector<bool> > t;
+        t.resize(n);
+        for (int i = 0; i < n; ++i)
+            t[i].resize(m, false);
+        
+        int x = rb.first;
+        int y = rb.second;
+        
+        vector<pair<int, int> > qg;
+        
+        while (!t[x][y])
+        {
+            qg.pb(mp(x, y));
+            t[x][y] = true;
+            int ox = x, oy = y;
+            x += dx[f[ox][oy]];
+            y += dy[f[ox][oy]];
+        }
+        
+        
+        qg.pb(mp(x, y));
+        
+        reverse(qg.begin(), qg.end());
+        
+        int len = 0;
+        
+        for (auto p : qg)
+        {
+            if ((p.first == x) && (p.second == y) && len)
+                break;
+            len ++;
+        }
+        
+        bool named = false;
+        
+        for (int i = 0; i < len; ++i)
+        {
+            auto p = qg[i];
+            r[p.first][p.second] = len;
+            q[p.first][p.second]++;
+            if (unc[p.first][p.second] == 0)
+            {
+                unc[p.first][p.second] = cu;
+                if (!named)
+                    cu++;
+                named = true;
+            }
+        }
+    }
+    
+    vector<int> aa(cu - 1, 0);
+    
+    for (int i = 0; i < n; ++i)
+    {
+        for (int j = 0; j < m; ++j)
+        {
+            aa[unc[i][j] - 1] = min(r[i][j], q[i][j]);
+        }
+    }
+    
+    ll ans = 0;
+    
+    for (int zz : aa)
+    {
+        ans += zz;
+    }
+        
+    cout << ans << endl;
+    
+    return 0;
+}

@@ -1,0 +1,75 @@
+program Bb1;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+var n, i, j, k, u1, u2, m, mx, a, b, c, d: integer;
+    x, y, s, f, num: array[0..1000000] of integer;
+    ans: int64;
+
+begin
+  reset(input, 'monument.in');
+  rewrite(output, 'monument.out');
+  read(n, k);
+  m := 20000000;
+  mx := 0;
+  for i := 1 to n do begin
+    read(x[i], y[i]);
+    if y[i] < m then u1 := i;
+    if y[i] <= m then begin
+      u2 := i;
+      m := y[i];
+    end;
+    if y[i] > mx then mx := y[i];
+  end;
+  if x[u1] > x[u2] then begin
+    m := u1;
+    u1 := u2;
+    u2 := m;
+    m := y[u1];
+  end;
+  s[m] := x[u1];
+  f[m] := x[u2];
+  dec(mx);
+  for i := m + 1 to mx do begin
+    if u1 <= 1 then u1 := n + u1;
+    if y[u1 - 1] <> i then s[i] := s[i - 1]
+    else begin
+      dec(u1);
+      dec(u1);
+      if u1 = 0 then u1 := n;
+      s[i] := x[u1];
+    end;
+    if u2 >= n then u2 := - n + u2;
+    if y[u2 + 1] <> i then f[i] := f[i - 1]
+    else begin
+      inc(u2);
+      inc(u2);
+      if u2 = n + 1 then u2 := 1;
+      f[i] := x[u2];
+    end;
+    if (abs(u1 - u2) <= 1) and (y[u1] <> m) then break;
+  end;
+  for i := m to mx do begin
+    a := k - ((k + s[i] - i) mod k);
+    b := k - ((k + f[i] - i) mod k);
+    if a <= b then begin
+      for j := a to b do inc(num[j]);
+    end
+    else begin
+      for j := a to k do inc(num[j]);
+      for j := 0 to b do inc(num[j]);
+    end;
+    ans := ans + 1 + ((f[i] - s[i] - 1) div k);
+    if (f[i] - s[i] - 1) mod k <> 0 then inc(ans);
+  end;
+  m := 0;
+  for i := 0 to k do begin
+    if num[i] > m then m := num[i];
+  end;
+  writeln(ans - m);
+//  readln;
+//  readln;
+end.

@@ -1,0 +1,83 @@
+#define _GLIBCXX_DEBUG
+#include <bits/stdc++.h>
+using namespace std;
+ 
+int p1 = 239;
+int p2 = 101;
+ 
+vector<long long> pp1, pp2;
+ 
+int main() {
+    freopen("typing.in", "r", stdin);
+    #ifndef DEBUG
+    freopen("typing.out", "w", stdout);
+    #endif
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+     
+    int m, n, L;
+    int maxl = 0;
+    cin >> m >> n >> L;
+    pp1.resize(L + 1);
+    pp1[0] = 1;
+    pp2.resize(L + 1);
+    pp2[0] = 1;
+    for (int i = 0; i < L; i++) {
+        pp1[i + 1] = pp1[i] * p1;
+        pp2[i + 1] = pp2[i] * p2;
+    }
+    string s;
+    cin >> s;
+    unordered_map<long long, int> hashes;
+    vector<string> a(n);
+    for (int i = 0; i < n; i++) {
+        int c;
+        cin >> c;
+        cin >> a[i];
+        maxl = max(maxl, (int) a[i].length());
+        long long curh1 = 0, curh2 = 0;
+        for (int j = 0; j < a[i].length(); j++) {
+            curh1 = (curh1 * p1 + (a[i][j] - '0' + 1));
+            curh2 = (curh2 * p2 + (a[i][j] - '0' + 1));
+            long long curh = (curh1 << 32LL) + curh2;
+            if (hashes.count(curh)) {
+                hashes[curh] = min(hashes[curh], c);
+            } else {
+                hashes[curh] = c;
+            }
+        }
+        curh1 = 0;
+        curh2 = 0;
+        for (int j = a[i].length() - 1; j >= 0; j--) {
+            curh1 = (curh1 + (a[i][j] - '0' + 1) * pp1[a[i].length() - 1 - j]);
+            curh2 = (curh2 + (a[i][j] - '0' + 1) * pp2[a[i].length() - 1 - j]);
+            long long curh = (curh1 << 32LL) + curh2;
+            if (hashes.count(curh)) {
+                hashes[curh] = min(hashes[curh], c);
+            } else {
+                hashes[curh] = c;
+            }
+        }
+    }
+     
+    vector<long long> dp(m + 1, LONG_MAX / 2);
+    dp[0] = 0;
+    for (int i = 0; i < m; i++) {
+        long long curh1 = 0, curh2 = 0;
+        for (int j = i; j < i + maxl && j < m; j++) {
+            curh1 = (curh1 * p1 + (s[j] - '0' + 1));
+            curh2 = (curh2 * p2 + (s[j] - '0' + 1));
+            long long curh = (curh1 << 32LL) + curh2;
+            if (hashes.count(curh)) {
+                dp[j + 1] = min(dp[j + 1], dp[i] + hashes[curh]);
+            }
+        }
+    }
+    if (dp[m] == LONG_MAX / 2) {
+        cout << -1 << endl;
+    } else {
+        cout << dp[m] << endl;
+    }
+     
+    return 0;
+}

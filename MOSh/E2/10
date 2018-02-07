@@ -1,0 +1,179 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <algorithm>
+#include <math.h>
+#include <string>
+#include <set>
+#include <vector>
+
+using namespace std;
+
+int m, n, L;
+long long c, d[300500];
+string s, a, ao, st, so;
+int nom, h1, p1, dl, zt[400000], da, ds, dst, dao, dso;
+vector < pair <long long, int> > g[300500], g1[300500];
+set < pair <long long, int> > qw;
+long long tree[650000];
+int md;
+
+inline void bz() {
+	s += "#";
+	st = s + a;
+	zt[0] = 0;
+	int l, r, d;
+	l = 0;
+	r = 0;
+	for (int i = 1; i < st.length(); i++) {
+		zt[i] = 0;
+		d = 0;
+		if (i <= r) {
+			d = min(zt[i - l], r - i + 1);
+		}
+		while (d + i < st.length() && st[d + i] == st[d]) {
+			d++;
+		}
+		if (i + d - 1 > r) {
+			r = i + d - 1;
+			l = i;
+		}
+		zt[i] = d;
+	}
+	for (int i = s.length(); i < st.length(); i++) {
+		if (zt[i] != 0) {
+			g1[i - s.length()].push_back(make_pair(c, zt[i]));
+		}
+	}
+}
+
+inline void bzo() {
+	so += "#";
+	st = so + ao;
+	zt[0] = 0;
+	int l, r, d;
+	l = 0;
+	r = 0;
+	for (int i = 1; i < st.length(); i++) {
+		zt[i] = 0;
+		d = 0;
+		if (i <= r) {
+			d = min(zt[i - l], r - i + 1);
+		}
+		while (d + i < st.length() && st[d + i] == st[d]) {
+			d++;
+		}
+		if (i + d - 1 > r) {
+			r = i + d - 1;
+			l = i;
+		}
+		zt[i] = d;
+	}
+	for (int i = so.length(); i < st.length(); i++) {
+		if (zt[i] != 0) {
+			g[st.length() - i].push_back(make_pair(c, zt[i]));
+		}
+	}
+}
+
+inline void update() {
+	tree[md + nom] = d[nom];
+	nom = md + nom;
+	nom = nom / 2;
+	while (nom != 0) {
+		tree[nom] = min(tree[2 * nom], tree[2 * nom + 1]);
+		if (tree[2 * nom] == -1) {
+			tree[nom] = tree[2 * nom + 1];
+		}
+		if (tree[2 * nom + 1] == -1) {
+			tree[nom] = tree[2 * nom];
+		}
+		nom = nom / 2;
+	}
+	return;
+}
+
+long long getm(int v, int l, int r, int tl, int tr) {
+	if (tl >= l && tr <= r) {
+		return tree[v];
+	}
+	if (tl > r || tr < l) {
+		return -1;
+	}
+	int tm = (tr + tl) / 2;
+	long long ans1, ans2;
+	ans1 = getm(v * 2, l, r, tl, tm);
+	ans2 = getm(v * 2 + 1, l, r, tm + 1, tr);
+	if (ans1 == -1) {
+		return ans2;
+	}
+	if (ans2 == -1) {
+		return ans1;
+	}
+	return min(ans2, ans1);
+}
+
+int main() {
+	freopen("typing.in", "r", stdin);
+	freopen("typing.out", "w", stdout);
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> m >> n >> L;
+	cin >> a;
+	for (int i = a.length() - 1; i >= 0; i--) {
+		ao += a[i];
+	}
+	for (int i = 0; i < n; i++) {
+		cin >> c >> s;
+		so = "";
+		for (int j = s.length() - 1; j >= 0; j--) {
+			so += s[j];
+		}
+		bz();
+		bzo();
+	}
+	for (md = 1; md < m + 10; md = md * 2) {}
+	for (int i = 0; i <= 2 * md; i++) {
+		tree[i] = -1;
+	}
+	for (int i = 0; i <= m; i++) {
+		d[i] = -1;
+	}
+	d[0] = 0;
+	long long as;
+	for (int i = 0; i <= m; i++) {
+		while (qw.size() != 0 && qw.begin()->second < i) {
+			qw.erase(qw.begin());
+		}
+		if (qw.size() != 0) {
+			if (d[i] == -1) {
+				d[i] = qw.begin()->first;
+			}
+			else {
+				d[i] = min(d[i], qw.begin()->first);
+			}
+		}
+		for (int j = 0; j < g[i].size(); j++) {
+			as = getm(1, i - g[i][j].second, i - 1, 0, md - 1);
+			if (as == -1) {
+				continue;
+			}
+			if (d[i] == -1) {
+				d[i] = as + g[i][j].first;
+			}
+			else {
+				d[i] = min(d[i], as + g[i][j].first);
+			}
+		}
+		if (d[i] == -1) {
+			continue;
+		}
+		nom = i;
+		update();
+		for (int j = 0; j < g1[i].size(); j++) {
+			qw.insert(make_pair(d[i] + g1[i][j].first, i + g1[i][j].second));
+		}
+	}
+	cout << d[m];
+	return 0;
+}

@@ -1,0 +1,128 @@
+#include <iostream>
+#include <cstdio>
+#include <cmath>
+#include <vector>
+#include <algorithm>
+#include <set>
+#include <map>
+#include <string>
+
+using namespace std;
+const string filename = "alarm";
+const int inf = int (1e9 + 7);
+
+void dfs (vector<pair<int, pair<vector<int>, vector<pair<int, int>>>>> &dist, vector<bool> &was, int i)
+{
+    if (!was[i])
+    {
+        was[i] = true;
+
+        for (auto i : dist[i].second.second)
+            dfs (dist, was, i.first);
+    }
+}
+
+void get_v (vector<pair<int, pair<vector<int>, vector<pair<int, int>>>>> &dist, vector<int> &was, int j, int par, int depth = 0)
+{
+    if (depth < was[j])
+    {
+        was[j] = depth;
+        for (int i = 0; i < dist[j].second.second.size (); i++)
+        {
+            sort (dist[par].second.second.begin (), dist[par].second.second.end ());
+            if (depth + dist[j].second.second[i].second <= dist[par].first)
+            {
+                dist[par].second.second.push_back (make_pair (dist[j].second.second[i].first, depth + dist[j].second.second[i].second));
+                dist[j].second.first.push_back (par);
+                get_v (dist, was, dist[j].second.second[i].first, par, depth + dist[j].second.second[i].second);
+                sort (dist[par].second.second.begin (), dist[par].second.second.end ());
+                dist[par].second.second.resize (unique (dist[par].second.second.begin (), dist[par].second.second.end ()) - dist[par].second.second.begin ());
+            }
+        }
+    }
+}
+
+int main ()
+{
+    freopen ((filename + ".in").c_str (), "r", stdin);
+    freopen ((filename + ".out").c_str (), "w", stdout);
+    ios_base::sync_with_stdio (false);
+
+    int n;
+
+    cin >> n;
+
+    vector<pair<int, pair<vector<int>, vector<pair<int, int>>>>> dist (n);
+    vector<bool> was (n);
+
+    for (int i = 0; i < n; i++)
+        cin >> dist[i].first;
+
+    for (int i = 1; i < n; i++)
+    {
+        int l, r, d;
+
+        cin >> l >> r >> d;
+        l--;
+        r--;
+
+        if (dist[l].first >= d)
+        {
+            dist[l].second.second.push_back (make_pair(r, d));
+            dist[r].second.first.push_back (l);
+        }
+
+        if (dist[r].first >= d)
+        {
+            dist[r].second.second.push_back (make_pair (l, d));
+            dist[l].second.first.push_back (r);
+        }
+    }
+
+    for (int i = 0; i < n; i++)
+        get_v (dist, vector<int> (n, inf), i, i);
+
+    int res = 0;
+
+    for (int i = 0; i < n; i++)
+    {
+        sort (dist[i].second.second.begin (), dist[i].second.second.end ());
+        dist[i].second.second.resize (unique (dist[i].second.second.begin (), dist[i].second.second.end ()) - dist[i].second.second.begin ());
+        sort (dist[i].second.first.begin (), dist[i].second.first.end ());
+        dist[i].second.first.resize (unique (dist[i].second.first.begin (), dist[i].second.first.end ()) - dist[i].second.first.begin ());
+
+        for (int j = 0; j < dist[i].second.first.size (); j++)
+        {
+            if (dist[i].second.first[j] == i)
+                dist[i].second.first.erase (dist[i].second.first.begin () + j);
+        }
+
+        for (int j = 0; j < dist[i].second.second.size (); j++)
+        {
+            if (dist[i].second.second[j].first == i)
+                dist[i].second.second.erase (dist[i].second.second.begin () + j);
+        }
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        if (dist[i].second.first.size () == 0)
+        {
+            dfs (dist, was, i);
+            res++;
+        }
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        if (!was[i])
+        {
+            dfs (dist, was, i);
+            res++;
+        }
+    }
+
+    cout << res - 1;
+
+    return 0;
+}

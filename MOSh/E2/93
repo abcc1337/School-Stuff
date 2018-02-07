@@ -1,0 +1,86 @@
+#include<cstdio>
+#include<cstdlib>
+#include<iostream>
+#include<cmath>
+#include<algorithm>
+#include<vector>
+
+using namespace std;
+
+vector <pair<pair<long long, long long>, long long> >  a;
+long long n, c, b, d, ans, ans2, ans3;
+
+void f()
+{
+  int i1 = 0, i2 = 0, i3 = 0;
+  for(int i = 0; i < (n - 1); i++)
+  {
+    if(a[i].first.first == a[i + 1].first.first)
+    {
+      i1++;
+      if(a[i].first.second == a[i + 1].first.second)
+      {
+        i2++;
+        if(a[i].second == a[i + 1].second)
+          i3++;
+        else
+        {
+          ans3 += i3 * (i3 + 1) / 2;
+          i3 = 0;
+        } 
+      }
+      else
+      {
+        ans2 += i2 * (i2 + 1) / 2;
+        i2 = 0;
+      }
+    }
+    else
+    {
+      ans += i1 * (i1 + 1) / 2;
+      i1 = 0;
+    }
+    //cout << i1 << " = i1 i2 = " << i2 << " i3 = " << i3 << "\n";
+  }
+  ans2 += i2 * (i2 + 1) / 2;
+  ans += i1 * (i1 + 1) / 2;
+  ans3 += i3 * (i3 + 1) / 2;
+  //cout << ans << " = ans ans2 = " << ans2 << " ans3 = " << ans3 << "\n";
+  return;
+}
+
+int main()
+{
+  freopen("onlyone.in", "r", stdin);
+  freopen("onlyone.out", "w", stdout);
+  scanf("%I64d", &n);
+  for(int i = 0; i < n; i++)
+  {
+    scanf("%I64d %I64d %I64d", &b, &c, &d);
+    a.push_back(make_pair(make_pair(b, c), d));
+  }
+  sort(a.begin(), a.end());
+  //for(int i = 0; i < n; i++)
+    //cout << a[i].first.first << " " << a[i].first.second << " " << a[i].second << "\n";
+  f();
+  for(int i = 0; i < n; i++)
+  {
+    swap(a[i].first.first, a[i].first.second);
+    swap(a[i].first.second, a[i].second);
+  }
+  sort(a.begin(), a.end());
+  //for(int i = 0; i < n; i++)
+    //cout << a[i].first.first << " " << a[i].first.second << " " << a[i].second << "\n";
+  f();
+  for(int i = 0; i < n; i++)
+  {
+    swap(a[i].first.first, a[i].first.second);
+    swap(a[i].first.second, a[i].second);
+  }
+  sort(a.begin(), a.end());
+  //for(int i = 0; i < n; i++)
+    //cout << a[i].first.first << " " << a[i].first.second << " " << a[i].second << "\n";
+  f();
+  cout << ans - ans2 * 2 + ans3; 
+  return 0;
+}

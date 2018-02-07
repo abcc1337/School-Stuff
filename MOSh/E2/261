@@ -1,0 +1,42 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+vector<pair<int, int> > towers;
+vector<int> mods;
+
+bool compare(pair<int, int> a, pair<int, int> b)
+{
+    return a.second <= b.second;
+}
+
+int main()
+{
+    freopen("castle.in", "r", stdin);
+    freopen("castle.out", "w", stdout);
+    int n, s;
+    cin >> n >> s;
+    long long perfectguards = 0;
+    for (int i = 0; i < n; i++)
+    {
+        int a, b;
+        cin >> a >> b;
+        towers.push_back(make_pair(a / b, b));
+        perfectguards += a / b;
+        if (a % b > 0)
+        {
+            perfectguards++;
+            mods.push_back(a % b);
+        }
+    }
+    if (perfectguards <= s)
+    {
+        cout << 0 << endl;
+        return 0;
+    }
+    cout << perfectguards - s << endl;
+    return 0;
+}

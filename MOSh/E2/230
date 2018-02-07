@@ -1,0 +1,79 @@
+#include <iostream>
+#include <vector>
+#include <set>
+#include <map>
+#include <cmath>
+#include <algorithm>
+#include <fstream>
+#include <stdio.h>
+
+using namespace std;
+
+struct ST
+{
+    int a;
+    int k;
+    ST(int x, int y): a(x), k(y) {};
+    bool operator < (const ST & other) const
+    {
+        return min(k, a) > min(other.k, other.a);
+    }
+};
+
+int main()
+{
+    FILE* fin = fopen("castle.in", "r");
+    ofstream out("castle.out");
+    int n, s;
+    fscanf(fin, "%d%d", &n, &s);
+    vector<ST> g;
+    long long ans = 0;
+    for (int i = 0; i < n; i++)
+    {
+        int a, k;
+        fscanf(fin, "%d%d", &a, &k);
+        ans += a;
+        ST u(a, k);
+        g.push_back(u);
+        u.a %= u.k;
+        if (u.a) {g.push_back(u);};
+    }
+    fclose(fin);
+    sort(g.begin(), g.end());
+    for (auto cur: g)
+    {
+        if (s <= 0)
+        {
+            break;
+        }
+        //cout << s << ' ' << cur.a << ' ' << cur.k << endl;
+        if (cur.a <= cur.k)
+        {
+            ans -= cur.a;
+            s -= 1;
+            continue;
+        }
+        else
+        {
+            int beat = cur.a / cur.k;
+            //cout << "b: " << beat << endl;
+            if (beat <= s)
+            {
+                ans -= (beat * cur.k);
+                s -= beat;
+                cur.a -= (beat * cur.k);
+            }
+            else
+            {
+                ans -= (s * cur.k);
+                s = 0;
+                cur.a -= (s * cur.k);
+            }
+        }
+    }
+    if (ans < 0) ans = 0;
+    cout << ans << endl;
+    out << ans << endl;
+    return 0;
+}
+

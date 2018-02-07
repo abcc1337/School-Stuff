@@ -1,0 +1,87 @@
+// bad solve 7
+
+const
+  RB = 5000;
+
+var
+  st: string;
+  arr: array [1..RB, 1..RB] of boolean;
+  newarr: array [1..RB] of longint;
+  n: longint;
+  prefarr: array [0..RB] of longint;
+  
+function rup(s: double): longint;
+begin
+  if s = trunc(s) then rup := trunc(s) else rup := trunc(s) + 1;
+end;
+
+function countans(): int64;
+begin
+  for var it := 1 to n do 
+  begin
+    prefarr[it] := prefarr[it - 1];
+    if st[it] = '1' then prefarr[it] += 1;
+  end;
+  
+  for var it := 1 to n do 
+  begin
+    if st[it] = '1' then begin
+      var ll := it;
+      var rr := n;
+      var its := 0;
+      while (ll <= rr) and (its < 20) do begin
+        var mm := rup((ll + rr) / 2);
+        if prefarr[mm] - prefarr[ll - 1] < mm - ll + 1 then rr := mm - 1 else ll := mm;
+        its += 1;
+      end;
+      newarr[it] := max(newarr[it], ll - it + 1);
+    end;
+  end;
+  
+  var ans := 0;
+  var it := 1;
+  var cong := 0;
+  while it < n + 1 do begin
+    if (cong = 0) and (newarr[it] <> 0) then begin
+      ans += (newarr[it] * (newarr[it] + 1)) shr 1;
+      cong := newarr[it] - 1;
+    end else begin
+      if (cong > 0) and (newarr[it - 1] + 1 = newarr[it]) then cong -= 1 else begin
+        ans -= (cong * (cong + 1)) shr 1;
+        ans += (newarr[it] * (newarr[it] + 1)) shr 1;
+        cong := newarr[it] - 1;
+      end;
+    end;
+    
+    it += 1;
+  end;
+  
+  countans := ans;
+end;
+
+begin
+  assign(input, 'lamps.in'); reset(input);
+  assign(output, 'lamps.out'); rewrite(output);
+  
+  var q: longint;
+  var l, r, c: array [1..RB] of longint;
+  readln(n, q);
+  readln(st);
+  for var i := 1 to q do readln(l[i], r[i], c[i]);
+  
+  var ansprev := countans();
+  writeln(ansprev);
+  
+  for var i := 1 to q do 
+  begin
+    if c[i] = 1 then for var j := l[i] to r[i] do st[j] := '1' else for var j := l[i] to r[i] do st[j] := '1';
+    
+    if c[i] = 0 then begin
+      writeln(ansprev);
+      for var j := l[i] to r[i] do st[j] := '0';
+    end else begin
+      ansprev := countans();
+      writeln(ansprev);
+    end;
+  end;
+end.

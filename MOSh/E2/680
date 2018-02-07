@@ -1,0 +1,57 @@
+type
+myarray=array [1..200000] of integer;
+var
+  f, f1: text;
+  t, i, n, k, j, mint,konmin,r: integer;
+  s: string;
+  se,nb:char;
+function drug(vb:char):char;
+begin
+if vb='1' then drug:='0' else drug:='1';
+end;
+function koli(s1:string):integer;
+var cycle,ress:integer;
+begin
+for cycle:=1 to n-1 do
+if s1[cycle]<>s1[cycle+1] then inc(ress);
+koli:=ress+1;
+end;
+begin
+  assign(f, 'penguins.in');
+  assign(f1, 'penguins.out');
+  reset(f);
+  rewrite(f1);
+  readln(f, t);
+  for i := 1 to t do
+  begin
+    mint := maxint;
+    r:=1;
+    read(f, n);
+    readln(f, k);
+    read(f, s);
+    se := s[1];
+    konmin:=1;
+    while koli(s)>k do
+    begin
+    for j := 1 to n - 1 do
+    if s[j]=s[j+1] then inc(r) else begin if (r<=mint)and(j<>r) then begin mint:=r; konmin:=j end; r:=1; end;
+    j:=1;
+    if mint=maxint then
+    begin
+    while s[j]=se do inc(j);
+    mint:=j;
+    konmin:=j;
+    end;
+    j:=konmin;
+    nb:=s[konmin];
+    while s[j]=nb do
+    begin
+    s[j]:=drug(s[j]);
+    j:=j-1;
+    end;
+    end;
+  writeln(f1,s);
+  end;
+ close(f);
+ close(f1);
+ end.

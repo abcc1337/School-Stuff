@@ -1,0 +1,80 @@
+
+#include <iostream>
+#include <stdio.h>
+#include <algorithm>
+#include <vector>
+#include <set>
+#include <map>
+#include <queue>
+#include <cmath>
+#include <cassert>
+#include <stdlib.h>
+#include <ctime>
+#define mp make_pair
+#define pb push_back
+#define NAME "alarm"
+  
+using namespace std;
+  
+typedef long long ll;
+typedef long double ld;
+  
+const ll nmax = 1000;
+const ll inf = 1000 * 1000 * 1000;
+const ll infll = 1000ll * 1000ll * 1000 * 1000 * 1000 * 1000;
+const ld pi = acos(-1.0);
+  
+ll n;
+bool used[nmax][nmax], useda[nmax];
+ll got[nmax], d[nmax], answer = inf, sum = 0, x, y, l;
+vector<pair<ll, ll> > a[nmax];
+  
+int dfs(ll p, ll ind, ll di)
+{
+    used[p][ind] = true;
+    di = max(di, d[ind]);
+    for (int qq = 0; qq < (int)a[ind].size(); qq++)
+    {
+        for (int i = 0; i < (int)a[ind].size(); i++)
+            if (!used[p][a[ind][i].first] && di - a[ind][i].second >= 0)
+                di = max(dfs(p, a[ind][i].first, di - a[ind][i].second) - a[ind][i].second, di);
+    }
+    return di;
+}
+  
+int main()
+{
+    freopen(NAME".in", "r", stdin);freopen(NAME".out", "w", stdout);
+    cin >> n;
+    for (int i = 0; i < n; i++)
+        cin >> d[i];
+    for (int i = 0; i < n - 1; i++)
+    {
+        cin >> x >> y >> l;
+        x--, y--;
+        a[x].pb(mp(y, l));
+        a[y].pb(mp(x, l));
+    }
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+            used[i][j] = false;
+        dfs(i, i, 0);
+    }
+	for (int i = 0; i < n; i++)
+		useda[i] = false;
+	int ans = 0;
+	for (int i = 0; i < n; i++)
+	{
+		int ind = -1;
+		for (int j = 0; j < n; j++)
+			if (!useda[j] && (ind == -1 || d[ind] < d[j]))
+				ind = j;
+		if (ind == -1)
+			break;
+		ans++;
+		for (int j = 0; j < n; j++)
+			useda[j] = useda[j] || used[ind][j];
+	}
+    cout << ans << endl;
+}

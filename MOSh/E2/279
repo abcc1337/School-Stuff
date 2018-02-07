@@ -1,0 +1,89 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+void solve2(int n) {
+    int r;
+    int l = r = 0;
+    int ans = 1;
+    int curr_sym = 1;
+    vector<int> res(n);
+    while (l < n) {
+        while (r < n and ans == 1) {
+            cout << "? " << l + 1 << ' ' << r + 1 << endl;
+            cin >> ans;
+            if (ans == 1) {
+                r++;
+            }
+        }
+        for (int i = l; i < r; i++) {
+            res[i] = curr_sym;
+        }
+        curr_sym = 3 - curr_sym;
+        l = r;
+        r++;
+        ans = 1;
+    }
+    cout << "Ready!" << endl;
+    int max_el = 0;
+    for (int i = 0; i < n; i++) {
+        max_el = max(max_el, res[i]);
+    }
+    cout << max_el << endl;
+    for (int i = 0; i < n; i++) {
+        cout << res[i] << ' ';
+    }
+    cout << endl;
+}
+
+vector<vector<int> > graph;
+vector<int> used;
+
+void dfs(int u, int color) {
+    used[u] = color;
+    for (int v : graph[u]) {
+        if (!used[v]) {
+            dfs(v, color);
+        }
+    }
+}
+
+int main() {
+    int n, r;
+    cin >> n;
+    vector<vector<int> > amounts(n, vector<int>(n));
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j <=i; j++) {
+            cout << "? " << j + 1 << ' ' << i + 1 << endl;
+            cin >> r;
+            amounts[j][i] = r;
+        }
+    }
+    graph.resize(n);
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < i; j++) {
+            if (amounts[j][i] == 1 or (j + 1 < i and amounts[j][i - 1] == amounts[j + 1][i - 1] + 1 and amounts[j + 1][i - 1] + 1 == amounts[j + 1][i]
+                                                 and amounts[j][i] == amounts[j][i - 1])) {
+                graph[i].push_back(j);
+                graph[j].push_back(i);
+                
+            }
+        }
+    }
+    used.resize(n, 0);
+    int cnt = 1;
+    for (int i = 0; i < n; i++) {
+        if (!used[i]) {
+            dfs(i, cnt);
+            cnt++;
+        }
+    }
+    cout << "Ready!" << endl;
+    cout << cnt - 1 << endl;
+    for (int i = 0; i < n; i++) {
+        cout << used[i] << ' ';
+    }
+    cout << endl;
+}

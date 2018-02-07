@@ -1,0 +1,154 @@
+#include <fstream>
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <set>
+#define long long long
+
+using namespace std;
+
+struct IT
+{
+	vector<int> push;
+	IT(int n)
+	{
+		int x = 1;
+		while (x < n)
+			x <<= 1;
+		push = vector<int>(x << 1, -1);
+	}
+
+	void pushMe(int x, int L, int R)
+	{
+		if (L == R - 1 || push[x] == -1)
+			return;
+		push[(x << 1) + 1] = push[x];
+		push[(x << 1) + 2] = push[x];
+		push[x] = -1;
+	}
+
+	int get(int x, int L, int R, int ind)
+	{
+		pushMe(x, L, R);
+		if (L == R - 1 && L == ind)
+			return push[x];
+		if (L > ind || R <= ind)
+			return -1;
+		int mid = (R + L) / 2;
+		int x1 = get((x << 1) + 1, L, mid, ind);
+		if (x1 != -1)
+			return x1;
+		return get((x << 1) + 2, mid, R, ind);
+	}
+
+	void set(int x, int L, int R, int l, int r, int val)
+	{
+		pushMe(x, L, R);
+		if (L >= r || l >= r)
+			return;
+		if (l <= L && R <= r)
+		{
+			push[x] = val;
+			pushMe(x, L, R);
+			return;
+		}
+		int mid = (R + L) / 2;
+		set((x << 1) + 1, L, mid, l, r, val);
+		set((x << 1) + 3, mid, R, l, r, val);
+	}
+};
+
+struct v
+{
+	int x, y;
+	v(){};
+	v(int x, int y) : x(x), y(y) {}
+
+	bool operator <(const v& b)
+	{
+		if (x != b.x)
+			return x < b.x;
+		return y < b.y;
+	}
+};
+
+struct ev
+{
+	int x;
+	bool beg;
+	ev(int x, bool beg)
+		:x(x), beg(beg)
+	{}
+	bool operator <(const ev& e)
+	{
+		if (e.x != x)
+			return x < e.x;
+		return beg < e.beg;
+	}
+};
+vector<vector<vector<int>>> dx;
+vector<vector<vector<int>>> dy;
+vector<vector<bool>> used;
+
+void dfs(int x, int y, int x1, int y1, int x2, int y2)
+{
+	if (x < x1 || y < y1 || x >= x2 || y >= y2 || used[x][y])
+		return;
+	used[x][y] = true;
+	for (int i = 0; i < dx[x][y].size(); ++i)
+		dfs(x + dx[x][y][i], y + dy[x][y][i], x1, y1, x2, y2);
+}
+
+int main()
+{
+	ifstream in("repair.in");
+	ofstream out("repair.out");
+	int a, b, n, q;
+	in >> a >> b >> n >> q;
+	dx = vector<vector<vector<int>>>(a, vector<vector<int>>(b));
+	dy = vector<vector<vector<int>>>(a, vector<vector<int>>(b));
+	set<pair<int, int>> s;
+	for (int i = 0; i < n - 1; ++i)
+	{
+		char ch;
+		in >> ch;
+		int x, y;
+		in >> x >> y;
+		--x, --y;
+		s.insert(make_pair(x, y));
+		if (ch == 'h')
+		{
+			dx[x][y].push_back(1);
+			dx[x + 1][y].push_back(-1);
+			dy[x][y].push_back(0);
+			dy[x + 1][y].push_back(0);
+			s.insert(make_pair(x + 1, y));
+		}
+		else
+		{
+			dx[x][y].push_back(0);
+			dx[x][y + 1].push_back(0);
+			dy[x][y].push_back(1);
+			dy[x][y + 1].push_back(-1);
+			s.insert(make_pair(x, y + 1));
+		}
+	}
+	for (int i = 0; i < q; ++i)
+	{
+		int x1, y1, x2, y2;
+		in >> x1 >> y1 >> x2 >> y2;
+		--x1, --y1;
+		used = vector<vector<bool>>(a, vector<bool>(b, false));
+		int cnt = 0;
+		for (auto p : s)
+		{
+			int x = p.first;
+			int y = p.second;
+			if (x < x1 || y < y1 || x >= x2 || y >= y2 || used[x][y])
+				continue;
+			dfs(x, y, x1, y1, x2, y2);
+			++cnt;
+		}
+		out << cnt << endl;
+	}
+}

@@ -1,0 +1,89 @@
+program zad_2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils,
+  Math;
+
+var
+    x, y, d, mark, p :array[1..12345] of integer;
+    n, k, i, j, u, t, xmin, xmax, xx, yy, w, q :integer;
+    sum, ss :int64;
+
+begin
+    reset(input, 'monument.in');
+    rewrite(output, 'monument.out');
+    readln(n, k);
+    for i := 1 to n do
+        readln(x[i], y[i]);
+    x[n + 1] := x[1];
+    y[n + 1] := y[1];
+    for i := 0 to 1000 do
+    begin
+        xmin := maxint;
+        xmax := 0;
+        for j := 1 to n do
+            if (y[j] <> y[j + 1]) and (((y[j] <= i) and (y[j + 1] > i)) or ((y[j] > i) and (y[j + 1] <= i)))then
+            begin
+                xmin := min(xmin, min(x[j], x[j + 1]));
+                xmax := max(xmax, max(x[j], x[j + 1]));
+            end;
+        if (xmin <> maxint) then
+        begin
+            d[i + 1] := xmax - xmin;
+            p[i] := xmin;
+        end;
+    end;
+    sum := 1000000000000000000;
+
+    for u := 0 to k do
+    begin
+        ss := 0;
+        for i := 1 to 1001 do
+            if (d[i] <> 0) then
+            begin
+                xx := p[i] + 1 + (k - i + 1) + (k - u);
+                if (xx mod k = 0) then
+                    w := k
+                else
+                    w := xx mod k;
+                if (d[i] > k - (w - 1)) then
+                begin
+                    if (w = 1) then
+                        q := d[i]
+                    else
+                    begin
+                        q := d[i] - (k - w + 1);
+                        inc(ss);
+                    end;
+                    ss := ss + (q div k);
+                    if (q mod k <> 0) then
+                        inc(ss);
+
+                end
+                else
+                    inc(ss);
+            end;
+        sum := min(sum, ss);
+    end;
+    writeln(sum);
+end.
+
+12 3
+2 3
+1 3
+1 2
+3 2
+3 1
+8 1
+8 2
+10 2
+10 3
+8 3
+8 4
+2 4
+
+
+
+

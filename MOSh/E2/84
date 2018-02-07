@@ -1,0 +1,143 @@
+#include <bits/stdc++.h>
+
+#define TASK "twopaths"
+using namespace std;
+typedef long long ll;
+typedef long double ld;
+
+char mem[1223456789];
+int pend = 0;
+
+
+void *operator new(size_t x)
+{
+    int ans = pend;
+    pend += x;
+    return mem + ans;
+}
+
+void operator delete(void *x)
+{
+
+}
+
+ll n, k;
+ll p[223456];
+ll h[223456];
+vector<ll> predk[223456];
+map<ll, vector<ll>> potoms[223456];
+ll cntnow[56789];
+
+void dfs0(ll v, ll len)
+{
+    h[v] = len;
+    for (auto i : potoms[v])
+    {
+        dfs0(i.first, len + 1);
+    }
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+#ifdef DEBUG
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#else
+    if(strcmp(TASK,"")!=0)
+    {
+        freopen(TASK".in","r",stdin);
+        freopen(TASK".out","w",stdout);
+    }
+#endif
+    cin >> n >> k;
+    for (int i = 1; i < n; i++)
+    {
+        ll val;
+        cin >> val;
+        p[i] = val - 1;
+        potoms[val - 1][i] = vector<ll>();
+    }
+    dfs0(0, 0);
+    ll ans = 0;
+    ll a1 = 0, a2 = 1;
+    for (int i = 0; i < k; i++)
+    {
+        ll a, b;
+        cin >> a >> b;
+        ll aa = a;
+        ll bb = b;
+        aa--;
+        bb--;
+        memset(cntnow, 0, sizeof(cntnow));
+        a--;
+        b--;
+        ll cnt = 0;
+        while (a != b)
+        {
+            cnt++;
+            if (h[a] >= h[b])
+            {
+                predk[a].push_back(i);
+                potoms[p[a]][a].push_back(i);
+                a = p[a];
+            }
+            else
+            {
+                predk[b].push_back(i);
+                potoms[p[b]][b].push_back(i);
+                b = p[b];
+            }
+        }
+        if (cnt > ans)
+        {
+            a = aa;
+            b = bb;
+            while (a != b)
+            {
+                if (h[a] >= h[b])
+                {
+                    for (auto j : predk[a])
+                    {
+                        if (j != i)
+                        {
+                            cntnow[j]++;
+                            if (cntnow[j] > ans)
+                            {
+                                ans = cntnow[j];
+                                a1 = j;
+                                a2 = i;
+                            }
+                        }
+                    }
+                    predk[a].push_back(i);
+                    potoms[p[a]][a].push_back(i);
+                    a = p[a];
+                }
+                else
+                {
+                    for (auto j : predk[b])
+                    {
+                        if (j != i)
+                        {
+                            cntnow[j]++;
+                            if (cntnow[j] > ans)
+                            {
+                                ans = cntnow[j];
+                                a1 = j;
+                                a2 = i;
+                            }
+                        }
+                    }
+                    predk[b].push_back(i);
+                    potoms[p[b]][b].push_back(i);
+                    b = p[b];
+                }
+            }
+        }
+    }
+    cout << ans << endl;
+    cout << a1 + 1 << " " << a2 + 1 << endl;
+    return 0;
+}

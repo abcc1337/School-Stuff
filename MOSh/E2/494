@@ -1,0 +1,52 @@
+type 
+  mas=record
+    p:boolean;
+    t:byte;
+  end;
+var i,a,b,n,q,x,y,x2,y2,j,k,count,count2:longint;
+    ar:array[1..20000,1..20000]of mas;
+    h:char;
+    f,fo:text;
+begin
+    assign(f,'repair.in');
+    reset(f);
+    readln(f,a,b);
+    readln(f,n,q);
+    for i:=1 to n-1 do begin
+        readln(f,h,x,y);
+        ar[x,y].p:=true;
+        if h='h' then begin
+          ar[x+1,y].p:=true;
+          if ar[x,y].t=2 then
+            ar[x,y].t:=3
+          else
+            ar[x,y].t:=1;
+        end
+        else begin
+          ar[x,y+1].p:=true;
+          if ar[x,y].t=1 then
+            ar[x,y].t:=3
+          else
+            ar[x,y].t:=2;
+        end;
+    end;
+    assign(fo,'repair.out');
+    rewrite(fo);
+    for i:=1 to q do begin
+        readln(f,x,y,x2,y2);
+        count:=0;
+        count2:=0;
+        for j:=x to x2 do
+          for k:=y to y2 do
+            if ar[j,k].p then begin
+              inc(count2);
+              if ((ar[j,k].t=1)or(ar[j,k].t=3))and(j+1<=x2) then
+                inc(count);
+              if ((ar[j,k].t=2)or(ar[j,k].t=3))and(k+1<=y2) then
+                inc(count);
+            end;
+        writeln(fo,count2-count); 
+    end;
+    close(fo);
+    close(f);
+end.

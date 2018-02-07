@@ -1,0 +1,111 @@
+#include <cstdio>
+#include <iostream>
+#include <cmath>
+#include <algorithm>
+#include <vector>
+#include <queue>
+#include <map>
+#include <set>
+#include <string>
+#include <cstring>
+using namespace std;
+
+#define ll long long
+#define ld long double
+#define mp make_pair
+#define pb push_back
+#define forn(i, n) for(int i = 0; i < (int) n; i++)
+#define forn1(i, n) for(int i = 1; i <= (int) n; i++)
+
+const int inf = 1 << 30;
+const ld eps = 1e-9;
+
+struct str{
+	int a, b, c;
+};
+
+str ar[210000];
+
+bool comp1(str &a, str &b){
+	return mp(mp(a.a, a.b), a.c) < mp(mp(b.a, b.b), b.c);
+}
+
+bool comp2(str &a, str &b){
+	return mp(mp(a.a, a.c), a.b) < mp(mp(b.a, b.c), b.b);
+
+}
+
+bool comp3(str &a, str &b){
+	return mp(mp(a.c, a.b), a.a) < mp(mp(b.c, b.b), b.a);
+}
+
+
+ll n;
+
+ll a1, a2, a3, b1, b2, b3, c, d;
+
+void get1(ll &z){
+	ll i = 0, j;
+	while (i < n){
+		j = i;
+		while (j < n && ar[i].a == ar[j].a) j++;
+		z += ((j - i) * (j - i - 1)) / 2;
+		i = j;
+	}
+}
+
+
+void get2(ll &z){
+	ll i = 0, j;
+	while (i < n){
+		j = i;
+		while (j < n && mp(ar[i].a, ar[i].b) == mp(ar[j].a, ar[j].b)) j++;
+		z += ((j - i) * (j - i - 1)) / 2;
+		i = j;
+	}
+}
+
+int main(){
+	//freopen("input.txt", "r", stdin);
+	//freopen("output.txt", "w", stdout);
+	freopen("onlyone.in", "r", stdin);
+	 freopen("onlyone.out", "w", stdout);
+
+
+	scanf("%lld", &n);
+	forn(i, n) scanf("%d%d%d", &ar[i].a, &ar[i].b, &ar[i].c);
+
+	sort(ar, ar + n, comp1);
+	get1(a1); get2(b1);
+
+	forn(i, n){
+		swap(ar[i].b, ar[i].c);
+		swap(ar[i].a, ar[i].b);
+	}
+	sort(ar, ar + n, comp1);
+	get1(a2); get2(b2);
+
+
+	forn(i, n){
+		swap(ar[i].a, ar[i].c);
+		swap(ar[i].b, ar[i].c);
+	}
+	sort(ar, ar + n, comp1);
+	get1(a3); get2(b3);
+
+	
+	ll i = 0, j;
+	while (i < n){
+		j = i;
+		while (j < n && mp(mp(ar[i].a, ar[i].b), ar[i].c) == mp(mp(ar[j].a, ar[j].b), ar[j].c)) j++;
+		c += ((j - i) * (j - i - 1)) / 2;
+		i = j;
+	}
+
+
+
+	printf("%lld", a1 + a2 + a3 - ((ll)2) * (b1 + b2 + b3) + ((ll)3) * c);
+
+
+	return 0;
+}

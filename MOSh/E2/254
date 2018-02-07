@@ -1,0 +1,102 @@
+#include <fstream>
+#include <cmath>
+#include <algorithm>
+using namespace std;
+
+ifstream cin("typing.in");
+ofstream cout("typing.out");
+struct node {
+    int go[2];//, sufl, p, last;
+    int cost;
+    node () {
+        go[0] = go[1] = -1;
+        //sufl = -1;
+        cost = 1e17;
+    }
+    void print(long long deep);
+};
+
+node nodes[40010000];
+long long  nodes_cnt = 1;
+
+
+void node::print(long long deep) {
+    //cout << deep << endl;
+    cout << string(deep, ' ') << cost << endl;
+    if (this->go[0] != -1)
+        nodes[this->go[0]].print(deep + 1);
+    if (this->go[1] != -1)
+        nodes[this->go[1]].print(deep + 1);
+
+}
+
+void push(const string &a, int cost) {
+    long long cur = 0;
+    for (long long i = 0; i < a.size(); i++) {
+        if (nodes[cur].go[a[i] - '0']==-1) {
+            //nodes[nodes_cnt].p = cur;
+            //nodes[nodes_cnt].last = a[i] - '0';
+            nodes[cur].go[a[i] - '0'] = nodes_cnt++;
+        }
+        if (cost > 0)
+            nodes[cur].cost = min(nodes[cur].cost, cost);
+        cur = nodes[cur].go[a[i] - '0'];
+    }
+    nodes[cur].cost = min(nodes[cur].cost, abs(cost));
+}
+/*
+int go(int from, int with);
+
+int suflink(int u) {
+    if (nodes[u].sufl == -1) {
+        nodes[u].sufl = go(suflink(nodes[u].p), nodes[u].last);
+    }
+    return nodes[u].sufl;
+}
+
+
+int go(int from, int with) {
+    if (nodes[from].go[with] == -1)
+        nodes[from].go[with] = go(suflink(from), with);
+    return nodes[from].go[with];
+}
+*/
+int main() {
+    //nodes[0].p = 0;
+    long long m, n, l;
+    cin >> m >> n >> l;
+    string s, pats;
+    long long cost;
+    cin >> s;
+    for (long long i = 0; i < n; i++) {
+        cin >> cost >> pats;
+        reverse(pats.begin(), pats.end());
+        push(pats, cost);
+        for (long long j = 1; j <= pats.size(); j++)
+            push(pats.substr(pats.size() - j, j), -cost);
+    }
+    //nodes[0].print(0);
+    long long d[m + 1], cur;
+    d[0] = 0;
+    for (long long i = 1; i <= m; i++) {
+        d[i] = 1e17;
+        cur = 0;
+        for (long long j = i; j >= 1 && j > i - 2048; j--) {
+            cur = nodes[cur].go[s[j - 1]-'0'];
+            //cout << i << j << ' ' << cur <<endl;
+            if (cur == -1)
+                break;
+            //cout << "upd d_" << i << " =";
+            d[i] = min(d[i], d[j - 1] + nodes[cur].cost);
+            //cout << d[i] << endl;
+        }
+    }/*
+    for (int i = 0; i <= m; i++)
+        cout << d[i] << ' ';
+    cout << endl;*/
+    if (d[m] >= 1e17)
+        cout << -1;
+    else
+        cout << d[m];
+    return 0;
+}

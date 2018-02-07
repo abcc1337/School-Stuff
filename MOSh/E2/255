@@ -1,0 +1,118 @@
+#include <bits/stdc++.h>
+
+#define INF (2117117117)
+#define MOD (1000000007)
+#define EPS (1e-9)
+#define LLINF (2117117117117117117LL)
+#define pb(a) push_back(a)
+#define mp(a, b) make_pair(a, b)
+#define sz(a) ((int) (a).size())
+
+#define TASK "penguins"
+
+typedef long long llong;
+
+using namespace std;
+
+const int MAXN = 1117;
+
+int t, n, k, dp[MAXN][MAXN][2];
+char s[MAXN], ans[MAXN];
+
+void calcans(int i, int j, int lst)
+{
+    if (i == 0)
+        return;
+    if (j == 0)
+    {
+        for (i--; i >= 0; ans[i] = lst + '0', i--);
+        return;
+    }
+    int il, cnt;
+    for (il = i - 1, cnt = 0; il > 0; il--)
+    {
+        cnt += s[il] - '0';
+        if (dp[i][j][lst] == dp[il][j - 1][lst ^ 1] + ((lst == 0) ? cnt : (i - il - cnt)))
+            break;
+    }
+    for (i--; i >= il; i--)
+        ans[i] = lst + '0';
+    calcans(il, j - 1, lst ^ 1);
+}
+
+int main()
+{
+#ifdef lordf
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#else
+    freopen(TASK ".in", "r", stdin);
+    freopen(TASK ".out", "w", stdout);
+#endif // lordf
+
+    scanf("%d", &t);
+    
+    for (int tt = 0; tt < t; tt++)
+    {
+        scanf("%d %d\n", &n, &k);
+        scanf("%s", s);
+        for (int i = 1; i <= n; i++)
+        {
+            dp[i][0][0] = 0;
+            dp[i][0][1] = 0;
+            for (int j = 0; j < i; j++)
+            {
+                if (s[j] == '1')
+                    dp[i][0][0]++;
+                else
+                    dp[i][0][1]++;
+            }
+            for (int j = 1; j < k; j++)
+            {
+                dp[i][j][0] = INF;
+                dp[i][j][1] = INF;
+                for (int il = i - 1, cnt = 0; il >= 0; il--)
+                {
+                    cnt += s[il] - '0';
+                    dp[i][j][0] = min(dp[i][j][0], dp[il][j - 1][1] + cnt);
+                    dp[i][j][1] = min(dp[i][j][1], dp[il][j - 1][0] + (i - il - cnt));
+                }
+            }
+        }
+        if (dp[n][k - 1][0] < dp[n][k - 1][1])    
+            calcans(n, k - 1, 0);
+        else
+            calcans(n, k - 1, 1);
+        ans[n] = 0;
+        printf("%s\n", ans);
+    }
+
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

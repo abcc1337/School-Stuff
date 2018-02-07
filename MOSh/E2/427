@@ -1,0 +1,107 @@
+#include <iostream>
+#include <cstdio>
+#include <cmath>
+#include <vector>
+#include <map>
+#include <unordered_map>
+#include <algorithm>
+
+using namespace std;
+
+typedef long long int ll;
+
+const int SIZE = 300001;
+const ll INF = 1e18;
+
+char s[SIZE], t[SIZE];
+ll dp[SIZE];
+
+struct dot {
+	ll cost;
+	int ch[2];
+	dot() { cost = INF; ch[0] = -1; ch[1] = -1; }
+};
+vector<dot> tr;
+
+void add2(char s[], ll c)
+{
+	int p = 0;
+
+	for (int i = 0; s[i]; i++) {
+		if (tr[p].ch[s[i] - '0'] == -1) {
+			tr[p].ch[s[i] - '0'] = tr.size();
+			tr.push_back(dot());
+		}
+
+		p = tr[p].ch[s[i] - '0'];
+	}
+
+	tr[p].cost = min(c, tr[p].cost);
+}
+
+void add1(char s[], ll c)
+{
+	int p = 0;
+
+	for (int i = 0; s[i]; i++) {
+		if (tr[p].ch[s[i] - '0'] == -1) {
+			tr[p].ch[s[i] - '0'] = tr.size();
+			tr.push_back(dot());
+		}
+
+		tr[p].cost = min(c, tr[p].cost);
+		p = tr[p].ch[s[i] - '0'];
+
+		add2(s + i, c);
+	}
+
+	tr[p].cost = min(tr[p].cost, c);
+}
+
+int main()
+{
+#ifdef _CONSOLE
+	freopen("input.txt", "r", stdin);
+#else
+	freopen("typing.in", "r", stdin);
+	freopen("typing.out", "w", stdout);
+#endif
+
+	int n, m, L;
+
+	tr.reserve(40000000);
+	tr.push_back(dot());
+
+	scanf("%d %d %d\n", &n, &m, &L);
+
+	gets_s(s);
+
+	for (int j = 0; j < m; j++) {
+		ll c;
+
+		scanf("%lld %s", &c, t);
+
+		add1(t, c);
+	}
+
+	dp[n] = 0;
+	for (int i = n - 1; i >= 0; --i) {
+		dp[i] = INF;
+
+		int p = 0;
+
+		for (int j = i; s[j] && tr[p].ch[s[j] - '0'] > -1; j++) {
+			p = tr[p].ch[s[j] - '0'];
+
+			ll t = tr[p].cost;
+
+			if (t > 0 && t + dp[j + 1] < dp[i])
+				dp[i] = t + dp[j + 1];
+		}
+	}
+
+	if (dp[0] != INF)
+		printf("%lld\n", dp[0]);
+	else
+		printf("-1\n");
+}

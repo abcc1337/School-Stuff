@@ -1,0 +1,36 @@
+program Aa1;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+var n, i, j, k, x, y, z: integer;
+    a: array[1..100, 1..100, 1..100] of integer;
+    b1, b2, b3: array[1..100, 1..100] of integer;
+    c1, c2, c3: array[1..100] of integer;
+    ans: int64;
+
+begin
+  reset(input, 'onlyone.in'); 
+  rewrite(output, 'onlyone.out');
+  read(n);
+  for i := 1 to n do begin
+    read(x, y, z);
+    inc(a[x, y, z]);
+    inc(b3[x, y]);
+    inc(b2[x, z]);
+    inc(b1[y, z]);
+    inc(c1[x]);
+    inc(c2[y]);
+    inc(c3[z]);
+  end;
+  for i := 1 to 100 do begin
+    for j := 1 to 100 do begin
+      for k := 1 to 100 do begin
+        ans := ans + (c1[i] + c2[j] + c3[k] - 2* b1[j, k] - 2* b2[i, k] - 2* b3[i, j] + 3* a[i, j, k]) * a[i, j, k];
+      end;
+    end;
+  end;
+  writeln(ans div 2);
+end.

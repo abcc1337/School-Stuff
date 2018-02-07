@@ -1,0 +1,48 @@
+import sys
+
+
+def dfs(v, dist, starts, res):
+    if v in starts:
+        res -= 1
+        starts = {v} ^ starts
+    arr1[v] = False
+    tmparr[v] = False
+    for i in range(len(matrix[v])):
+        if (tmparr[matrix[v][i][0]] and dist >= matrix[v][i][1]) or (dist - matrix[v][i][1] > arr[matrix[v][i][0]]):
+            dfs(matrix[v][i][0], max(dist - matrix[v][i][1], arr[matrix[v][i][0]]), starts, res)
+    return res
+
+
+sys.stdin = open('alarm.in')
+sys.stdout = open('alarm.out', 'w')
+n = int(input())
+arr = list(map(int, input().split()))
+arr1 = [True] * n
+matrix = [None] * n
+for i in range(n):
+    matrix[i] = []
+ways = [None] * (n - 1)
+for i in range(n - 1):
+    u, v, l = map(int, input().split())
+    u -= 1
+    v -= 1
+    matrix[u].append((v, l))
+    matrix[v].append((u, l))
+    ways[i] = [u, v, l]
+#print(ways)
+starts = set()
+res = 0
+for i in range(n):
+    if arr1[i]:
+        tmparr = [True] * n
+        res += 1
+        res = dfs(i, arr[i], starts, res)
+        starts.add(i)
+#print(ways)
+#print(arr)
+#res = 1
+#for i in range(len(ways)):
+#    if ways[i][2] > max(arr[ways[i][0]], arr[ways[i][1]]):
+#        res += 1
+print(res)
+sys.stdout.close()

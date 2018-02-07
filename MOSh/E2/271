@@ -1,0 +1,139 @@
+#pragma comment(linker, "/Stack:512000000")
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <iostream>
+#include <cstdio>
+#include <cmath>
+#include <ctime>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <cstring>
+#include <set>
+#include <map>
+#include <unordered_set>
+#include <unordered_map>
+
+using namespace std;
+
+#define all(x) (x).begin(), (x).end()
+
+typedef long long LL;
+typedef double dbl;
+
+const int INF = (int)1e9;
+const int MOD = (int)1e9 + 7;
+const dbl EPS = 1e-9;
+
+unordered_map<int, unordered_map<int, int>> cache;
+vector<vector<char>> g;
+
+int ask(int i, int j) {
+  if (i == j) return 1;
+  if (cache[i].find(j) != cache[i].end())
+    return cache[i][j];
+  cout << "? " << i + 1 << ' ' << j + 1 << '\n';
+  cout.flush();
+  int ans;
+  cin >> ans;
+  return cache[i][j] = ans;
+}
+
+int cnt = 1;
+vector<int> ans;
+
+void dfs(int v) {
+  ans[v] = cnt;
+
+  for (int i = 0; i < g[v].size(); ++i) {
+    if (g[v][i] != 1 && ans[i] == 0)
+      dfs(i);
+  }
+}
+
+int main() {
+#ifdef _DEBUG
+#elif 0
+# define PROB "video"
+  freopen(PROB".in", "r", stdin);
+  freopen(PROB".out", "w", stdout);
+#endif
+
+  int n;
+  cin >> n;
+
+  ans.resize(n);
+
+  ask(0, n - 1);
+
+  vector<pair<int, int>> t;
+
+  int last = 0;
+  for (int i = 0; i < n; ++i) {
+    if (ask(last, i) != 1) {
+      t.push_back({ last, i - 1 });
+      last = i;
+    }
+  }
+  t.push_back({ last, n - 1 });
+
+  n = t.size();
+  g.resize(n, vector<char>(n, -1));
+
+  for (int i = 0; i < n - 1; ++i) {
+    g[i][i + 1] = g[i + 1][i] = 1;
+  }
+
+  for (int i = 0; i < n; ++i) {
+    for (int j = i + 2; j < n; ++j) {
+      if (g[i][j] != -1) continue;
+      if (ask(t[i].first, t[j - 1].second) == ask(t[i + 1].first, t[j].second) && ask(t[i + 1].first, t[j - 1].second) == ask(t[i].first, t[j].second) - 1) {
+        g[i][j] = g[j][i] = 0;
+        for (int k = 0; k < n; ++k) {
+          if (g[i][k] == 0)
+            g[j][k] = g[k][j] = 0;
+          if (g[j][k] == 0)
+            g[i][k] = g[k][i] = 0;
+        }
+        break;
+      }
+      else {
+        g[i][j] = g[j][i] = 1;
+        for (int k = 0; k < n; ++k) {
+          if (g[i][k] == 0)
+            g[j][k] = g[k][j] = 1;
+          if (g[j][k] == 0)
+            g[i][k] = g[k][i] = 1;
+        }
+      }
+    }
+  }
+
+  for (int i = 0; i < n; ++i) {
+    if (!ans[i]) {
+      dfs(i);
+      cnt++;
+    }
+  }
+  
+  cout << "Ready!" << '\n';
+  cout << ask(t[0].first, t.back().second) << '\n';
+  int ptr = 0;
+  for (int i = 0; i <= t.back().second; ++i) {
+    cout << ans[ptr] << ' ';
+    if (t[ptr].second == i) ptr++;
+  }
+  cout << '\n';
+  cout.flush();
+
+#ifdef _DEBUG
+  freopen("output.txt", "w", stdout);
+  ptr = 0;
+  for (int i = 0; i <= t.back().second; ++i) {
+    cout << ans[ptr] << ' ';
+    if (t[ptr].second == i) ptr++;
+  }
+#endif
+
+  return 0;
+}

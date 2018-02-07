@@ -1,0 +1,83 @@
+#include <fstream>
+#include <vector>
+#define MAXA 3000
+#define LEFT 0
+#define UP 1
+#define RIGHT 2
+#define DOWN 3
+
+
+using namespace std;
+
+int X1, X2, Y1, Y2;
+bool arr[MAXA][MAXA][4];
+
+bool visited[MAXA][MAXA];
+
+void Dfs(int x, int y)
+{
+	visited[x][y] = true;
+	if (arr[x][y][UP] && y < Y2 && !visited[x][y + 1])
+		Dfs(x, y + 1);
+	if (arr[x][y][RIGHT] && x < X2 && !visited[x + 1][y])
+		Dfs(x + 1, y);
+	if (arr[x][y][DOWN] && y > Y1 && !visited[x][y - 1])
+		Dfs(x, y - 1);
+	if (arr[x][y][LEFT] && x > X1 && !visited[x - 1][y])
+		Dfs(x - 1, y);
+}
+
+bool Is(int x, int y)
+{
+	for (int i = 0; i < 4; i++)
+		if (arr[x][y][i])
+			return true;
+	return false;
+}
+
+int main()
+{
+	ifstream fin("repair.in");
+	ofstream fout("repair.out");
+	int a, b, n, q;
+	fin >> a >> b >> n >> q;
+	for (int i = 1; i < n; i++)
+	{
+		char mode;
+		int x, y;
+		fin >> mode >> x >> y;
+		x--;
+		y--;
+		if (mode == 'h')
+		{
+			arr[x][y][RIGHT] = true;
+			arr[x + 1][y][LEFT] = true;
+		}
+		else
+		{
+			arr[x][y][UP] = true;
+			arr[x][y + 1][DOWN] = true;
+		}
+	}
+	for (int kl = 0; kl < q; kl++)
+	{
+		int ans = 0;
+		fin >> X1 >> Y1 >> X2 >> Y2;
+		X1--;
+		Y1--;
+		X2--;
+		Y2--;
+		for (int i = X1; i <= X2; i++)
+			for (int j = Y1; j <= Y2; j++)
+				visited[i][j] = 0;
+		for (int i = X1; i <= X2; i++)
+			for (int j = Y1; j <= Y2; j++)
+				if (!visited[i][j] && Is(i, j))
+				{
+					Dfs(i, j);
+					ans++;
+				}
+		fout << ans << endl;
+	}
+	return 0;
+}

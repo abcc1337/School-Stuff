@@ -1,0 +1,239 @@
+#include <cstdio>
+#include <iostream>
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
+const int maxn = 300000 + 10;
+
+int tr[4 * maxn];
+int st[4 * maxn];
+
+void sets(int it, int x) {
+	tr[it] = x;
+	st[it] = x;
+}
+
+void push(int it) {
+	if (st[it] != -1) {
+		sets(2 * it, st[it]);
+		sets(2 * it + 1, st[it]);
+		st[it] = -1;
+	}
+}
+
+void change(int it, int l, int r, int lm, int rm, int x) {
+	if (l == lm && r == rm) {
+		sets(it, x);
+	}
+	else {
+		push(it);
+
+		int m = (l + r) / 2;
+
+		if (rm <= m) {
+			change(2 * it, l, m, lm, rm, x);
+		}
+		else if (lm > m) {
+			change(2 * it + 1, m + 1, r, lm, rm, x);
+		}
+		else {
+			change(2 * it, l, m, lm, m, x);
+			change(2 * it + 1, m + 1, r, m + 1, rm, x);
+		}
+
+		tr[it] = min(tr[2 * it], tr[2 * it + 1]);
+	}
+}
+
+int search(int it, int l, int r, int lm, int rm) {
+	if (l == lm && r == rm) {
+		return tr[it];
+	}
+	else {
+		push(it);
+
+		int m = (l + r) / 2;
+
+		if (rm <= m) {
+			return search(2 * it, l, m, lm, rm);
+		}
+		else if (lm > m) {
+			return search(2 * it + 1, m + 1, r, lm, rm);
+		}
+		else {
+			return min(search(2 * it, l, m, lm, m), search(2 * it + 1, m + 1, r, m + 1, rm));
+		}
+	}
+}
+
+long long sumr[4 * maxn];
+int maxr[4 * maxn];
+int str[4 * maxn];
+
+void setsr(int it, int l, int r, int x) {
+	maxr[it] = x;
+	str[it] = x;
+	sumr[it] = (long long)x * (r - l + 1);
+}
+
+void pushr(int it, int l, int r) {
+	if (str[it] != -1) {
+		int m = (l + r) / 2;
+
+		setsr(2 * it, l, m, str[it]);
+		setsr(2 * it + 1, m + 1, r, str[it]);
+
+		str[it] = -1;
+	}
+}
+
+void changer(int it, int l, int r, int lm, int rm, int x) {
+	if (l == lm && r == rm) {
+		setsr(it, l, r, x);
+	}
+	else {
+		pushr(it, l, r);
+
+		int m = (l + r) / 2;
+
+		if (rm <= m) {
+			changer(2 * it, l, m, lm, rm, x);
+		}
+		else if (lm > m) {
+			changer(2 * it + 1, m + 1, r, lm, rm, x);
+		}
+		else {
+			changer(2 * it, l, m, lm, m, x);
+			changer(2 * it + 1, m + 1, r, m + 1, rm, x);
+		}
+
+		sumr[it] = sumr[2 * it] + sumr[2 * it + 1];
+		maxr[it] = max(maxr[2 * it], maxr[2 * it + 1]);
+	}
+}
+
+int searchr(int it, int l, int r, int lm, int rm) {
+	if (l == lm && r == rm) {
+		return maxr[it];
+	} else {
+		pushr(it, l, r);
+
+		int m = (l + r) / 2;
+
+		if (rm <= m) {
+			return searchr(2 * it, l, m, lm, rm);
+		}
+		else if (lm > m) {
+			return searchr(2 * it + 1, m + 1, r, lm, rm);
+		}
+		else {
+			return max(searchr(2 * it, l, m, lm, m), searchr(2 * it + 1, m + 1, r, m + 1, rm));
+		}
+	}
+}
+
+int r[maxn];
+int v[maxn];
+
+int main() {
+	freopen("lamps.in", "r", stdin);
+	freopen("lamps.out", "w", stdout);
+	int n, q;
+
+	scanf("%d %d", &n, &q);
+
+	scanf("\n");
+
+	for (int i = 0; i < n; i++) {
+		char c;
+		scanf("%c", &c);
+		v[i] = c - '0';
+		change(1, 0, n - 1, i, i, c - '0');
+	}
+
+	r[n] = n;
+
+	for (int i = n - 1; i >= 0; i--) {
+		if (v[i] == 0) {
+			r[i] = i;
+		}
+		else {
+			r[i] = r[i + 1];
+		}
+
+		changer(1, 0, n - 1, i, i, r[i]);
+	}
+
+	long long cns = (long long)n * (n - 1) / 2;
+
+	printf("%lld\n", sumr[1] - cns);
+
+	for (int i = 0; i < q; i++) {
+		int l, r, c;
+
+		scanf("%d %d %d", &l, &r, &c);
+		l--;
+		r--;
+
+		change(1, 0, n - 1, l, r, c);
+
+		if (c == 1) {
+			int ll, rr;
+			int left = r;
+			int right = n - 1;
+
+			while (left != right) {
+				int mid = (left + right + 1) / 2;
+
+				if (search(1, 0, n - 1, r, mid) == 1) {
+					left = mid;
+				}
+				else {
+					right = mid - 1;
+				}
+			}
+
+			rr = left;
+
+			left = 0;
+			right = l;
+
+			while (left != right) {
+				int mid = (left + right) / 2;
+
+				if (search(1, 0, n - 1, mid, l) == 1) {
+					right = mid;
+				}
+				else {
+					left = mid + 1;
+				}
+			}
+
+			ll = left;
+
+			left = ll;
+			right = rr;
+
+			while (left != right) {
+				int mid = (left + right + 1) / 2;
+
+				if (searchr(1, 0, n - 1, ll, mid) > rr) {
+					right = mid - 1;
+				}
+				else {
+					left = mid;
+				}
+			}
+
+			if (searchr(1, 0, n - 1, ll, left) <= rr) {
+				changer(1, 0, n - 1, ll, left, rr + 1);
+			}
+		}
+
+		printf("%lld\n", sumr[1] - cns);
+	}
+
+	return 0;
+}

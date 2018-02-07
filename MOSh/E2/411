@@ -1,0 +1,76 @@
+#include <iostream>
+#include <vector>
+#include <cassert>
+#include <cstdio>
+#include <map>
+
+using namespace std;
+
+map <pair<int, int>, bool> m;
+
+long long ans = 0;
+
+int main() {
+    freopen("lamps.in", "r", stdin);
+    freopen("lamps.out", "w", stdout);
+
+    int n, q; cin >> n >> q;
+    string s; cin >> s;
+    string s1 = s;
+
+    int r = 0;
+    for (int i = 0; i < int(s.length()); i++) if (s[i] == '1') {
+        int u = i;
+        while (u + 1 < n && s[u + 1] == '1')
+            u++;
+        for (int j = i; j <= u; j++)
+            m[make_pair(i, j)] = true, ans++;
+    }
+
+    cout << ans << endl;
+
+    for (int t = 0; t < q; t++) {
+        int l, r, c; cin >> l >> r >> c; l--, r;
+        if (c == 0) {
+            for (int i = l; i < r; i++)
+                s[i] = '0';
+            cout << ans << endl;
+            continue;
+        }
+
+        long long k = 0;
+
+        for (int i = l; i < r; i++) {
+            k++;
+            int u = r - 1;
+            while (u + 1 < n && s[u + 1] == '1')
+                u++;
+            for (int j = i; j <= u; j++)
+                if (!m[make_pair(i, j)]) {
+                    m[make_pair(i, j)] = true;
+                    ans++;
+                }
+            u = l;
+            while (u - 1 >= 0 && s[u - 1] == '1')
+                u--;
+            for (int j = u; j <= i; j++)
+                if (!m[make_pair(j, i)]) {
+                    m[make_pair(j, i)] = true;
+                    ans++;
+                }
+        }
+        for (int i = l; i < r; i++)
+            for (int j = i; j < r; j++)
+                if (!m[make_pair(i, j)]) {
+                    m[make_pair(i, j)] = true;
+                    ans++;
+                }
+
+        for (int i = l; i < r; i++)
+            s[i] = '1';
+
+        cout << ans << endl;
+    }
+
+    return 0;
+}

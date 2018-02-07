@@ -1,0 +1,39 @@
+f = open('video.in', 'r')
+ff = open('video.out', 'w')
+n, m = map(int, f.readline().split())
+a = [[] for i in range(n)]
+for i in range(n):
+    s = f.readline().rstrip()
+    for j in range(m):
+        a[i].append(int(s[j]))
+k = [0] * m
+for j in range(m):
+    for i in range(n):
+        if a[i][j] == a[(i + 1) % n][j] == a[i][(j + 1) % m] == a[(i + 1) % n][(j + 1) % m]:
+            k[j] += 1
+mn = 9999999
+ind = -1
+for i in range(m):
+    if mn > k[i]:
+        mn = k[i]
+        ind = i + 1
+b = [[0 for j in range(m)] for i in range(n)]
+for i in range(n):
+    for j in range(m):
+        b[i][(j + ind) % m] = a[i][j]
+k = [0] * n
+for i in range(n):
+    for j in range(m):
+        if a[i][j] == a[(i + 1) % n][j] == a[i][(j + 1) % m] == a[(i + 1) % n][(j + 1) % m]:
+            k[i] += 1
+
+for i in range(n):
+    for j in range(m):
+        a[(i + ind) % n][j] = b[i][j]
+ans = 0
+for i in range(n - 1):
+    for j in range(m - 1):
+        if a[i][j] == a[(i + 1) % n][j] == a[i][(j + 1) % m] == a[(i + 1) % n][(j + 1) % m]:
+            ans += 1
+print(ans, file = ff)
+ff.close()

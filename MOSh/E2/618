@@ -1,0 +1,31 @@
+fin = open('submarine.in', 'r')
+fout = open('submarine.out', 'w')
+a = int(fin.readline())
+pr = [int(x) for x in fin.readline().split()]
+h, v = [int(x) for x in fin.readline().split()]
+mat = []
+for i in range(h):
+    mat.append(fin.readline())
+maxx = -1000000000000
+for k1 in range(h):
+    for i1 in range(v):
+        for j1 in range(i1 + 1, v):
+            for k2 in range(i1, j1):
+                for i2 in range(k1 + 1):
+                    for k3 in range(k2 + 1, j1 + 1):
+                        for i3 in range(k1 + 1):
+                            for j3 in range(k1, h):
+                                summ = 0
+                                for c in range(i1, j1 + 1):
+                                    summ += pr[ord(mat[k1][c]) - ord('a')]
+                                for c in range(i2, k1):
+                                    summ += pr[ord(mat[c][k2]) - ord('a')]
+                                for c in range(i3, k1):
+                                    summ += pr[ord(mat[c][k3]) - ord('a')]
+                                for c in range(k1 + 1, j3 + 1):
+                                    summ += pr[ord(mat[c][k3]) - ord('a')]
+                                if summ > maxx:
+                                    maxx = summ
+print(maxx, file=fout)
+fin.close()
+fout.close()

@@ -1,0 +1,145 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <algorithm>
+
+typedef long long ll;
+using namespace std;
+
+class segment_tree
+{
+    int n;
+    vector<ll> t;
+    void set_val(int v, int L, int R, int i, int x)   
+    {
+        if (L > i || R <= i)
+            return;
+        else if (L == R - 1)
+            t[v] = x;
+        else
+        {
+            set_val(2 * v + 1, L, (L + R) >> 1, i, x);
+            set_val(2 * v + 2, (L + R) >> 1, R, i, x);
+            t[v] = t[2 * v + 1] + t[2 * v + 2];
+        }
+    }
+    pair<ll, int> bsearch(int v, int L, int R, ll val)
+    {
+        if (L == R - 1)
+            return make_pair(0, L);
+        else
+        {
+            if (t[2 * v + 1] > val)
+                return bsearch(2 * v + 1, L, (L + R) >> 1, val);
+            else
+            {
+                pair<ll, ll> p = bsearch(2 * v + 2, (L + R) >> 1, R, val - t[2 * v + 1]);
+                return make_pair(p.first + t[2 * v + 1], p.second);
+            }
+        }
+    }
+    ll get_prefix_sum(int v, int L, int R, int p)
+    {
+        if (L >= p)
+            return 0;
+        else if (R <= p)
+            return t[v];
+        else
+            return get_prefix_sum(2 * v + 1, L, (L + R) >> 1, p) + get_prefix_sum(2 * v + 2, (L + R) >> 1, R, p);
+    }
+  public:
+    segment_tree(int _n)
+    {
+        n = _n;
+        t.resize(4 * n, 0);
+    }
+    void set_val(int i, ll x)
+    {
+        set_val(0, 0, n, i, x);
+    }
+    pair<ll, int> bsearch(ll val)
+    {
+        if (t[0] <= val)
+            return make_pair(t[0], n);
+        else
+            return bsearch(0, 0, n, val);
+    }
+    ll prefix_sum(int p)
+    {
+        return get_prefix_sum(0, 0, n, p);
+    }
+};
+
+struct fish_base
+{
+    int y; ll b, c;
+    fish_base() {}
+    bool operator<(const fish_base& other) const
+    {
+        return c > other.c;
+    }
+};
+
+struct event
+{
+    int x, type; ll a;
+    event() {}
+    bool operator<(const event& other) const
+    {
+        return x < other.x;
+    }
+};
+
+int main()
+{
+#ifndef LOCAL
+    freopen("fisher.in", "r", stdin);
+    freopen("fisher.out", "w", stdout);
+#endif
+    int n, m; ll p;
+    scanf("%d %d %lld", &n, &m, &p);
+    event* evs = new event[n + m];
+    for (int i = 0; i < n; i++)
+    {
+        scanf("%d %lld", &evs[i].x, &evs[i].a);
+        evs[i].type = 1;
+    }
+    fish_base* fbs = new fish_base[m];
+    for (int i = 0; i < m; i++)
+        scanf("%d %lld %lld", &fbs[i].y, &fbs[i].b, &fbs[i].c);
+    sort(fbs, fbs + m);
+    for (int i = 0; i < m; i++)
+    {
+        evs[n + i].x = fbs[i].y;
+        evs[n + i].type = 2;
+        evs[n + i].a = i;
+    }
+    sort(evs, evs + (n + m));
+    segment_tree fst(m);
+    segment_tree sst(m);
+    event e;
+    ll fish = 0;
+    ll ans = 0;
+    for (int i = 0; i < n + m; i++)
+    {
+        e = evs[i];
+        if (evs[i].type == 2)
+        {
+            fst.set_val(e.a, fbs[e.a].b * fbs[e.a].c);
+            sst.set_val(e.a, fbs[e.a].b);
+        }
+        else
+            fish += e.a;
+        ll nans = -p * e.x;
+        pair<ll, int> pp = sst.bsearch(fish);
+        if (pp.second == m)
+            nans += fst.prefix_sum(m);
+        else
+        {
+            nans += fst.prefix_sum(pp.second) + fbs[pp.second].c * (fish - pp.first);
+        }
+        ans = max(ans, nans);
+    }
+    printf("%lld\n", ans);
+    return 0;
+}

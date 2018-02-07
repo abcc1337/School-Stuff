@@ -1,0 +1,156 @@
+program Project2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+type
+line = array of integer;
+const
+namefile : string = 'submarine';
+var
+f, g : textfile;
+k, h, w, i, j, t, u, y, x, z, v : integer;
+cod : array of integer;
+c : char;
+pole : array of line;
+max, a, b, d, e : integer;
+up, left, right, down : integer;
+
+function decod(codes : char) : integer;
+begin
+case codes of
+'a' : result := cod[0];
+'b' : result := cod[1];
+'c' : result := cod[2];
+'d' : result := cod[3];
+'e' : result := cod[4];
+'f' : result := cod[5];
+'g' : result := cod[6];
+'h' : result := cod[7];
+'i' : result := cod[8];
+'j' : result := cod[9];
+'k' : result := cod[10];
+'l' : result := cod[11];
+'m' : result := cod[12];
+'n' : result := cod[13];
+'o' : result := cod[14];
+'p' : result := cod[15];
+'q' : result := cod[16];
+'r' : result := cod[17];
+'s' : result := cod[18];
+'t' : result := cod[19];
+'u' : result := cod[20];
+'v' : result := cod[21];
+'w' : result := cod[22];
+'x' : result := cod[23];
+'y' : result := cod[24];
+'z' : result := cod[25];
+end;
+end;
+
+function liner(ax, ay, az : integer) : integer;
+var
+locala : integer;
+begin
+  result := 0;
+  for locala := ax to az do begin
+    result := result + pole[locala][ay];
+  end;
+end;
+
+function maximym(loa, lob : integer) : integer;
+begin
+  if loa > lob then result := loa else result := lob;
+end;
+
+begin
+assignfile(f, namefile+'.in');
+reset(f);
+assignfile(g, namefile+'.out');
+rewrite(g);
+readln(f, k);
+setlength(cod, k);
+for i := 0 to k-2 do begin
+  read(f, cod[i]);
+end;
+read(f, cod[k-1]);
+readln(f, h, w);
+SetLength(pole, h);
+up := -1;
+left := 5000;
+right := -1;
+down := -1;
+for i := 0 to h-1 do begin
+  SetLength(pole[i], w);
+  for j := 0 to w-2 do begin
+    read(f, c);
+    pole[i][j] := decod(c);
+    if decod(c) >= 0 then begin
+      down := i;
+    end;
+    if (decod(c) >= 0)and (up = -1) then begin
+      up := i;
+    end;
+    if (decod(c) >= 0)and (j < left) then begin
+      left := j;
+    end;
+    if (decod(c) >= 0)and (j > right) then begin
+      right := j;
+    end;
+  end;
+  readln(f, c);
+  pole[i][w-1] := decod(c);
+  if decod(c) >= 0 then begin
+    down := i;
+  end;
+  if (decod(c) >= 0)and (up = -1) then begin
+    up := i;
+  end;
+  if (decod(c) >= 0)and (j < left) then begin
+    left := j;
+  end;
+  if (decod(c) >= 0)and (j > right) then begin
+    right := j;
+  end;
+end;
+max := -1000000000;
+if left = -1 then begin
+  for i := 0 to h-1 do begin
+    for j := 0 to w-2 do begin
+      max := maximym(max, pole[i][j] + pole[i][j+1]);
+    end;
+  end;
+end else begin
+  // i, j, t, y, u, x, z, v
+  for i := up to h-1-down do begin
+    for j := left to w-1-right do begin
+      a := pole[i][j];
+      for t := j+1 to w-1-right do begin
+        a := a + pole[i][t];
+        d := -1000000000;
+        for y := j to t-1 do begin
+          b := -pole[i][y];
+          for x := 0 to i do begin
+            b := b + pole[i-x][y];
+            e := -1000000000;
+            for u := y+1 to t do begin
+              for z := 0 to i do begin
+                for v := i to h-1 do begin
+                  e := maximym(e, b-pole[i][u]+liner(z, u, v));
+                end;
+              end;
+            end;
+            max := maximym(max, a + e);
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+writeln(g, max);
+closefile(f);
+closefile(g);
+  { TODO -oUser -cConsole Main : Insert code here }
+end.
+ 

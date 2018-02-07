@@ -1,0 +1,37 @@
+fin = open('lamps.in', 'r')
+fout = open('lamps.out', 'w')
+n, q = [int(i) for i in fin.readline().split()]
+s = [int(i) for i in fin.readline().rstrip()]
+v = [[0] * n for i in range(n)]
+for i in range(n):
+    if s[i] == 1:
+        v[i][i] = 1
+    for j in range(i + 1, n):
+        if v[i][j - 1] == 1 and s[j] == 1:
+            v[i][j] = 1
+k = 0
+for i in range(n):
+    for j in range(n):
+        if v[i][j] == 1:
+            k += 1
+fout.write(str(k) + '\n')
+for yuyuy in range(q):
+    g = [int(i) for i in fin.readline().split()]
+    s[g[0] - 1:g[1]] = [g[-1]] * (g[1] - g[0] + 1)
+    if g[-1] == 1:
+        g = [[0] * n for i in range(n)]
+        for i in range(n):
+            if s[i] == 1:
+                g[i][i] = 1
+            for j in range(i + 1, n):
+                if g[i][j - 1] == 1 and s[j] == 1:
+                    g[i][j] = 1
+        k = 0
+        for i in range(n):
+            for j in range(n):
+                if v[i][j] == 1:
+                    k += 1
+                elif g[i][j] == 1:
+                    k += 1
+                    v[i][j] = 1
+    fout.write(str(k) + '\n')

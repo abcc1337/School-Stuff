@@ -1,0 +1,78 @@
+#include <bits/stdc++.h>
+#define x first
+#define y second
+#define pb push_back
+#define point pair <int, int>
+#define For(i, a, b) for(int i = a; i < b; ++i)
+#define Out(i, a, b) for(int i = a - 1; i >= b; --i)
+#define files(FileName) read(FileName); write(FileName)
+#define read(FileName) freopen((FileName + ".in").c_str(), "r", stdin)
+#define write(FileName) freopen((FileName + ".out").c_str(), "w", stdout)
+
+using namespace std;
+
+string FileName = "typing";
+
+typedef int base;
+
+int n, k, L;
+string s;
+unordered_map <int, int> cost[2001];
+
+const int p = 1e9 + 9;
+base Pow[50001];
+int Hash[2001];
+long long dp[50001];
+int main() {
+    ios::sync_with_stdio(false);
+    files(FileName);
+    cin >> n >> k >> L;
+    cin >> s;
+    Pow[0] = 1;
+    For(i, 1, 5e4 + 1) {
+        Pow[i] = Pow[i-1]*2; if (Pow[i] >= p) Pow[i]-= p;
+    }
+    L = 0;
+    For(q, 0, k) {
+        int c; string s;
+        cin >> c >> s; L = max(L, (int)s.size());
+        Hash[0] = 0;
+        For(i, 0, s.size()) {
+            s[i] -= '0';
+            Hash[i + 1] = Hash[i] * 2 + s[i]; if (Hash[i + 1] >= p) Hash[i + 1] -= p;
+            auto N = make_pair(Hash[i + 1], i + 1);
+            if (cost[N.y].count(N.x)) {
+                cost[N.y][N.x] = min(cost[N.y][N.x], c);
+            } else {
+                cost[N.y][N.x] = c;
+            }
+        }
+        Hash[s.size()] = 0;
+        Out(i, s.size(), 0) {
+            Hash[i] = (Hash[i + 1] + Pow[s.size() - i - 1] * s[i]) % p;
+            auto N = make_pair(Hash[i], s.size() - i);
+            if (cost[N.y].count(N.x)) {
+                cost[N.y][N.x] = min(cost[N.y][N.x], c);
+            } else {
+                cost[N.y][N.x] = c;
+            }
+        }
+    }
+    For(i, 0, n) s[i] -= '0';
+    For(i, 1, n + 1) dp[i] = -1;
+    For(i, 0, n) {
+        if (dp[i] == -1) continue;
+        int H = 0;
+        For(j, 0, min(L, n - i)) {
+            H = (H<<1) + s[i + j]; if (H >= p) H -= p;
+            auto N = make_pair(H, j + 1);
+            if (cost[N.y].count(N.x)) {
+                base c = cost[N.y][N.x];
+                if (dp[i + j + 1] == -1 || dp[i + j + 1] > dp[i] + c) {
+                    dp[i + j + 1] = dp[i] + c;
+                }
+            }
+        }
+    }
+    cout << dp[n] << endl;
+}

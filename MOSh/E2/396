@@ -1,0 +1,104 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+bool cmp(pair <long long, long long> &p1, pair <long long, long long> &p2) {
+    return p1 > p2;
+}
+
+int main() {
+    freopen("fisher.in", "r", stdin);
+    freopen("fisher.out", "w", stdout);
+    long long n, m, p, x, a, b;
+    scanf("%lld%lld%lld", &n, &m, &p);
+    if(p == 0) {
+        vector <pair <long long, long long> > mas;
+        mas.reserve(m);
+        long long ans = 0, ss = 0;
+        for(int i = 0; i < n; i++) {
+            scanf("%lld%lld", &x, &a);
+            ans += a;
+        }
+        for(int i = 0; i < m; i++) {
+            scanf("%lld%lld%lld", &x, &a, &b);
+            mas.push_back(make_pair(b, a));
+        }
+        sort(mas.begin(), mas.end());
+        for(int i = 0; i < mas.size(); i++) {
+            if(ans == 0) break;
+            if(mas[i].second <= ans) {
+                ss += mas[i].first*mas[i].second;
+                ans -= mas[i].second;
+            } else {
+                ss += mas[i].first*ans;
+                ans = 0;
+                break;
+            }
+        }
+        printf("%lld", ss);
+        return 0;
+    }
+    priority_queue <pair <long long, long long> > q1, q2;
+    pair <long long, long long> db, db2;
+    vector <pair <int, pair <int, int> > > mas;
+    mas.reserve(n+m+5);
+    for(int i = 0; i < n; i++) {
+        scanf("%lld%lld", &x, &a);
+        mas.push_back(make_pair(x, make_pair(-1, a)));
+    }
+    for(int i = 0; i < m; i++) {
+        scanf("%lld%lld%lld", &x, &a, &b);
+        mas.push_back(make_pair(x, make_pair(b, a)));
+    }
+    sort(mas.begin(), mas.end());
+    long long xn = 0, pp = 0, ans = 0;
+    for(int i = 0; i < mas.size(); i++) {
+        if(mas[i].second.first == -1) {
+            xn += mas[i].second.second;
+        } else {
+            q2.push(mas[i].second);
+        }
+        //if(q1.empty()) {
+
+            while(!q2.empty() && xn > 0) {
+                if(q2.top().second <= xn) {
+                    xn -= q2.top().second;
+                    pp += q2.top().first * q2.top().second;
+                    q1.push(make_pair(-q2.top().first, q2.top().second));
+                    q2.pop();
+                } else {
+                    pp += q2.top().first*xn;
+                    q1.push(make_pair(-q2.top().first, xn));
+                    db = q2.top();
+                    q2.pop();
+                    q2.push(make_pair(db.first, db.second-xn));
+                    xn = 0;
+                }
+            }
+        //}
+        while(!q2.empty() && !q1.empty() && -q1.top().first < q2.top().first) {
+            db = q1.top();
+            db2 = q2.top();
+            q1.pop();
+            q2.pop();
+            if(db.second == db2.second) {
+                pp += db.second*(db2.first + db.first);
+                q1.push(make_pair(-db2.first, db2.second));
+                q2.push(make_pair(-db.first, db.second));
+            } else if(db.second > db2.second) {
+                pp += db2.second*(db2.first + db.first);
+                q1.push(make_pair(db.first, db.second - db2.second));
+                q1.push(make_pair(-db2.first, db2.second));
+                q2.push(make_pair(-db.first, db2.second));
+            } else {
+                pp += db.second*(db2.first + db.first);
+                q2.push(make_pair(db2.first, db2.second - db.second));
+                q2.push(make_pair(-db.first, db.second));
+                q1.push(make_pair(-db2.first, db.second));
+            }
+        }
+        ans = max(ans, pp - p*(long long)mas[i].first);
+    }
+    printf("%lld", ans);
+    return 0;
+}

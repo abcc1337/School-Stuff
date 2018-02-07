@@ -1,0 +1,16 @@
+fin = open ("onlyone.in")
+fout = open ("onlyone.out", 'w')
+n = int(fin.readline())
+a = [set() for i in range(101)] 
+b = [set() for i in range(101)] 
+c = [set() for i in range(101)] 
+s = set()
+res = 0
+for i in range(n):
+    x, y, z = map(int, fin.readline().split())
+    v = a[x].symmetric_difference(b[y]).symmetric_difference(c[z])
+    res += len(v)
+    a[x].add(i)
+    b[y].add(i)
+    c[z].add(i)
+print(res, file = fout)

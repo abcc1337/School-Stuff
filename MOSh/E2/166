@@ -1,0 +1,74 @@
+#include <iostream>
+#include <cstdio>
+#include <fstream>
+#include <cmath>
+#include <vector>
+#include <map>
+#include <set>
+#include <algorithm>
+#include <cstdlib>
+#include <climits>
+#include <cassert>
+#include <functional>
+#include <string>
+#include <queue>
+using namespace std;
+struct fileOpener
+{
+	FILE *in, *out;
+	fileOpener(string file_name)
+	{
+		in = freopen((file_name + ".in").c_str(), "r", stdin);
+		out = freopen((file_name + ".out").c_str(), "w", stdout);
+	}
+	~fileOpener()
+	{
+		fclose(in);
+		fclose(out);
+	}
+};
+
+#define fori(i, n) for (int i = 0; i < (int)n; i++)
+#define m_p(x, y) make_pair(x, y)
+typedef long long llg;
+typedef long double ldb;
+
+
+
+map<pair<int, int>, int > a_b, a_c, b_c;
+map<pair<int, pair<int, int> >, int > a_b_c;
+
+int main()
+{
+#ifdef LOCAL
+	fileOpener FileOpener("test");
+#else
+	fileOpener FileOpener("onlyone");
+#endif
+	//---------------------------------------------------------------------
+
+	llg ans = 0, tans = 0, dtans = 0;
+
+	int n, a, b, c;
+	cin >> n;
+	ans = ((llg)n) * (n - 1) / 2;
+
+	fori(i, n)
+	{
+		cin >> a >> b >> c;
+		tans += a_b[m_p(a, b)];
+		tans += a_c[m_p(a, c)];
+		tans += b_c[m_p(b, c)];
+
+		dtans += a_b_c[m_p(a, m_p(b, c))];
+
+		a_b[m_p(a, b)]++;
+		a_c[m_p(a, c)]++;
+		b_c[m_p(b, c)]++;
+		a_b_c[m_p(a, m_p(b, c))]++;
+	}
+
+	cout << ans - tans + 2 * dtans;
+	//---------------------------------------------------------------------
+	return 0;
+}

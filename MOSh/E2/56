@@ -1,0 +1,152 @@
+#include <iostream>
+#include <vector>
+#include <set>
+#include <string>
+#include <algorithm>
+#include <fstream>
+
+using namespace std;
+
+struct st {
+	int x, b, c;
+	bool flag;
+	st() {}
+	st(int X, int B, int C, bool Flag) {
+		x = X;
+		b = B;
+		c = C;
+		flag = Flag;
+	}
+};
+
+bool cmp(st a, st b) {
+	return a.x < b.x;
+}
+
+multiset < pair<int, int> > s;
+long long maxy, ul, n, m, p, ym, x1, summ1[300000], summ2[300000], cc[300000], xn, y1;
+vector <st> v;
+
+int main() {
+	//ifstream cin("in.txt");
+	//ofstream cout("out.txt");
+	ifstream cin("fisher.in");
+	ofstream cout("fisher.out");
+	ios_base::sync_with_stdio(false);
+	cin >> n >> m >> p;
+	for (int i = 1; i <= n; i++) {
+		long long x, a;
+		cin >> x >> a;
+		if (i == 1)
+			x1 = x;
+		xn = x;
+		v.push_back(st(x, a, 0, 0));
+	}
+	for (int i = 1; i <= m; i++) {
+		long long y, b, c;
+		cin >> y >> b >> c;
+		if (i == 1)
+			y1 = y;
+		ym = y;
+		v.push_back(st(y, b, c, 1));
+	}
+	sort(v.begin(), v.end(), cmp);
+	if (p == 0) {
+		long long ull = 0, sum = 0;
+		for (int i = 0; i < v.size(); i++) {
+			if (v[i].flag == 0) {
+				ul += v[i].b;
+			}
+			else {
+				s.insert({ v[i].c, v[i].b });
+			}
+			ull = ul;
+		}
+		ull = ul;
+		for (auto it = s.rbegin(); it != s.rend(); it++)
+			if (ull >= it->second) {
+				sum += (long long) it->second * it->first;
+				ull -= it->second;
+			}
+			else {
+				sum += (long long) ull * it->first;
+				ull = 0;
+			}
+			maxy = max(sum, maxy);
+	}
+	else if (ym < x1) {
+		long long c = 0, l, r, ul = 0;
+		for (int i = 0; i < v.size(); i++) {
+			if (v[i].flag == 1)
+				s.insert({ v[i].c, v[i].b });
+		}
+		for (auto it = s.rbegin(); it != s.rend(); it++) {
+			c++;
+			summ1[c] = summ1[c - 1] + it->first * it->second;
+			summ2[c] = summ2[c - 1] + it->second;
+			cc[c] = it->first;
+		}
+		for (int i = 0; i < v.size(); i++) {
+			if (v[i].flag == 0) {
+				ul += v[i].b;
+				l = 0;
+				r = c + 1;
+				while (r - l > 1) {
+					int m = (l + r) / 2;
+					if (summ2[m] <= ul)
+						l = m;
+					else
+						r = m;
+				}
+				maxy = max(summ1[l] + (ul - summ2[l]) * cc[l + 1] - v[i].x * p, maxy);
+			}
+		}
+
+	}
+	else if (xn < y1) {
+		for (int i = 0; i < v.size(); i++) {
+			long long ull = 0, sum = 0;
+			if (v[i].flag == 0) {
+				ul += v[i].b;
+			}
+			else {
+				s.insert({ v[i].c, v[i].b });
+				ull = ul;
+				for (auto it = s.rbegin(); it != s.rend(); it++)
+					if (ull >= it->second) {
+						sum += it->second * it->first;
+						ull -= it->second;
+					}
+					else {
+						sum += ull * it->first;
+						ull = 0;
+					}
+					maxy = max(sum - v[i].x * p, maxy);
+			}
+		}
+	}
+	else {
+		for (int i = 0; i < v.size(); i++) {
+			long long ull = 0, sum = 0;
+			if (v[i].flag == 0) {
+				ul += v[i].b;
+			}
+			else {
+				s.insert({ v[i].c, v[i].b });
+			}
+			ull = ul;
+			for (auto it = s.rbegin(); it != s.rend(); it++)
+				if (ull >= it->second) {
+					sum += it->second * it->first;
+					ull -= it->second;
+				}
+				else {
+					sum += ull * it->first;
+					ull = 0;
+				}
+				maxy = max(sum - v[i].x * p, maxy);
+		}
+	}
+	cout << maxy;
+	return 0;
+}

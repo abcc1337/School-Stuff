@@ -1,0 +1,39 @@
+import sys
+
+
+sys.stdin = open('monument.in')
+sys.stdout = open('monument.out', 'w')
+n, k = list(map(int, input().split()))
+points = [None] * n
+for i in range(n):
+    points[i] = list(map(int, input().split()))
+minimum = 1000000
+maximum = 0
+for i in range(n):
+    minimum = min(minimum, points[i][1])
+    maximum = max(maximum, points[i][1])
+for i in range(n):
+    points[i][1] -= minimum
+maximum -= minimum
+borders = [None] * maximum
+for i in range(maximum):
+    borders[i] = []
+for i in range(n):
+    for j in range(min(points[i][1], points[i - 1][1]), max(points[i][1], points[i - 1][1])):
+        borders[j].append(points[i][0])
+for i in range(maximum):
+    borders[i].sort()
+#print(points)
+#print()
+#print(borders)
+result = 1000000 * maximum
+for i in range(k):
+    tmpresult = 0
+    for j in range(maximum):
+        l = (borders[j][0] - j + i) // k
+        r = (borders[j][1] - j + i - 1) // k + 1
+        res = r - l
+        tmpresult += res
+    result = min(result, tmpresult)
+print(result)
+sys.stdout.close()

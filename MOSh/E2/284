@@ -1,0 +1,70 @@
+#include<iostream>
+#include<cstdio>
+using namespace std;
+int conv[277];
+int a[2007][2007];
+int main()
+{
+	freopen("submarine.in", "r", stdin);
+	freopen("submarine.out", "w", stdout);
+	int k;
+	cin >> k;
+	for (int i = 1; i <= k; i++)
+	{
+		cin >> conv[i];
+	}
+	int h, w;
+	cin >> h >> w;
+	for (int i = h; i >= 1;i--)
+	{
+		for (int j = 1; j <= w; j++)
+		{
+			char c;
+			cin >> c;
+			a[i][j] = conv[c - 'a' + 1];
+		}
+	}
+	int ans = -100000007;
+	for (int x1 = 1; x1 <= w; x1++)
+	{
+		for (int x2 = x1 + 1; x2 <= w; x2++)
+		{
+			for (int x3 = x1; x3 < x2; x3++)
+			{
+				for (int x4 = x3 + 1; x4 <= x2; x4++)
+				{
+					for (int y1 = 1; y1 <= h; y1++)
+					{
+						for (int y2 = y1; y2 <= h; y2++)
+						{
+							for (int y3 = 1; y3 <= y1; y3++)
+							{
+								for (int y4 = y1; y4 <= h; y4++)
+								{
+									int curans = 0;
+									for (int x = x1; x <= x2; x++)
+									{
+										curans += a[y1][x];
+									}
+									for (int y = y1 + 1; y <= y2; y++)
+									{
+										curans += a[y][x3];
+									}
+									for (int y = y3; y <= y4; y++)
+									{
+										if (y != y1)
+										{
+											curans += a[y][x4];
+										}
+									}
+									if (curans > ans) ans = curans;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	cout << ans << endl;
+}

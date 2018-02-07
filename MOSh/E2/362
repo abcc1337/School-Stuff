@@ -1,0 +1,116 @@
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <cstdio>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <utility>
+#include <cstdlib>
+#include <cmath>
+#include <cassert>
+#include <algorithm>
+#define forn(i, n) for (int i = 0; i < (n); i++)
+#define fornn(i, q, n) for (int i = (q); i < (n); i++)
+#define mp make_pair
+using namespace std;
+
+typedef long long ll;
+
+int solve();
+int main() {
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin), freopen("output.txt", "w", stdout);
+#else
+	freopen("robots.in", "r", stdin), freopen("robots.out", "w", stdout);
+#endif
+	solve();
+	return 0;
+}
+
+const int MAXN = 1000;
+
+int  color[MAXN][MAXN], cnt[MAXN][MAXN];
+char G[MAXN][MAXN];
+int dx[] = { 0, 1, 0, -1 };
+int dy[] = { 1, 0, -1, 0 };
+int n, m, g;
+
+void dfs(int x, int y) {
+	color[x][y] = 1;
+	cnt[x][y]++;
+	int nx = x, ny = y;
+	if (G[x][y] == 'N') nx--;
+	if (G[x][y] == 'W') ny--;
+	if (G[x][y] == 'S') nx++;
+	if (G[x][y] == 'E') ny++;
+	if (color[nx][ny] == 1) {
+		color[x][y] = 2;
+		return;
+	}
+	else {
+		dfs(nx, ny);
+	}
+	color[x][y] = 2;
+}
+
+pair<int, int> P[MAXN][MAXN];
+vector<vector<pair<int, int> > > cycle;
+void dfs2(int x, int y) {
+	color[x][y] = 1;
+	int nx = x, ny = y;
+	if (G[x][y] == 'N') nx--;
+	if (G[x][y] == 'W') ny--;
+	if (G[x][y] == 'S') nx++;
+	if (G[x][y] == 'E') ny++;
+	if (color[nx][ny] == 1) {
+		color[x][y] = 2;
+		vector<pair<int, int> > T;
+		int cx = x, cy = y;
+		while (P[cx][cy] != mp(x, y)) {
+			T.push_back(mp(cx, cy));
+			pair<int, int> cur = P[cx][cy];
+			cx = cur.first;
+			cy = cur.second;
+		}
+		T.push_back(mp(nx, ny));
+		cycle.push_back(T);
+		return;
+	}
+	else {
+		P[nx][ny] = mp(x, y);
+		dfs2(nx, ny);
+	}
+	color[x][y] = 2;
+
+}
+
+int solve() {
+	cin >> n >> m >> g;
+	forn(i, n) {
+		forn(j, m) {
+			cin >> G[i][j];
+		}
+	}
+	forn(i, n) {
+		forn(j, m) {
+			dfs(i, j);
+		}
+	}
+	ll ans = 0;
+	forn(i, n) {
+		forn(j, m) {
+			dfs2(i, j);
+		}
+	}
+	forn(i, cycle.size()) {
+		ll mn = 100000000000;
+		forn(j, cycle[i].size()) {
+			mn = min(mn, 1LL * cnt[cycle[i][j].first][cycle[i][j].second]);
+		}
+		ans = max(ans, min(mn, (ll)cycle[i].size()));
+	}
+	assert(ans != 0);
+	cout << ans;
+	return 0;
+}

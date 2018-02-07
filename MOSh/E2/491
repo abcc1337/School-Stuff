@@ -1,0 +1,25 @@
+fin = open('grants.in', 'r')
+fout = open('grants.out', 'w')
+
+t = int(fin.readline())
+for ii in range(t):
+    n1 = int(fin.readline())
+    a = b = c = 0
+    for i in range(60, -1, -1):
+        n = n1 - a - b - c
+        p2 = 2 ** i
+        if 3 * p2 <= n:
+            a += p2
+            b += p2
+            c += p2
+        elif 3 * (p2 - 1) >= n:
+            pass
+        elif 3 * (p2 - 1) >= n - p2:
+            a += p2
+        elif 3 * (p2 - 1) >= n - p2 * 2:
+            a += p2
+            b += p2
+    print(a, b, c, file=fout)
+
+fin.close()
+fout.close()

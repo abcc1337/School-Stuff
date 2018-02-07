@@ -1,0 +1,52 @@
+def f(l):
+    return l[2]
+
+
+def main():
+    fin = open('fisher.in', 'r')
+    fout = open('fisher.out', 'w')
+    n, m, p = map(int, fin.readline().split())
+    places = [None] * n
+    bases = [None] * m
+    summa = 0
+    for i in range(n):
+        places[i] = tuple(map(int, fin.readline().split()))
+        summa += places[i][1]
+    for i in range(m):
+        bases[i] = list(map(int, fin.readline().split()))
+    if p == 0:
+        bases.sort(key=f, reverse=True)
+        counter = 0
+        for i in range(m):
+            tmp = min(summa, bases[i][1])
+            summa -= tmp
+            bases[i][1] -= tmp
+            counter += tmp * bases[i][2]
+        print(counter, file=fout)
+    elif bases[m - 1][0] < places[0][0]:
+        bases.sort(key=f, reverse = True)
+        summa = 0
+        counter = 0
+        best = 0
+        j = 0
+        for i in range(n):
+            if i == 0:
+                counter -= p * places[i][0]
+            else:
+                counter -= p * (places[i][0] - places[i - 1][0])
+            summa += places[i][1]
+            while j < m and summa > 0:
+                tmp = min(summa, bases[j][1])
+                summa -= tmp
+                counter += tmp * bases[j][2]
+                bases[j][1] -= tmp
+                if bases[j][1] == 0:
+                    j += 1
+            best = max(best, counter)
+        print(best, file=fout)
+    fin.close()
+    fout.close()
+
+        
+main()                
+    

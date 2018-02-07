@@ -1,0 +1,72 @@
+#include <iostream>
+#include <stdio.h>
+#include <string>
+#include <algorithm>
+#include <map>
+#include <unordered_map>
+#include <vector>
+using namespace std;
+typedef long long ll;
+const ll inf = 1000000007;
+const ll INF = 1000000000000000000;
+const ll mod = 1000000007;
+const ll pp = 3;
+
+vector<ll> deg(300005);
+
+void ch(string &s, vector<ll> &h) {
+	h.resize(s.length() + 1);
+	for (int i = 1; i <= s.length(); i++)
+		h[i] = (h[i - 1] * pp + s[i - 1] - '0' + 1) % mod;
+}
+
+ll get(vector<ll> &h, int l, int r) {
+	return (h[r + 1] + mod * mod - h[l] * deg[r - l + 1]) % mod;
+}
+
+int main() {
+	freopen("input.txt", "r", stdin);
+	//freopen("output.txt", "w", stdout);
+	freopen("typing.in", "r", stdin);
+	freopen("typing.out", "w", stdout);
+	deg[0] = 1;
+	for (int i = 1; i <= 300000; i++)
+		deg[i] = (deg[i - 1] * pp) % mod;
+	int m, n, L;
+	cin >> m >> n >> L;
+	string s;
+	cin >> s;
+	unordered_map<ll, ll> w;
+	w.rehash(n);
+	while (n--) {
+		string t;
+		ll c;
+		cin >> c >> t;
+		vector<ll> h;
+		ch(t, h);
+		for (int i = 0; i < t.length(); i++) {
+			ll ha = get(h, 0, i);
+			if (!w.count(ha)) w[ha] = c;
+			else w[ha] = min(w[ha], c);
+			ha = get(h, i, t.length() - 1);
+			if (!w.count(ha)) w[ha] = c;
+			else w[ha] = min(w[ha], c);
+		}
+	}
+	vector<ll> h;
+	ch(s, h);
+	vector<ll> d(m, INF);
+	for (int i = 0; i < m; i++)
+		for (int j = 0; j <= i; j++) {
+			ll ha = get(h, j, i);
+			if (w.count(ha)) {
+				if (j == 0) d[i] = w[ha];
+				else if (d[j - 1] != INF) d[i] = min(d[i], d[j - 1] + w[ha]);
+			}
+		}
+	//for (int i = 0; i < m; i++)
+	//	cout << i << ' ' << d[i] << endl;
+	if (d[m - 1] != INF) cout << d[m - 1];
+	else cout << -1;
+	return 0;
+}

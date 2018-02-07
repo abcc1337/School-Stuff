@@ -1,0 +1,100 @@
+#include <bits/stdc++.h>
+using namespace std;
+int n, m;
+vector<int> p, to, t, r_cnt, v_cnt, tp;
+vector<bool> r;
+
+int xy(int x, int y){
+    return x*m + y;
+}
+
+void dfs(int v){
+    //cerr << v << " " << to[v] << " " << p[v] << endl;
+    if(r[v])
+        r_cnt[p[v]]++;
+    if(p[to[v]] == p[v]){
+        //cerr << "loop" << endl;
+        r_cnt[v] = r_cnt[p[v]];
+        p[v] = v;
+        v_cnt[v] = t[v] - t[to[v]] + 1;
+        tp[v] = 0;
+    }
+    else if(p[to[v]] != -1){
+        //cerr << "bump" << endl;
+        r_cnt[p[to[v]]] += r_cnt[p[v]];
+        p[v] = p[to[v]];
+    }
+    else{
+        //cerr << "rec" << endl;
+        p[to[v]] = p[v];
+        t[to[v]] = t[v]+1;
+        dfs(to[v]);
+        p[v] = p[to[v]];
+        tp[v] = tp[to[v]]+1;
+    }
+}
+
+int main(){
+
+    ios::sync_with_stdio(false);
+    freopen("robots.in", "r", stdin);
+    freopen("robots.out", "w", stdout);
+
+    int z;
+    cin >> n >> m >> z;
+
+    r.assign(n*m, false);
+    p.assign(n*m, -1);
+    to.resize(n*m);
+    t.resize(n*m);
+    v_cnt.resize(n*m);
+    r_cnt.assign(n*m, 0);
+    tp.resize(n*m);
+    for(int i = 0; i < n; i++){
+        string s;
+        cin >> s;
+        for(int j = 0; j < m; j++){
+            if(s[j] >= 'A' && s[j] <= 'Z')
+                r[xy(i, j)] = true;
+            if(s[j] == 'N' || s[j] == 'n')
+                to[xy(i, j)] = xy(i-1, j);
+            else if(s[j] == 'S' || s[j] == 's')
+                to[xy(i, j)] = xy(i+1, j);
+            else if(s[j] == 'E' || s[j] == 'e')
+                to[xy(i, j)] = xy(i, j+1);
+            else
+                to[xy(i, j)] = xy(i, j-1);
+        }
+    }
+
+    for(int v = 0; v < n*m; v++){
+        if(p[v] == -1){
+            t[v] = 0;
+            p[v] = v;
+            dfs(v);
+        }
+    }
+
+    int ans = 0;
+    for(int v = 0; v < n*m; v++)
+        if(p[v] == v)
+            /*cerr << v << " " << v_cnt[v] << " " << r_cnt[v] << endl, */ans += min(v_cnt[v], r_cnt[v]);
+
+    cout << ans << endl;
+
+    if(z){
+        vector<int> assigned(n*m, 0);
+        map< int, map<int, int> > s;
+        for(int v = 0; v < n*m; v++){
+            int u = p[v];
+            if(r[v] && assigned[u] < min(v_cnt[u], r_cnt[u])){
+                int u = p[v];
+                cout << v/m+1 << " " << v%m+1 << " " << s[u][tp[v]%v_cnt[u]] << endl;
+                s[u][tp[v]%v_cnt[u]] += v_cnt[u];
+                assigned[u]++;
+            }
+        }
+    }
+
+    return 0;
+}

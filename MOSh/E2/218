@@ -1,0 +1,112 @@
+{$mode delphi}
+{$minstacksize 134217728}
+{$H+}
+type
+ pointer = ^lol;
+ lol = record
+  prev:pointer;
+  ty:longint;
+ end;
+var
+ dyn:array[0..1000,1..1000,0..1] of int64;
+ ans:array[0..1000,1..1000,0..1] of pointer;
+ pol:array[1..1000] of longint;
+ blackcou:array[1..1000] of longint;
+ n,k,t:longint;
+ i,j,p,q:longint;
+ tmp:pointer;
+ st:string;
+
+begin
+ assign(input,'penguins.in');
+ assign(output,'penguins.out');
+ reset(input);
+ rewrite(output);
+ readln(t);
+ For i:=1 to 1000 do
+ begin
+  dyn[0,i,0]:=high(longint);
+  dyn[0,i,1]:=high(longint);
+  new(ans[0,i,0]);
+  new(ans[0,i,1]);
+  For j:=1 to 1000 do
+  begin
+   dyn[i,j,0]:=high(longint);
+   dyn[i,j,1]:=high(longint);
+   new(ans[i,j,0]);
+   new(ans[i,j,1]);
+  end;
+ end;
+ dyn[0,1,0]:=0;
+ ans[0,1,0]:=nil;
+ dyn[0,1,1]:=0;
+ ans[0,1,1]:=nil;
+ For q:=1 to t do
+ begin
+  readln(n,k);
+  readln(st);
+  For i:=1 to length(st) do
+  begin
+   pol[i]:=ord(st[i])-ord('0');
+  end;
+  For i:=1 to n do
+  begin
+   for j:=1 to k do
+   begin
+    dyn[i,j,0]:=dyn[i-1,j,0]+pol[i];
+    ans[i,j,0]^.prev:=ans[i-1,j,0];
+    ans[i,j,0]^.ty:=0;
+    dyn[i,j,1]:=dyn[i-1,j,1]+1-pol[i];
+    ans[i,j,1]^.prev:=ans[i-1,j,1];
+    ans[i,j,1]^.ty:=1;
+   end;
+   for j:=2 to k do
+   begin
+    If i>1 then
+    begin
+     If dyn[i,j,0]>dyn[i-1,j-1,0]+pol[i] Then
+     begin
+      dyn[i,j,0]:=dyn[i-1,j-1,0]+pol[i];
+      ans[i,j,0]^.prev:=ans[i-1,j-1,0];
+      ans[i,j,0]^.ty:=0;
+     end;
+     If dyn[i,j,0]>dyn[i-1,j-1,1]+pol[i] Then
+     begin
+      dyn[i,j,0]:=dyn[i-1,j-1,1]+pol[i];
+      ans[i,j,0]^.prev:=ans[i-1,j-1,1];
+      ans[i,j,0]^.ty:=0;
+     end;
+     If dyn[i,j,1]>dyn[i-1,j-1,0]+1-pol[i] Then
+     begin
+      dyn[i,j,1]:=dyn[i-1,j-1,0]+1-pol[i];
+      ans[i,j,1]^.prev:=ans[i-1,j-1,0];
+      ans[i,j,1]^.ty:=1;
+     end;
+     If dyn[i,j,1]>dyn[i-1,j-1,1]+1-pol[i] Then
+     begin
+      dyn[i,j,1]:=dyn[i-1,j-1,1]+1-pol[i];
+      ans[i,j,1]^.prev:=ans[i-1,j-1,1];
+      ans[i,j,1]^.ty:=1;
+     end;
+    end;
+   end;
+  end;
+  If dyn[n,k,1]<dyn[n,k,0] then
+  begin
+   tmp:=ans[n,k,1];
+  end
+  else
+  begin
+   tmp:=ans[n,k,0];
+  end;
+  For i:=length(st) downto 1 do
+  begin
+   IF tmp<>nil then
+   begin
+    st[i]:=chr(tmp^.ty+ord('0'));
+    tmp:=tmp^.prev;
+   end;
+  end;
+  writeln(st);
+ end;
+end.

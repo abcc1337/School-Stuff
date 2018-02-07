@@ -1,0 +1,157 @@
+{$mode delphi}
+{$minstacksize 134217728}
+const
+ maxn = 3000;
+
+var
+ graph:array[1..maxn*maxn] of longint;
+ prev:array[1..maxn*maxn] of longint;
+ wes:array[1..2*maxn] of int64;
+ last:array[1..maxn] of longint;
+ d:array[1..maxn] of int64;
+ used:array[1..maxn] of boolean;
+ used20:array[1..maxn] of longint;
+ ver:array[1..maxn] of longint;
+ comp:array[1..maxn] of boolean;
+ dist:array[1..maxn,1..maxn] of int64;
+ ccou:longint;
+ n:longint;
+ k,i,j,u,v,l:longint;
+ ans:longint;
+
+ procedure dfs20(v:longint);
+ var
+  j,u:longint;
+ begin
+  used20[v]:=i;
+  j:=last[v];
+  While j<>0 do
+  begin
+   u:=graph[j];
+   If dist[i,u]>dist[i,v]+wes[j] Then
+   begin
+    dist[i,u]:=dist[i,v]+wes[j]
+   end;
+   If not(used20[u]=i) then
+   begin
+    dfs20(u);
+   end;
+   j:=prev[j];
+  end;
+ end;
+
+ procedure dfs(v:longint);
+ var
+  j,u:longint;
+ begin
+  used[v]:=true;
+  ver[v]:=ccou;
+  j:=last[v];
+  While j<>0 do
+  begin
+   If wes[j]<=d[v] then
+   begin
+    u:=graph[j];
+    If not(used[u]) Then
+    begin
+     dfs(u);
+    end
+    else
+    begin
+     If ver[u]<>ver[v] then
+     begin
+      comp[ver[u]]:=false;
+     end;
+    end;
+   end;
+   j:=prev[j];
+  end;
+ end;
+
+begin
+ assign(input,'alarm.in');
+ assign(output,'alarm.out');
+ reset(input);
+ rewrite(output);
+ read(n);
+ For i:=1 to n do
+ begin
+  read(d[i]);
+ end;
+ for i:=1 to n-1 do
+ begin
+  read(u,v,l);
+  graph[i]:=v;
+  prev[i]:=last[u];
+  last[u]:=i;
+  wes[i]:=l;
+  graph[i+n-1]:=u;
+  prev[i+n-1]:=last[v];
+  last[v]:=i+n-1;
+  wes[i+n-1]:=l;
+  dist[u,v]:=l;
+ end;
+ For k:=1 to n do
+ begin
+  For i:=1 to n do
+  begin
+   j:=last[i];
+   While j<>0 do
+   begin
+    If wes[j]<=d[i] Then
+    begin
+     If d[i]<d[graph[j]]-wes[j] Then
+     begin
+      d[i]:=d[graph[j]]-wes[j];
+     end;
+    end;
+    j:=prev[j];
+   end;
+  end;
+ end;
+{ For i:=1 to n do
+ begin
+  used20[i]:=0;
+  For j:=1 to n do
+  begin
+   dist[i,j]:=high(longint);
+  end;
+ end;
+ For i:=1 to n do
+ begin
+  dist[i,i]:=0;
+  dfs20(i);
+ end;
+ For i:=1 to n do
+ begin
+  last[i]:=0;
+ end;
+ k:=0;
+ For i:=1 to n do
+ begin
+  For j:=1 to n do
+  begin
+   If dist[i,j]<=d[i] Then
+   begin
+    Inc(k);
+    graph[k]:=j;
+    prev[k]:=last[i];
+    last[i]:=k;
+   end;
+  end;
+ end;   }
+ For i:=1 to n do
+ begin
+  if not(used[i]) then
+  begin
+   inc(ccou);
+   comp[ccou]:=true;
+   dfs(i);
+  end;
+ end;
+ For i:=1 to ccou do
+ begin
+  If comp[ccou] then inc(ans);
+ end;
+ writeln(ans);
+end.

@@ -1,0 +1,83 @@
+program ProjectC2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils, Math;
+
+type rec = record
+       x, kol, c : longint;
+     end;
+
+     mas = array[1..100100] of rec;
+
+var n, m, p : longint;
+    i, j : longint;
+    fish, sell : mas;
+    sum, res, mx : int64;
+
+procedure qsort(l, r : longint);
+var i, j, mid : longint;
+    q : rec;
+begin
+  i := l; j := r;
+  mid := sell[(l + r) div 2].c;
+
+  repeat
+    while sell[i].c < mid do
+      inc(i);
+    while sell[j].c > mid do
+      dec(j);
+
+    if i <= j then
+      begin
+        q := sell[i]; sell[i] := sell[j]; sell[j] := q;
+
+        inc(i);
+        dec(j);
+      end;
+  until i >= j;
+
+  if j > l then
+    qsort(l, j);
+  if i < r then
+    qsort(i, r);
+end;
+
+begin
+//  assign(input, 'input.txt'); assign(output, 'output.txt');
+  assign(input, 'fisher.in'); assign(output, 'fisher.out');
+
+  readln(n, m, p);
+
+  sum := 0;
+  for i := 1 to n do
+  begin
+    readln(fish[i].x, fish[i].kol);
+    sum := sum + fish[i].kol;
+  end;
+
+  for i := 1 to m do
+    readln(sell[i].x, sell[i].kol, sell[i].c);
+
+  qsort(1, m);
+
+  if p = 0 then
+    begin
+      res := 0;
+      for i := m downto 1 do
+      begin
+        j := min(sell[i].kol, sum);
+        res := res + sell[i].c * j;
+        sum := sum - j;
+        if sum = 0 then
+          break;
+      end;
+      writeln(res);
+      halt(0);
+    end;
+
+
+
+
+end.

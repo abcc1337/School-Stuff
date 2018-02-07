@@ -1,0 +1,96 @@
+#include <iostream>
+#include <vector>
+#include <map>
+using namespace std;
+
+int pr1ev[10510];
+int pre[10500];
+int post[10500];
+int t;
+vector<int> det[10500];
+void dfs(int y)
+{
+    pre[y]=t;
+    t++;
+    for (int i=0;i<det[y].size();i++)
+    {
+        dfs(det[y][i]);
+    }
+    post[y]=t;
+    t++;
+}
+vector<pair<int,int> > paths[50510];
+
+
+//a - ansector b
+bool inner(int a,int b)
+{
+    return (pre[a]<=pre[b]&&post[a]>=post[b]);
+}
+
+int main()
+{
+    pr1ev[1]=0;
+    t=0;
+    freopen("twopaths.in","r",stdin);
+    freopen("twopaths.out","w",stdout);
+    int r;
+    int n;
+
+    cin >> n >> r;
+
+
+    for (int i=2;i<=n;i++)
+    {
+        int s;
+        cin >> s;
+        pr1ev[i]=s;
+        det[s].push_back(i);
+    }
+
+dfs(1);
+    for (int i=0;i<r;i++)
+    {
+        t=0;
+        int a,b;
+        cin >> a >> b;
+        if (a==pr1ev[b]||b==pr1ev[a]){paths[i].push_back(make_pair(min(a,b),max(a,b)));continue;}
+        if (inner(b,a)){swap(a,b);}
+        // a- ans
+        //prev[a][b] рядом с a
+        int y=b;
+        while(y!=a)
+        {
+            int hj=min(y,pr1ev[y]);
+            int jh=max(y,pr1ev[y]);
+            paths[i].push_back(make_pair(hj,jh));
+           // cout << i << ' ' << hj << ' ' << jh << endl;
+            y=pr1ev[y];
+        }
+        //cout << i << ' ' << y << ' ' << b << endl;
+    }
+
+   // cout << "*&^" <<endl;
+    int m=0;
+    int i1=0;
+    int i2=1;
+    for (int i=0;i<r;i++)
+    {
+        for (int j=i+1;j<r;j++)
+        {
+
+            int kol=0;
+            for (int z=0;z<paths[i].size();z++)
+            {
+                for (int x=0;x<paths[j].size();x++)
+                {
+                    if (paths[i][z]==paths[j][x]){  kol++;}
+                }
+            }
+            //cout << i << ' ' << j <<' ' <<  kol << endl;
+            if (kol>m){m=kol;i1=i;i2=j;}
+        }
+    }
+    cout << m << endl << i1+1 << ' ' << i2+1 << endl;
+    return 0;
+}

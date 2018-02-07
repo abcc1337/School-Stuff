@@ -1,0 +1,109 @@
+#include <iostream>
+#include <cstdio>
+#include <cassert>
+#include <cmath>
+#include <set>
+#include <map>
+#include <vector>
+#include <algorithm>
+#include <unordered_map>
+#include <string>
+#include <cstring>
+#include <tuple>
+#include <bitset>
+#include <cstdlib>
+#define mp make_pair
+#define pb push_back
+#define NAME "typing"
+#define mt make_tuple
+#define y1 y11
+
+using namespace std;
+
+typedef long long ll;
+typedef long double ld;
+
+const int nmax = 1000 * 1000;
+const int inf = 1000 * 1000 * 1000;
+const ll infl = 1000ll * 1000 * 1000 * 1000 * 1000 * 1000;
+const int mod = 1000 * 1000 * 1000 + 7;
+const int force = 27;
+const ld pi = acos(-1.0);
+
+int n, m, L;
+string s, t[nmax];
+int c[nmax];
+vector<pair<int, int> > go[nmax];
+vector<int> qq;
+ll dp[nmax];
+
+void z_function(const string &s, vector<int> &a) {
+	//cerr << s << endl;
+	a.assign(s.size(), 0);
+	int l = 0, r = 0;
+	for (int i = 1; i < (int)s.length(); i++) {
+		if (i < r) {
+			a[i] = min(r - i + 1, a[i - l]);
+		}
+		while (i + a[i] < (int)s.length() && s[a[i]] == s[i + a[i]]) {
+			a[i]++;
+		}
+		//cerr << a[i] << " ";
+		if (i + a[i] - 1 > r) {
+			r = i + a[i] - 1;
+			l = i;
+		}
+	}
+	//cerr << endl;
+}
+
+int main() {
+	freopen(NAME".in", "r", stdin); freopen(NAME".out", "w", stdout);
+	cin >> n >> m >> L;
+	cin >> s;
+	for (int i = 0; i < m; i++) {
+		cin >> c[i] >> t[i];
+	}
+	for (int i = 0; i < m; i++) {
+		string tt = t[i];
+		while (tt.size() > s.size()) {
+			tt.pop_back();
+		}
+		string ss = tt + "$" + s;
+		z_function(ss, qq);
+		for (int j = (int)tt.size() + 1; j < (int)ss.size(); j++) {
+			go[j - (int)tt.size() - 1 + qq[j] - 1].pb(mp(j - (int)tt.size() - 1, c[i]));
+		}
+	}
+	reverse(s.begin(), s.end());
+	for (int i = 0; i < m; i++) {
+		//cerr << i << endl;
+		string tt = t[i];
+		reverse(tt.begin(), tt.end());
+		while (tt.size() > s.size()) {
+			tt.pop_back();
+		}
+		string ss = tt + "$" + s;
+		z_function(ss, qq);
+		for (int j = (int)tt.size() + 1; j < (int)ss.size(); j++) {
+			go[(int)s.size() - (j - (int)tt.size() - 1)].pb(mp((int)s.size() - (j - (int)tt.size() - 1 + qq[j]), c[i]));
+		}
+	}
+	for (int i = 0; i <= (int)s.size(); i++) {
+		cout << "MOMENT " << i << endl;
+		for (auto v : go[i]) {
+			cout << v.first << " " << v.second << endl;
+		}
+	}
+	for (int i = 0; i <= (int)s.length(); i++) {
+		dp[i] = infl;
+	}
+	dp[0] = 0;
+	for (int i = 1; i <= (int)s.length(); i++) {
+		for (auto v : go[i]) {
+			dp[i] = min(dp[i], dp[v.first] + v.second);
+		}
+		cerr << dp[i] << " ";
+	}
+	cout << (dp[(int)s.length()] == infl ? -1 : dp[(int)s.length()]);
+}

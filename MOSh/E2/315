@@ -1,0 +1,219 @@
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <algorithm>
+#include <map>
+#include <vector>
+#include <queue>
+#include <set>
+#include <cassert>
+#include <ctime>
+using namespace std;
+
+typedef long long ll;
+
+const ll MAXN = (ll)5e5 + 47;
+
+ll n, m, p;
+
+struct Fish
+{
+	ll x, a;
+};
+
+struct Shop
+{
+	ll x, b, c;
+};
+
+enum { FISH, SHOP };
+
+struct Event
+{
+	int x, type, id;
+	Event(int x, int type, int id) : x(x), type(type), id(id) {}
+};
+
+pair < ll, ll > t[4 * MAXN];
+
+vector < Fish > ff;
+vector < Shop > ss;
+
+vector < Event > ee;
+
+void input()
+{
+	//scanf("%d %d %d", &n, &m, &p);
+	cin >> n >> m >> p;
+	ff.resize(n);
+	ss.resize(m);
+	for (int i = 0; i < n; i++)
+		cin >> ff[i].x >> ff[i].a;
+		//scanf("%d %d", &ff[i].x, &ff[i].a);
+	for (int i = 0; i < m; i++)
+		cin >> ss[i].x >> ss[i].b >> ss[i].c;
+		//scanf("%d %d %d", &ss[i].x, &ss[i].b, &ss[i].c);
+}
+
+void out(ll ans)
+{
+	cout << ans;
+	exit(0);
+}
+
+bool cmpSS(const Shop &a, const Shop &b)
+{
+	return a.c > b.c || (a.c == b.c && a.b > b.b);
+}
+
+bool cmpFF(const Fish &a, const Fish &b)
+{
+	return a.x < b.x;
+}
+
+bool cmpEE(const Event &a, const Event &b)
+{
+	return a.x < b.x || (a.x == b.x && a.type < b.type);
+}
+
+void update(int v, int l, int r, int pos, ll b, ll c)
+{
+	if (r - l == 1)
+	{
+		t[v].first = b;
+		t[v].second = b * 1LL * c;
+		return;
+	}
+	int mid = (l + r) / 2;
+	if (pos < mid)
+		update(2 * v + 1, l, mid, pos, b, c);
+	else
+		update(2 * v + 2, mid, r, pos, b, c);
+	t[v].first = t[2 * v + 1].first + t[2 * v + 2].first;
+	t[v].second = t[2 * v + 1].second + t[2 * v + 2].second;
+}
+
+pair < ll, ll > query(int v, int l, int r, int ql, int qr)
+{
+	if (ql <= l && r <= qr)
+		return t[v];
+	if (ql >= r || qr <= l)
+		return{ 0, 0 };
+	int mid = (l + r) / 2;
+	pair < ll, ll > a, b;
+	a = query(2 * v + 1, l, mid, ql, qr);
+	b = query(2 * v + 2, mid, r, ql, qr);
+	return{ a.first + b.first, a.second + b.second };
+};
+
+ll relax(ll sum_fish)
+{
+	ll l = -1, r = m - 1, mid;
+	pair < ll, ll > pp = {0, 0};
+	while (r - l > 1)
+	{
+		mid = (l + r) / 2;
+		pp = query(0, 0, m, 0, mid);
+		if (pp.first >= sum_fish)
+			r = mid;
+		else
+			l = mid;
+	}
+	if (t[0].first <= sum_fish)
+		return t[0].second;
+	if (r != 0)
+		pp = query(0, 0, m, 0, r);
+	if (query(0, 0, m, 0, r + 1).first >= sum_fish)
+	{
+		ll kk = min(sum_fish - pp.first, (ll)ss[r].b);
+		pp.first += kk;
+		pp.second += ss[r].c * kk;
+	}
+	return pp.second;
+}
+
+
+void task1()
+{
+	ll sum = 0;
+	for (int i = 0; i < n; i++)
+		sum += ff[i].a;
+	sort(ss.begin(), ss.end(), cmpSS);
+	ll ans = 0, kk, cnt = 0;
+	for (int i = 0; i < (int)ss.size(); i++)
+	{
+		kk = min(sum, (ll)ss[i].b);
+		sum -= kk;
+		ans += kk * ss[i].c;
+	}
+	out(ans);
+}
+
+void task2()
+{
+	ll ans = 0;
+	ll sum = 0, cnt = 0, kk = 0;
+	multiset < pair < int, int > > st;
+	multiset < pair < int, int > >::reverse_iterator it;
+	for (int i = 0; i < m; i++)
+		st.insert({ ss[i].c, ss[i].b });
+	ll c, b;
+	for (int i = 0; i < n; i++)
+	{
+		while (!st.empty() && ff[i].a > 0)
+		{
+			if (kk == 0)
+			{
+				it = st.rbegin();
+				c = it->first;
+				b = it->second;
+				kk = b;
+				st.erase(st.find(*it));
+			}
+			cnt = min(kk, (ll)ff[i].a);
+			sum += cnt * c;
+			kk -= cnt;
+			ff[i].a -= cnt;
+		}
+		ans = max(ans, sum - (ll)ff[i].x * p);
+	}
+	out(ans);
+}
+
+bool isTask2()
+{
+	return ss[m - 1].x < ff[0].x;
+}
+
+int main()
+{
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+	freopen("fisher.in", "r", stdin);
+	freopen("fisher.out", "w", stdout);
+	input();
+	if (p == 0)
+		task1();
+	if (isTask2())
+		task2();
+	sort(ss.begin(), ss.end(), cmpSS);
+	for (int i = 0; i < m; i++)
+		ee.push_back(Event(ss[i].x, SHOP, i));
+	//sort(ff.begin(), ff.end(), cmpFF);
+	for (int i = 0; i < n; i++)
+		ee.push_back(Event(ff[i].x, FISH, i));
+	sort(ee.begin(), ee.end(), cmpEE);
+	ll id;
+	ll sum_fish = 0, ans = 0;
+	for (int i = 0; i < (int)ee.size(); i++)
+	{
+		id = ee[i].id;
+		if (ee[i].type == SHOP)
+			update(0, 0, m, id, ss[id].b, ss[id].c);
+		else
+			sum_fish += ff[id].a;
+		ans = max(ans, relax(sum_fish) - ee[i].x * (ll)p);
+	}
+	out(ans);
+	return 0;
+}

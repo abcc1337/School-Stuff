@@ -1,0 +1,177 @@
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#define sint unsigned short int
+
+using namespace std;
+void operator delete(void*){};
+char MEMPOOL[100000000];
+int memit = 0;
+
+void* operator new(size_t sz){
+	memit += (int)sz;
+	return (void*)(MEMPOOL + (memit - (int)sz));
+}
+
+
+const int maxs = 103;
+sint dp[2][2][maxs][maxs][maxs] = { 0 };
+
+
+struct callback {
+	sint l, r, k, cl, cr;
+	bool mock;
+	callback(){ mock = 1; };
+	callback(sint a, sint b, sint c, sint d, sint e) : l(a), r(b), k(c), cl(d), cr(e){ mock = 0; };
+};
+callback parent[2][2][maxs][maxs][maxs];
+
+void update(sint l, sint r, sint k, sint cl, sint cr,
+	sint val, callback c) {
+	//cout << "We can get to " << l << " " << r << " " << k << " " << cl << " " << cr << " with " << val << endl;
+	if (dp[cl][cr][l][r][k] > val){
+		dp[cl][cr][l][r][k] = val;
+		parent[cl][cr][l][r][k] = c;
+	}
+}
+
+int opposite(int x) {
+	if (x == 0)
+		return 1;
+	return 0;
+}
+
+int s[maxs] = { 0 };
+int main() {
+	freopen("penguins.in", "r", stdin);
+	freopen("penguins.out", "w", stdout);
+	int t;
+	cin >> t;
+
+	const sint inf = 30000;
+	char buf;
+
+	int l, r, ck, cl, cr;
+	int me;
+	callback from;
+	sint ans = 30000;
+	int bestck = 0;
+	int bestcl = 0;
+	int bestcr = 0;
+	for (int _ = 0; _ < t; _++) {
+		int n, k;
+		cin >> n >> k;
+		for (int i = 0; i < n; i++) {
+			cin >> buf;
+			s[i] = buf - '0';
+		}
+
+		for (int i = 0; i < maxs; i++)
+			for (int g = 0; g < maxs; g++)
+				for (int j = 0; j < maxs; j++)
+					for (int i1 = 0; i1 < 2; i1++)
+						for (int i2 = 0; i2 < 2; i2++)
+						{
+			dp[i1][i2][i][g][j] = inf;
+			parent[i1][i2][i][g][j] = callback();
+						}
+
+		for (int i = 0; i < n; i++)
+			for (int i1 = 0; i1 < 2; i1++)
+				for (int i2 = 0; i2 < 2; i2++)
+				{
+			dp[s[i]][s[i]][i][i + 1][1] = 0;
+			parent[s[i]][s[i]][i][i + 1][1] = callback(0, 0, 0, s[i], s[i]);
+				}
+		// Now, the hecking dynamics!
+
+		for (int len = 1; len < n; len++)
+			for (int l = 0; l < n - len + 1; l++)
+				for (int ck = 0; ck <= k; ck++)
+					for (int cl = 0; cl < 2; cl++)
+						for (int cr = 0; cr < 2; cr++) {
+			r = l + len;
+			me = dp[cl][cr][l][r][ck];
+			from = callback(l, r, ck, cl, cr);
+
+			// First, we don't change the colors
+			// Go to r + 1 saving right color
+			if (r < n) {
+				if (s[r] == cr)
+					update(l, r + 1, ck, cl, cr, me, from);
+				else
+					update(l, r + 1, ck + 1, cl, s[r], me, from);
+			}
+
+			// Go to l - 1 saving left color
+			if (l - 1 >= 0) {
+				if (s[l - 1] == cl)
+					update(l - 1, r, ck, cl, cr, me, from);
+				else
+					update(l - 1, r, ck + 1, s[l - 1], cr, me, from);
+			}
+
+			// Now, we change the color
+			// Go to r + 1 changing right color
+			if (r < n) {
+				if (s[r] == cr)
+					update(l, r + 1, ck + 1, cl, opposite(s[r]), me + 1, from);
+				else
+					update(l, r + 1, ck, cl, cr, me + 1, from);
+			}
+
+			// Go to l - 1 not saving left color
+			if (l - 1 >= 0) {
+				if (s[l - 1] == cl)
+					update(l - 1, r, ck + 1, opposite(s[l - 1]), cr, me + 1, from);
+				else
+					update(l - 1, r, ck, cl, cr, me + 1, from);
+			}
+						}
+
+		ans = inf;
+		bestck = 0;
+		bestcl = 0;
+		bestcr = 0;
+		for (int ck = 0; ck <= k; ck++) {
+			for (int cl = 0; cl < 2; cl++) {
+				for (int cr = 0; cr < 2; cr++) {
+					if (dp[cl][cr][0][n][ck] < ans) {
+						ans = min(ans, dp[cl][cr][0][n][ck]);
+						bestck = ck;
+						bestcl = cl;
+						bestcr = cr;
+					}
+				}
+			}
+		}
+
+
+		l = 0;
+		r = n;
+		ck = bestck;
+		cl = bestcl;
+		cr = bestcr;
+		string prefix = "", suffix = "";
+		callback mv;
+		while (l + 1 <= r && (parent[cl][cr][l][r][ck].mock == false)) {
+			mv = parent[cl][cr][l][r][ck];
+
+			if (mv.l != l)
+				prefix = prefix + (char)(cl + '0');
+			if (mv.r != r)
+				suffix = suffix + (char)(cr + '0');
+			l = mv.l;
+			r = mv.r;
+
+			ck = mv.k;
+			cl = mv.cl;
+			cr = mv.cr;
+		}
+		reverse(suffix.begin(), suffix.end());
+		cout << prefix << suffix << endl;
+	}
+}

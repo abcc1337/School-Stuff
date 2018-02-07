@@ -1,0 +1,22 @@
+f = open('fisher.in', 'r')
+ff = open('fisher.out', 'w')
+n, m, p = map(int, f.readline().split())
+sm = 0
+for i in range(n):
+    t1, t2 = map(int, f.readline().split())
+    sm += t2
+a = []
+for i in range(m):
+    t1, t2, t3 = map(int, f.readline().split())
+    a.append([t3, t2])
+a.sort(reverse = True)
+ans = 0
+for i in range(m):
+    if sm >= a[i][1]:
+        ans += a[i][0] * a[i][1]
+        sm -= a[i][1]
+    else:
+        ans += a[i][0] * sm
+        sm = 0
+print(ans, file =ff)
+ff.close()

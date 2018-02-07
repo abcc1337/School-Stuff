@@ -1,0 +1,79 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+long long inf = 1e18;
+int main(){
+    ifstream cin("fisher.in");
+    ofstream cout("fisher.out");
+
+    long long n, m, p;
+    cin >> n >> m >> p;
+    vector <long long> x(n), a(n), y(m), b(m), c(m);
+    for (int i = 0; i < n; i++)
+        cin >> x[i] >> a[i];
+
+    for (int i = 0; i < m; i++)
+        cin >> y[i] >> b[i] >> c[i];
+
+    if (p == 0) {
+        long long ans = 0;
+        long long sum = 0;
+        vector <pair <long long, long long> > srt(m);
+        for (int i = 0; i < m; i++)
+            srt[i] = {c[i], i};
+
+        sort(srt.rbegin(), srt.rend());
+
+        for (int i = 0; i < n; i++)
+            sum += a[i];
+
+        int i = 0;
+
+        while (sum > 0 && i < m) {
+            if (b[srt[i].second] > sum) {
+                ans += sum * srt[i].first;
+                b[srt[i].second] -= sum;
+                sum = 0;
+            } else {
+                ans += b[srt[i].second] * srt[i].first;
+                sum -= b[srt[i].second];
+                i++;
+            }
+        }
+        cout << ans << "\n";
+    }
+
+    if (p != 0 && y[m - 1] < x[0]) {
+        long long ans = 0;
+        long long sum = 0;
+        vector <pair <long long, long long> > srt(m);
+        for (int i = 0; i < m; i++)
+            srt[i] = {c[i], i};
+
+        sort(srt.rbegin(), srt.rend());
+
+        long long mx = 0;
+        int i = 0;
+        vector <long long> dp(n);
+        for (int j = 0; j < n; j++) {
+            sum += a[j];
+            ans -= (x[j] - ((j != 0)? x[j - 1] : 0)) * p;
+            while (sum > 0 && i < m) {
+                if (b[srt[i].second] > sum) {
+                    ans += sum * srt[i].first;
+                    b[srt[i].second] -= sum;
+                    sum = 0;
+                } else {
+                    ans += b[srt[i].second] * srt[i].first;
+                    sum -= b[srt[i].second];
+                    i++;
+                }
+            }
+            //cout << ans << " ";
+            dp[j] = ans;
+            mx = max(mx, dp[j]);
+        }
+        cout << mx << "\n";
+    }
+}

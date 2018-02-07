@@ -1,0 +1,64 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int n, t;
+
+int f(int a, int b, int c) {
+	vector <int> aa;
+	vector <int> bb;
+	vector <int> cc;
+
+	while (a != 0) {
+		aa.push_back(a % 2);
+		a /= 2;
+	}
+	while (b != 0) {
+		bb.push_back(b % 2);
+		b /= 2;
+	}
+	while (c != 0) {
+		cc.push_back(c % 2);
+		c /= 2;
+	}
+
+	int out = 0;
+	for (int i = 0; i < min((int)(cc.size()), min((int)(aa.size()), (int)(bb.size()))); i++) {
+		if (cc[i] == bb[i] && cc[i] == aa[i]) {
+			out += (1 << i) * 3;
+		}
+	}
+
+	return out;
+}
+int main() {
+	freopen("grants.in", "r", stdin);
+	freopen("grants.out", "w", stdout);
+	
+	cin >> t;
+
+	for (int i = 0; i < t; i++) {
+		cin >> n;
+		int a, b, c;
+		a = 0;
+		b = 0;
+		c = 0;
+		int out = -1;
+		for (int ii = 0; ii <= n; ii++) {
+			for (int jj = ii; jj <= (n - ii)/ 2 + 1; jj++) {
+				int kk = n - ii - jj;
+				if (out < f(ii, jj, kk)) {
+					out = f(ii, jj, kk);
+					a = ii;
+					b = jj;
+					c = kk;
+				}
+			}
+		}
+
+		cout << a << " " << b << " " << c << endl;
+	}
+	return 0;
+}

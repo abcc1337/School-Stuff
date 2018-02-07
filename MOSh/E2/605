@@ -1,0 +1,50 @@
+#!/usr/bin/python3         
+
+answs = [[0, 0, 0], [0, 0, 1], [0, 0, 2], [1, 1, 1], [0, 0, 4], [1, 1, 3], [2, 2, 2], [2, 2, 3]]
+
+
+def ans(n, t):
+    if n <= 512:
+        for i in range(n, -1, -1):
+            k = False
+            for j in range(n + 1 - i):
+                k = n - i - j
+                if i <= j and i <= k:
+                    f = True
+                    for t in range(10):
+                        if (1 << t) & i > 0 and ((1 << t) & j == 0 or (1 << t) & k == 0):
+                            f = False
+                            break
+                    if f:
+                        return [i, j, k]
+    k = 0
+    for i in range(t, -1, -1):
+        if (n >> i) & 1:
+            k = i
+            break
+    if k < 3:
+        return answs[n]
+    if n >> (k - 1) == 1:
+        p = ans(n - 3 * (1 << (k - 1)), k - 2)
+        p[0] += (1 << (k - 1))
+        p[1] += (1 << (k - 1))
+        p[2] += (1 << (k - 1))
+    else:
+        p = ans(n - 3 * (1 << (k - 2)), k - 1)
+        p[0] += (1 << (k - 2))
+        p[1] += (1 << (k - 2))
+        p[2] += (1 << (k - 2))
+    return p
+
+        
+fin = open("grants.in", "r")
+fout = open("grants.out", "w")
+ 
+t = int(fin.readline())
+ 
+for i in range(t):
+    n = int(fin.readline())
+    fout.write(" ".join(map(str, ans(n, 60))) + "\n")
+         
+fin.close()
+fout.close()

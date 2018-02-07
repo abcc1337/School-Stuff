@@ -1,0 +1,43 @@
+#include <fstream>
+#include <vector>
+
+using namespace std;
+
+int main() {
+  ifstream cin("video.in");
+  ofstream cout("video.out");
+  int n, m;
+  cin >> n >> m;
+  vector<vector<int>> field(n, vector<int>(m, 0));
+  vector<vector<int>> fieldRight(n, vector<int>(m, 0));
+  vector<vector<int>> fieldDown(n, vector<int>(m, 0));
+  vector<vector<int>> fieldRD(n, vector<int>(m, 0));
+  vector<vector<int>> fieldLD(n, vector<int>(m, 0));
+  vector<vector<int>> fieldLU(n, vector<int>(m, 0));
+  vector<vector<int>> fieldRU(n, vector<int>(m, 0));
+  char c;
+  for (int i = 0; i < n; i++) for (int j = 0; j < m; j++) {
+    cin >> c;
+    field[i][j] = (c == '2' ? 1 : 0);
+    fieldRight[i][(j + 1) % m] = (c == '2' ? 1 : 0);
+    fieldDown[(i + 1) % n][j] = (c == '2' ? 1 : 0);
+    fieldRD[(i + 1) % n][(j + 1) % m] = (c == '2' ? 1 : 0);
+    fieldLD[(i - 1 + n) % n][(j + 1) % m] = (c == '2' ? 1 : 0);
+    fieldRU[(i + 1) % n][(j - 1 + m) % m] = (c == '2' ? 1 : 0);
+    fieldLU[(i - 1 + n) % n][(j - 1 + m) % m] = (c == '2' ? 1 : 0);
+  }
+  int cN = 0, cR = 0, cD = 0, cRD = 0, cRU = 0, cLD = 0, cLU = 0;
+  for (int i = 0; i < n - 1; i++) {
+    for (int j = 0; j < m - 1; j++) {
+      cN = cN + ((field[i][j] + field[i + 1][j] + field[i][j + 1] + field[i + 1][j + 1]) % 4 == 0);
+      cR = cR + ((fieldRight[i][j] + fieldRight[i + 1][j] + fieldRight[i][j + 1] + fieldRight[i + 1][j + 1]) % 4 == 0);
+      cD = cD + ((fieldDown[i][j] + fieldDown[i + 1][j] + fieldDown[i][j + 1] + fieldDown[i + 1][j + 1]) % 4 == 0);
+      cRD = cRD + ((fieldRD[i][j] + fieldRD[i + 1][j] + fieldRD[i][j + 1] + fieldRD[i + 1][j + 1]) % 4 == 0);
+      cRU = cRU + ((fieldRU[i][j] + fieldRU[i + 1][j] + fieldRU[i][j + 1] + fieldRU[i + 1][j + 1]) % 4 == 0);
+      cLD = cLD + ((fieldLD[i][j] + fieldLD[i + 1][j] + fieldLD[i][j + 1] + fieldLD[i + 1][j + 1]) % 4 == 0);
+      cLU = cLU + ((fieldLU[i][j] + fieldLU[i + 1][j] + fieldLU[i][j + 1] + fieldLU[i + 1][j + 1]) % 4 == 0);
+    }
+  }
+  cout << max(cN, max(cR, max(cD, max(cRD, max(cRU, max(cLD, cLU))))));
+  return 0;
+}

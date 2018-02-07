@@ -1,0 +1,50 @@
+//2 вправо 1 вверх
+var
+f,f1:text;
+i1,a,b,n,q,i,xx,yy,x1,x2,y1,y2,res,j,sc:cardinal;
+s:char;
+mat:array[1..3000,1..3000,0..2]of integer;
+begin
+assign(f,'repair.in');
+assign(f1,'repair.out');
+reset(f);
+rewrite(f1);
+read(f,a);
+readln(f,b);
+read(f,n);
+readln(f,q);
+for i:=1 to n-1 do
+ begin
+ read(f,s);
+ read(f,xx);
+ readln(f,yy);
+ if s='h' then begin mat[xx,yy,2]:=1; mat[xx,yy,0]:=1; mat[xx+1,yy,0]:=1; end;
+ if s='v' then begin mat[xx,yy,1]:=1; mat[xx,yy,0]:=1; mat[xx,yy+1,0]:=1; end;
+ end;
+for i1:=1 to q do
+ begin
+ read(f,x1);
+ read(f,y1);
+ read(f,x2);
+ read(f,y2);
+ res:=0;
+ sc:=0;
+ for i:=x1 to x2 do
+ for j:=y1 to y2 do
+ if mat[i,j,0]=1 then inc(res);
+ for i:=x1 to x2 do
+ for j:=y1 to y2 do 
+ begin
+ if (i<>x2) or (j<>y2) then
+ begin
+  if i=x2 then if mat[i,j,1]=1 then begin inc(sc); end;
+  if j=y2 then if mat[i,j,2]=1 then begin inc(sc); end;
+  if (i<x2) and (j<y2) then begin if mat[i,j,1]=1 then begin inc(sc);  end; if mat[i,j,2]=1 then begin inc(sc); end; end;
+ end;
+ end;
+ res:=res-sc;
+ writeln(f1,res);
+ end;
+ close(f);
+ close(f1);
+ end.

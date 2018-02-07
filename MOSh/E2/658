@@ -1,0 +1,18 @@
+import sys
+sys.stdin, sys.stdout = open("fisher.in", "r"), open("fisher.out", "w")
+n, m, p = map(int, input().split())
+if p == 0:
+    point = [list(map(int, input().split())) for i in range(n)]
+    s = sum([i[1] for i in point])
+    shops = sorted([list(map(int, input().split())) for i in range(m)], key = lambda a: a[2])
+    res = 0
+    for i in shops:
+        if s > i[1]:
+            res += i[2] * i[1]
+            s -= i[1]
+        else:
+            res += i[2] * s
+            break
+    print(res)
+sys.stdin.close()
+sys.stdout.close()

@@ -1,0 +1,103 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+const int MAXN = 1010;
+
+int n, m, g;
+
+int t, start;
+
+int tin[MAXN][MAXN];
+int cnt;
+
+int dx[500], dy[500];
+char f[MAXN][MAXN];
+bool used[MAXN][MAXN];
+int color[MAXN][MAXN];
+
+int ans = 0;
+
+int robots_in_cycle[MAXN * MAXN];
+int size_of_cycle[MAXN * MAXN];
+int c;
+
+
+void dfs(int x, int y, int c)
+{
+	tin[x][y] = t++;
+	color[x][y] = c;
+	int xx = x + dx[(int)f[x][y]],
+		yy = y + dy[(int)f[x][y]];
+
+	if ('A' <= f[x][y] && f[x][y] <= 'Z')
+		++cnt;
+
+	// printf("%c %d %d %d %d %d\n", f[x][y], x, y, xx, yy, c);
+
+	if (tin[xx][yy] == 0)
+		dfs(xx, yy, c);
+	else
+	{
+		if (c == color[xx][yy])
+			size_of_cycle[c] = (t - tin[xx][yy]);
+		
+		c = color[xx][yy];
+		robots_in_cycle[c] += cnt;
+	}
+
+	color[x][y] = c;
+}
+
+int main()
+{
+	freopen("robots.in", "r", stdin);
+	freopen("robots.out", "w", stdout);
+
+	cin >> n >> m >> g;
+
+	for (int i = 0; i < n; ++i)
+		for (int j = 0; j < m; ++j)
+		{
+			cin >> f[i][j];
+		}
+
+	dx[(int)'S'] = dx[(int)'s'] = 1;
+	dx[(int)'N'] = dx[(int)'n'] = -1;
+	dy[(int)'E'] = dy[(int)'e'] = 1;
+	dy[(int)'W'] = dy[(int)'w'] = -1;
+	t = 1;
+
+
+	for (int i = 0; i < n; ++i)
+		for (int j = 0; j < m; ++j)
+		{
+			// memset(tin, 0, sizeof(tin));
+			// t = 1;
+			if (tin[i][j] == 0)
+			{
+				cnt = 0;
+				start = t;
+				dfs(i, j, i * n + j + 1);
+			}
+		}
+
+	/*for (int i = 0; i < n; ++i)
+	{
+		for (int j = 0; j < m; ++j)
+			printf("%c", f[i][j]);
+		printf("\n");
+	}*/
+
+	for (int i = 0; i <= n * m; ++i)
+	{
+		ans += min(size_of_cycle[i], robots_in_cycle[i]);
+		// printf("%d %d\n", size_of_cycle[i], robots_in_cycle[i]);
+	}
+
+
+	printf("%d\n", ans);
+
+
+
+	return 0;
+}

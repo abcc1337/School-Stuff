@@ -1,0 +1,124 @@
+#include <algorithm>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <numeric>
+#include <set>
+
+using namespace std;
+
+typedef long long nagai;
+
+vector<int> b, c;
+
+struct cmp
+{
+	bool operator()(const int& i, const int& j)
+	{
+		if (c[i] != c[j])
+			return c[i] < c[j];
+		return i < j;
+	}
+};
+
+struct ev
+{
+	int x, id;
+	bool shop;
+	ev(int x, int id, bool shop)
+		: x(x), id(id), shop(shop)
+	{}
+	bool operator <(const ev& b) const
+	{
+		if (x != b.x)
+			return x < b.x;
+		if (shop != b.shop)
+			return shop < b.shop;
+		return id < b.id;
+	}
+};
+
+int last(set<int, cmp> st)
+{
+	auto it = st.end();
+	--it;
+	return *it;
+}
+
+nagai goodsm = 0;
+nagai goodcost = 0;
+
+void add(set<int, cmp>& good, int ind)
+{
+	int gb = *good.begin();
+	goodsm += b[gb];
+	goodcost += 1LL * b[gb] * c[gb];
+	goodsm += b[ind];
+	goodcost += 1LL * b[ind] * c[ind];
+	good.insert(ind);
+	gb = *good.begin();
+	goodsm -= b[gb];
+	goodcost -= 1LL * b[gb] * c[gb];
+}
+
+int main()
+{
+	ifstream cin("fisher.in");
+	ofstream cout("fisher.out");
+	int n, m, p; cin >> n >> m >> p;
+	vector<int> x(n), a(n);
+	for (int i = 0; i < n; ++i)
+		cin >> x[i] >> a[i];
+	vector<int> y(m);
+	b.resize(m);
+	c.resize(m);
+	for (int i = 0; i < m; ++i)
+		cin >> y[i] >> b[i] >> c[i];
+	int sm = 0;
+	set<int, cmp> good, bad;
+	vector<ev> evs;
+	for (int i = 0; i < n; ++i)
+		evs.push_back({ x[i], i, false });
+	for (int i = 0; i < m; ++i)
+		evs.push_back({ y[i], i, true });
+	
+	sort(evs.begin(), evs.end());
+	nagai curfish = 0;
+	nagai mx = 0;
+	b.push_back(0);
+	c.push_back(0);
+	good.insert(m);
+	for (auto& e : evs)
+	{
+		nagai ans = e.shop ? -y[e.id] * p : -x[e.id] * p;
+		if (!e.shop)
+			curfish += a[e.id];
+		else
+			bad.insert(e.id);
+		int lb, gb;
+		while (bad.size() && (c[lb = last(bad)] > c[(gb = *good.begin())] || curfish > goodsm + b[gb]))
+		{
+			add(good, lb), bad.erase(lb);
+			while (good.size() > 1 && curfish <= goodsm )
+			{
+				good.erase(good.begin());
+				gb = *good.begin();
+				goodsm -= b[gb];
+				goodcost -= b[gb] * c[gb];
+			}
+		}
+		while (good.size() > 1 && curfish <= goodsm)
+		{
+			good.erase(good.begin());
+			gb = *good.begin();
+			goodsm -= b[gb];
+			goodcost -= b[gb] * c[gb];
+		}
+		ans += goodcost;
+		gb = *good.begin();
+		ans += c[gb] * min(1LL * b[gb], curfish - goodsm);
+		if (curfish)
+			mx = max(mx, ans);
+	}
+	cout << mx << endl;
+}

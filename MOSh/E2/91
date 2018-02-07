@@ -1,0 +1,76 @@
+#include <fstream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+#include <set>
+#include <cassert>
+
+using namespace std;
+
+#if _DEBUG
+ifstream cin("input.txt");
+ofstream cout("output.txt");
+#else
+ifstream cin("monument.in");
+ofstream cout("monument.out");
+#endif
+
+typedef long long ll;
+typedef pair <int, int> pii;
+
+const int INF = 1e9;
+const int sz = 1e6 + 100;
+
+vector <int> l(sz, INF), r(sz, -INF);
+
+int k;
+
+int getnum(int l, int r, int j, int add) {
+	int start = j  % k + add;
+	if (start > l) {
+		int dif = start - l;
+		start -= ((dif + k - 1) / k) * k;
+	}
+
+	int s = ((l - start) / k) * k + start;
+	return (r - s + k - 1) / k;
+}
+
+
+int main() {
+	int n;
+	cin >> n >> k;
+	vector <pii> point(n);
+	for (int i = 0; i < n; i++) cin >> point[i].first >> point[i].second;
+	point.push_back(point.front());
+	for (int i = 1; i < point.size(); i++) {
+		pii from = point[i - 1];
+		pii to = point[i];
+		if (from.second == to.second) continue;
+
+		int nowx = from.first;
+
+		for (int j = min(from.second, to.second); j <= max(from.second, to.second); j++) {
+			l[j] = min(l[j], nowx);
+			r[j] = max(r[j], nowx);
+		}
+	}
+
+	ll ans = INF;
+
+	for (int start = 0; start <= min(k, 100); start++) {
+		ll nowans = 0;
+		bool was = 0;
+		for (int i = 0; i < 1e6; i++) {
+			int left = max(l[i], l[i + 1]);
+			int right = min(r[i], r[i + 1]);
+			if ((left == INF || right == -INF) && was) break;
+			if (left == INF || right == -INF) continue;
+			nowans += getnum(left, right, i, start);
+			was = 1;
+		}
+		ans = min(ans, nowans);
+	}
+	cout << ans << endl;
+	return 0;
+}

@@ -1,0 +1,105 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+char arr[1005][1005];
+int st[1005][1005]; // 0-nop, 1-vis, 2-no loop, >=3-loop
+vector<pair<int, int> > stk;
+int loopc = 3;
+int cntloop[1000005];
+int lenloop[1000005];
+
+void dfs(int x, int y)
+{
+    st[x][y] = 1;
+    stk.push_back({x,y});
+    int nx=x, ny=y;
+    if(arr[x][y] == 'e' || arr[x][y] == 'E')
+        ny++;
+    else if(arr[x][y] == 'w' || arr[x][y] == 'W')
+        ny--;
+    else if(arr[x][y] == 'n' || arr[x][y] == 'N')
+        nx--;
+    else
+        nx++;
+    if(!st[nx][ny])
+        dfs(nx, ny);
+    else if(st[nx][ny] == 1)
+    {
+        int i;
+        for(i=stk.size()-1;i>=0&&(stk[i].first!=nx||stk[i].second!=ny);i--)
+        {
+            st[stk[i].first][stk[i].second] = loopc;
+            lenloop[loopc]++;
+        }
+        st[stk[i].first][stk[i].second] = loopc;
+        stk.pop_back();
+        lenloop[loopc]++;
+        loopc++;
+        return;
+    }
+    if(st[x][y] == 1)
+        st[x][y] = 2;
+    stk.pop_back();
+}
+
+int dfs2(int x, int y)
+{
+    if(st[x][y] >= 3)
+        return -st[x][y];
+    if(st[x][y] <= -3)
+        return st[x][y];
+    int nx=x, ny=y;
+    if(arr[x][y] == 'e' || arr[x][y] == 'E')
+        ny++;
+    else if(arr[x][y] == 'w' || arr[x][y] == 'W')
+        ny--;
+    else if(arr[x][y] == 'n' || arr[x][y] == 'N')
+        nx--;
+    else
+        nx++;
+    st[x][y] = dfs2(nx, ny);
+}
+
+int main()
+{
+    freopen("robots.in", "r", stdin);
+    freopen("robots.out", "w", stdout);
+    ios_base::sync_with_stdio(0);
+    int n, m, need_ans;
+    cin >> n >> m >> need_ans;
+    for(int i=0;i<n;i++)
+    {
+        for(int j=0;j<m;j++)
+        {
+            cin >> arr[i][j];
+        }
+    }
+    int ans = 0;
+    for(int i=0;i<n;i++)
+    {
+        for(int j=0;j<m;j++)
+        {
+            if(!st[i][j])
+            {
+                dfs(i,j);
+            }
+            /*if(st[i][j] >= 3)
+                ans++;*/
+        }
+    }
+    for(int i=0;i<n;i++)
+    {
+        for(int j=0;j<m;j++)
+        {
+            if(arr[i][j] < 'a')
+                cntloop[-dfs2(i,j)]++;
+        }
+    }
+    for(int i=0;i<loopc;i++)
+    {
+        ans += min(cntloop[i],lenloop[i]);
+    }
+    cout << ans;
+    return 0;
+}

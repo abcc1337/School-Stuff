@@ -1,0 +1,61 @@
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <string.h>
+
+using namespace std;
+
+int n, q, l, r;
+long long res, msum = 0;
+char ch;
+
+int arr[50005];
+long long gol[50005];
+bool usd[50005];
+
+long long update()
+{
+    int b = n;
+    long long res = 0, sum = 0;
+    for (int i = 0; i < n; i++)
+    {
+        if (arr[i] == 1) usd[i] = true;
+        sum += usd[i];
+        if (arr[i] == 1 && b == n) b = i;
+        if (arr[i] == 0) b = n;
+        if (gol[i] < i-b) gol[i]= i-b;
+    }
+    if (msum < sum) msum = sum;
+
+    for (int i = 0; i < n; i++)
+    {
+        res += gol[i];
+    }
+    return res + msum;
+}
+
+int main()
+{
+    freopen("lamps.in", "r", stdin);
+    freopen("lamps.out", "w", stdout);
+
+    cin >> n >> q;
+    for (int i = 0; i < n; i++)
+    {
+        cin >> ch;
+        arr[i] = ch-'0';
+    }
+
+    memset(gol, 0, sizeof(gol));
+    memset(usd, 0, sizeof(usd));
+    cout << update() << endl;
+    for (int i = 0; i < q; i++)
+    {
+        cin >> l >> r >> ch;
+
+        for (int i = l-1; i < r; i++) arr[i] = ch-'0';
+        cout << update() << endl;
+    }
+
+    return 0;
+}

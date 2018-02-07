@@ -1,0 +1,36 @@
+#include <iostream>
+#include <cstdio>
+
+using namespace std;
+
+long long ans1[3];
+
+int main()
+{
+    freopen("grants.in", "r", stdin);
+    freopen("grants.out", "w", stdout);
+    int t;
+    cin >> t;
+    for (int i = 0; i < t; i++){
+        int n;
+        cin >> n;
+        int ans = 0;
+        int ansi = 0;
+        int ansj = 0;
+        int ansk = n;
+        for (int i = 0; i <= n; i++){
+            for (int j = 0; j + i <= n; j++){
+                int k = n - i - j;
+                int l = (i & j & k);
+                if (l > ans){
+                    ans = l;
+                    ansi = i;
+                    ansj = j;
+                    ansk = k;
+                }
+            }
+        }
+        cout << ansi << " " << ansj << " " << ansk << endl;
+    }
+    return 0;
+}

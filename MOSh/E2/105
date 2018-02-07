@@ -1,0 +1,25 @@
+program q;
+var a:array[0..5000]of int64;
+   b:array[1..5000]of longint;
+   c:array[1..5000]of string;       e:char;
+var i,j,n,k,m,l,o,h:longint; s:string;
+begin
+  assign(input,'typing.in'); reset(input);
+  assign(output,'typing.out'); rewrite(output);
+  readln(m,n,l);
+  readln(s);
+  for i:=1 to m do
+  begin
+  read(b[i]); read(e); readln(c[i]);  end;
+  for i:=1 to m do
+  a[i]:=999999999999;
+  for i:=0 to length(s)-1 do
+  for j:=1 to n do
+  for m:=1 to length(c[j]) do
+  if (i+m<=length(s)) and (a[i]+b[j]<a[i+m])
+  then if (copy(s,i+1,m)=copy(c[j],1,m))or(copy(s,i+1,m)=copy(c[j],length(c[j])-m+1,m))
+       then a[i+m]:=a[i]+b[j];
+  {if a[length(s)]=999999999999
+  then} write(-1)
+  {else write(a[length(s)]) }
+end.

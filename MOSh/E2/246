@@ -1,0 +1,57 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define filename "castle"
+
+typedef long long int64;
+
+struct Node {
+    int64 a, k;
+};
+
+bool operator<(Node a, Node b) {
+    return (min(a.k, a.a) > min(b.k, b.a));
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+
+#ifndef SCHEMTSCHIK
+    freopen(filename".in", "r", stdin);
+        freopen(filename".out", "w", stdout);
+#endif
+
+    int64 n, s;
+    multiset<Node> a;
+
+    cin >> n >> s;
+    for (int i = 0; i < n; i++) {
+        Node t;
+        cin >> t.a >> t.k;
+        a.insert(t);
+    }
+
+    while (s > 0) {
+        auto it = a.begin();
+        Node node = (*it);
+
+        if (node.a == 0)
+            break;
+
+        a.erase(it);
+
+        int64 cnt = min(s, (node.a > node.k ? node.a / node.k : 1ll));
+        s -= cnt;
+        node.a -= cnt * min(node.a, node.k);
+
+        a.insert(node);
+    }
+
+    int64 ans = 0;
+    for (auto i : a)
+        ans += i.a;
+    cout << ans << endl;
+
+    return 0;
+}

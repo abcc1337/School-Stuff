@@ -1,0 +1,24 @@
+fin = open('fisher.in', 'r')
+fout = open('fisher.out', 'w')
+input = fin.readline
+
+read = lambda: map(int, input().split())
+n, m, p = read()
+A = [tuple(read()) for i in range(n)]
+B = [tuple(read()) for i in range(m)]
+
+# p == 0
+S = sum(a for x, a in A)
+B.sort(key = lambda x: -x[2])
+ans = 0
+for y, b, c in B:
+    if b > S:
+        ans += S * c
+        break
+    S -= b
+    ans += b * c
+
+print(ans, file = fout)
+
+fin.close()
+fout.close()

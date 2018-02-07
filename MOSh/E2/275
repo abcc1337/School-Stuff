@@ -1,0 +1,109 @@
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <vector>
+#include <map>
+
+#define ll long long
+
+using namespace std;
+
+struct river_place {
+
+    ll height;
+
+    bool fish, seil;
+    ll price, fish_count;
+};
+
+bool cmp (river_place a, river_place b) {
+
+    return a.height < b.height;
+}
+
+int main () {
+
+    ios_base::sync_with_stdio(0);
+
+    ifstream cin("fisher.in");
+    ofstream cout("fisher.out");
+
+    ll n, m, f;
+    cin >> n >> m >> f;
+
+    vector <river_place> r(n + m);
+
+    for (int i = 0; i < n; i++) {
+
+        river_place _r;
+
+        ll h, c;
+        cin >> h >> c;
+
+        _r.fish = 1;
+        _r.seil = 0;
+        _r.height = h;
+        _r.fish_count = c;
+
+        r[i] = _r;
+    }
+
+    for (int i = 0; i < m; i++) {
+
+        river_place _r;
+
+        ll h, c, p;
+        cin >> h >> c >> p;
+
+        _r.seil = 1;
+        _r.fish = 0;
+        _r.height = h;
+        _r.price = p;
+        _r.fish_count = c;
+
+        r[i + n] = _r;
+    }
+
+    ll mm = 0, fc = 0;
+    map < pair <ll, int>, ll > ms;
+
+    sort( r.begin(), r.end(), &cmp );
+
+    for (int i = 0; i < r.size(); i++) {
+
+        ll cm = 0;
+
+        if ( r[i].fish ) {
+
+            fc += r[i].fish_count;
+
+        } else {
+
+            ms[ make_pair( r[i].price, i ) ] = r[i].fish_count;
+        }
+
+        ll c = 0, _fc = fc;
+        if ( ms.size() ) {
+
+            for (map < pair <ll, int>, ll >::iterator it = --ms.end(); c < ms.size() && _fc > 0; it--) {
+
+                ll _p, _c;
+                _p = (it -> first).first;
+                _c = it -> second;
+
+                ll m = (_fc - _c > 0 ? _c : _fc);
+
+                cm += _p * m;
+
+                _fc -= m;
+                c++;
+            }
+        }
+
+        cm -= f * r[i].height;
+
+        mm = (cm > mm ? cm : mm);
+    }
+
+    cout << mm;
+}

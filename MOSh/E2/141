@@ -1,0 +1,36 @@
+program Project2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+var n,m,ans,ans1,ans2,i,j,x1,x2,x3:integer;
+c:char;
+
+begin
+     assign(input, 'video.in');
+     assign(output, 'video.out');
+     reset(input);
+     rewrite(output);
+    ans1:=0;
+    ans2:=0;
+  readln(n,m);
+    for i:=1 to n do begin
+       for j:=1 to m do begin
+            read(c);
+            if c='2' then
+                    inc(ans2) else
+                    inc(ans1);
+    end;
+    readln;
+    end;
+    if ans1<ans2 then begin  x1:=ans1; ans1:=ans2; ans2:=x1;   end;
+    if n>m then begin x2:=m; x3:=n; end else begin x2:=n; x3:=m; end;
+     x1 := ans1 mod x2;
+    if (ans2=0) then  begin writeln(n*m-n-m+1); exit;end;
+
+if (ans2<x2) then begin ans:=n*m-n-m-ans2+1;end else begin
+if (x1>0) then  ans:=m*n-2*x2-x3 else ans:=m*n-2*x2-x3+2; end;
+writeln(ans);
+    close(output);
+end.

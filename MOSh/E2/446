@@ -1,0 +1,71 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+using namespace std;
+
+ifstream fin("monument.in");
+ofstream fout("monument.out");
+//ifstream fin("con");
+//ofstream fout("con");
+
+int n, k;
+
+int HowMa(int sd, int x, pair<int, int> Bo)
+{
+    if((Bo.first == -1) || (Bo.second == -1)) return 0;
+    Bo.first += sd;
+    Bo.second += sd;
+    int fi = (Bo.first-x)/k;
+    int se = (Bo.second-x)/k;
+    if((Bo.second-x)%k == 0) se--;
+    return se-fi+1;
+}
+
+int main()
+{
+    fin >> n >> k;
+    vector<pair<int, int> > X(1002);
+    for(int i = 0; i < 1002; ++i) X[i] = make_pair(-1, -1);
+    int fia, fib, prea, preb, a, b;
+    fin >> prea >> preb;
+    prea += 2000;
+    fia = prea;
+    fib = preb;
+    for(int i = 1; i < n; ++i)
+    {
+        fin >> a >> b;
+        a += 2000;
+        if(a == prea)
+        {
+            for(int t = min(preb, b); t < max(preb, b); ++t)
+            {
+                if(X[t].first == -1) X[t].first = a;
+                else X[t].second = a;
+            }
+        }
+        prea = a;
+        preb = b;
+    }
+    if(prea == fia)
+    {
+        for(int t = min(preb, fib); t < max(preb, fib); ++t)
+        {
+            if(X[t].first == -1) X[t].first = prea;
+            else X[t].second = prea;
+        }
+    }
+    //for(int i = 0; i < 20; ++i) fout << X[i].first << " " << X[i].second << endl;
+    //fout << endl;
+    for(int i = 0; i < 1002; ++i) if(X[i].first > X[i].second) swap(X[i].first, X[i].second);
+    //for(int i = 0; i < 20; ++i) fout << X[i].first << " " << X[i].second << endl;
+    int ans = 1e9;
+    for(int i = 0; i < k; ++i)
+    {
+        int cans = 0;
+        for(int j = 0; j < 1002; ++j) cans += HowMa(i, j, X[j]);
+        if(ans > cans) ans = cans;
+    }
+    fout << ans << endl;
+    return 0;
+}

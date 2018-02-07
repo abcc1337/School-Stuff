@@ -1,0 +1,79 @@
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+
+#include <cmath>
+#include <algorithm>
+
+#include <vector>
+#include <set>
+#include <map>
+#include <bitset>
+#include <string>
+
+#define forn(i, n) for(int i = 0; i < n; i ++)
+#define fornn(i, q, n) for(int i = q; i < n; i ++)
+#define endl '\n'
+#define mk make_pair
+#define inb push_back
+#define outb pop_back
+#define X first
+#define Y second
+
+using namespace std;
+
+int a[1000], b[1000];
+bool was[1000][1000];
+
+int main(){
+ios_base::sync_with_stdio(0);
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+#else
+	freopen("lamps.in", "r", stdin);
+	freopen("lamps.out", "w", stdout);
+#endif
+	int n, m;
+	cin >> n >> m;
+	forn(i, n){
+		char ch;
+		cin >> ch;
+		a[i] = ch - '0';
+		b[i] = a[i];
+	}
+	int ans = 0;
+	forn(j, n){
+		fornn(q, j, n){
+			if (!a[q])
+				break;
+			else{
+				ans++;
+				was[j][q] = 1;
+			}
+		}
+	}
+	cout << ans << endl;
+	forn(i, m){
+		int l, r, x;
+		cin >> l >> r >> x;
+		l--, r--;
+		fornn(j, l, r + 1){
+			b[j] = x;
+			a[j] |= x;
+		}
+		int ans = 0;
+		forn(j, n){
+			fornn(q, j, n){
+				if (!b[q] && !was[j][q])
+					break;
+				else{
+					was[j][q] = 1;
+					ans++;
+				}
+			}
+		}
+		cout << ans << endl;
+	}
+	return 0;
+}

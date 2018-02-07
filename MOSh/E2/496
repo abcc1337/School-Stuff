@@ -1,0 +1,130 @@
+program ZAD_A_2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+const
+   dv = 61;
+var
+   a1,b1,c1,n,k,l,r:int64;
+   a,c:array [0..dv] of int64;
+   b:array [0..dv,1..3] of boolean;
+   i,dv2:integer;
+function func(m:int64):boolean;
+var
+   i:integer;
+   kol:int64;
+   z,t,p:int64;
+begin
+   a1:=m;
+   b1:=m;
+   c1:=m;
+   z:=k-m-m-m;
+   for i:=0 to dv2 do
+      begin
+         b[i,1]:=true;
+         b[i,2]:=true;
+         b[i,3]:=true;
+      end;
+   t:=1;
+   i:=0;
+   while (t+t<=m) do
+      begin
+         inc(i);
+         t:=t+t;
+      end;
+   p:=m;
+   while (p>0) do
+      begin
+         if (t<=p) then
+            begin
+               p:=p-t;
+               b[i,1]:=false;
+               b[i,2]:=false;
+               b[i,3]:=false;
+            end;
+         t:=t div 2;
+         dec(i);
+      end;
+   t:=1;
+   i:=0;
+   while (t+t<=z) do
+      begin
+         inc(i);
+         t:=t+t;
+      end;
+   p:=z;
+   kol:=0;
+   while (p>0) do
+      begin
+         if (t<=p) then
+            begin
+               p:=p-t;
+               inc(kol);
+               a[kol]:=i;
+               c[kol]:=t;
+            end;
+         t:=t div 2;
+         dec(i);
+      end;
+   for i:=kol downto 1 do
+      begin
+         if (b[a[i],1]) then
+            begin
+               b[a[i],1]:=false;
+               a1:=a1+c[i];
+            end
+         else if (b[a[i],2]) then
+            begin
+               b[a[i],2]:=false;
+               b1:=b1+c[i];
+            end
+         else if (b[a[i],3]) then
+            begin
+               b[a[i],3]:=false;
+               c1:=c1+c[i];
+            end
+         else if (a[i]>0) and (b[a[i]-1,1]) and (b[a[i]-1,2]) then
+            begin
+               b[a[i]-1,1]:=false;
+               b[a[i]-1,2]:=false;
+               a1:=a1+c[i] div 2;
+               b1:=b1+c[i] div 2;
+            end
+         else if (a[i]>0) and (b[a[i]-1,2]) and (b[a[i]-1,3]) then
+            begin
+               b[a[i]-1,2]:=false;
+               b[a[i]-1,3]:=false;
+               b1:=b1+c[i] div 2;
+               c1:=c1+c[i] div 2;
+            end
+         else
+            begin
+               func:=true;
+               exit;
+            end;
+      end;
+   func:=false;
+end;
+begin
+   reset(input,'grants.in');
+   assign(output,'grants.out');
+   read(n);
+   for i:=1 to n do
+      begin
+         read(k);
+         dv2:=0;
+         r:=1;
+         while (r+r<=k) do
+            begin
+               inc(dv2);
+               r:=r+r;
+            end;
+         l:=k div 3;
+         while (func(l)) do dec(l);
+         writeln(a1,' ',b1,' ',c1);
+      end;
+   readln;
+   readln;
+end.

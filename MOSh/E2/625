@@ -1,0 +1,87 @@
+var
+  s1, s2, s3, s4, s5, a: array[0 .. 2001, 0 .. 2001] of longint;
+  k, i, tmp, s, j, w, h, ans, z, q, f: longint;
+  cost: array['a' .. 'z'] of longint;
+  c: char;
+begin
+  assign(input, 'submarine.in');
+  assign(output, 'submarine.out');
+  reset(input);
+  rewrite(output);
+  read(k);
+  for c := 'a' to chr(ord('a') + k - 1) do
+    read(cost[c]);
+  readln(h, w);
+  for i := 1 to h do
+    begin
+      for j := 1 to w do
+        begin
+          read(c);
+          a[i][j] := cost[c];
+        end;
+      readln();
+    end;
+  for i := 1 to h do
+    for j := 1 to w do
+      begin
+        s := 0;
+        for z := i + 1 to h do
+          begin
+            s := a[z][j] + s;
+            if s > s1[i][j] then
+              s1[i][j] := s;
+          end;
+        s := 0;
+        for z := i - 1 downto 1 do
+          begin
+            s := a[z][j] + s;
+            if s > s2[i][j] then
+              s2[i][j] := s;
+          end;
+        s := 0;
+        for z := j - 1 downto 1 do
+          begin
+            s := a[i][z] + s;
+            if s > s3[i][j] then
+              s3[i][j] := s;
+          end;
+        s := 0;
+        for z := j + 1 to w do
+          begin
+            s := a[i][z] + s;
+            if s > s4[i][j] then
+              s4[i][j] := s;
+          end;
+      end;
+  for i := 1 to h do
+    for j := 1 to w do
+      s5[i][j] := a[i][j] + s5[i][j - 1];
+  for i := 1 to h do
+    for j := 1 to w do
+      begin
+        tmp := a[i][j] + s3[i][j] + s2[i][j];
+        q := -2000 * 2000 * 5;
+        for z := j + 1 to w do
+          begin
+            s := s5[i][z] - s5[i][j] + s4[i][z] + s1[i][z] + s2[i][z];
+            if s > q then
+              q := s;
+          end;
+        inc(tmp, q);
+        if (tmp > ans) or (f = 0) then
+          begin
+            ans := tmp;
+            f := 1;
+          end;
+      end;
+  write(ans);
+
+  {writeln();
+  for i := 1 to h do
+    begin
+      for j := 1 to w do
+        write(s2[i][j]:5);
+      writeln();
+    end;}
+
+end.

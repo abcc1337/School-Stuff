@@ -1,0 +1,121 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <algorithm>
+#include <memory.h>
+#include <string>
+#define mp make_pair
+using namespace std;
+
+
+typedef long long ll;
+
+const int MAXN = 1001;
+
+int a[MAXN][MAXN];
+string s[MAXN];
+
+int w[MAXN][MAXN];
+int x[MAXN][MAXN], y[MAXN][MAXN];
+
+struct stt
+{
+	int x, y, t;
+};
+
+vector <pair <int, int> > e[MAXN][MAXN];
+vector <stt> ans;
+int ad = 0, cn = 0;
+int nm;
+
+void go(int x, int y, int t)
+{
+	if (cn == 0) return;
+	if (tolower(s[x][y]) != s[x][y])
+	{
+		stt cur;
+		cur.x = x, cur.y = y, cur.t =  ad-- - t, cn--;
+		if (w[x][y] == 3) cur.t -= nm;
+		ans.push_back(cur);
+	}
+	for (int i = 0; i < e[x][y].size(); i++)
+	{
+		int nx = e[x][y][i].first, ny = e[x][y][i].second;
+		if (w[nx][ny] != 3) go(nx, ny, t + 1);
+	}
+}
+
+
+int main()
+{
+	ios_base::sync_with_stdio(0);
+	freopen("robots.in", "r", stdin);
+	freopen("robots.out", "w", stdout);
+	int n, m, g;
+	cin >> n >> m >> g;
+	nm = n * m;
+	memset(w, 0, sizeof(w));
+	for (int i = 0; i < n; i++)
+	{
+		cin >> s[i];
+		for (int j = 0; j < m; j++)
+		{
+			x[i][j] = i, y[i][j] = j;
+			char c = tolower(s[i][j]);
+			if (c == 'n') x[i][j]--;
+			if (c == 's') x[i][j]++;
+			if (c == 'w') y[i][j]--;
+			if (c == 'e') y[i][j]++;
+			e[x[i][j]][y[i][j]].push_back(mp(i, j));
+		}
+	}
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < m; j++)
+		{
+			if (w[i][j]) continue;
+			int ci = i, cj = j;
+			while (!w[ci][cj])
+			{
+				int ni = x[ci][cj], nj = y[ci][cj];
+				w[ci][cj] = 1;
+				ci = ni, cj = nj;
+			}
+			if (w[ci][cj] == 1)
+			{
+				ad = 3 * n * m;
+				cn = 0;
+				int ai = ci, aj = cj;
+				do
+				{
+					int ni = x[ci][cj], nj = y[ci][cj];
+					cn++;
+					w[ci][cj] = 3;
+					ci = ni, cj = nj;
+				} while ((ci != ai) || (cj != aj));
+				nm = cn;
+				do
+				{
+					int ni = x[ci][cj], nj = y[ci][cj];
+					go(ci, cj, 0);
+					ad++;
+					ci = ni, cj = nj;
+				} while ((ci != ai) || (cj != aj));
+			}
+			ci = i, cj = j;
+			while (w[ci][cj] != 2)
+			{
+				int ni = x[ci][cj], nj = y[ci][cj];
+				w[ci][cj] = 2;
+				ci = ni, cj = nj;
+			}
+		}
+	}
+	cout << ans.size() << "\n";
+	if (g)
+	{
+		for (int i = 0; i < ans.size(); i++) cout << ans[i].x + 1 << " " << ans[i].y + 1 << " " << ans[i].t << "\n";
+	}
+	return 0;
+}

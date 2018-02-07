@@ -1,0 +1,138 @@
+#include <iostream>
+#include <iomanip>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
+#include <algorithm>
+#include <set>
+#include <vector>
+#include <map>
+#include <cstring>
+
+using namespace std;
+
+typedef long long ll;
+
+const int N = 2e6;
+
+vector < pair <int, int> > br;
+pair < pair <int, int>, int > ans[N];
+vector <int> gr[N], rg[N];
+set <pair <int, int> > ar[N];
+int n, m, pre[N], mark[N], col, rob[N], rb[N], pos, cc[N], sz[N], q, rzv[N], por[N];
+char a[2000][2000];
+
+void dfs2(int v, int q)
+{
+    pre[v] = q;
+    if (mark[v] == 1)
+    {
+        int timer = 0;
+        col++;
+        int f = 0;
+        int u = v;
+        int kk = 1;
+        int d = 1;
+        while (u != v || f == 0)
+        {
+            f = 1;
+            if (rob[v])
+            {
+                rb[col]++;
+                ans[pos++] = make_pair(make_pair(v / m, v % m), 1);
+            }
+            else
+                ar[col].insert(make_pair(kk - 1, v));
+            por[v] = d++;
+            rzv[v] = kk - 1;
+            cc[v] = col;
+            sz[col]++;
+            mark[v] = 2;
+            v = pre[v];
+            kk++;
+        }
+        return;
+    }
+    mark[v] = 1;
+    for (int i = 0; i < gr[v].size(); i++)
+        if (mark[gr[v][i]] != 2)
+            dfs2(gr[v][i], v);
+    mark[v] = 2;
+}
+
+void dfs3(int v, int dist)
+{
+    mark[v] = 1;
+    if (rob[v] && sz[cc[v]] <= 1)
+        br.push_back(make_pair(dist, v));
+    for (int i = 0; i < rg[v].size(); i++)
+        if (!mark[rg[v][i]] && sz[cc[rg[v][i]]] <= 1)
+            dfs3(rg[v][i], dist + 1);
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    freopen("robots.in", "r", stdin);
+    freopen("robots.out", "w", stdout);
+    cin >> n >> m >> q;
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+        {
+            cin >> a[i][j];
+            if (a[i][j] == 'S' || a[i][j] == 'W' || a[i][j] == 'E' || a[i][j] == 'N')
+                rob[m * i + j] = 1;
+            if (a[i][j] == 's' || a[i][j] == 'S')
+                gr[m * i + j].push_back(m * (i + 1) + j), rg[m * (i + 1) + j].push_back(m * i + j);
+            if (a[i][j] == 'e' || a[i][j] == 'E')
+                gr[m * i + j].push_back(m * i + j + 1), rg[m * i + 1 + j].push_back(m * i + j);
+            if (a[i][j] == 'n' || a[i][j] == 'N')
+                gr[m * i + j].push_back(m * (i - 1) + j), rg[m * (i - 1) + j].push_back(m * i + j);
+            if (a[i][j] == 'w' || a[i][j] == 'W')
+                gr[m * i + j].push_back(m * i + j - 1), rg[m * i + j - 1].push_back(m * i + j);
+        }
+    n = n * m;
+    for (int i = 0; i < n; i++)
+        if (!mark[i])
+            dfs2(i, -1);
+    for (int i = 0; i < n; i++)
+        mark[i] = 0;
+    for (int i = 0; i < n; i++)
+        if (!mark[i] && sz[cc[i]] > 1)
+        {
+            int tm = 1;
+            br.clear();
+            dfs3(i, 0);
+            if (br.size() == 0)
+                continue;
+            sort(br.begin(), br.end());
+            for (int j = 0; j < br.size(); j++)
+                if (ar[cc[i]].size() > 0)
+                {
+                    pair<int, int> k = *ar[cc[i]].begin();
+                    ar[cc[i]].erase(k);
+                    int f = por[k.second];
+                    int d = por[i];
+                    int qr = 0;
+                    if (f < d)
+                        qr = (d - f);
+                    else
+                        qr = sz[cc[i]] - (f - d);
+                    int dob = 0;
+                    if (qr < br[j].first)
+                        dob = br[j].first + (br[j].first % qr);
+                    else
+                    {
+                        dob = qr - br[j].first;
+                    }
+                    ans[pos++] = make_pair(make_pair(br[j].second / m, br[j].second % m), dob + tm);
+                    rb[cc[i]]++;
+                    tm += sz[cc[i]];
+                }
+        }
+    cout << pos << endl;
+    if (q == 1)
+    for (int i = 0; i < pos; i++)
+        cout << ans[i].first.first + 1 << ' ' << ans[i].first.second + 1 << ' '<< ans[i].second << endl;;
+    return 0;
+}

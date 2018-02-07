@@ -1,0 +1,107 @@
+program day1_b;
+uses math;
+var x, y: array[1..100000] of longint;
+    l, r, bad: array[1..1000000] of longint;
+    vis: array[0..1000000] of boolean;
+    n, k, i, j, y_min, y_max, b, bx, num, inf, y1, dx, modl: longint;
+    c, counter: int64;
+begin
+
+     assign(input,'monument.in');
+     assign(output,'monument.out');
+     reset(input);
+     rewrite(output);
+
+     read(n, k);
+     for i := 1 to n do
+         read(x[i], y[i]);
+
+     fillchar(l, sizeof(l), 0);
+     fillchar(r, sizeof(r), 0);
+     fillchar(vis, sizeof(vis), false);
+     inf := 1000000;
+     y_min := inf;
+     y_max := 0;
+     for i := 2 to n do
+       if x[i] = x[i - 1] then
+        for y1 := min(y[i], y[i -1]) + 1 to max(y[i], y[i - 1]) do
+         begin
+          if (vis[y1] = false) or (l[y1] > x[i]) then
+             l[y1] := x[i];
+          if (vis[y1] = false) or (r[y1] < x[i]) then
+             r[y1] := x[i];
+          vis[y1] := true;
+          y_min := min(y_min, y1);
+          y_max := max(y_max, y1);
+       end;
+
+     if x[1] = x[n] then
+      for y1 := min(y[1], y[n]) + 1 to max(y[1], y[n]) do
+       begin
+       if (vis[y1] = false) or (l[y1] > x[1]) then
+             l[y1] := x[1];
+       if (vis[y1] = false) or (r[y1] < x[1]) then
+             r[y1] := x[1];
+       vis[y1] := true;
+       y_min := min(y_min, y1);
+       y_max := max(y_max, y1);
+      end;
+
+     { for i := y_min to y_max do
+       writeln(i,' ',l[i],' ',r[i]);}
+
+
+
+      dx := k - l[y_min] mod k;
+      if dx = k then
+         dx := k;
+
+      fillchar(bad, sizeof(bad), 0);
+      modl := k;
+      for i := y_min to y_max do
+       begin
+         l[i] := l[i] + dx;
+         r[i] := r[i] + dx;
+         num := i - y_min;
+         bx := l[i]  + modl - num;
+         if bx = 0 then
+            modl := modl + k;
+         bad[i] := k - bx mod k;
+       end;
+
+    { for i := y_min to y_max do
+       writeln(i,' ',l[i],' ',r[i],' ',bad[i]); }
+
+     counter := 1000000;
+
+     for dx := 0 to k - 1 do
+      begin
+       c := 0;
+       for i := y_min to y_max do
+         begin
+           bad[i] := bad[i] - 1;
+           if bad[i] = -1 then
+              bad[i] := k - 1;
+           if bad[i] = 0 then
+              bad[i] := k;
+           b := r[i] - l[i] - bad[i];
+           if b > 0 then begin
+              if b mod k = 0 then
+                 c := c + b div k + 1
+                else
+                 c := c + b div k + 2;
+            end
+            else
+             c := c + 1;
+
+         end;
+      if c < counter then
+         counter := c;
+      end;
+
+     writeln(counter);
+
+     close(input);
+     close(output);
+
+end.

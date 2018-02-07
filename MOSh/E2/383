@@ -1,0 +1,63 @@
+#define DEBUG
+
+#ifdef DEBUG
+#include <iostream>
+#else
+#include <fstream>
+std::ifstream cin("robots.in");
+std::ofstream cout("robots.out");
+#endif
+#include <algorithm>
+#include <cmath>
+#include <climits>
+using namespace std;
+
+#define pb push_back 
+#define mp make_pair 
+typedef long long ll;
+
+
+int main()
+{
+    int n, m, p;
+    cin >> n >> m >> p;
+    
+    ll fish = 0;
+    
+    for (int i = 0; i < n; ++i)
+    {
+        int o, u;
+        cin >> o >> u;
+        fish += u;
+    }
+    
+    vector<pair<int, int> > kk;
+    
+    for (int j = 0; j < m; ++j)
+    {
+        int r, t, y;
+        cin >> r >> t >> y;
+        kk.pb(mp(y, t));
+    }
+    
+    ll profit = 0;
+    
+    sort(kk.begin(), kk.end());
+    reverse(kk.begin(), kk.end());
+    
+    for (auto z : kk)
+    {
+        if (fish >= z.second)
+        {
+            fish -= z.second;
+            profit += z.first * z.second;
+        }
+        else
+        {
+            profit += z.first * fish;
+            break;
+        }
+    }
+    cout << profit;
+    return 0;
+}

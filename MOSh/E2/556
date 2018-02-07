@@ -1,0 +1,31 @@
+program zad_A;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+var
+  //ar : array[1 .. 101, 1 .. 101, 1 .. 101] of integer;
+  ar : array[1 .. 1000, 1 .. 3] of integer;
+  n, i, res, j : integer;
+begin
+  reset(input, 'onlyone.in');
+  rewrite(output, 'onlyone.out');
+
+  readln(n);
+  for i := 1 to n do begin
+    //readln(a, b, c);
+    //inc(ar[a, b, c]);
+    readln(ar[i, 1], ar[i, 2], ar[i, 3]);
+  end;
+
+  res := 0;
+  for i := 1 to n do
+    for j := i + 1 to n do
+      if((ar[i, 1] = ar[j, 1]) xor (ar[i, 2] = ar[j, 2]) xor (ar[i, 3] = ar[j, 3]) xor ((ar[i, 1] = ar[j, 1]) and (ar[i, 2] = ar[j, 2]) and (ar[i, 3] = ar[j, 3]))) then
+        inc(res);
+
+  writeln(res);
+
+  readln(n);
+end.

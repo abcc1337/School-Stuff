@@ -1,0 +1,135 @@
+#include <bits/stdc++.h>
+
+using std::cin;
+using std::cout;
+using std::cerr;
+
+using std::vector;
+using std::string;
+using std::pair;
+using std::make_pair;
+
+using std::min;
+using std::max;
+using std::abs;
+
+template <typename T>
+T input() {
+    T res;
+    cin >> res;
+    return res;
+}
+
+vector<vector<uint32_t>> parents;
+vector<vector<uint32_t>> graph;
+vector<pair<uint32_t, uint32_t>> times;
+vector<uint32_t> depth;
+uint32_t cur_time = 0;
+
+void dfs(uint32_t v) {
+    times[v].first = cur_time++;
+    for (auto u: graph[v])
+        dfs(u);
+    times[v].second = cur_time++;
+}
+
+bool is_parent(uint32_t v, uint32_t u) {
+    return times[v].first <= times[u].first and times[u].second <= times[v].second;
+}
+
+uint32_t lca_of(uint32_t v, uint32_t u) {
+    if (is_parent(v, u))
+        return v;
+    for (int32_t i = parents.size() - 1; i >= 0; --i)
+        if (not is_parent(parents[i][v], u))
+            v = parents[i][v];
+
+    v = parents[0][v];
+    assert(is_parent(v, u));
+    return v;
+}
+
+bool is_on_path(uint32_t u, uint32_t v, uint32_t uv, uint32_t w) {
+    return is_parent(uv, w) and (is_parent(w, u) or is_parent(w, v));
+}
+
+uint32_t abs(uint32_t u, uint32_t v) {
+    return u >= v ? u - v : v - u;
+}
+
+int main() {
+#ifndef LOCAL
+#define TASK "twopaths"
+    freopen(TASK ".in", "r", stdin);
+    freopen(TASK ".out", "w", stdout);
+#endif
+    std::iostream::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+
+    uint32_t n = input<uint32_t>();
+    vector<pair<uint32_t, uint32_t>> ships(input<uint32_t>());
+
+    uint32_t log_n = 1;
+    for (; (1u << log_n) < n; ++log_n) { }
+
+    parents.resize(log_n + 1, vector<uint32_t>(n));
+    graph.resize(n, vector<uint32_t>());
+    times.resize(n);
+    depth.resize(n, 0);
+
+    for (uint32_t i = 1; i != n; ++i) {
+        uint32_t p = input<uint32_t>() - 1;
+
+        graph[p].push_back(i);
+        depth[i] = depth[p] + 1;
+        parents[0][i] = p;
+    }
+
+    dfs(0);
+
+    for (auto& v: ships)
+        v.first = input<uint32_t>() - 1, v.second = input<uint32_t>() - 1;
+
+    for (uint32_t k = 1; k < parents.size(); ++k)
+        for (uint32_t i = 0; i != n; ++i)
+            parents[k][i] = parents[k - 1][parents[k - 1][i]];
+
+    uint32_t best_ans = 0;
+    pair<uint32_t, uint32_t> the_ans = {0, 1};
+    for (uint32_t a = 0; a != ships.size(); ++a) {
+        auto lca_a = lca_of(ships[a].first, ships[a].second);
+        for (uint32_t b = a + 1; b != ships.size(); ++b) {
+            auto lca_b = lca_of(ships[b].first, ships[b].second);
+
+            vector<uint32_t> inter = {ships[a].first, ships[a].second, lca_a, ships[b].first, ships[b].second, lca_b};
+            for (uint32_t v: {ships[a].first, ships[a].second})
+                for (uint32_t u: {ships[b].first, ships[b].second})
+                    inter.push_back(lca_of(u, v));
+
+            vector<uint32_t> verts;
+            for (uint32_t v: inter)
+                if (is_on_path(ships[a].first, ships[a].second, lca_a, v)
+                    and is_on_path(ships[b].first, ships[b].second, lca_b, v)) {
+                    verts.push_back(v);
+                }
+            std::sort(verts.begin(), verts.end(), [](uint32_t v, uint32_t u) {
+                return times[v].first < times[u].first;
+            });
+
+            uint32_t len = 0;
+            for (uint32_t i = 1; i < verts.size(); ++i) {
+                assert(is_parent(verts[i - 1], verts[i]) or is_parent(verts[i], verts[i - 1]));
+                len += abs(depth[verts[i - 1]], depth[verts[i]]);
+            }
+
+            if (len > best_ans)
+                best_ans = len, the_ans = {a, b};
+        }
+    }
+
+    cout << best_ans << "\n";
+    cout << the_ans.first + 1 << " " << the_ans.second + 1 << "\n";
+
+    return 0;
+}

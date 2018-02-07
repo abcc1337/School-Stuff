@@ -1,0 +1,128 @@
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+#pragma comment (linker, "/STACK:100000000")
+
+using namespace std;
+
+struct Fish
+{
+	long long coord;
+	long long amount;
+};
+
+struct Base
+{
+	long long coord;
+	long long cap;
+	long long cost;
+
+	bool operator < (const Base& that) const
+	{
+		return (cost > that.cost);
+	}
+};
+
+void solve_fuel0     (vector <Fish>& fish, vector <Base>& base);
+void solve_base_fish (vector <Fish>& fish, vector <Base>& base, long long fuel);
+
+int main ()
+{
+	freopen ( "fisher.in", "r", stdin);
+	freopen ("fisher.out", "w", stdout);
+
+	int n_fish = 0, n_base = 0;
+	long long fuel = 0;
+	cin >> n_fish >> n_base >> fuel;
+
+	vector <Fish> fish (n_fish);
+	vector <Base> base (n_base);
+
+	for (int i = 0; i < n_fish; i++)
+		cin >> fish[i].coord >> fish[i].amount;
+
+	for (int i = 0; i < n_base; i++)
+		cin >> base[i].coord >> base[i].cap >> base[i].cost;
+
+	if (fuel == 0)
+	{
+		solve_fuel0 (fish, base);
+	}
+	else if(base[n_base - 1].coord < fish[0].coord)
+	{
+		solve_base_fish (fish, base, fuel);
+	}
+
+	return 0;
+}
+
+void solve_fuel0 (vector<Fish>& fish, vector<Base>& base)
+{
+	sort (base.begin (), base.end ());
+	long long all_caught = 0;
+
+	for (int i = 0; i < int (fish.size ()); i++)
+		all_caught += fish[i].amount;
+
+	long long all_cost = 0;
+
+	for(int i = 0; i < int (base.size ()); i++)
+	{
+		if (base[i].cap <= all_caught)
+		{
+			all_cost += (base[i].cap * base[i].cost);
+			all_caught -= base[i].cap;
+		}
+		else
+		{
+			all_cost += (all_caught * base[i].cost);
+			break;
+		}
+	}
+
+	cout << all_cost << "\n";
+}
+
+void solve_base_fish (vector <Fish>& fish, vector <Base>& base, long long fuel)
+{
+	sort (base.begin (), base.end ());
+
+	long long curr_max   = 0;
+	long long all_caught = 0;
+
+	int                 ptr = 0;
+	long long curr_can_sell = 0;
+	long long curr_profit   = 0;
+
+	for(int i = 0; i < int (fish.size ()); i++)
+	{
+		all_caught += fish[i].amount;
+
+		while (ptr < base.size () && curr_can_sell + base[ptr].cap <= all_caught)
+		{
+			curr_can_sell += base[i].cap;
+			curr_profit   += base[i].cap * base[i].cost;
+
+			ptr++;
+		}
+
+		if (ptr < base.size ())
+		{
+			long long new_profit = curr_profit + (all_caught - curr_can_sell) * base[ptr].cost - fish[i].coord * fuel;
+
+			if (new_profit > curr_max)
+				curr_max = new_profit;
+		}
+		else
+		{
+			long long new_profit = curr_profit - fish[i].coord * fuel;
+			
+			if (new_profit > curr_max)
+				curr_max = new_profit;
+		}
+	}
+
+	cout << curr_max << "\n";
+}

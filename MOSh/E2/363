@@ -1,0 +1,72 @@
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <algorithm>
+#include <utility>
+#include <vector>
+#include <cstdio>
+#include <iostream>
+#include <string>
+#include <time.h>
+#include <set>
+#define forn(i, n) for (int i = 0; i < (n); i++)
+#define fornn(i, q, n) for (int i = (q); i < (n); i++)
+#define times clock() * 1.0 / CLOCKS_PER_SEC
+using namespace std;
+
+typedef long long ll;
+
+int solve();
+
+int main() {
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin), freopen("output.txt", "w", stdout);
+#else
+	freopen("typing.in", "r", stdin), freopen("typing.out", "w", stdout);
+#endif
+	solve();
+
+	return 0;
+}
+
+const int MAXN = 1e3 + 7;
+
+int solve() {
+	int m, n, l;
+	cin >> m >> n >> l;
+	string s;
+	cin >> s;
+	set<string> Can;
+	forn(i, n) {
+		string t;
+		int cost;
+		cin >> cost;
+		cin >> t;
+		string cur = "";
+		forn(j, t.size()) {
+			cur += t[j];
+			Can.insert(cur);
+		}
+		cur = "";
+		for (int j = t.size() - 1; j >= 0; j--) {
+			cur += t[j];
+			Can.insert(cur);
+		}
+	}
+	ll ans = 0;
+	int r = 0;
+	int i = 0;
+	string cur = "";
+	while (i < m - 1){
+		while ((r + 1 < m) && (Can.count(cur + s[r + 1]))) 
+			r++, cur += s[r + 1];
+		if (cur == "") {
+			cout << -1;
+			return 0;
+		}
+		ans++;
+		i = r;
+		cur = "";
+	}
+	cout << ans;
+	return 0;
+}

@@ -1,0 +1,21 @@
+#!/usr/bin/python3
+
+fin = open("onlyone.in", "r")
+fout = open("onlyone.out", "w")
+
+n = int(fin.readline())
+people = list(map(lambda x: tuple(x.split()), fin.read().split("\n")))
+
+num = 0
+for i in range(n):
+    for j in range(i + 1, n):
+        sm = 0
+        for k in range(3):
+            sm += (people[i][k] == people[j][k])
+        if sm == 1:
+            num += 1
+            
+fout.write(str(num))
+
+fin.close()
+fout.close()

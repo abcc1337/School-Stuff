@@ -1,0 +1,45 @@
+inf = open("robots.in", "r")
+outf = open("robots.out", "w")
+n, m, p = map(int, inf.readline().split())
+lst = []
+for i in range(n):
+    lst.append(list(map(str, inf.readline().split()))[0])
+
+grp = []
+cr = 0
+for i in range(n):
+    for j in range(m):
+        if lst[i][j] == 'S' or lst[i][j] == 's':
+            k = cr + m
+        if lst[i][j] == 'N' or lst[i][j] == 'n':
+            k = cr - m
+        if lst[i][j] == 'W' or lst[i][j] == 'w':
+            k = cr - 1
+        if lst[i][j] == 'E' or lst[i][j] == 'e':
+            k = cr + 1
+        grp.append(k)
+        cr += 1
+used = [0] * (m * n)
+sna = 0
+def dfs(v):
+    global sna
+    used[v] = 1
+    if used[grp[v]] == 0:
+        ans = dfs(grp[v])
+        ans[0] += 1
+        if v == ans[1]:
+            sna = ans[0]
+    else:
+        if used[grp[v]] == 1:
+            ans = [1, grp[v]]
+    return ans
+
+
+crrans = 0
+for i in range(len(used)):
+    if used[i] == 0:
+        sna = 0
+        dfs(i)
+        crrans += sna
+outf.write(str(crrans))
+outf.close()

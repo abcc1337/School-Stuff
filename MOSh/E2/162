@@ -1,0 +1,36 @@
+#include <fstream>
+
+using namespace std;
+
+bool foo(int a1, int b1, int c1, int a2, int b2, int c2)
+{
+    if (a1 == a2 && b1 == b2 || a1 == a2 && c1 == c2 || b1 == b2 && c1 == c2 || a1 != a2 && b1 != b2 && c1 != c2)
+        return true;
+    return false;
+}
+int main()
+{
+    ifstream in;
+    ofstream out;
+    in.open("onlyone.in");
+    out.open("onlyone.out");
+    int n;
+    in >> n;
+    int A[n];
+    int B[n];
+    int C[n];
+    for (int i = 0; i < n; ++i)
+        in >> A[i] >> B[i] >> C[i];
+    int ans = 0;
+    for (int i = 0; i < n; ++i)
+    {
+        for (int j = 0; j < i; ++j)
+        {
+            if foo(a[i], b[i], c[i], a[j], b[j], c[j])
+                ++ans;
+        }
+    }
+    out << ans << endl;
+    in.close();
+    out.close();
+}

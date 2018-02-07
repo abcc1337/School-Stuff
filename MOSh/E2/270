@@ -1,0 +1,142 @@
+#include <iostream>
+#include <algorithm>
+#include <cstdio>
+#include <stdio.h>
+#include <cmath>
+#include <string>
+#include <vector>
+#define ll long long
+#define ld long double
+#define cs(x) (int)x.size()
+#define mp make_pair
+#define sqr(x) ((x)*(x))
+#define INF 1152921504606846976ll
+using namespace std;
+
+ll maxleft[2000][2000] = { 0 };
+
+ll maxright[2000][2000] = { 0 };
+
+ll maxup[2000][2000] = { 0 };
+
+ll maxdown[2000][2000] = { 0 };
+
+ll maxupdown[2000][2000] = { 0 };
+
+ll lettercost[26] = { 0 };
+
+pair<ll, int> maxtail[2000][2000];
+
+int cost[2000][2000] = { 0 };
+
+int h, w;
+
+void precalc()
+{
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = 0; j < w; j++)
+		{
+			maxup[i][j] = cost[i][j];
+			if (i != 0 && maxup[i - 1][j] > 0)
+				maxup[i][j] += maxup[i - 1][j];
+		}
+	}
+
+	for (int i = h - 1; i >= 0; i--)
+	{
+		for (int j = 0; j < w; j++)
+		{
+			maxdown[i][j] = cost[i][j];
+			if (i != (h - 1) && maxdown[i + 1][j] > 0)
+				maxdown[i][j] += maxdown[i + 1][j];
+		}
+	}
+
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = 0; j < w; j++)
+		{
+			maxleft[i][j] = cost[i][j];
+			if (j != 0 && maxleft[i][j - 1] > 0)
+				maxleft[i][j] += maxleft[i][j - 1];
+		}
+	}
+
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = w - 1; j >= 0; j--)
+		{
+			maxright[i][j] = cost[i][j];
+			if (j != (w - 1) && maxright[i][j + 1] > 0)
+				maxright[i][j] += maxright[i][j + 1];
+		}
+	}
+
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = 0; j < w; j++)
+		{
+			maxupdown[i][j] = cost[i][j];
+			if (i != 0 && maxup[i - 1][j] > 0)
+				maxupdown[i][j] += maxup[i - 1][j];
+			if (i != (h - 1) && maxdown[i + 1][j] > 0)
+				maxupdown[i][j] += maxdown[i + 1][j];
+		}
+	}
+	
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = (w - 1); j >= 0; j--)
+		{
+			maxtail[i][j] = mp(maxupdown[i][j], j);
+			if (j != (w - 1) && maxright[i][j + 1] > 0)
+				maxtail[i][j].first += maxright[i][j + 1];
+			if (j != (w - 1))
+			{
+				if (maxtail[i][j + 1].first + cost[i][j] > maxtail[i][j].first)
+					maxtail[i][j] = mp(maxtail[i][j + 1].first + cost[i][j], maxtail[i][j + 1].second);
+			}
+		}
+	}
+}
+
+int main()
+{
+	freopen("submarine.in", "r", stdin);
+	freopen("submarine.out", "w", stdout);
+	int k;
+	cin >> k;
+	for (int i = 0; i < k; i++)
+		cin >> lettercost[i];
+	cin >> h >> w;
+
+	string s;
+	getline(cin, s);
+	for (int i = 0; i < h; i++)
+	{
+		getline(cin, s);
+		for (int j = 0; j < w; j++)
+		{
+			cost[i][j] = lettercost[s[j] - 'a'];
+		}
+	}
+
+	precalc();
+
+	ll curmaxans = -INF;
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = 0; j < (w - 1); j++)
+		{
+			ll cur = maxup[i][j];
+			if (j > 0 && maxleft[i][j - 1] > 0)
+				cur += maxleft[i][j - 1];
+			cur += maxtail[i][j + 1].first;
+			curmaxans = max(curmaxans, cur);
+		}
+	}
+
+	cout << curmaxans << endl;
+	return 0;
+}

@@ -1,0 +1,153 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <fstream>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <cmath>
+#include <cassert>
+#include <cstring>
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <map>
+#include <set>
+#include <queue>
+#include <unordered_map>
+#include <unordered_set>
+
+using namespace std;
+
+#define forn(i, n) for (int i = 0; i < int(n); ++i)
+#define forq(i, q, n) for (int i = int(q); i < int(n); ++i)
+#define mk make_pair
+#define psh push_back
+#define all(v) v.begin(), v.end()
+#define TIME clock() * 1.0 / CLOCKS_PER_SEC
+#define Y second
+#define X first
+#define y1 asd
+#define TASK "mountain"
+
+typedef long long ll;
+typedef vector <int> vi;
+typedef pair <int, int> pii;
+
+const int MAXN = (int)1e6 + 7;
+const int INF = (int)1e9 + 7;
+const int MOD = (int)1e9 + 7;
+const double EPS = 1e-6;
+
+void file()
+{
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin); freopen("output.txt", "w", stdout);
+#else
+	freopen(TASK".in", "r", stdin); freopen(TASK".out", "w", stdout);
+#endif
+}
+
+struct ee {
+	ll d, k;
+};
+
+vector <ee> B;
+vector <pair <ll, ll> > A;
+
+bool check(ll k, ll ky, ll x, ll y) {
+	forn(i, B.size()) {
+		if ((A[i + 1].X - A[i].X) * (A[i + 1].Y - ky) == (A[i + 1].X - k) * (A[i + 1].Y - A[i].Y)) {
+			continue;
+		}
+		if ((x - k) * (y - A[i].Y) == (x - A[i].X) * (y - ky)) {
+			continue;
+		}
+		if ((x - k) * (y - A[i + 1].Y) == (x - A[i + 1].X) * (y - ky)) {
+			continue;
+		}
+		if ((A[i + 1].X - A[i].X) * (A[i + 1].Y - y) == (A[i + 1].X - x) * (A[i + 1].Y - A[i].Y)) {
+			continue;
+		}
+		int d, d1;
+		if ((A[i].X - x) * (A[i + 1].Y - A[i].Y) - (A[i + 1].X - A[i].X) * (A[i].Y - y) > 0) {
+			d = 1;
+		}
+		else {
+			d = -1;
+		}
+		if ((A[i].X - k) * (A[i + 1].Y - A[i].Y) - (A[i + 1].X - A[i].X) * (A[i].Y - ky) > 0) {
+			d1 = 1;
+		}
+		else {
+			d1 = -1;
+		}
+		if (d * d1 < 0) {
+			if ((x - A[i].X) * (ky - y) - (k - x) * (y - A[i].Y) > 0) {
+				d = 1;
+			}
+			else {
+				d = -1;
+			}
+			if ((x - A[i + 1].X) * (ky - y) - (k - x) * (y - A[i + 1].Y) > 0) {
+				d1 = 1;
+			}
+			else {
+				d1 = -1;
+			}
+			if (d * d1 < 0) {
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+
+int main() {
+	file();
+	int n, q;
+	ll d, k;
+	scanf("%d%d", &n, &q);
+	B.resize(n);
+	A.resize(n + 1);
+	A[0] = mk(0ll, 0ll);
+	forn(i, n) {
+		scanf("%lld%lld", &B[i].d, &B[i].k);
+		A[i + 1] = mk(A[i].X + B[i].d, A[i].Y + B[i].k * B[i].d);
+	}
+	while (q--) {
+		ll x, y;
+		scanf("%lld%lld", &x, &y);
+		ll l;
+		bool f = 1;
+		for (int i = A.size() - 1; i >= 0; --i) {
+			if (A[i].X <= x && f) {
+				if (check(A[i].X, A[i].Y, x, y)) {
+					l = A[i].X;
+				}
+				else {
+					f = 0;
+				}
+			}
+		}
+		if (l > x) {
+			assert(0);
+		}
+		printf("%lld ", l);
+		f = 1;
+		forn(i, A.size()) {
+			if (A[i].X >= x && f) {
+				if (check(A[i].X, A[i].Y, x, y)) {
+					l = A[i].X;
+				}
+				else {
+					f = 0;
+				}
+			}
+		}
+		if (l < x) {
+			assert(0);
+		}
+		printf("%lld\n", l);
+	}
+	return 0;
+}

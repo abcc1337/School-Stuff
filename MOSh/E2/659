@@ -1,0 +1,51 @@
+var a: array[1..1000,1..1000] of byte;
+i: array[1..1000,1..1000] of byte;
+sx,sy: array[1..1000] of integer;
+sum,mx: integer;
+x,y,n,m,z: integer;
+f: text;
+
+begin
+assign(f,'video.in');
+reset(f);
+readln(f,n,m);
+for y:=1 to n do
+for x:=1 to m do
+read(f,a[x,y]);
+
+close(f);
+
+sum:=0;
+
+for y:=1 to n do
+for x:=1 to m do
+begin
+z:=a[x,y];
+if a[(x+1) mod m,y] = z then
+if a[x,(y+1) mod n] = z then
+if a[(x+1) mod m,(y+1) mod n] = z then
+begin
+i[x,y]:=1;
+sx[x]:=sx[x]+1;
+sy[y]:=sy[y]+1;
+sum:=sum+1;
+end;
+end;
+
+mx:=i[1,1]-sx[1]-sy[1];
+
+for y:=1 to n do
+for x:=1 to m do
+begin
+t:=i[x,y]-sx[x]-sy[y];
+if mx<t then mx:=t;
+end;
+
+mx:=mx+sum;
+
+assign(f,'video.out');
+rewrite(f);
+write(f,mx);
+close(f);
+
+end.

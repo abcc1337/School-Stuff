@@ -1,0 +1,63 @@
+fin = open('mountain.in', 'r')
+fout = open('mountain.out', 'w')
+input = fin.readline
+
+vector = lambda A, B: (B[0] - A[0], B[1] - A[1])
+vect = lambda A, B: A[0] * B[1] - A[1] * B[0]
+
+def intersection(A, B, C, D):
+    CD = vector(C, D)
+    AB = vector(A, B)
+    f1 = vect(CD, vector(C, A)) * vect(CD, vector(C, B)) < 0
+    f2 = vect(AB, vector(A, D)) * vect(AB, vector(A, C)) < 0
+    return f1 and f2
+
+def fL(ind):
+    V = A[ind]
+    for i in range(ind, n):
+        if A[i + 1][0] > B[0]:
+            break
+        if intersection(V, B, A[i], A[i + 1]):
+            return False
+    return True
+
+def fR(ind):
+    V = A[ind]
+    for i in range(ind, 0, -1):
+        if A[i - 1][0] < B[0]:
+            break
+        if intersection(V, B, A[i], A[i - 1]):
+            return False
+    return True
+
+read = lambda: map(int, input().split())
+n, q = read()
+A = [0] * (n + 1)
+A[0] = 0, 0
+d, k = [0] * n, [0] * n
+for i in range(n):
+    d[i], k[i] = read()
+    x, y = A[i][0], A[i][1]
+    A[i + 1] = x + d[i], y + k[i] * d[i]
+u, v = [0] * q, [0] * q
+for i in range(q):
+    u[i], v[i] = read()
+    B = u[i], v[i]
+    indL = 0
+    indR = n
+    while indL < n and A[indL + 1][0] <= u[i]: indL += 1
+    while indR > 0 and A[indR - 1][0] >= u[i]: indR -= 1
+    for j in range(indL, -1, -1):
+        if fL(j):
+            L = A[j][0]
+            continue
+        break
+    for j in range(indR, n + 1):
+        if fR(j):
+            R = A[j][0]
+            continue
+        break
+    print(L, R, file = fout)
+
+fin.close()
+fout.close()

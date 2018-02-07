@@ -1,0 +1,82 @@
+{$mode delphi}
+{$minstacksize 134217728}
+
+const
+  size = 11;
+
+var
+
+mean:array['a'..'z'] of longint;
+map:array[1..size,1..size] of longint;
+//vertsum:array[0..100] of longint;
+bestup:array[0..size+1,0..size+1] of longint;
+bestdown:array[0..size+1,0..size+1] of longint;
+k,w,h:longint;
+i,j,p,q,x,y:longint;
+ch:char;
+sum,ans:int64;
+
+begin
+ assign(input,'submarine.in');
+ assign(output,'submarine.out');
+ reset(input);
+ rewrite(output);
+ read(k);
+ For i:=1 to k do
+ begin
+  read(mean[chr(ord('a')-1+i)]);
+ end;
+ read(h,w);
+ readln;
+ For y:=h downto 1 do
+ begin
+  For x:=1 to w do
+  begin
+   read(ch);
+   map[x,y]:=mean[ch];
+  end;
+  readln;
+ end;
+ For x:=1 to w do
+ begin
+  For y:=1 to h do
+  begin
+   bestdown[x,y]:=map[x,y];
+   If bestdown[x,y]<bestdown[x,y-1]+map[x,y] Then
+   begin
+    bestdown[x,y]:=bestdown[x,y-1]+map[x,y];
+   end;
+  end;
+  For y:=h downto 1 do
+  begin
+   bestup[x,y]:=map[x,y];
+   If bestup[x,y]<bestup[x,y+1] + map[x,y] Then
+   begin
+    bestup[x,y]:=bestup[x,y+1] + map[x,y];
+   end;
+  end;
+ end;
+ ans:=low(longint);
+ For y:=1 to h do
+ begin
+  For i:=1 to w do
+  begin
+   sum:=0;
+   For j:=i to w do
+   begin
+    sum:=sum + map[j,y];
+    For p:=i to j-1 do
+    begin
+     For q:=p+1 to j do
+     begin
+      If ans<sum+bestup[p,y]+bestup[q,y]+bestdown[q,y]-map[p,y]-2*map[q,y] Then
+      begin
+       ans:=sum+bestup[p,y]+bestup[q,y]+bestdown[q,y]-map[p,y]-2*map[q,y];
+      end;
+     end;
+    end;
+   end;
+  end;
+ end;
+ writeln(ans);
+end.

@@ -1,0 +1,40 @@
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+int main(){
+    freopen("grants.in", "r", stdin);
+    freopen("grants.out", "w", stdout);
+    int t;
+    long long n;
+    cin >> t;
+    for (int i = 0; i < t; i++){
+        cin >> n;
+        long long x = n, pow = 1, a = 0, b = 0, c = 0;
+        while  (pow * 2 < n) pow *= 2;
+        while (pow >= 1){
+            if (pow * 3 <= n){
+                a += pow;
+                b += pow;
+                c += pow;
+                n -= 3 * pow;
+                if (n > 3 * (pow - 1)){
+                    a += pow * 2;
+                    n -= pow * 2;
+                }
+                if (n > 3 * (pow - 1)){
+                    b += pow * 2;
+                    n -= pow * 2;
+                }
+            }
+            //cout << a << ' ' << b << ' ' << c << endl;
+            pow /= 2;
+        }
+        if (n > 0 && n % 2 == 0) {a += n / 2; b += n / 2;}
+        else if (n > 0) a += n;
+        if (a + b + c != x) cout << "0 0 " << x << endl;
+        else cout << a << ' ' << b << ' ' << c << endl;
+    }
+    return 0;
+}

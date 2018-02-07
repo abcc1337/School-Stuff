@@ -1,0 +1,91 @@
+#include <fstream>
+#include <vector>
+#include <map>
+
+using namespace std;
+
+vector <vector <int> > v;
+vector <pair <int, int> > points;
+vector <bool> used;
+int xmin, xmax, ymin, ymax;
+
+ifstream cin("repair.in");
+ofstream cout("repair.out");
+
+void dfs(int ve)
+{
+    if (used[ve])
+        return;
+    used[ve] = true;
+    for (int j = 0; j < v[ve].size(); j++)
+        dfs(v[ve][j]);
+}
+
+int main()
+{
+    map <int, vector <int> > m;
+    map <int, int> dt;
+    int n, lx, ly, q, cx, cy, cur;
+    char t;
+    cin >> lx >> ly >> n >> q;
+    for (int i = 1; i < n; i++)
+    {
+        cin >> t >> cx >> cy;
+        cy += cx * 10000;
+        if (t == 'h')
+        {
+            m[cy].push_back(cy + 10000);
+            m[cy + 10000].push_back(cy);
+        }
+        else
+        {
+            m[cy].push_back(cy + 1);
+            m[cy + 1].push_back(cy);
+        }
+    }
+    v.resize(m.size());
+    points.resize(m.size());
+    for (map <int, vector <int> >::iterator it = m.begin(); it != m.end(); ++it)
+    {
+        dt[(*it).first] = 1;
+        dt[(*it).first] = dt.size() - 1;
+        points[dt.size() - 1] = make_pair((*it).first / 10000, (*it).first % 10000);
+    }
+    for (map <int, vector <int> >::iterator it = m.begin(); it != m.end(); ++it)
+    {
+        for (int i = 0; i < (*it).second.size(); i++)
+        {
+            v[dt[(*it).first]].push_back(dt[(*it).second[i]]);
+        }
+    }/*
+    for (int i = 0; i < v.size(); i++)
+    {
+        cout << points[i].first << ' ' << points[i].second << " c ";
+        for (int j = 0; j < v[i].size(); j++)
+            cout << points[v[i][j]].first << ' ' << points[v[i][j]].second << "; ";
+        cout << endl;
+
+    }*/
+    for (; q > 0; q--)
+    {
+        cin >> xmin >> ymin >> xmax >> ymax;
+        used.clear();
+        used.resize(v.size());
+        for (int i = 0; i < v.size(); i++)
+        {
+            if (points[i].first < xmin || points[i].first > xmax || points[i].second < ymin || points[i].second > ymax)
+                used[i] = true;
+        }
+        cur = 0;
+        for (int i = 0; i < v.size(); i++)
+        {
+            if (!used[i])
+            {
+                cur++;
+                dfs(i);
+            }
+        }
+        cout << cur << '\n';
+    }
+    return 0;
+}

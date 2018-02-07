@@ -1,0 +1,61 @@
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+#include <cstdio>
+#include <cmath>
+
+using namespace std;
+int bina(int j);
+int if3(int qw,int n1)
+{
+    int uy=qw;
+    int vaq;
+    int nn[3];
+    int jk;
+    int h1,h2,h3;
+    for (int i=log2(qw);i>=0;i--)
+    {
+        if (bina(i)<uy) {uy=uy-bina(i);nn[jk]=n1+bina(i);jk++;}
+    }
+    if (vaq<=3)
+    cout <<nn[0] << " " << nn[1] << " " << nn[2] << endl;
+    return (vaq<=3);
+
+}
+
+int bina(int j)
+{
+    int uu=1;
+    for (int i=1;i<=j;i++) {uu*=2;}
+    return uu;
+}
+
+int main()
+{
+ifstream f1("grants.in");
+ofstream f2("grants.out");
+int q=0;
+int t;
+int va;
+f1 >> t;
+int n,d;
+int n1,n2,vozm;
+for (int i=1;i<=t;i++)
+{
+f1 >> n;
+q=0;
+va=log2(n);
+d=0;
+if (n%3==0) {cout << n/3 << " "<< n/3 << " "<< n/3;} else {
+while (!q)
+{
+n1=n/3-d;
+n2=n1*3;
+n2=n-n2;
+vozm=n1&n2;
+cout << vozm << endl;
+if (vozm==0) {q=if3(n2,n1);}
+d++;}}
+}
+return 0;
+}

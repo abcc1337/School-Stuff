@@ -1,0 +1,49 @@
+def tryk(s):
+    f
+
+
+fin = open('grants.in', 'r')
+fout = open('grants.out', 'w')
+powers = [1]
+for i in range(60):
+    powers.append(powers[-1] * 2)
+a = int(fin.readline())
+for i in range(a):
+    s = int(fin.readline())
+    one = bin(s)[2:][::-1]
+    maxx = '0'
+    rem = one
+    for u in range((s + 2) // 3):
+        j = u * 3
+        two = bin(s - j)[2:][::-1]
+        three = bin(u)[2:][::-1]
+        if three[0] != two[0]:
+            n = 1
+            m = 1
+            cont = True
+            while n < len(two) and m < len(three):
+                if two[n] == three[m] and two[n] == '1' and three[m - 1] == '1':
+                    cont = False
+                    break
+                n += 1
+                m += 1
+            if cont:
+                maxx = three
+                rem = two
+    num = int(maxx[::-1], 2)
+    p1 = num
+    p2 = num
+    p3 = num
+    ln = len(maxx)
+    lr = len(rem)
+    for j in range(lr):
+        if rem[j] == '1':
+            if j < ln and maxx[j] == '1':
+                p2 += powers[j - 1]
+                p3 += powers[j - 1]
+            else:
+                p1 += powers[j]
+    print(p1, p2, p3, file = fout)
+fin.close()
+fout.close()
+    

@@ -1,0 +1,87 @@
+#include <iostream>
+#include <set>
+#include <vector>
+#include <string>
+#include <algorithm>
+using namespace std;
+
+const int MAXN = 100, INF = 10000000000;
+string mas[MAXN];
+int cost[MAXN] = {};
+int dp[MAXN][MAXN] = {};
+int dp1[MAXN] = {};
+
+int main() {
+	freopen("typing.in", "r", stdin);
+	freopen("typing.out", "w", stdout);
+	int m, n, l;
+	cin >> m >> n >> l;
+	string s;
+	cin >> s;
+	for (int i = 0; i < m; i++) {
+		for (int j = 0; j < m; j++) {
+			dp[i][j] = INF;
+		}
+	}
+
+	for (int i = 0; i < MAXN; i++)
+		dp1[i] = INF;
+
+	for (int i = 0; i < n; i++) {
+		cin >> cost[i] >> mas[i];
+	}
+
+	bool flag;
+	for (int i = 0; i < m; i++) {
+		for (int j = i; j < m; j++) {
+			for (int k = 0; k < n; k++) {
+				flag = 0;
+				if (mas[k].length() >= j - i + 1) {
+					flag = 1;
+					int ind = 0;
+					for (int h = i; h <= j; h++) {
+						if (mas[k][ind] != s[h])
+							flag = 0;
+						ind++;
+					}
+					if (flag == 0) {
+						flag = 1;
+						ind = 0;
+						for (int h = j; h >= i; h--) {
+							if (mas[k][mas[k].length() - 1 - ind] != s[h])
+								flag = 0;
+							ind++;
+						}
+					}
+				}
+				if (flag) {
+					dp[i][j] = min(dp[i][j], cost[k]);
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < m; i++) {
+		for (int j = i; j < m; j++) {
+			if (i == 0) {
+				dp1[j] = dp[i][j];
+			}
+			else {
+				if (dp1[i - 1] != INF)
+					dp1[j] = min(dp1[j], dp1[i - 1] + dp[i][j]);
+			}
+		}
+	}
+	if (dp1[m - 1] != INF)
+		cout << dp1[m - 1];
+	else
+		cout << -1;
+	return 0;
+}
+
+/*
+9 2 8
+000110100
+1 100
+1 11001
+*/

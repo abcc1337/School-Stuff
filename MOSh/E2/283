@@ -1,0 +1,60 @@
+#pragma comment(linker, "/STACK:134217728")
+
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+using namespace std;
+
+int main() {
+	ifstream fin("onlyone.in");
+	ofstream fout("onlyone.out");
+	//freopen("onlyone.in", "rt", stdin);
+	//freopen("onlyone.out", "wt", stdout);
+
+	int mass[51][51][51];
+
+	for (int i = 0; i <= 50; i++) {
+		for (int z = 0; z <= 50; z++) {
+			for (int s = 0; s <= 50; s++) {
+				mass[i][z][s] = 0;
+			}
+		}
+	}
+
+	int n;
+	fin >> n;
+
+	long long int ans = 0;
+
+	for (int i = 0; i < n; i++) {
+		int a, b, c;
+		fin >> a >> b >> c;
+		// ans a
+		ans += mass[a][0][0];
+		ans -= mass[a][0][c];
+		ans -= mass[a][b][0];
+		ans += mass[a][b][c];
+		// ans b
+		ans += mass[0][b][0];
+		ans -= mass[a][b][0];
+		ans -= mass[0][b][c];
+		ans += mass[a][b][c];
+		// ans c
+		ans += mass[0][0][c];
+		ans -= mass[a][0][c];
+		ans -= mass[0][b][c];
+		ans += mass[a][b][c];
+		// plus
+		mass[a][0][0]++;
+		mass[0][b][0]++;
+		mass[0][0][c]++;
+		mass[a][0][c]++;
+		mass[a][b][0]++;
+		mass[0][b][c]++;
+		mass[a][b][c]++;
+	}
+
+	fout << ans;
+
+	return 0;
+}

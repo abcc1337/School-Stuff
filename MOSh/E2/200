@@ -1,0 +1,41 @@
+#include <algorithm>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <numeric>
+
+using namespace std;
+int main()
+{
+	ifstream cin("castle.in");
+	ofstream cout("castle.out");
+	int n;
+	long long s;
+	cin >> n >> s;
+	vector<pair<int, int>> v(n);
+	for (auto& x : v)
+		cin >> x.second >> x.first, x.first = min(x.first, x.second);
+	sort(v.rbegin(), v.rend());
+	for (auto& x : v)
+		swap(x.first, x.second);
+	for (auto& x : v)
+	{
+		int xi = min(s, x.first / x.second);
+		s -= xi;
+		x.first -= x.second * xi;
+	}
+	if (s == 0)
+	{
+		for (auto& x : v)
+			s += x.first;
+		cout << s << endl;
+		return 0;
+	}
+	vector<int> a;
+	for (auto& x : v)
+		a.push_back(x.first);
+	sort(a.rbegin(), a.rend());
+	for (int i = 0; i < min(s, n); ++i)
+		a[i] = 0;
+	cout << accumulate(a.begin(), a.end(), 0LL) << endl;
+}

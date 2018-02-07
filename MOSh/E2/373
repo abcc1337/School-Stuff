@@ -1,0 +1,86 @@
+#include<iostream>
+#include<algorithm>
+#include<queue>
+#include<cstdio>
+using namespace std;
+int d[1007];
+long long dest[1007][1007];
+const long long INF = 100000000000007;
+bool on[1007];
+int main()
+{
+	freopen("alarm.in", "r", stdin);
+	freopen("alarm.out", "w", stdout);
+	int n;
+	cin >> n;
+	for (int i = 1; i <= n; i++)
+	{
+		cin >> d[i];
+	}
+	for (int i = 1; i <= n; i++)
+	{
+		for (int j = 1; j <= n; j++)
+		{
+			dest[i][j] = INF;
+		}
+		dest[i][i] = 0;
+	}
+	for(int i = 1; i < n; i++)
+	{
+		int p, q, w;
+		cin >> p >> q >> w;
+		dest[p][q] = w;
+		dest[q][p] = w;
+	}
+	for (int k = 1; k <= n; k++)
+	{
+		for (int i = 1; i <= n; i++)
+		{
+			for (int j = 1; j <= n; j++)
+			{
+				dest[i][j] = min(dest[i][j], dest[i][k] + dest[k][j]);
+			}
+		}
+	}
+	int ans = 10000000007;
+	for (int mask = 0; mask < (1 << n); mask++)
+	{
+		int tmp = mask;
+		int used = 0;
+		queue<int>q;
+		for (int i = 1; i <= n; i++) on[i] = false;
+		for (int i = 1; i <= n; i++)
+		{
+			if (tmp % 2 == 1)
+			{
+				on[i] = true;
+				q.push(i);
+				used++;
+			}
+			tmp /= 2;
+		}
+		while (!q.empty())
+		{
+			int cur = q.front();
+			q.pop();
+			for (int i = 1; i <= n; i++)
+			{
+				if (dest[i][cur] <= d[cur] && !on[i])
+				{
+					on[i] = true;
+					q.push(i);
+				}
+			}
+		}
+		bool ok = true;
+		for (int i = 1; i <= n; i++)
+		{
+			if (!on[i]) ok = false;
+		}
+		if (ok)
+		{
+			ans = min(ans, used);
+		}
+	}
+	cout << ans << endl;
+}

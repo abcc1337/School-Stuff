@@ -1,0 +1,94 @@
+inf = open("video.in", "r")
+outf = open("video.out", "w")
+
+n, m = map(int, inf.readline().split())
+lst = []
+for i in range(n):
+    lst.append(inf.readline())
+
+glst = [[0] * m for i in range(n)]
+for i in range(n):
+    for j in range(m):
+        if lst[i][j] == lst[(i + 1) % n][j] and lst[i][j] == lst[i][(j + 1) % m] and lst[i][j] == lst[(i + 1) % n][(j + 1) % m]:
+            glst[i][j] = 1
+
+pref = [[[0, 0] for j in range(m)] for i in range(n)]
+
+for j in range(m):
+    i = n - 1
+    sm = 0
+    while i > 0:
+        sm += glst[i][j]
+        i -= 1
+    pref[i + 1][j][0] = sm
+    while i > (-1) * (n - 1):
+        sm -= glst[i + n - 1][j]
+        sm += glst[i][j]
+        pref[i][j][0] = sm
+        i -= 1
+
+for i in range(n):
+    j = m - 1
+    sm = 0
+    while j > 0:
+        sm += glst[i][j]
+        j -= 1
+    pref[i][j + 1][1] = sm
+    while j > (-1) * (m - 1):
+        sm -= glst[i][j + m - 1]
+        sm += glst[i][j]
+        pref[i][j][1] = sm
+        j -= 1
+
+
+ans = 0
+if m > 2:        
+    i = 0
+    j = 2
+    cnt = 0
+    for x in range(n - 1):
+        cnt += pref[i + x][j][1]
+    ans = 0
+    pr = [[0] * m for k in range(n)]
+    pr[i][j] = cnt
+    ans = cnt
+    for x in range(n):
+        for y in range(m - 2):
+            if not (x == 0 and y == 0):
+                if y == 0:
+                    pr[i + x][j] = pr[i + x - 1][j] - pref[i + x - 1][j][1] + pref[(i + x + n - 2) % n][j][1]
+                else:
+                    pr[i + x][j + y] = pr[i + x][j + y - 1] - pref[i + x][j + y - 1][0] + pref[i + x][(j + x + m - 2) % m][0]
+                ans = max(pr[i + x][j + y], ans)
+                
+
+if n > 2:
+    #print(ans)
+    i = 2
+    j = 0
+    cnt = 0
+    for x in range(n - 1):
+        cnt += pref[(i + x) % n][j][1]
+    pr = [[0] * m for k in range(n)]
+    pr[i][j] = cnt
+    ans = max(ans, cnt)
+    for x in range(n - 2):
+        for y in range(m):
+            if not (x == 0 and y == 0):
+                if y == 0:
+                    pr[i + x][j] = pr[i + x - 1][j] - pref[i + x - 1][j][1] + pref[(i + x + n - 2) % n][j][1]
+                else:
+                    pr[i + x][j + y] = pr[i + x][j + y - 1] - pref[i + x][j + y - 1][0] + pref[i + x][(j + y + m - 2) % m][0]
+                #print(ans, x, y)
+                ans = max(pr[i + x][j + y], ans)
+
+#print(ans)
+for i in range(2):
+    for j in range(2):
+        cnt = 0
+        for x in range(n - 1):
+            #print(cnt)
+            cnt += pref[(i + x) % n][j][1]
+        ans = max(cnt, ans)
+outf.write(str(ans))
+outf.close()

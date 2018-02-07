@@ -1,0 +1,55 @@
+#include <iostream>
+#include <stdio.h>
+#include <algorithm>
+#include <vector>
+using namespace std;
+
+struct frosty
+{
+    int a,b,c;
+};
+
+int n;
+frosty a[200000];
+int num1a[1000];
+int num1b[1000];
+int num1c[1000];
+int num2ab[200][200];
+int num2ac[200][200];
+int num2bc[200][200];
+int num3[105][105][105];
+
+int main()
+{
+    freopen("onlyone.in","r",stdin);
+    freopen("onlyone.out","w",stdout);
+    cin >> n;
+    for (int i = 1; i <= n; i++)
+    {
+        int a1,b1,c1;
+        cin >> a1 >> b1 >> c1;
+        num1a[a1] += 1;
+        num1b[b1] += 1;
+        num1c[c1] += 1;
+        num2ab[a1][b1] += 1;
+        num2ac[a1][c1] += 1;
+        num2bc[b1][c1] += 1;
+        num3[a1][b1][c1] += 1;
+        a[i].a = a1;
+        a[i].b = b1;
+        a[i].c = c1;
+    }
+
+    long long ans = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        int a1,b1,c1;
+        a1 = a[i].a;
+        b1 = a[i].b;
+        c1 = a[i].c;
+        ans = ans + num1a[a1] + num1b[b1] + num1c[c1] - 2 * num2ab[a1][b1] - 2 * num2ac[a1][c1] - 2 * num2bc[b1][c1] + 3 * num3[a1][b1][c1];
+    }
+
+    cout << ans / 2;
+    return 0;
+}

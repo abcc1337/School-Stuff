@@ -1,0 +1,97 @@
+var
+ q,n: longint;
+ i, ii: longint;
+ fonar: char;
+ l, r: longint;
+ c: byte;
+
+ //peremennse dla chota
+   count, Sum, Sum1, Sum2: longint;
+
+ lam: array [1..50] of byte;
+begin
+ reset  (input,  'lamps.in.txt' );
+ rewrite(output, 'lamps.out.txt');
+  readln(n, q);
+
+  for i:=1 to n do
+    begin
+     read(fonar);
+       if fonar = '1' then lam[i]:= 1;
+       if fonar = '0' then lam[i]:= 0;
+    end;
+
+   {for i:=1 to n do
+    begin
+     write(lam[i], ' ' )
+    end;   }
+
+    count:=0; Sum:=0; Sum1:=0; Sum2:=0;  i:=0; ii:=0;  c:=0;
+  for i:=1 to n do
+    begin
+     if lam[i] = 1 then begin count:= count+1; lam[i]:= 2;  end;
+     if (lam[i] = 0) and (count>0) then begin Sum:= Sum + (count*(count+1) div 2); count:= 0;  end;
+
+    end;
+  if (lam[n] = 2) then Sum:= Sum + (count*(count+1) div 2);
+  count:= 0;
+
+
+ //как считать сегменты? (n*(n+1))/2
+  for i:=1 to q do
+    begin
+
+      readln (l,r,c);  writeln('//', i, '\\');
+      //
+      if c = 0 then
+          begin
+             writeln (Sum);
+             for ii:=l to r do
+               begin
+                lam[ii]:= 0;
+               end;
+               writeln('//', i, '\\');
+          end;
+       //
+      if c = 1 then
+          begin
+
+            for ii:=l to r do
+               begin
+                if lam[ii]= 0 then lam[ii]:= 1;
+               end;
+
+
+              for ii:=1 to 7 do
+                  begin
+                     write( lam[ii], ' ');
+                  end;
+
+
+
+             for ii:=1 to n do //для 2
+               begin
+                   if  (lam[ii] = 2) then begin count:= count+1;                                                                   end;
+                   if ((lam[ii] = 0) or (lam[ii] = 1)) and (count>0) then begin Sum2:= Sum2 + (count*(count+1) div 2); count:= 0;  end;
+               end;
+                   if lam[n] = 2 then Sum2:= Sum2 + (count*(count+1) div 2);
+                   count:= 0;
+
+             for ii:=1 to n do //всего
+               begin
+                   if (lam[ii] = 1) or (lam[ii] = 2) then begin count:= count+1; lam[i]:= 2; end;
+                   if (lam[ii] = 0) and (count>0) then begin Sum1:= Sum1 + (count*(count+1) div 2); count:= 0; lam[i-1]:= 2;  end;
+                   write(' ', count, ' ')
+               end;
+                   if (lam[n] = 1) or (lam[n] = 2)  then Sum1:= Sum1 + (count*(count+1) div 2);
+                   count:= 0;
+
+                    Sum:= Sum + (Sum1 - Sum2);
+
+                    writeln (Sum, ' ', Sum1, ' ', Sum2 );
+                   // Sum1:=0; Sum2:=0;
+                writeln('//', i, '\\');
+          end;
+    end;
+
+end.

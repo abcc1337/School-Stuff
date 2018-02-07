@@ -1,0 +1,115 @@
+//#define _HOME
+//#pragma comment(linker, "/STACK:67108864")
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <set>
+#include <map>
+#include <unordered_map>
+#include <queue>
+#include <stack>
+#include <algorithm>
+#include <memory.h>
+
+using namespace std;
+
+int l[1000000], r[1000000];
+int cnt_good[100001], cnt_bad[100001];
+struct point
+{
+	int x;
+	int y;
+} inp_p[100000], p[100000];
+
+int get_mod(int x, int mod)
+{
+	return ((x % mod + mod) % mod);
+}
+
+int main()
+{
+#ifdef _HOME
+	freopen("input.txt", "rt", stdin);
+	freopen("output.txt", "wt", stdout);
+#else
+	freopen("monument.in", "rt", stdin);
+	freopen("monument.out", "wt", stdout);
+#endif
+	
+	int n, k, max_y = -1, p1 = -1, p2 = -1, min_y = 1e9;
+	scanf("%d%d", &n, &k);
+	for (int i = 0; i < n; i++)
+	{
+		scanf("%d%d", &inp_p[i].x, &inp_p[i].y);
+		if (inp_p[i].y > max_y)
+			p1 = i, max_y = inp_p[i].y;
+		else if (inp_p[i].y == max_y)
+			p2 = i;
+		min_y = min(min_y, inp_p[i].y);
+	}
+
+	if (inp_p[p1].x > inp_p[p2].x)
+		swap(p1, p2);
+
+	for (int i = p1, ind = 0; ; i = (i + 1) % n, ind++)
+	{
+		p[ind] = inp_p[i];
+		if (i == p2)
+			break;
+	}
+
+	l[max_y - 1] = p[0].x;
+	r[max_y - 1] = p[n - 1].x;
+
+	int last_y = -1;
+
+	for (int i = 2, y = max_y - 2; i <= n / 2; i += 2)
+	{
+		if (i > n - i - 1)
+			i = n - i - 1;
+
+		while (y > p[i].y - 1)
+		{
+			l[y] = p[i - 1].x;
+			r[y] = p[n - i].x;
+			y--;
+		}
+
+		l[y] = p[i].x;
+		r[y] = p[n - i - 1].x;
+		last_y = y;
+	}
+
+	for (int y = min_y; y < last_y; y++)
+		l[y] = l[last_y], r[y] = r[last_y];
+
+	long long ans = 1e18, cur = 0;
+	for (int i = min_y; i < max_y; i++)
+	{
+		int good = get_mod(i - l[i], k);
+		cnt_good[good]++;
+		int bad = get_mod(i - r[i], k);
+		cnt_bad[bad + 1]++;
+
+		int cur_l = l[i] + good;
+		if (cur_l != l[i])
+			cur++;
+		int cur_r = r[i] - (k - bad);
+		if (cur_r != r[i])
+			cur++;
+		cur += (cur_r - cur_l) / k;
+	}
+
+	ans = cur;
+
+	for (int diff = 1; diff < k; diff++)
+	{
+		cur = cur - cnt_good[diff] + cnt_bad[diff];
+		ans = min(ans, cur);
+	}
+
+	printf("%I64d", ans);
+
+	return 0;
+}

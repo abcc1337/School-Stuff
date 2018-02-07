@@ -1,0 +1,62 @@
+#include <bits/stdc++.h>
+#define point pait <int, int>
+#define x first
+#define y second
+#define pb push_back
+#define For(i, a, b) for(int i = a; i < b; ++i)
+#define Out(i, a, b) for(int i = a - 1; i >= b; --i)
+#define files(FileName) write(FileName); read(FileName)
+#define read(FileName) freopen((FileName + ".in").c_str(), "r", stdin)
+#define write(FileName) freopen((FileName + ".out").c_str(), "w", stdout)
+
+using namespace std;
+
+string FileName = "castle";
+
+typedef long long base;
+
+int n;
+base s;
+base Power[100001];
+base Ans[100001];
+
+struct Wall {
+    int i;
+    Wall() {i = 0;}
+    Wall(int i_) {i = i_;}
+};
+
+bool operator < (Wall a, Wall b) {
+    return min(Ans[a.i], Power[a.i]) > min(Ans[b.i], Power[b.i]);
+}
+
+multiset <Wall> que;
+
+int main() {
+    ios::sync_with_stdio(false);
+    files(FileName);
+    cin >> n >> s;
+    For(i, 0, n) {
+        cin >> Ans[i] >> Power[i];
+        que.insert(Wall(i));
+    }
+    while (s != 0) {
+        int i = (*que.begin()).i;
+        que.erase(que.begin());
+        base C = min(Ans[i] / Power[i], s);
+        if (C == 0) {
+            if (Ans[i] == 0) break;
+            Ans[i] = 0;
+            --s;
+        } else {
+            s -= C;
+            Ans[i] -= Power[i] * C;
+        }
+        que.insert(Wall(i));
+    }
+    base Cnt = 0;
+    For(i, 0, n) {
+        Cnt += Ans[i];
+    }
+    cout << Cnt << endl;
+}

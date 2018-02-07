@@ -1,0 +1,120 @@
+program Project2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+const max=1200; low=-100;
+type megabool=0..1;
+type intmatrix=array[low..max,low..max] of int64;
+type boolmatrix=array[low..max,low..max] of megabool;
+type intlist=array[low..max*max] of int64;
+var
+n,m,g,p,sp,ans:int64;
+rec,robot:boolmatrix;
+r,an:intlist;
+q,mrec,vi,vj:intmatrix;
+procedure clear;
+var
+i,j:integer;
+begin
+  for i:=1 to max do
+  begin
+    for j:=1 to max do
+    begin
+      rec[i,j]:=0;
+      r[(i-1)*max+j]:=0;
+      an[(i-1)*max+j]:=0;
+      mrec[i,j]:=0;
+      q[i,j]:=0;
+      robot[i,j]:=0;
+      vi[i,j]:=0;
+      vj[i,j]:=0;
+    end;
+  end;
+  p:=1;
+  sp:=0;
+end;
+procedure readmatrix;
+var
+i,j:integer;
+c:char;
+begin
+  for i:=1 to n do
+  begin
+    for j:=1 to m do
+    begin
+      read(c);
+      if c<='Z' then
+      begin
+        robot[i,j]:=1;
+        c:=chr(ord(c)+32);
+      end;
+      if c='n' then vi[i,j]:=-1;
+      if c='w' then vj[i,j]:=-1;
+      if c='s' then vi[i,j]:=1;
+      if c='e' then vj[i,j]:=1;
+    end;
+    if i<n then readln;
+  end;
+end;
+procedure go(i,j,x:integer);
+begin
+  rec[i,j]:=1;
+  if q[i,j]>0 then begin p:=q[i,j]; exit; end;
+  if mrec[i,j]=0 then
+  begin
+    mrec[i,j]:=x;
+    if not((i+vi[i,j]>n) or (j+vj[i,j]>m) or (i+vi[i,j]<1) or (j+vj[i,j]<1)) then go(i+vi[i,j],j+vj[i,j],x+1);
+  end
+  else r[p]:=x-mrec[i,j];
+  q[i,j]:=p;
+end;
+procedure work;
+var
+i,j:integer;
+begin
+  for i:=1 to n do
+  begin
+    for j:=1 to n do
+    begin
+      if rec[i,j]=0 then
+      begin
+        inc(sp);
+        p:=sp;
+        go(i,j,1);
+      end;
+    end;
+  end;
+end;
+procedure finish;
+var
+  i,j:integer;
+begin
+  for i:=1 to n do
+  begin
+    for j:=1 to m do
+    begin
+      if (robot[i,j]=1) and (an[q[i,j]]<r[q[i,j]]) then inc(an[q[i,j]]);
+    end;
+  end;
+  ans:=0;
+  for i:=1 to max*max do
+    inc(ans,an[i]);
+end;
+begin
+  assign(input,'robots.in');
+  assign(output,'robots.out');
+  reset(input);
+  rewrite(output);
+  readln(n,m,g);
+  if g=1 then begin write('difficult'); halt(0); end;
+  clear;
+  readmatrix;
+  work;
+  finish;
+  write(ans);
+  close(input);
+  close(output);
+end.
+ 

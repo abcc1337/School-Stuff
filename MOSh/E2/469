@@ -1,0 +1,82 @@
+type 
+  dx=record
+      i:byte;
+      d:longint;
+  end;
+  mas = array[1..100]of dx;
+var i,n,count,x,y,z,cn:longint;
+    ar:array[1..100,1..100]of longint;
+    dd:array[1..100]of longint;
+    ras:mas;
+    bol:array[1..100]of boolean;
+    f:text;
+function max(a,b:longint):longint;
+begin
+    if a>b then
+      max:=a
+    else
+      max:=b;
+end;
+procedure dfs(x,dl:longint);
+var i:longint;
+begin
+    bol[x]:=true;
+    inc(cn);
+    for i:=1 to n do begin
+        if (ar[i,x]<>0)and(bol[i]=false)and(ar[i,x]<=max(dl,dd[i])) then
+            dfs(i,max(dl,dd[i])-ar[i,x]);
+    end;    
+end;
+procedure qsort(var ar:mas;l,r:integer);
+var i,j,m:integer;
+    sw:dx;
+begin
+    i:=l;
+    j:=r;
+    m:=ar[(i+j)div 2].d;
+    repeat
+    while ar[i].d>m do inc(i);
+    while ar[j].d<m do dec(j);
+    if i<=j then begin
+        sw:=ar[i];
+        ar[i]:=ar[j];
+        ar[j]:=sw;
+        inc(i);
+        dec(j);
+    end;
+    until i>j;
+    if l<j then qsort(ar,l,j);
+    if i<r then qsort(ar,i,r);
+end;
+begin//---------------------<body>----------------------------
+    assign(f,'alarm.in');
+    reset(f);
+    readln(f,n);
+    for i:=1 to n do begin
+      read(f,ras[i].d);
+      ras[i].i:=i;
+      dd[i]:=ras[i].d;
+    end;
+    for i:=1 to n-1 do begin
+      read(f,x,y,z);
+      ar[x,y]:=z;
+      ar[y,x]:=z;
+    end;
+    close(f);
+    //----------------------------
+    qsort(ras,1,n);
+    while cn<n do begin
+      for i:=1 to n do
+        if bol[ras[i].i]=false then begin
+          dfs(ras[i].i,ras[i].d);
+          break;
+        end;
+      inc(count);
+    end;
+    //----------------------------
+    assign(f,'alarm.out');
+    rewrite(f);
+    write(f,count);
+    close(f);
+end.
+    

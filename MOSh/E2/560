@@ -1,0 +1,11 @@
+f = open('input.txt', 'r')
+ff = open('output.txt', 'w')
+n, s = map(int, f.readline().split())
+for i in range(n):
+    a, k = map(int, f.readline().split())
+    s -= a
+if (s >= 0):
+    print(0, file = ff)
+else:
+    print(-s, file = ff)
+ff.close()

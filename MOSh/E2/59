@@ -1,0 +1,86 @@
+#include<iostream>
+#include<vector>
+#include<stdio.h>
+#include<algorithm>
+using namespace std;
+int a, b, d[300500], e, f, g, h, i, k, l, m, n,t,tim[300500];
+vector <pair<int, int>> rebr[300500];
+vector <int> siren[300500],oti[300500];
+bool del[300500];
+void verch(int dis, int kuda,int otk){
+	dis = max(dis, d[kuda]);
+	tim[i]++;
+	oti[kuda].push_back(i);
+	for (int j = 0; j < rebr[kuda].size(); j++){
+		if (rebr[kuda][j].first <= dis && rebr[kuda][j].second != otk){
+			siren[i].push_back(rebr[kuda][j].second);
+			verch(dis - rebr[kuda][j].first, rebr[kuda][j].second, kuda);
+		}
+	}
+	return;
+}
+int main(){
+	freopen("alarm.in", "r", stdin);
+	freopen("alarm.out", "w", stdout);
+	cin >> n;
+	for (i = 0; i < n; i++){
+		cin >> d[i];
+	}
+	for (i = 1; i < n; i++){
+		cin >> b >> a >> e;
+		rebr[a-1].push_back(make_pair(e, b-1));
+		rebr[b-1].push_back(make_pair(e, a-1));
+	}
+	for (i = 0; i < n; i++){
+		tim[i] = 1;
+		for (int yh = 0; yh < rebr[i].size();yh++){
+			if (d[i] - rebr[i][yh].first >= 0){
+				verch(d[i] - rebr[i][yh].first, rebr[i][yh].second, i);
+			}
+		}
+	}
+	int prost = 0,chet=0;
+	while(prost!=n){
+		chet++;
+		int mini = -1;
+		for (i = 0; i < n; i++){
+			if (del[i] != 1){
+				if (mini == -1){
+					mini = i;
+				}
+				else{
+					if (tim[mini] < tim[i]){
+						mini = i;
+					}
+				}
+			}
+		}
+		//cout << mini;
+		prost = prost + tim[mini];
+		del[mini] = 1;
+		for (i = 0; i < oti[mini].size();i++){
+			tim[oti[mini][i]]--;
+		}
+		for (i = 0; i < siren[mini].size(); i++){
+			if (del[siren[mini][i]] == 1){
+				continue;
+			}
+			del[siren[mini][i]] = 1;
+			for (int yh = 0; yh < oti[siren[mini][i]].size(); yh++){
+				tim[oti[siren[mini][i]][yh]]--;
+			}
+		}
+	}
+	cout << chet;
+}
+/*10
+1 2 2 2 6 3 4 5 4 3
+1 2 5
+2 3 1
+2 4 5
+4 5 2
+4 6 4
+4 7 3
+1 8 1
+8 9 5
+8 10 4*/

@@ -1,0 +1,112 @@
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <cstdio>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <utility>
+#include <cstdlib>
+#include <cmath>
+#include <cassert>
+#include <time.h>
+#include <algorithm>
+#include <map>
+#include <set>
+#define forn(i, n) for (int i = 0; i < (n); i++)
+#define fornn(i, q, n) for (int i = (q); i < (n); i++)
+#define mp make_pair
+#define times clock() * 1.0 / CLOCKS_PER_SEC
+using namespace std;
+
+typedef long long ll;
+
+int solve();
+int main() {
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin), freopen("output.txt", "w", stdout);
+#else
+	freopen("mountain.in", "r", stdin), freopen("mountain.out", "w", stdout);
+#endif
+	solve();
+	return 0;
+}
+
+const int MAXN = 107;
+
+struct pt {
+	ll x, y;
+	pt() {};
+	pt(ll _x, ll _y) {
+		x = _x;
+		y = _y;
+	}
+};
+vector<pt> T;
+
+bool cmp(pt a, pt b) {
+	if (a.x < b.x) return true;
+	if (a.x == b.x) return a.y < b.y;
+	return false;
+}
+
+int solve() {
+	ll n, q;
+	cin >> n >> q;
+	T.push_back(pt(0, 0));
+	forn(i, n){
+		ll d, k;
+		cin >> d >> k;
+		T.push_back(pt(T[i].x + d, T[i].y + k * d));
+	}
+	sort(T.begin(), T.end(), cmp);
+	while (q--) {
+		ll u, v;
+		cin >> u >> v;
+		int pos;
+		forn(i, n) {
+			int x1 = T[i].x;
+			int x2 = T[i + 1].x;
+			if (u >= x1 && u <= x2) {
+				pos = i;
+			}
+		}
+		int cnt = pos;
+		int r = pos + 1, l = 0;
+		while (r - l > 1) {
+			int i = (l + r) / 2;
+			pt a = T[i];
+			pt b = T[i - 1];
+			ll A = b.y - a.y;
+			ll B = a.x - b.x;
+			ll C = b.x * a.y - a.x * b.y;
+			double yy = (-C - A * u) * 1.0 / B;
+			if (yy > v) {
+				l = i;
+			}
+			else {
+				r = i;
+			}
+		}
+		cout << T[r - 1].x << " ";
+		l = pos + 1, r = n + 1;
+		while (r - l > 1) {
+			int i = (l + r) / 2;
+			pt a = T[i - 1];
+			pt b = T[i];
+			ll A = b.y - a.y;
+			ll B = a.x - b.x;
+			ll C = b.x * a.y - a.x * b.y;
+			double yy = (-C - A * u) * 1.0 / B;
+			if (yy > v) {
+				r = i;
+			}
+			else {
+				l = i;
+			}
+		}
+
+		cout << T[l].x << endl;
+	}
+	return 0;
+}

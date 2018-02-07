@@ -1,0 +1,104 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const int MAX_N = 10000, MAX_K = 10000;
+int n, k, p[MAX_N + 1], h[MAX_N + 1];
+bool isPred[MAX_N + 1][MAX_N + 1], path[MAX_K + 1][MAX_N + 1];
+
+void calcPred() {
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            isPred[i][j] = false;
+        }
+    }
+    for (int i = 1; i <= n; i++) {
+        int j = i;
+        while (j != 1) {
+            isPred[j][i] = true;
+            j = p[j];
+        }
+        isPred[j][i] = true;
+    }
+}
+
+void calcH() {
+    h[1] = 0;
+    for (int i = 2; i <= n; i++) {
+        h[i] = h[p[i]] + 1;
+    }
+}
+
+int main() {
+    freopen("twopaths.in", "rt", stdin);
+    freopen("twopaths.out", "wt", stdout);
+    scanf("%d %d", &n, &k);
+    for (int i = 2; i <= n; i++) {
+        scanf("%d", &p[i]);
+    }
+    for (int i = 1; i <= k; i++) {
+        for (int j = 1; j <= n; j++) {
+            path[i][j] = false;
+        }
+    }
+    calcPred();
+    calcH();
+//    for (int i = 1; i <= n; i++) {
+//        for (int j = 1; j <= n; j++) {
+//            if (isPred[i][j]) {
+//                cout << i << ' ' << j << endl;
+//            }
+//        }
+//    }
+    for (int i = 1; i <= k; i++) {
+//        cout << i << endl;
+        int a, b;
+        scanf("%d %d", &a, &b);
+//        if (a > b) {
+//            swap(a, b);
+//        }
+//        cout << a << ' ' << b << endl;;
+        int q = 1;
+        for (int j = 2; j <= n; j++) {
+            if (isPred[j][a] && isPred[j][b]) {
+                q = j;
+            }
+        }
+//        cout << q << endl;
+        while (a != q) {
+            path[i][a] = true;
+            a = p[a];
+        }
+        while (b != q) {
+            path[i][b] = true;
+            b = p[b];
+        }
+    }
+//    for (int i = 1; i <= k; i++) {
+//        for (int j = 1; j <= n; j++) {
+//            if (path[i][j]) {
+//                cout << i << ' ' << j << endl;
+//            }
+//        }
+//    }
+    int ans = 0, ans1 = 1, ans2 = 2;
+    for (int i = 1; i <= k; i++) {
+        for (int j = i + 1; j <= k; j++) {
+            int counter = 0;
+            for (int q = 1; q <= n; q++) {
+                if (path[i][q] && path[j][q]) {
+//                    cout << q << endl;
+                    counter++;
+                }
+            }
+//            cout << counter << endl;
+            if (counter > ans) {
+                ans = counter;
+                ans1 = i;
+                ans2 = j;
+            }
+        }
+    }
+    printf("%d\n%d %d\n", ans, ans1, ans2);
+    return 0;
+}

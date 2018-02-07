@@ -1,0 +1,122 @@
+#include <cstdio>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+void print_vector(vector<int> &kek) {
+    for (int i=0;i<kek.size();i++) cout<<kek[i]<<" ";
+    cout<<endl;
+}
+
+int n;
+vector<vector<int> > g;
+vector<vector<int> > v;
+
+int otche[100000];
+bool visi[100000];
+
+bool get(int f, int s, int ind) {
+    visi[f]=true;
+    v[ind].push_back(f);
+    if (f==s) return true;
+    for (int i=0;i<g[f].size();i++) {
+        if (!visi[g[f][i]]) {
+            if (get(g[f][i],s,ind)) return true;
+        }
+    }
+    v[ind].pop_back();
+    return false;
+}
+
+
+
+void get1(int f, int s , int ind) {
+    //cout<<1<<endl;
+        vector<int> temp1,temp2;
+        int iff=f;
+        while (iff>0) {
+            temp1.push_back(iff);
+            iff=otche[iff];
+        }
+        iff=s;
+        while (iff>0) {
+            temp2.push_back(iff);
+            iff=otche[iff];
+        }
+        temp1.push_back(0);
+        temp2.push_back(0);
+       // cout<<"III"<<endl;
+    /*    if (temp1.back()!=temp2.back()) {
+            temp1.push_back(0);
+            temp2.push_back(0);
+        }
+cout<<"III"<<endl;
+        print_vector(temp1);
+        print_vector(temp2);
+        */
+        //print_vector(temp1);
+        //print_vector(temp2);
+        int kek=temp2.size()-1;
+        while (kek>=0 && temp1.size()-(temp2.size()-kek)>=0 && temp1[temp1.size()-(temp2.size()-kek)]==temp2[kek]) kek--;
+        kek++;
+        //cout<<"???"<<kek<<endl;
+        for (int i=0;i<kek;i++) {
+            v[ind].push_back(temp2[i]);
+        }
+        for (int i=temp1.size()-(temp2.size()-kek);i>=0;i--) v[ind].push_back(temp1[i]);
+        //print_vector(v[ind]);
+        //cout<<"::::";
+}
+
+int main () {
+    otche[0]=0;
+    for (int i=0;i<100000;i++) visi[i]=false;
+    freopen("twopaths.in","r",stdin);
+    freopen("twopaths.out","w",stdout);
+    int k;
+    cin>>n>>k;
+    g.resize(n,vector<int> (0));
+    for (int i=1;i<n;i++) {
+        int par;
+        cin>>par;
+        otche[i]=par-1;
+        par--;
+        g[i].push_back(par);
+        g[par].push_back(i);
+    }
+   // vector<vector<int> > temp;
+    for (int i=0;i<k;i++) {
+        for (int i=0;i<n;i++) visi[i]=false;
+        int fir,sec;
+        cin>>fir>>sec;
+        v.push_back(vector<int> (0,0));
+        //get(fir-1,sec-1,i);
+        get1(fir-1,sec-1,i);
+    }
+    for (int i=0;i<k;i++) sort(v[i].begin(),v[i].end());
+   // print_vector(v[i]);}
+    int i1=0,i2=1;
+    int best =0 ;
+    for (int i=0;i<k-1;i++) {
+        for (int j=i+1;j<k;j++) {
+            vector<int> temp;
+            set_intersection(v[i].begin(),v[i].end(),v[j].begin(),v[j].end(),back_inserter(temp));
+           // cout<<endl;
+           // for (int ii=0;ii<temp.size();ii++) cout<<temp[ii]<<" ";
+           // cout<<endl;
+            if (temp.size()>best) {
+                best = temp.size();
+                i1=i,i2=j;
+            }
+        }
+    }
+    if (best<2) {
+        cout<<0<<endl<<"1 2";return 0;
+    }
+    cout<<best-1<<endl<<i1+1<<" "<<i2+1<<endl;
+    return 0;
+
+}

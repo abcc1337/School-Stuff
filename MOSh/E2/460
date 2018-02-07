@@ -1,0 +1,49 @@
+program N1a;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+  var a,b,c:array [1..100000] of longint;
+      aa,bb,cc:array [1..100,1..100000] of longint;
+      ka,kb,kc:array [1..100] of longint;
+   n,i,j,k:longint;
+begin
+ assign(input,'onlyone.in');
+ reset(input);
+ readln(n);
+ for i:=1 to 100 do
+  begin
+    ka[i]:=0;
+    kb[i]:=0;
+    kc[i]:=0;
+  end;
+ for i:=1 to n do
+  readln(a[i],b[i],c[i]);
+ close(input); 
+ for i:=1 to n do
+   begin
+     ka[a[i]]:=ka[a[i]]+1;
+     aa[a[i],ka[a[i]]]:=i;
+     kb[b[i]]:=kb[b[i]]+1;
+     bb[b[i],kb[b[i]]]:=i;
+     kc[c[i]]:=kc[c[i]]+1;
+     cc[c[i],kc[c[i]]]:=i;
+   end;
+   k:=0;
+ for i:=1 to n do
+  begin
+    for j:=1 to ka[a[i]] do
+     if (b[i]<>b[aa[a[i],j]])and(c[i]<>c[aa[a[i],j]])and(aa[a[i],j]<>i) then k:=k+1;
+    for j:=1 to kb[b[i]] do
+     if (a[i]<>a[bb[b[i],j]])and(c[i]<>c[bb[b[i],j]])and(bb[b[i],j]<>i) then k:=k+1;
+    for j:=1 to kc[c[i]] do
+     if (b[i]<>b[cc[c[i],j]])and(a[i]<>a[cc[c[i],j]])and(cc[c[i],j]<>i) then k:=k+1;
+  end;
+  assign(output,'onlyone.out');
+  rewrite(output);
+  writeln(k div 2);
+  close(output);
+
+end.
+ 

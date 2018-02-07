@@ -1,0 +1,46 @@
+var
+m:array [1..500000] of int64;
+i,n,s,r,sum:int64;
+max1,max2:int64;
+f1,f2:text;
+a,k:int64;
+asum:int64;//ñóììa a
+kmax:int64;
+begin
+  kmax:=0;
+  assign(f1,'castle.in');
+  assign(f2,'castle.out');
+  reset(f1);
+  readln(f1,n,s);
+  for i:=1 to n do begin
+    readln(f1,a,k);
+    if k>kmax then kmax:=k;
+    r:=a div k;
+    m[k]:=m[k]+r;
+    //writeln('ind ',a mod k);
+    if (a mod k)<>0 then 
+      m[a mod k]:=m[a mod k]+1;
+    asum:=asum+a;
+  end;
+  close(f1);
+  //sum:=0;
+  //writeln(asum);
+  for i:=kmax downto 1 do 
+  begin
+    if s-m[i]>0 then 
+    begin
+      asum:=asum-m[i]*i;
+      s:=s-m[i];
+    end else
+    begin
+      asum:=asum-s*i;
+      break;
+    end;
+  end;
+  //for i:=kmax to 1 do
+    //writeln(kmax,' ', m[i]);
+  //writeln(asum);
+  rewrite(f2);
+  writeln(f2,asum);
+  close(f2);
+end.

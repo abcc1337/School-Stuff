@@ -1,0 +1,123 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+typedef double dbl;
+
+const dbl EPS = 1e-7;
+
+struct Point{
+	dbl x, y;
+	Point() {}
+	Point(dbl _x, dbl _y) {
+		x = _x;
+		y = _y;
+	}
+};
+
+bool operator !=(Point a, Point b) {
+	return (a.x != b.x || a.y != b.y);
+}
+
+dbl len(Point a, Point b) {
+	return hypot(a.x - b.x, a.y - b.y);
+}
+
+struct Line{
+	dbl a, b, c;
+	Line() {}
+	Line(Point p1, Point p2) {
+		a = p2.y - p1.y;
+		b = p1.x - p2.x;
+		c = -a * p1.x - b * p1.y;
+	}
+};
+
+Point intersec(Line a, Line b) {
+	return Point((b.c * a.b - a.c * b.b) / (a.a * b.b - b.a * a.b), (b.c * a.a - a.c * b.a) / (a.b * b.a - b.b * a.a));
+}
+
+bool in(Point p, Point p1, Point p2) {
+	if (fabs(len(p, p1) + len(p, p2) - len(p1, p2)) < EPS) {
+		return 1;
+	}
+	return 0;
+}
+
+int main() {
+	freopen("mountain.in", "r", stdin);
+	freopen("mountain.out", "w", stdout);
+	int n, q;
+	cin >> n >> q;
+	if (q > 3000) {
+		vector<Point> p(n + 1);
+		p[0] = Point(0, 0);
+		for (int i = 1; i <= n; i++) {
+			int d, k;
+			cin >> d >> k;
+			p[i] = Point(p[i - 1].x + d, p[i - 1].y + k * d);
+		}
+
+	} else {
+		vector<Point> p(n + 1);
+		p[0] = Point(0, 0);
+		for (int i = 1; i <= n; i++) {
+			int d, k;
+			cin >> d >> k;
+			p[i] = Point(p[i - 1].x + d, p[i - 1].y + k * d);
+		}
+		while (q > 0) {
+			Point t;
+			int idl, idr, ansl = -1, ansr = -1;
+			cin >> t.x >> t.y;
+			for (int i = 0; i <= n; i++) {
+				if (p[i].x <= t.x) {
+					idl = i;
+				}
+			}
+			for (int i = n; i >= 0; i--) {
+				if (p[i].x >= t.x) {
+					idr = i;
+				}
+			}
+			for (int i = idr; i <= n; i++) {
+				for (int j = idr; j < i - 1; j++) {
+					Line l = Line(t, p[i]), l2 = Line(p[j], p[j + 1]);
+					Point q = intersec(l, l2);
+					if (in(q, t, p[i]) && in(q, p[j], p[j + 1]) && q != p[j] && q != p[j + 1]) {
+						ansr = i - 1;
+						break;
+					}
+				}
+				if (ansr != -1) {
+					break;
+				}
+			}
+			if (ansr == -1) {
+				ansr = n;
+			}
+			for (int i = idl; i >= 0; i--) {
+				for (int j = idl; j > i + 1; j--) {
+					Line l = Line(t, p[i]), l2 = Line(p[j], p[j - 1]);
+					Point q = intersec(l, l2);
+					if (in(q, t, p[i]) && in(q, p[j], p[j - 1]) && q != p[j] && q != p[j - 1]) {
+						ansl = i + 1;
+						break;
+					}
+				}
+				if (ansl != -1) {
+					break;
+				}
+			}
+			if (ansl == -1) {
+				ansl = 0;
+			}
+			cout << p[ansl].x << ' ' << p[ansr].x << '\n';
+			q--;
+		}
+	}
+    return 0;
+}

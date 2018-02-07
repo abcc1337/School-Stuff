@@ -1,0 +1,120 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+
+vector< vector<int> > edges, common;
+vector< set<int> > ways;
+vector<int> t_in, t_out, a;
+vector< pair<int, int> > couriers;
+int t = 0;
+
+
+bool is_parent(int v, int u)
+{
+    return (t_in[v] < t_in[u]) && (t_out[v] > t_out[u]);
+}
+
+
+void dfs(int v)
+{
+    t_in[v] = t++;
+    for (int i = 0; i < edges[v].size(); ++i)
+    {
+        int u = edges[v][i];
+        if (t_in[u] == -1)
+        {
+            dfs(u);
+        }
+    }
+    t_out[v] = t++;
+}
+
+
+int main()
+{
+    freopen("twopaths.in", "r", stdin);
+    freopen("twopaths.out", "w", stdout);
+    int n, k;
+    cin >> n >> k;
+    edges = vector< vector<int> > (n + 1);
+    common = vector< vector<int> > (k, vector<int> (k, 0));
+    t_in = vector<int> (n + 1, -1);
+    t_out = vector<int> (n + 1, -1);
+    a = vector<int> (n + 1);
+    for (int i = 2; i <= n; ++i)
+    {
+        int p;
+        cin >> p;
+        a[i] = p;
+        edges[i].push_back(p);
+        edges[p].push_back(i);
+    }
+    dfs(1);
+    for (int i = 1; i <= n; ++i)
+    {
+        //cout << t_in[i] << " ";
+    }
+    //cout << endl;
+    for (int i = 1; i <= n; ++i)
+    {
+        //cout << t_out[i] << " ";
+    }
+    //cout << endl;
+    //cout << t_in[3] << " " << t_in[2] << "  " << t_out[3] << " " << t_out[2] << endl;
+    //cout << is_parent(3, 2) << endl;
+    couriers = vector< pair<int, int> > (k);
+    for (int i = 0; i < k; ++i)
+    {
+        ways.push_back(*(new set<int>));
+        cin >> couriers[i].first >> couriers[i].second;
+        int v = couriers[i].first, u = couriers[i].second;
+        ways[i].insert(v);
+        ways[i].insert(u);
+        while (v != u)
+        {
+            if (!is_parent(v, u))
+            {
+                v = a[v];
+            }
+            else if (!is_parent(u, v))
+            {
+                u = a[u];
+            }
+            ways[i].insert(v);
+            ways[i].insert(u);
+        }
+    }
+    /*for (int i = 0; i < k; ++i)
+    {
+        cout << endl;
+        for (set<int>::iterator it = ways[i].begin(); it != ways[i].end(); ++it)
+        {
+            cout << *it << " ";
+        }
+        cout << endl;
+    }*/
+    int g = 0, h = 1;
+    for (int i = 0; i < k; ++i)
+    {
+        for (int j = i + 1; j < k; ++j)
+        {
+            if (i != j)
+            {
+                int qwer = ways[i].size();
+                for (set<int>::iterator it = ways[i].begin(); (((i == 0) && (j == 1)) || (min(qwer, (int) ways[j].size()) > common[g][h] - common[i][j])) && (it != ways[i].end()); ++it)
+                {
+                    common[i][j] += ways[j].count(*it);
+                    --qwer;
+                }
+                if (common[i][j] > common[g][h])
+                {
+                    g = i;
+                    h = j;
+                }
+            }
+        }
+    }
+    cout << max(0, common[g][h] - 1) << endl;
+    cout << g + 1 << " " << h + 1 << endl;
+    return 0;
+}

@@ -1,0 +1,133 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+vector <vector <long> > g;
+vector <bool> used;
+vector <pair <long, long> > order;
+vector <long> first;
+vector <long> highl;
+long it = -1;
+vector <vector <long> > pos;
+void dfs(long v, long high) {
+    highl[v] = high;
+    it++;
+    used[v] = 1;
+    first[v] = it;
+    order.push_back({high, v});
+    pos[v].push_back(it);
+   //cout << v << " " << it << endl;
+   // cout << g[v].size() << endl;
+    for (long i = 0; i < g[v].size(); i++) {
+        if (!used[g[v][i]]) {
+            dfs(g[v][i], high + 1);
+            order.push_back({high, v});
+            it++;
+            pos[v].push_back(it);
+        }
+    }
+}
+vector <pair <long, long> > tree;
+long razm = 0;
+void prepare() {
+    long x = order.size();
+    long k = 1;
+    while (k < x) k *= 2;
+    tree.resize(2 * k, {1e9, 0});
+    for (long i = 0; i < x; i++) {
+        tree[i + k] = order[i];
+    }
+    for (long i = k - 1; i >= 0; i--) {
+        tree[i] = min(tree[2 * i], tree[2 * i + 1]);
+    }
+    razm = k;
+}
+pair <long, long> minl(long l, long r) {
+    if (l > r) return {1e9, -1};
+    if (l % 2 == 1) return min(tree[l], minl(l + 1, r));
+    if (r % 2 == 0) return min(tree[r], minl(l, r - 1));
+    return  minl(l / 2, r / 2);
+}
+int main() {
+    freopen("twopaths.in", "r", stdin);
+    freopen("twopaths.out", "w", stdout);
+    long n, k;
+    cin >> n >> k;
+    vector <long> parent(n + 1, 0);
+    parent[1] = -1;
+    g.resize(n + 1);
+    pos.resize(n + 1);
+    used.resize(n + 1, 0);
+    first.resize(n + 1, 0);
+    highl.resize(n + 1, 0);
+    for (long i = 2; i <= n; i++) {
+        long x;
+        cin >> x;
+        g[x].push_back(i);
+        parent[i] = x;
+    }
+    dfs(1, 0);
+    prepare();
+    vector <pair <pair <long, long>, long> > data;
+    for (long i = 0; i < k; i++) {
+        long l, r;
+        cin >> l >> r;
+        if (first[l] > first[r]) swap(l, r);
+        long e = minl(first[l] + razm, first[r] + razm).second;
+        /*long left = 0, right = pos[e].size();
+        while (right - left > 1) {
+            long mid = (left + right) / 2;
+            if (pos[e][mid] > first[l]) right = mid; else left = mid;
+        }
+        long left1 = 0, right1 = pos[e].size();
+        while (right - left > 1) {
+            long mid = (left1 + right1) / 2;
+            if (pos[e][mid] < first[r]) left1 = mid; else right1 = mid;
+        }
+        cout << first[l] << " " << pos[e][left] << " " << pos[e][left1] << " " << first[r] << endl;*/
+        cout << e << endl;
+        data.push_back({{l, e}, i + 1});
+        data.push_back({{r, e}, i + 1});
+    }
+    vector <vector <long> > rast(k + 1, vector <long> (k + 1, 0));
+    long min_rast = -1;
+    long ans1 = 1, ans2 = 2;
+    for (long i = 0; i < data.size(); i++) {
+        for (long j = i + 1; j < data.size(); j++) {
+            if (data[i].second == data[j].second) continue;
+            long a1 = data[i].first.first, a2 = data[j].first.first;
+            long b1 = data[i].first.second, b2 = data[j].first.second;
+            while (highl[a1] != highl[a2] && a1 != b1 && a2 != b2) {
+                if (highl[a1] < highl[a2]) a2 = parent[a2]; else a1 = parent[a1];
+            }
+            //cout << a1 << " " << a2 << endl;
+            long x = data[i].second, y = data[j].second;
+            while (a1 != b1 && a2 != b2 && a1 != a2) {
+                a1 = parent[a1];
+                a2 = parent[a2];
+            }
+          // cout << a1 << " " << a2 << endl;
+            if (a1 == a2) {
+                while (a1 != b1 && a2 != b2) {
+                    a1 = parent[a1];
+                    a2 = parent[a2];
+                    rast[x][y]++;
+                }
+            }
+        }
+    }
+    for (long i = 1; i <= k; i++) {
+        for (long j = 1; j <= k; j++) {
+           // cout << rast[i][j] << endl;
+            if (min_rast < rast[i][j]) {
+                min_rast = rast[i][j];
+                ans1 = i;
+                ans2 = j;
+            }
+        }
+    }
+    cout << min_rast << endl;
+    cout << ans1 << " " << ans2 << endl;
+}

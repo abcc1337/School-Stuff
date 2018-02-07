@@ -1,0 +1,57 @@
+program zad_5;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+var
+  t, i, j : integer;
+  n, step, a, b, c, ost, sum : int64;
+begin
+  reset(input, 'grants.in');
+  rewrite(output, 'grants.out');
+
+  readln(t);
+  for i := 1 to t do begin
+    readln(n);
+    a := n div 3;
+    b := a;
+    c := a;
+    ost := n mod 3;
+
+    if(ost > 0) then begin
+      step := 1;
+      sum := ost;
+      while(step and c = step) do begin
+        inc(sum, step * 3);
+        dec(a, step);
+        dec(b, step);
+        dec(c, step);
+        step := step * 2;
+      end;
+      inc(c, step);
+      dec(sum, step);
+      
+      while(sum > 2) do begin
+        step := 1;
+        while(step * 6 <= sum) do
+          step := step * 2;
+        inc(a, step);
+        inc(b, step);
+        inc(c, step);
+        dec(sum, step * 3);
+      end;
+
+      if(sum = 1) then
+        inc(c)
+      else if (sum = 2) then begin
+        inc(c);
+        inc(b);
+      end;
+    end;
+
+    writeln(a, ' ', b, ' ', c);
+  end;
+
+  readln(n);
+end.

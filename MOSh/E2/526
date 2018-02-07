@@ -1,0 +1,23 @@
+fin = open("input.txt")
+fout = open("output.txt", "w")
+a, b = map(int, fin.readline().split())
+n, q = map(int, fin.readline().split())
+graph = dict()
+for i in range(q):
+    doctor, x, y = fin.readline().split()
+    x = int(x)
+    y = int(y)
+    if doctor == "v":
+        if x in graph:
+            graph[(x, y)].append(1)
+            graph[(x + 1, y)].append(-1)
+        else:
+            graph[(x, y)] = 1
+            graph[(x + 1, y)] = -1
+    else:
+        if x in graph:
+            graph[(x, y)].append(1)
+            graph[(x + 1, y)].append(-1)
+        else:
+            graph[(x, y)] = 1
+            graph[(x + 1, y)] = -1    

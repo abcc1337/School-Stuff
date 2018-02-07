@@ -1,0 +1,57 @@
+import sys
+
+
+def function(y1, x1, x2, res):
+    result = res
+    for x3 in range(x1, x2):
+        tmpres = 0
+        tmptmpres = 0
+        for i in range(1, y1 + 1):
+            y2 =  y1 - i
+            tmptmpres += matrix[y2][x3]
+            tmpres = max(tmptmpres, tmpres)
+        tmpres += res
+        result = max(result, f(y1, x3, x2, tmpres))
+    return result
+
+
+def f(y1, x3, x2, result):
+    res = result
+    for x4 in range(x3 + 1, x2 + 1):
+        tmpres1 = 0
+        tmptmpres1 = 0
+        tmpres2 = 0
+        tmptmpres2 = 0
+        for i in range(1, y1):
+            y3 = y1 - i
+            tmptmpres1 = matrix[y3][x4]
+            tmpres1 = max(tmptmpres1, tmpres1)
+        for i in range(1, h - y1 - 1):
+            y4 = y1 + i
+            tmptmpres2 += matrix[y4][x4]
+            tmpres2 = max(tmpres2, tmptmpres2)
+        tmpres = tmpres1 + tmpres2 + result
+        res = max(res, tmpres)
+    return res
+
+
+sys.stdin = open('submarine.in')
+sys.stdout = open('submarine.out', 'w')
+k = int(input())
+cods = list(map(int, input().split()))
+h, w = map(int, input().split())
+matrix = [None] * h
+for i in range(h):
+    matrix[i] = [None] * w
+    s = input()
+    for j in range(len(s)):
+        matrix[i][j] = cods[ord(s[j]) - ord('a')]
+res = matrix[0][0] + matrix[0][1]
+for i in range(h):
+    for j in range(w - 1):
+        tmpres = matrix[i][j]
+        for k in range(j + 1, w):
+            tmpres += matrix[i][k]
+            res = max(res, function(i, j, k, tmpres))
+print(res)
+sys.stdout.close()

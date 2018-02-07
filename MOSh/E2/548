@@ -1,0 +1,77 @@
+type arr=array[0..5000] of integer;
+
+
+
+var
+n, t, l, r, c, i, j, p, q, k:longint;
+a:arr;
+y:char;
+s:int64;
+w:array[0..5000, 0..5000] of integer;
+begin
+assign(input, 'lamps.in');
+ reset(input);
+ 
+ 
+ assign(output, 'lamps.out');
+ rewrite(output);
+ 
+readln(n, t);
+ for i:=1 to n do begin
+  read(y);
+  if y='0' then a[i]:=0
+  else a[i]:=1;
+ end; 
+i:=1;
+ k:=0;
+ while i<=n do begin
+  if a[i]=1 then begin
+   k:=1;
+   inc(i);
+   while (i<=n) and (a[i]=1) do begin
+    inc(k);
+    inc(i);
+   end;
+   inc(s,(k*(k+1)) div 2);
+   for p:=i-k to i-1 do
+    for q:=p to i-1 do
+     w[p,q]:=1;
+   k:=0;
+  end
+  
+  else inc(i);
+  
+ end;
+writeln(s);
+for j:=1 to t do begin
+ readln(l, r, c);
+ for i:=l to r do
+  a[i]:=c;
+ i:=1;
+ k:=0;
+ while i<=n do begin
+  if a[i]=1 then begin
+   k:=1;
+   inc(i);
+   while (i<=n) and (a[i]=1) do begin
+    inc(k);
+    inc(i);
+   end;
+   
+   for p:=i-k to i-1 do
+    for q:=p to i-1 do begin
+     if w[p,q]=0 then inc(s);
+     w[p,q]:=1;
+    end; 
+   k:=0;
+  end
+  
+  else inc(i);
+  
+ end;
+ writeln(s);
+end;
+
+close(input);
+close(output);
+end.

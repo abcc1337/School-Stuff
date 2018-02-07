@@ -1,0 +1,39 @@
+def dfs(x, y):
+    if Was[x][y]:
+        return
+    Was[x][y] = True
+    for elem in A[x][y]:
+        if elem[0] >= x1 and elem[0] <= x2 and elem[1] >= y1 and elem[1] <= y2:
+            dfs(elem[0], elem[1])
+
+
+fin = open("repair.in")
+fout = open("repair.out", "w")
+a, b = map(int, fin.readline().rstrip().split())
+n, q = map(int, fin.readline().rstrip().split())
+A = [[[] for i in range(b)] for j in range(a)]
+for i in range(n - 1):
+    t, x, y = fin.readline().rstrip().split()
+    x, y = int(x) - 1, int(y) - 1
+    if t == "h":
+        A[x][y].append((x + 1, y))
+        A[x + 1][y].append((x, y))
+    else:
+        A[x][y].append((x, y + 1))
+        A[x][y + 1].append((x, y))
+for i in range(q):
+    x1, y1, x2, y2 = map(int, fin.readline().rstrip().split())
+    x1 -= 1
+    x2 -= 1
+    y1 -= 1
+    y2 -= 1
+    ans = 0
+    Was =[[False for i in range(b)] for j in range(a)]
+    for x in range(x1, x2 + 1):
+        for y in range(y1, y2 + 1):
+            if A[x][y] != [] and not Was[x][y]:
+                dfs(x, y)
+                ans += 1
+    print(ans, file = fout)
+fin.close()
+fout.close()

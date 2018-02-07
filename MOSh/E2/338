@@ -1,0 +1,205 @@
+#include <bits/stdc++.h>
+
+#define int long long
+
+using namespace std;
+
+inline int r_n()
+{
+    return (rand() << 16) | rand();
+}
+
+///<TREAP>
+struct treap
+{
+    struct node
+    {
+        int x, y;
+        int ms, sts, mc;
+        node *l, *r;
+        node(int x = 0, int ms = 0, int y = r_n()) : x(x), ms(ms)
+        {
+            l = r = nullptr;
+            sts = ms;
+            mc = ms * x;
+        }
+    };
+    int get_sts(node *t)
+    {
+        if (t == nullptr)
+            return 0;
+        return t->sts;
+    }
+    int get_mc(node *t)
+    {
+        if (t == nullptr)
+            return 0;
+        return t->mc;
+    }
+    void refr(node *t)
+    {
+        if (t == nullptr)
+            return;
+        t->sts = t->ms + get_sts(t->l) + get_sts(t->r);
+        t->mc = t->ms * t->x + get_mc(t->r) + get_mc(t->l);
+    }
+    pair<node*, node*> split(node *t, int x)
+    {
+        if (t == nullptr)
+            return make_pair(nullptr, nullptr);
+        if (t->x > x)
+        {
+            auto ans = split(t->r, x);
+            t->r = ans.first;
+            refr(t);
+            ans.first = t;
+            return ans;
+        }
+        auto ans = split(t->l, x);
+        t->l = ans.second;
+        refr(t);
+        ans.second = t;
+        return ans;
+    }
+    node* merg(node *a, node *b)
+    {
+        if (a == nullptr)
+            return b;
+        if (b == nullptr)
+            return a;
+        if (a->y > b->y)
+        {
+            a->r = merg(a->r, b);
+            refr(a);
+            return a;
+        }
+        b->l = merg(a, b->l);
+        refr(b);
+        return b;
+    }
+    node *root = new node(1e9 + 7, 0);
+    bool add(int x, int ms = 0)
+    {
+        auto s1 = split(root, x);
+        auto s2 = split(s1.second, x - 1);
+        bool ret = 0;
+        if (s2.first == nullptr)
+            s2.first = new node(x, ms);
+        else
+        {
+            ret = 1;
+            (s2.first->ms) += ms;
+            refr(s2.first);
+        }
+        s1.second = merg(s2.first, s2.second);
+        root = merg(s1.first, s1.second);
+        return ret;
+    }
+    node* s_ms(node *t, int ms)
+    {
+        int l = get_sts(t->l);
+        //cerr << l << " " << ms << "\n";
+        if (l > ms)
+            return s_ms(t->l, ms);
+        if (l + t->ms > ms)
+            return t;
+        return s_ms(t->r, ms - l - t->ms);
+    }
+    int prof(int ms)
+    {
+        //cerr << root->sts << " "
+        if (root->sts <= ms)
+            return root->mc;
+        //cerr << "s_ms\n";
+        int x = s_ms(root, ms)->x;
+        //cerr << "split\n";
+        auto s1 = split(root, x);
+        auto s2 = split(s1.second, x - 1);
+        int ans = s1.first->mc;
+        ms -= s1.first->sts;
+        ans += ms * s2.first->x;
+        s1.second = merg(s2.first, s2.second);
+        root = merg(s1.first, s1.second);
+        return ans;
+    }
+};
+///</TREAP>
+///scanline
+
+struct event
+{
+    int t, x, y, s;
+    event(int t = 0,int x = 0,int s = 0,int y = 0) : t(t), x(x), s(s), y(y) {};
+    bool operator < (const event &o) const
+    {
+        return x == o.x ? t < o.t : x < o.x;
+    }
+};
+
+
+int32_t main()
+{
+    ifstream cin("fisher.in");
+    ofstream cout("fisher.out");
+    srand(414515888);
+    ///test treap
+    /*treap T;
+    int n;
+    cin >> n;
+    for (int i = 0; i < n; i++)
+    {
+        char c;
+        cin >> c;
+        if (c == '+')
+        {
+            int x, ms;
+            cin >> x >> ms;
+            cout << T.add(x, ms) << "\n";
+        }
+        else
+        {
+            int x;
+            cin >> x;
+            cout << T.prof(x) << "\n";
+        }
+    }*/
+    int n, m, p;
+    cin >> n >> m >> p;
+    int ans = 0;
+    vector<event> arr;
+    for (int i = 0; i < n; i++)
+    {
+        int x, a;
+        cin >> x >> a;
+        arr.push_back(event(0, x, a));
+    }
+    for (int j = 0; j < m; j++)
+    {
+        int x, a, b;
+        cin >> x >> a >> b;
+        //cerr << x << " " << a << " " << b << "\n";
+        arr.push_back(event(1, x, a, b));
+    }
+    inplace_merge(arr.begin(), arr.begin() + n, arr.end());
+    treap T;
+    int fc = 0;
+    for (event i : arr)
+    {
+        int fuel = i.x * p;
+        //cerr << i.x << "\n";
+        if (i.t == 0)
+        {
+            fc += i.s;
+        }
+        else
+        {
+            //cerr << "+" << i.y << " " << i.s << "\n";
+            T.add(i.y, i.s);
+        }
+        //cerr << "?" << fc << "\n";
+        //cerr << T.prof(fc) << "\n";
+        ans = max(ans, T.prof(fc) - fuel);
+    }
+    cout << ans;
+    return 0;
+}

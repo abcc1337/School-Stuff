@@ -1,0 +1,163 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <fstream>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <cmath>
+#include <cstring>
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <map>
+#include <set>
+#include <queue>
+#include <unordered_map>
+#include <unordered_set>
+
+using namespace std;
+
+#define forn(i, n) for (int i = 0; i < int(n); ++i)
+#define forq(i, q, n) for (int i = int(q); i < int(n); ++i)
+#define mk make_pair
+#define psh push_back
+#define all(v) v.begin(), v.end()
+#define TIME clock() * 1.0 / CLOCKS_PER_SEC
+#define Y second
+#define X first
+#define y1 asd
+#define TASK "fisher"
+
+typedef long long ll;
+typedef vector <int> vi;
+typedef pair <int, int> pii;
+
+const int MAXN = (int)1e6 + 7;
+const int INF = (int)1e9 + 7;
+const int MOD = (int)1e9 + 7;
+const double EPS = 1e-6;
+
+void file()
+{
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin); freopen("output.txt", "w", stdout);
+#else
+	freopen(TASK".in", "r", stdin); freopen(TASK".out", "w", stdout);
+#endif
+}
+
+struct ee {
+	ll X;
+	ll b, c;
+};
+
+ll DF[MAXN], DF2[MAXN];
+
+ll prv(ll x) {
+	return (x & (x + 1)) - 1;
+}
+
+ll nxt(ll x) {
+	return x | (x + 1);
+}
+
+void upd(ll x, ll v) {
+	for (ll px = x; px < MAXN; px = nxt(px)) {
+		DF[px] += v;
+	}
+}
+
+void upd2(ll x, ll v) {
+	for (ll px = x; px < MAXN; px = nxt(px)) {
+		DF2[px] += v;
+	}
+}
+
+ll get(ll x) {
+	ll ans = 0;
+	for (ll px = x; px >= 0; px = prv(px)) {
+		ans += DF[px];
+	}
+	return ans;
+}
+
+ll get2(int x) {
+	ll ans = 0;
+	for (int px = x; px >= 0; px = prv(px)) {
+		ans += DF2[px];
+	}
+	return ans;
+}
+
+bool comp(ee a, ee b) {
+	return a.X < b.X;
+}
+
+int main() {
+	file();
+	ll n, m;
+	ll p;
+	scanf("%d%d%lld", &n, &m, &p);
+	vector <pair <ll, ll> > A(n);
+	vector <ee> B(m);
+	forn(i, n) {
+		scanf("%d%lld", &A[i].X, &A[i].Y);
+	}
+	forn(i, m) {
+		scanf("%d%lld%lld", &B[i].X, &B[i].b, &B[i].c);
+	}
+	sort(all(A));
+	sort(all(B), comp);
+	ll r = 0;
+	vector <ll> C;
+	forn(i, A.size()) {
+		C.psh(A[i].X);
+	}
+	forn(i, B.size()) {
+		C.psh(B[i].X);
+	}
+	sort(all(C));
+	vector <ll> pref(A.size() + 1, 0);
+	forn(i, A.size()) {
+		pref[i + 1] = pref[i] + A[i].Y;
+	}
+	ll rA = -1, rB = -1;
+	ll ans = 0;
+	forn(i, C.size()) {
+		if (rA < A.size() - 1) {
+			while (A[rA + 1].X <= C[i]) {
+				rA++;
+				if (rA == A.size() - 1) {
+					break;
+				}
+			}
+		}
+		if (rB < B.size() - 1) {
+			while (B[rB + 1].X <= C[i]) {
+				rB++;
+				upd(MAXN - B[rB].c, B[rB].b);
+				upd2(MAXN - B[rB].c, B[rB].b * B[rB].c);
+				if (rB == B.size() - 1) {
+					break;
+				}
+			}
+		}
+		ll cur = pref[rA + 1];
+		ll l = 0, r = MAXN, m;
+		while (r - l > 1) {
+			m = (r + l) / 2;
+			if (get(MAXN - m) >= cur) {
+				l = m;
+			}
+			else {
+				r = m;
+			}
+		}
+		ll cur1 = get2(MAXN - l), cur2 = get(MAXN - l);
+		cur1 -= max(cur2 - cur, 0ll) * l;
+		cur1 -= p * C[i];
+		ans = max(ans, cur1);
+	}
+	printf("%lld", ans);
+	return 0;
+}

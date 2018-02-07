@@ -1,0 +1,95 @@
+var a,nuk: array[1..3000] of integer;
+
+pos,n,k,z,nuklen,back,x,nl: integer;
+b: boolean;
+
+procedure notnewnuk;
+begin
+a[pos]:=nuk[nuklen];
+pos:=pos+1;
+back:=0;
+nuklen:=0;
+end;
+
+procedure newnuk;
+begin
+k:=k+1;
+a[pos]:=k;
+pos:=pos+1;
+back:=0;
+nuklen:=0;
+end;
+
+procedure addnuk;
+var t,y: integer;
+begin
+back:=back+1;
+t:=a[pos-back];
+b:=true;
+if back>1 then
+begin
+for y:=1 to nuklen do
+if nuk[y]=t then
+begin
+b:=false;
+break;
+end;
+end;
+
+if b then
+begin
+nuklen:=nuklen+1;
+nuk[nuklen]:=t;
+end;
+end;
+
+begin
+pos:=1;
+k:=0;
+newnuk;
+addnuk;
+readln(n);
+
+while pos<=n do
+begin
+
+if back=1 then
+begin
+writeln('? 1 ',pos);
+readln(z);
+if z=k+1 then
+begin
+newnuk;
+addnuk;
+continue;
+end;
+end else
+if nuklen=k then
+begin
+notnewnuk;
+if pos>n then break;
+addnuk;
+continue;
+end;
+
+writeln('? ',pos-back,' ',pos);
+readln(z);
+
+if z=nuklen then
+begin // упс, уже есть такой
+notnewnuk;
+end;
+
+nl:=nuklen;
+repeat
+addnuk;
+until (nl<>nuklen);
+
+end;
+
+// done
+writeln('Ready!');
+writeln(k);
+for x:=1 to pos-1 do write(a[x],' ');
+
+end.

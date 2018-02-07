@@ -1,0 +1,91 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+
+using namespace std;
+
+struct point
+{
+    long long x, y;
+    point() {}
+};
+
+istream& operator>> (istream& is, point& p)
+{
+    is >> p.x >> p.y;
+    return is;
+}
+
+long long floordiv(long long a, long long b)
+{
+    if ((float) a / (float) b > 0)
+        return a / b;
+    else
+        return (a - b + 1) / b;
+}
+
+long long mod(long long a, long long b)
+{
+    return ((a % b) + b) % b;
+}
+
+int main()
+{
+    freopen("monument.in", "r", stdin);
+    freopen("monument.out", "w", stdout);
+    int n, k;
+    cin >> n >> k;
+    vector<point> monument(n);
+    for (int i = 0; i < n; i++)
+        cin >> monument[i];
+    monument.push_back(monument[0]);
+    vector<long long> mins(1000001, 1791791791);
+    vector<long long> maxs(1000001, -1);
+    for (int i = 1; i < n + 1; i++)
+    {
+        long long miny = min(monument[i].y, monument[i - 1].y);
+        long long maxy = max(monument[i].y, monument[i - 1].y);
+        long long minx = min(monument[i].x, monument[i - 1].x);
+        long long maxx = max(monument[i].x, monument[i - 1].x);
+        for (long long j = miny; j < maxy; j++)
+        {
+            mins[j] = min(mins[j], minx);
+            maxs[j] = max(maxs[j], maxx);
+        }
+    }
+    long long worstans = 0;
+    vector<long long> scln(k + 1, 0);
+    for (int i = 0; i < 1000001; i++)
+    {
+        if (maxs[i] != -1)
+        {
+            maxs[i] -= i;
+            mins[i] -= i;
+            if (k > 1)
+                worstans += (maxs[i] - mins[i] + k - 1) / k + 1;
+            else
+                worstans += (maxs[i] - mins[i] + 1);
+            //cout << i << " " << (maxs[i] - mins[i] + k - 1) / k + 1 << " " << mod(maxs[i], k) << " " << mod(mins[i], k) << endl;
+            if (mod(maxs[i], k) <= mod(mins[i], k))
+            {
+                scln[mod(maxs[i], k)] += 1;
+                scln[mod(mins[i], k) + 1] -= 1;
+            }
+            else
+            {
+                scln[mod(maxs[i], k)] += 1;
+                scln[k] -= 1;
+                scln[0] += 1;
+                scln[mod(mins[i], k) + 1] -= 1;
+            }
+        }
+    }
+    long long best = scln[0];
+    for (int i = 1; i < k; i++)
+    {
+        scln[i] += scln[i - 1];
+        best = max(best, scln[i]);
+    }
+    cout << worstans - best << endl;
+    return 0;
+}

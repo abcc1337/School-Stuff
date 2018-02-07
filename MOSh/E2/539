@@ -1,0 +1,24 @@
+input_file = open("grants.in", "r")
+output_file = open("grants.out", "w")
+help_list = []
+for i in range(1, 63):
+    help_list.append(3 * 2 ** i - 1)
+    help_list.append(3 * 2 ** i - 2)
+#print(help_list)
+t = int(input_file.readline())
+for i in range(t):
+    n = int(input_file.readline())
+    if n not in help_list or n % 3 == 0 or n == 4:
+        if n % 3 == 0:
+            print(n // 3, n // 3, n // 3, file=output_file)
+        elif n  % 3 == 1:
+            print(n // 3, n // 3, n // 3 + 1, file=output_file)
+        else:
+            print(n // 3, n // 3 + 1, n // 3 + 1, file=output_file)
+    else:
+        if n % 3 == 1:
+            print((n + 2) // 3 + (n - (n + 2) // 3) // 3, (n - (n + 2) // 3) // 3, (n - (n + 2) // 3) // 3, file=output_file)
+            
+        else:
+            print((n + 1) // 3 + (n - (n + 1) // 3) // 3, (n - (n + 1) // 3) // 3, (n - (n + 1) // 3) // 3 + 1, file=output_file)
+    

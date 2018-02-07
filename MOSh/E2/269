@@ -1,0 +1,144 @@
+#include <iostream>
+#include <stdio.h>
+#include <vector>
+
+using namespace std;
+
+int main()
+{
+    freopen("penguins.in", "r", stdin);
+    freopen("penguins.out", "w", stdout);
+    int t, i, n, k,j, h, o, buf;
+    string s, s1;
+    vector< vector < vector<int> > > d;
+    vector< vector< vector< pair<int, int> > > > anc;
+    cin >> t;
+    for (i = 0; i < t; i++)
+    {
+        cin >> n >> k;
+        cin >> s;
+        d.clear();
+        d.resize(n + 1, vector< vector<int> > (k + 1, vector<int> (2, 100)));
+        s1.clear();
+        s1.resize(n);
+        anc.clear();
+        anc.resize(n + 1, vector< vector< pair<int ,int> > > (k + 1, vector<pair<int, int> > (2, make_pair(0, 0))));
+        //for (j = 0; j <= k; j++)
+        {d[0][0][0] = 0;
+        d[0][0][1] = 0;}
+        for (j = 1; j <= n; j++)
+        {
+            for (h = 1; h <= k; h++)
+            {
+//                d[j][h][0] = min(d[j - 1][h - 1][1] + (s[j - 1] != '0'), d[j - 1][h][0] + (s[j - 1] != '0'));
+//                d[j][h][1] = min(d[j - 1][h - 1][0] + (s[j - 1] != '0'), d[j - 1][h][1] + (s[j - 1] != '0'));
+                d[j][h][s[j - 1] - '0'] = min( min(d[j - 1][h - 1][0], d[j - 1][h - 1][1]), d[j - 1][h][s[j - 1] - '0']);
+                d[j][h][(s[j - 1] - '0'+ 1)%2] = min( min(d[j - 1][h - 1][0], d[j - 1][h - 1][1]), d[j - 1][h][(s[j - 1] - '0'+ 1)%2]) + 1;
+                if (d[j - 1][h - 1][0] == d[j][h][s[j - 1] - '0'])
+                {
+                    anc[j][h][s[j - 1] - '0'].first = h - 1;
+                    anc[j][h][s[j - 1] - '0'].second = 0;
+                }
+                if (d[j - 1][h - 1][1] == d[j][h][s[j - 1] - '0'])
+                {
+                    anc[j][h][s[j - 1] - '0'].first = h - 1;
+                    anc[j][h][s[j - 1] - '0'].second = 1;
+                }
+                if (d[j - 1][h][s[j - 1] - '0'] == d[j][h][s[j - 1] - '0'])
+                {
+                    anc[j][h][s[j - 1] - '0'].first = h;
+                    anc[j][h][s[j - 1] - '0'].second = s[j - 1] - '0';
+                }
+
+                if ((d[j - 1][h - 1][0] + 1) == d[j][h][(s[j - 1] - '0'+ 1)%2])
+                {
+                    anc[j][h][(s[j - 1] - '0'+ 1)%2].first = h - 1;
+                    anc[j][h][(s[j - 1] - '0'+ 1)%2].second = 0;
+                }
+                if ((d[j - 1][h - 1][1] + 1) == d[j][h][(s[j - 1] - '0'+ 1)%2])
+                {
+                    anc[j][h][(s[j - 1] - '0'+ 1)%2].first = h - 1;
+                    anc[j][h][(s[j - 1] - '0'+ 1)%2].second = 1;
+                }
+                if ((d[j - 1][h][(s[j - 1] - '0'+ 1)%2] + 1) == d[j][h][(s[j - 1] - '0'+ 1)%2])
+                {
+                    anc[j][h][(s[j - 1] - '0'+ 1)%2].first = h;
+                    anc[j][h][(s[j - 1] - '0'+ 1)%2].second = (s[j - 1] - '0'+ 1)%2;
+                }
+//                d[j][h][s[j - 1] - '0'] = d[j - 1][h - 1][0];
+//                anc[j][h][s[j - 1] - '0'].first = h - 1;
+//                anc[j][h][s[j - 1] - '0'].second = 0;
+//                if (d[j - 1][h - 1][1] < d[j][h][s[j - 1] -'0'])
+//                {
+//                  d[j][h][s[j - 1] - '0'] = d[j - 1][h - 1][1];
+//                  anc[j][h][s[j - 1] - '0'].first = h - 1;
+//                  anc[j][h][s[j - 1] - '0'].second = 1;
+//                }
+//                if (d[j - 1][h][s[j - 1] - '0'] < d[j][h][s[j - 1] -'0'])
+//                {
+//                    d[j][h][s[j - 1] - '0'] = d[j - 1][h - 1][s[j - 1] - '0'];
+//                    anc[j][h][s[j - 1] - '0'].first = h;
+//                    anc[j][h][s[j - 1] - '0'].second = s[j - 1] - '0';
+//                }
+//
+//                d[j][h][(s[j - 1] - '0' + 1) % 2] = d[j - 1][h - 1][0] + 1;
+//                anc[j][h][(s[j - 1] - '0' + 1) % 2].first = h - 1;
+//                anc[j][h][(s[j - 1] - '0' + 1) % 2].second = 0;
+//                if (d[j - 1][h - 1][1] + 1< d[j][h][(s[j - 1] - '0' + 1) % 2])
+//                {
+//                  d[j][h][(s[j - 1] - '0' + 1) % 2] = d[j - 1][h - 1][1] + 1;
+//                  anc[j][h][(s[j - 1] - '0' + 1) % 2].first = h - 1;
+//                  anc[j][h][(s[j - 1] - '0' + 1) % 2].second = 1;
+//                }
+//                if (d[j - 1][h][(s[j - 1] - '0' + 1) % 2]  + 1 < d[j][h][(s[j - 1] - '0' + 1) % 2])
+//                {
+//                    d[j][h][(s[j - 1] - '0' + 1) % 2] = d[j - 1][h - 1][(s[j - 1] - '0' + 1) % 2] + 1;
+//                    anc[j][h][(s[j - 1] - '0' + 1) % 2].first = h;
+//                    anc[j][h][(s[j - 1] - '0' + 1) % 2].second = (s[j - 1] - '0' + 1) % 2;
+//                }
+//
+
+            }
+        }
+//        cout << endl;
+//        for (auto w: d)
+//        {
+//            for (auto z:w)
+//                cout << "(" << z[0] << ' ' << z[1] << ") ";
+//            cout << endl;
+//        }
+//        cout << endl;
+        if (d[n][k][0] < d[n][k][1])
+        {
+        //cout << d[n][k][0] << ' ' ;
+        j = n; h = k; o = 0;
+        while(j > 0)
+        {
+            //cout << char('0' + o);
+            s1[j - 1] = ('0' + o);
+            buf = o;
+            o = anc[j][h][o].second;
+            h = anc[j][h][buf].first;
+            j--;
+        }
+        cout << s1 << ' ';
+        }
+        else{
+        //cout << d[n][k][1] << ' ' ;
+        j = n; h = k; o = 1;
+        //s1.clear();
+        while(j > 0)
+        {
+            s1[j - 1]=('0' + o);
+            buf = o;
+            o = anc[j][h][o].second;
+            h = anc[j][h][buf].first;
+            j--;
+        }
+        cout << s1;
+        }
+        cout <<endl;
+
+    }
+    return 0;
+}

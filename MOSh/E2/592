@@ -1,0 +1,89 @@
+Uses
+  Math;
+Type
+  mass=array[0..200000]of longint;
+Var
+  n,s,i,qq:longint;
+  a,k:mass;
+  ans:int64;
+Procedure Swap(Var a,b:longint);
+Var
+  c:longint;
+Begin
+  c:=a;
+  a:=b;
+  b:=c;
+end;
+Procedure qSort(Var m1,m2:mass;l,r:longint);
+Procedure sort(l,r:longint);
+Var
+  i,j,sr,x1,x2:longint;
+Begin
+  i:=l;j:=r;
+  sr:=i+random(j-i+1);
+  x1:=m1[sr];
+  x2:=m2[sr];
+  repeat
+    while (m1[i]<x1)or((m1[i]=x1)and(m2[i]<x2))do inc(i);
+    while (x1<m1[j])or((x1=m1[j])and(x2<m2[j]))do dec(j);
+    if i<=j then
+      begin
+        Swap(m1[i],m1[j]);
+        Swap(m2[i],m2[j]);
+        inc(i);dec(j);
+      end;
+  until i>j;
+  if i<r then
+    sort(i,r);
+  if l<j then
+    sort(l,j);
+end;
+Begin
+  sort(l,r);
+end;
+begin
+//  assign(input,'input.txt');assign(output,'output.txt');
+  assign(input,'castle.in');assign(output,'castle.out');
+  readln(n,s);
+  randomize;
+  for i:=1 to n do
+    begin
+      readln(a[i],k[i]);
+      if k[i]>a[i] then
+        k[i]:=a[i];
+    end;
+  qSort(k,a,1,n);
+  for i:=n downto 1 do
+    begin
+      qq:=a[i] div k[i];
+      if qq>s then
+        qq:=s;
+      dec(a[i],k[i]*qq);
+      dec(s,qq);
+      if s=0 then
+        break;
+    end;
+  if s>0 then
+    begin
+      qSort(a,k,1,n);
+      for i:=n downto 1 do
+        begin
+          if a[i]>0 then
+            qq:=1
+          else
+            qq:=0;
+          if qq=1 then
+            begin
+              dec(a[i],min(a[i],k[i]));
+              dec(s);
+            end;
+          if s=0 then
+            break;
+        end;
+    end;
+  ans:=0;
+  for i:=1 to n do
+    if a[i]>0 then
+      inc(ans,a[i]);
+  writeln(ans);
+end.

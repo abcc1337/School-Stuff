@@ -1,0 +1,59 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <set>
+#include <map>
+#include <cmath>
+#include <algorithm>
+#include <memory.h>
+
+#define rep(i, n) for (decltype(n) i = 0; i < n; i++)
+#define dep(i, n) for (decltype(n) i = n - 1; i >= 0; i--)
+#define FOR(i, a, b) for (decltype(b) i = a; i <= b; i++)
+#define FORD(i, a, b) for (decltype(a) i = a; i >= b; i--)
+#define all(a) a.begin(), a.end()
+#define len(a) (int)a.size()
+using namespace std;
+
+const int maxn = 3010;
+int a[maxn], c[maxn][maxn];
+
+int main()
+{
+	//freopen("video.in", "r", stdin);
+	//freopen("video.out", "w", stdout);
+	int n;
+	cin >> n;
+	a[1] = 1;
+	c[1][1] = 1;
+	int mx = 1;
+	FOR(i, 2, n)
+	{
+		c[i][i] = 1;
+		bool flag = false;
+		FORD(j, i - 1, +max(1, i - mx - 2))
+		{
+			cout << "? " << j << ' ' << i << endl;
+			cin >> c[j][i];
+			if (c[j][i - 1] == 0)
+			{
+				cout << "? " << j << ' ' << i - 1 << endl;
+				cin >> c[j][i - 1];
+			}
+			if (c[j][i] == c[j][i - 1] && !flag)
+			{
+				flag = true;
+				a[i] = a[j];
+				break;
+			}
+		}
+		if (!flag)
+			a[i] = ++mx;
+	}
+	cout << "Ready!" << endl;
+	cout << mx << endl;
+	FOR(i, 1, n)
+		cout << a[i] << ' ';
+	cout << endl;
+	return 0;
+}

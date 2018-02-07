@@ -1,0 +1,49 @@
+def main():
+    n = int(input())
+    A = [0] * n
+    if n == 1:
+        print('Ready!')
+        print(1)
+        print(1)
+    else:
+        c = 1
+        B = [[1] * n for i in range(n)]
+        i = 0
+        A[0] = 1
+        while A.count(0) > 0:
+            print('? ' + str(i + 1) + ' ' + str(i + 2))
+            k = int(input())
+            if k == 1:
+                A[i + 1] = A[i]
+                for j in range(i):
+                    B[j][i + 1] = B[j][i]
+            else:
+                B[i][i + 1] = k
+                l = 0
+                r = i + 1
+                while r - l > 1:
+                    m = (l + r) // 2
+                    print('? ' + str(m) + ' ' + str(i + 2))
+                    k = int(input())
+                    B[m - 1][i + 1] = k
+                    if k == B[m - 1][i]:
+                        l = m
+                    else:
+                        r = m
+                if l == 0 and B[i][i + 1] > B[i][i]:
+                    c += 1
+                    A[i + 1] = c
+                else:
+                    A[i + 1] = A[l - 1]
+                for j in range(i, -1, -1):
+                    if B[j][i + 1] == 1:
+                        B[j][i + 1] = B[j + 1][i + 1]
+                        if B[j][i] != B[j + 1][i] and A[j] != A[i + 1]:
+                            B[j][i + 1] += 1
+            i += 1
+        print('Ready!')
+        print(c)
+        print(*A)
+        
+        
+main()

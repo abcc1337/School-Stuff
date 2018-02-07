@@ -1,0 +1,95 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <algorithm>
+#include <memory.h>
+#define mp make_pair
+using namespace std;
+
+
+typedef long long ll;
+
+const int MAXN = 500010;
+const int C = 1000 * 1000;
+const int INF = 1000 * 1000 * 1000 + 2;
+ll r1[(1 << 21)];
+ll r2[(1 << 21)];
+
+int lv;
+ll rv;
+
+int sc = 0;
+int a[2 * MAXN], b[2 * MAXN];
+int x[C];
+
+
+int main()
+{
+	ios_base::sync_with_stdio(0);
+	freopen("fisher.in", "r", stdin);
+	freopen("fisher.out", "w", stdout);
+	int n, m, p;
+	scanf("%d%d%d", &n, &m, &p);
+	memset(r1, 0, sizeof(r1));
+	memset(r2, 0, sizeof(r2));
+	for (int i = 0; i < n; i++)
+	{
+		scanf("%d%d", x + i, a + i);
+	}
+	for (int i = 0; i < m; i++)
+	{
+		scanf("%d%d%d", x + n +  i, a + n + i, b + n + i);
+	}
+	ll ans = 0;
+	ll fish = 0;
+	int p1 = 0, p2 = n;
+	for (int i = 0; i < n + m; i++)
+	{
+		int v;
+		if ((p1 == n) || ((p2 != n + m) && (x[p2] < x[p1]))) v = p2++;
+		else v = p1++;
+		int dx = x[v];
+		if (v < n) fish += a[v];
+		else
+		{
+			lv = b[v], rv = a[v];
+			ll mlt = (rv * lv);
+			v = 0;
+			int l = 0, r = C;
+			while (l != r)
+			{
+				r1[v] += rv;
+				r2[v] += mlt;
+				int md = (l + r) / 2;
+				if (lv <= md) v = v * 2 + 1, r = md;
+				else v = v * 2 + 2, l = md + 1;
+			}
+			r1[v] += rv;
+			r2[v] += mlt;
+		}
+		ll rs = 0;
+		ll cf = fish;
+		v = 0;
+		int l = 0, r = C;
+		while (l != r)
+		{
+			int md = (l + r) / 2;
+			v = (v + 1) * 2;
+			if (r1[v] > cf)
+			{
+				l = md + 1;
+			}
+			else
+			{
+				cf -= r1[v];
+				rs += r2[v--];
+				r = md;
+			}
+		}
+		rs += min(r1[v], cf) * l;
+		ans = max(ans, rs - (ll)p * (ll)dx);
+	}
+	cout << ans << endl;
+	return 0;
+}

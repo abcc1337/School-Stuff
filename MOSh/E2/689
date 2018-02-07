@@ -1,0 +1,38 @@
+def check(i, j):
+    s = set()
+    u = [1, 1, 2, 2, 1, 2, 2, 1]
+    ans = 0
+    for k in range(i - 1, j):
+        if u[k] in s:
+            pass
+        else:
+            ans += 1
+            s.add(u[k])
+    return ans
+n = int(input())
+a = [-1] * n
+ct = 1
+for i in range(n):
+    if (a[i] == -1):
+        last = 1
+        left = i
+        a[i] = ct
+        for j in range(i + 1, n):
+            print('?', left + 1, j + 1)
+            cur = int(input())
+            #cur = check(left + 1, j + 1)
+            if cur == 1:
+                left = j
+                a[j] = ct
+            elif cur == last:
+                print('?', left + 2, j + 1)
+                cur1 = int(input())
+                #cur1 = check(left + 2, j + 1)
+                if cur1 == cur:
+                    left = j
+                    a[j] = ct
+            last = cur
+        ct += 1
+print('Ready!')
+print(ct - 1)
+print(' '.join(map(str, a)))

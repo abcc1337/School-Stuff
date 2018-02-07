@@ -1,0 +1,155 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <map>
+#include <set>
+
+using namespace std;
+
+vector<int> lst[200009];
+bool usd[200009];
+int p[200009];
+
+void dfs(int v)
+{
+	usd[v] = true;
+	for (int i = 0; i < (int)lst[v].size(); ++i)
+	{
+		int u = lst[v][i];
+		if (!usd[u])
+		{
+			p[u] = v;
+			dfs(u);
+		}
+	}
+}
+
+bool u1x[200009];
+bool u1y[200009];
+bool u2x[200009];
+bool u2y[200009];
+
+vector<int> cnt2x[200009];
+vector<int> cnt2y[200009];
+vector<int> cnt1x[200009];
+vector<int> cnt1y[200009];
+
+int main()
+{
+//program begin
+	freopen("repair.in", "r", stdin);
+	freopen("repair.out", "w", stdout);
+	int a, b;
+	cin >> a >> b;
+	int n, q;
+	cin >> n >> q;
+	map<pair<int, int>, int> mp;
+	vector<pair<int, int> > v;
+	int currid = 0;
+	char c;
+	scanf("%c", &c);
+	for (int i = 0; i < n - 1; ++i)
+	{
+		char ch;
+		int x, y;
+		scanf("%c%d%d", &ch, &x, &y);
+		if (i != n - 2)
+			scanf("%c", &c);
+		if (!mp.count(make_pair(x, y)))
+		{
+			mp[make_pair(x, y)] = currid;
+			++currid;
+			v.push_back(make_pair(x, y));
+		}
+		int x2, y2;
+		if (ch == 'h')
+		{
+			x2 = x + 1;
+			y2 = y;
+		}
+		else
+		{
+			x2 = x;
+			y2 = y + 1;
+		}
+		if (!mp.count(make_pair(x2, y2)))
+		{
+			mp[make_pair(x2, y2)] = currid;
+			++currid;
+			v.push_back(make_pair(x2, y2));
+		}
+		int v1 = mp[make_pair(x, y)];
+		int v2 = mp[make_pair(x2, y2)];
+		lst[v1].push_back(v2);
+		lst[v2].push_back(v1);
+	}
+	p[0] = 0;
+	dfs(0);
+	for (int i = 0; i < (int)v.size(); ++i)
+	{
+		int pv = p[i];
+		int x1, y1;
+		x1 = v[i].first;
+		y1 = v[i].second;
+		int x2, y2;
+		x2 = v[pv].first;
+		y2 = v[pv].second;
+		if (y1 < y2)
+		{
+			cnt2y[y1].push_back(x1);
+		}
+		if (y1 > y2)
+		{
+			cnt1y[y1].push_back(x1);
+		}
+		if (x1 < x2)
+		{
+			cnt2x[x1].push_back(y1);
+		}
+		if (x1 > x2)
+		{
+			cnt1x[x1].push_back(y1);
+		}
+	}
+	for (int i = 0; i < (int)v.size(); ++i)
+	{
+		int x1 = v[i].first;
+		int y1 = v[i].second;
+		if (!u1x[x1])
+		{
+			sort(cnt1x[x1].begin(), cnt1x[x1].end());
+			u1x[x1] = true;
+		}
+		if (!u1y[y1])
+		{
+			sort(cnt1y[y1].begin(), cnt1y[y1].end());
+			u1y[y1] = true;
+		}
+		if (!u2x[x1])
+		{
+			sort(cnt2x[x1].begin(), cnt2x[x1].end());
+			u2x[x1] = true;
+		}
+		if (!u2y[y1])
+		{
+			sort(cnt2y[y1].begin(), cnt2y[y1].end());
+			u2y[y1] = true;
+		}
+	}
+	int x0 = v[0].first;
+	int y0 = v[0].second;
+	for (int i = 0; i < q; ++i)
+	{
+		int x1, y1, x2, y2;
+		scanf("%d%d%d%d", &x1, &y1, &x2, &y2);
+		int ans = 0;
+		if (x0 >= x1 && x0 <= x2 && y0 >= y1 && y0 <= y2)
+			++ans;
+		ans += upper_bound(cnt1x[x1].begin(), cnt1x[x1].end(), y2) - lower_bound(cnt1x[x1].begin(), cnt1x[x1].end(), y1);
+		ans += upper_bound(cnt1y[y1].begin(), cnt1y[y1].end(), x2) - lower_bound(cnt1y[y1].begin(), cnt1y[y1].end(), x1);
+		ans += upper_bound(cnt2x[x2].begin(), cnt2x[x2].end(), y2) - lower_bound(cnt2x[x2].begin(), cnt2x[x2].end(), y1);
+		ans += upper_bound(cnt2y[y2].begin(), cnt2y[y2].end(), x2) - lower_bound(cnt2y[y2].begin(), cnt2y[y2].end(), x1);
+		printf("%d\n", ans);
+	}
+}
+// end.

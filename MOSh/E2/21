@@ -1,0 +1,53 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <utility>
+#include <fstream>
+
+using namespace std;
+
+struct r {
+    long long y, b, c;
+};
+
+vector <pair <long long, long long> > v;
+vector <r> u;
+
+bool cmp1(r a, r b) {
+    return a.c > b.c;
+}
+
+int main()
+{
+    ifstream in;
+    ofstream out;
+    in.open("fisher.in");
+    out.open("fisher.out");
+    long long n, m, p, x, a, y, b, c, su = 0, ans = 0;
+    in >> n >> m >> p;
+    for (long long i = 0; i < n; i++) {
+        in >> x >> a;
+        su += a;
+        v.push_back(make_pair(x, a));
+    }
+    r o;
+    for (long long i = 0; i < m; i++) {
+        in >> y >> b >> c;
+        o.y = y;
+        o.b = b;
+        o.c = c;
+        u.push_back(o);
+    }
+    if (p == 0) {
+        sort(u.begin(), u.end(), cmp1);
+        for (long long i = 0; i < m; i++) {
+            ans += min(u[i].b, su) * u[i].c;
+            su = su - u[i].b;
+            if (su <= 0) {
+                break;
+            }
+        }
+    }
+    out << ans;
+    return 0;
+}

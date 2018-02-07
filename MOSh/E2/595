@@ -1,0 +1,66 @@
+program q;
+type ms=array[0..100000]of record a,k:longint; end;
+var m,a:ms;
+  i,j,k,n,l,s:longint;
+procedure sort(first,last:longint; var m:ms);
+var mid,f,l:longint;
+begin
+   f:=first;
+   l:=last;
+   mid:=m[(f+l) div 2].k;
+   repeat
+      while m[f].k<mid do inc(f);
+      while m[l].k>mid do dec(l);
+      if f<=l
+      then begin
+             m[0]:=m[f];
+             m[f]:=m[l];
+             m[l]:=m[0];
+             dec(l);
+             inc(f)
+           end;
+   until f>l;
+   if first<l
+   then sort(first,l,m);
+   if f<last
+   then sort(f,last,m)
+end;
+begin
+   assign(input,'castle.in'); reset(input);
+   assign(output,'castle.out'); rewrite(output);
+   read(n,s);
+   for i:=1 to n do
+   read(m[i].a,m[i].k);
+   sort(1,n,m);
+   for i:=1 to n do
+   begin
+      a[i].a:=m[i].a mod m[i].k;
+      a[i].k:=a[i].a;
+      m[i].a:=m[i].a-a[i].a
+   end;
+   sort(1,n,a);
+   i:=n;
+   j:=n;
+   while (s>0) and (i+j<>0) do
+   begin
+     if  ((i=0) or (a[j].k>m[i].k))  and (j<>0)
+     then begin
+           dec(s);
+           dec(j)
+         end
+     else   if s<m[i].a div m[i].k
+            then begin
+                    m[i].a:=m[i].a-m[i].k*s;
+                    s:=0
+                  end
+            else begin
+                   s:=s-m[i].a div m[i].k;
+                   dec(i)
+                 end;
+   end;
+   for k:=1 to i do
+   l:=l+m[k].a;
+   for k:=1 to j do
+   l:=l+a[k].a;
+   write(l)
+end.

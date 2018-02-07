@@ -1,0 +1,106 @@
+/* A_Castle */
+
+
+#pragma comment(linker, "/STACK:268435456")
+
+#include <iostream>
+#include <algorithm>
+#include <set>
+#include <map>
+#include <vector>
+#include <list>
+#include <string>
+#include <string.h>
+#include <stdio.h>
+
+using namespace std;
+
+#define FOR(i, s, f) for (int i = (s); i < (f); ++i)
+#define ROF(i, f, s) for (int i = (f) - 1; i >= (s); --i)
+#define forn(i, f) for (int i = 0; i < (f); ++i)
+#define rofn(i, f) for (int i = (f) - 1; i >= 0; --i)
+#define forit(it, x) for (auto it = (x).begin(); it != (x).end(); ++it)
+#define all(x) (x).begin(), (x).end()
+#define sz(x) ((int)(x).size())
+
+typedef long long ll;
+typedef long double ld;
+typedef const int cint;
+typedef const ll cll;
+#define vi vector < int >
+
+#define TASK "castle"
+
+cint N = 1e5 + 3;
+
+int n, s;
+
+struct interval
+{
+	ll a, k, id;
+
+	interval(ll $a, ll $k, ll $id) : a($a), k($k), id($id) {}
+
+	interval() {}
+
+	bool operator < (interval a) const
+	{
+		return k > a.k || k == a.k && this->a > a.a || k == a.k && this->a == a.a && id > a.id;
+	}
+};
+
+set < interval > check;
+//interval inter[N];
+
+int main()
+{
+	freopen(TASK".in", "r", stdin);
+	freopen(TASK".out", "w", stdout);
+
+	cin >> n >> s;
+
+	ll sum = 0;
+	forn(i, n)
+	{
+		interval cur;
+		cin >> cur.a >> cur.k;
+//		if (cur.a < cur.k)
+//			cur.k = cur.a;
+		cur.id = i;
+		check.insert(cur);
+		sum += cur.a;
+	}
+
+//	int iter = 0;
+	while(check.size() > 0 && s > 0 && sum > 0)
+	{
+		auto it = check.begin();
+
+		ll def = it->a / it->k;
+
+		if (def <= s)
+		{
+			sum -= def * it->k;
+			s -= def;
+		}
+		else
+		{
+			sum -= s * it->k;
+			s = 0;
+		}
+
+		ll ost = it->a % it->k;
+		interval tmp = interval(ost, ost, it->id);	
+		check.erase(it);
+		if (ost > 0)
+			check.insert(tmp);
+
+//		++iter;
+	}
+
+	cout << sum << endl;
+
+	fclose(stdin);
+	fclose(stdout);
+	return 0;
+}

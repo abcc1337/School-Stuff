@@ -1,0 +1,81 @@
+#include <stdio.h>
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+struct person
+{
+	int a, b, c;
+};
+
+vector <vector <vector <int> > > q;
+long long res = 0;
+
+void work()
+{
+	for (int i = 0; i < 100; ++i)
+	{
+		vector <int> x(100, 0);
+		int z = 0;
+		for (int j = 0; j < 100; ++j)
+		{
+			vector <int> to_x(100, 0);
+			int to_z = 0;
+			for (int k = 0; k < 100; ++k)
+			{
+				to_x[k] += q[i][j][k];
+				to_z += q[i][j][k];
+				res += (((long long)(z - x[k])) * ((long long)q[i][j][k]));
+			}
+			z += to_z;
+			for (int k = 0; k < 100; ++k)
+				x[k] += to_x[k];
+		}
+	}
+}
+
+int main()
+{
+	freopen("onlyone.in", "r", stdin);
+  freopen("onlyone.out", "w", stdout);
+	
+	int n;
+	scanf("%d", &n);
+	vector <person> p (n);
+	for (int i = 0; i < n; ++i)
+	{
+		int a, b, c;
+		scanf("%d %d %d", &a, &b, &c);
+		--a; --b; --c;
+		p[i].a = a; p[i].b = b; p[i].c = c;
+	}
+
+	res = 0;
+
+	q.assign(100, vector <vector <int> >(100, vector <int>(100, 0)));
+	for (int i = 0; i < n; ++i)
+	{
+		++q[p[i].a][p[i].b][p[i].c];
+	}
+	work();
+
+	q.assign(100, vector <vector <int> >(100, vector <int>(100, 0)));
+	for (int i = 0; i < n; ++i)
+	{
+		++q[p[i].b][p[i].a][p[i].c];
+	}
+	work();
+
+	q.assign(100, vector <vector <int> >(100, vector <int>(100, 0)));
+	for (int i = 0; i < n; ++i)
+	{
+		++q[p[i].c][p[i].a][p[i].b];
+	}
+	work();
+
+	cout << res << endl;
+
+	return 0;
+}

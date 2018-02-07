@@ -1,0 +1,90 @@
+program zad_8;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils, Math;
+var
+  n, i, a, b, l, res, step, k, j : integer;
+  ar, use : array[1 .. 3000] of integer;
+  ar1 : array[1 .. 3000, 1 .. 3000] of integer;
+
+procedure dfs(x : integer; var kol : integer);
+  var
+    i : integer;
+  begin
+    inc(kol);
+    use[x] := 1;
+    for i := 1 to n do
+      if(ar1[x, i] <> 0) and (use[i] = 0) and (ar1[x, i] <= ar[x]) then
+        dfs(i, kol);
+  end;
+
+function get(x : integer):integer;
+  var
+    i, step, kol, res : integer;
+  begin
+    for i := 1 to n do
+      use[i] := 0;
+    kol := 0;
+    res := 0;
+
+    step := 1;
+    for i := 1 to n do begin
+      if(step and x = step) and (use[i] = 0) then begin
+        dfs(i, kol);
+        inc(res);
+      end;
+      step := step * 2;
+    end;
+
+
+    if(kol = n) then
+      get := res
+    else
+      get := maxint;
+  end;
+begin
+  reset(input, 'alarm.in');
+  rewrite(output, 'alarm.out');
+
+  readln(n);
+  for i := 1 to n do
+    read(ar[i]);
+  for i := 1 to n - 1 do begin
+    readln(a, b, l);
+    ar1[a, b] := l;
+    ar1[b, a] := l;
+  end;
+  
+  for k := 1 to n do
+    for i := 1 to n do
+      for j := 1 to n do
+        if (i <> j) and (ar1[i, k] > 0) and (ar1[k, j] > 0) and ((ar1[i, j] = 0) or (ar1[i, j] > ar1[i, k] + ar1[k, j])) then
+          ar1[i, j] := ar1[i, k] + ar1[k, j];
+
+
+  res := n;
+  step := 1;
+  for i := 1 to n - 1 do
+    step := step * 2;
+
+
+  for i := 1 to step - 1 do
+    res := min(res, get(i));
+
+  writeln(res);
+  readln(n);
+end.
+
+10
+1 2 2 2 6 3 4 5 4 3
+1 2 5
+2 3 1
+2 4 5
+4 5 2
+4 6 4
+4 7 3
+1 8 1
+8 9 5
+8 10 4

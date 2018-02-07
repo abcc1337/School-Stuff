@@ -1,0 +1,81 @@
+program Project1;
+
+{$APPTYPE CONSOLE}
+{$O-}
+uses
+  SysUtils,
+  Math;
+type mt1=record
+  x,y:longint;
+end;
+mt2=record
+  l,r:longint;
+end;
+var a:array[0..100001]of mt1;b,c:array[0..1000000]of mt2;j1,j2,q,n,k,i,w,e,j:longint;sum,ans:int64;
+begin
+  assign(input,'monument.in');
+  assign(output,'monument.out');//}
+  read(n,k);
+  for i:=1 to n do
+    read(a[i].x,a[i].y);
+  a[n+1]:=a[1];
+  for i:=0 to 1000000 do
+  begin
+    c[i].l:=1000001;
+    c[i].r:=-1;
+  end;
+  for i:=1 to n do
+  begin
+    if a[i].x=a[i+1].x then
+      for j:=min(a[i].y,a[i+1].y) to max(a[i].y,a[i+1].y)do
+      begin
+        if c[j].r=-1 then
+          c[j].r:=a[i].x
+        else
+        begin
+          c[j].l:=min(c[j].l,min(c[j].r,a[i].x));
+          c[j].r:=max(c[j].r,a[i].x);
+        end;
+      end
+    else
+    begin
+      c[a[i].y].l:=min(a[i].x,min(a[i+1].x,c[a[i].y].l));
+      c[a[i].y].r:=max(a[i].x,max(a[i+1].x,c[a[i].y].r));
+    end;
+  end;
+  for i:=0 to 1000000 do
+    if c[i].r<>-1 then
+    begin
+      j1:=i;
+      break;
+    end;
+  for i:=j1 to 1000000 do
+    if c[i].r=-1 then
+    begin
+      j2:=i-1;
+      break;
+    end;
+  j2:=j2-1;
+  for i:=j1 to j2 do
+  begin
+    c[i].l:=max(c[i].l,c[i+1].l)-i;
+    c[i].r:=min(c[i].r,c[i+1].r)-i;
+    q:=(k+ c[i].l mod k)mod k;
+    c[i].r:=c[i].r-c[i].l+q+k;
+    c[i].l:=q+k;
+  end;
+  ans:=10000000000000;
+  for q:=0 to k-1 do
+  begin
+    sum:=0;
+    for i:=j1 to j2 do
+    begin
+      w:=(c[i].l-q)div k;
+      e:=(c[i].r-q+k-1)div k;
+      inc(sum,e-w);
+    end;
+    ans:=min(ans,sum);
+  end;
+  writeln(ans);
+  readln;readln;
+end.

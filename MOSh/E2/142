@@ -1,0 +1,169 @@
+
+#include <iostream>
+#include <cstdio>
+#include <cmath>
+#include <vector>
+#include <algorithm>
+#include <queue>
+
+using namespace std;
+
+typedef long long LL;
+
+const LL INF = 1e9;
+
+int p[3001][3001];
+
+int n;
+
+vector <int> d;
+
+int g[17][17] ;
+
+vector <vector <int> > gr;
+
+vector <char> glob_used;
+
+
+void bfs(int s)
+{
+	vector <char> used(n, 0);
+	queue<int> q;
+	q.push(s);
+	used[s] = 1;
+	while (!q.empty())
+	{
+		int u = q.front();
+		q.pop();
+		for (int i = 0; i < n; i++)
+		{
+			if (g[u][i] > 0 && g[u][i] != INF)
+			if (!used[i])
+			{
+				used[i] = 1;
+				q.push(i);
+			}
+		}
+	}
+}
+
+/*
+10
+1 2 2 2 6 3 4 5 4 3
+1 2 5
+2 3 1
+2 4 5
+4 5 2
+4 6 4
+4 7 3
+1 8 1
+8 9 5
+8 10 4
+*/
+int main()
+{
+	freopen("alarm.in", "r", stdin);
+	freopen("alarm.out", "w", stdout);
+	cin >> n;
+	gr.resize(n);
+	for (int i = 0; i < n; i++)
+	{
+		int a;
+		cin >> a;
+		d.push_back(a);
+	}
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			g[i][j] = INF;
+		}
+		g[i][i] = 0;
+	}
+	for (int i = 0; i < n - 1; i++)
+	{
+		int a, b, c;
+		cin >> a >> b >> c;
+		a--;
+		b--;
+		g[a][b] = c;
+		g[b][a] = c;
+	}
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			if (i == j)
+				p[i][j] = 0;
+			else
+				p[i][j] = INF;
+		}
+	}
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			for (int k = 0; k < n; k++)
+			{
+				p[i][j] = min(p[i][j], p[i][k] + g[j][k]);
+			}
+		}
+	}
+/*	for (int i = 0; i < n; i++)
+	{
+		bfs(i);
+	}
+	*/
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			if (d[i] >= p[i][j] && i != j)
+			{
+				gr[i].push_back(j);
+			}
+		}
+	}
+	int ans = 100;
+	int max_C = 1 << n;
+	int cur_ans;
+	for (int i = 1; i < max_C; i++)
+	{
+		cur_ans = 0;
+		int c = i;
+		vector <int> used(n, 0);
+		for (int j = 0; j < n; j++)
+		{
+			if (c % 2 == 1)
+			{
+				cur_ans++;
+				used[j] = 1;
+				for (int k = 0; k < (int)gr[j].size(); k++)
+				{
+					used[gr[j][k]] = 1;
+				}
+			}
+			c /= 2;
+		}
+		bool ok = true;
+		for (int j = 0; j < n; j++)
+		{
+			if (!used[j])
+			{
+				ok = false;
+				break;
+			}
+		}
+		if (ok)
+		{
+			if (cur_ans < ans)
+			{
+				ans = min(ans, cur_ans);
+				//cout << i << endl;
+			}
+		}
+	}
+	cout << ans << endl;
+	//for (;;);
+	return 0;
+}

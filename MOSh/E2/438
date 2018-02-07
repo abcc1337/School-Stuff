@@ -1,0 +1,71 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+const int MAXN = 300001;
+int d[MAXN];
+vector <pair <int, int> > e[MAXN];
+int t[MAXN];
+
+int ans = 1;
+void dfs1(int v, int p)
+{
+	t[v] = d[v];
+	int out = 0;
+	for (int i = 0; i < e[v].size(); i++)
+	{
+		int u = e[v][i].first;
+		if (u == p)
+		{
+			out = e[v][i].second;
+			continue;
+		}
+		dfs1(u, v);
+		t[v] = max(t[v], t[u]);
+	}
+	t[v] = max(t[v] - out, -1);
+}
+
+void dfs2(int v, int p, int up)
+{
+	up = max(up, -1);
+	if ((t[v] == -1) && (up == -1)) ans++;
+	int u1 = max(d[v], up), u2 = max(d[v], up);
+	for (int i = 0; i < e[v].size(); i++)
+	{
+		int u = e[v][i].first;
+		if (u == p) continue;
+		u2 = max(u2, t[u]);
+		if (u2 > u1) swap(u1, u2);
+	}
+	for (int i = 0; i < e[v].size(); i++)
+	{
+		int u = e[v][i].first;
+		if (u == p) continue;
+		if (t[u] == u1) dfs2(u, v,  u2 - e[v][i].second);
+		else dfs2(u, v,  u1 - e[v][i].second);
+	}
+}
+
+int main()
+{
+	freopen("alarm.in", "r", stdin);
+	freopen("alarm.out", "w", stdout);
+	int n;
+	cin >> n;
+	for (int i = 1; i <= n; i++) cin >> d[i];
+	for (int i = 1; i < n; i++)
+	{
+		int u, v, l;
+		cin >> u >> v >> l;
+		e[u].push_back(make_pair(v, l));
+		e[v].push_back(make_pair(u, l));
+	}
+	dfs1(1, 1);
+	dfs2(1, 1, -1);
+	cout << ans << endl;
+	return 0;
+}

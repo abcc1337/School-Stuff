@@ -1,0 +1,172 @@
+#include <bits/stdc++.h>
+
+#define vec vector
+#define forn(i, n) for (int i = 0; i < n; i++)
+#define mp make_pair
+#define YY second
+#define XX first
+#define vec vector
+#define pb push_back
+#define ll long long
+#define all(a) a.begin(), a.end()
+
+using namespace std;
+
+const bool is_testing = 0;
+
+ll n, m, p;
+vec < pair<ll, ll> > a;
+vec < pair< pair<ll, ll>, ll > > b;
+
+struct place
+{
+    ll cost, x, kol;
+    place()
+    {
+        cost = 0;
+        x = 0;
+        kol = 0;
+    }
+    place(ll x1, ll cost1, ll kol1)
+    {
+        x = x1;
+        cost = cost1;
+        kol = kol1;
+    }
+};
+
+int main()
+{
+    freopen("fisher.in", "r", stdin);
+    freopen("fisher.out", "w", stdout);
+    if (is_testing)
+    {
+        freopen("input.txt", "r", stdin);
+        //freopen("output.txt", "w", stdout);
+    }
+    cin >> n >> m >> p;
+    a.resize(n);
+    b.resize(m);
+    forn(i, n)
+        cin >> a[i].XX >> a[i].YY;
+    forn(i, m)
+        cin >> b[i].YY >> b[i].XX.YY >> b[i].XX.XX;
+    if (p == 0)
+    {
+        ll k1 = 0, ans = 0;
+        forn(i, n)
+            k1 += (ll)a[i].YY;
+        sort(all(b));
+        reverse(all(b));
+        forn(i, m)
+        {
+            if (k1 >= b[i].XX.YY)
+            {
+                ans += (ll)b[i].XX.YY * (ll)b[i].XX.XX;
+                k1 -= b[i].XX.YY;
+            }
+            else
+            {
+                ans += (ll)b[i].XX.XX * (ll)k1;
+                k1 = 0;
+                break;
+            }
+        }
+
+        cout << ans;
+        exit(0);
+    }
+    if (b[m - 1].YY < a[0].XX)
+    {
+        ll ans = 0, op = 0, sum = 0, uk = 0;
+        sort(all(b));
+        reverse(all(b));
+        forn(i, n)
+        if (uk < m)
+        {
+            ll d = a[i].YY;
+            while(true)
+            {
+                if (b[uk].XX.YY - op > d)
+                {
+                    sum += d * b[uk].XX.XX;
+                    ans = max(ans, sum - p * a[i].XX);
+                    op += d;
+                    break;
+                }
+                else
+                {
+                    ll q = b[uk].XX.YY - op;
+                    sum += b[uk].XX.XX * q;
+                    d -= q;
+                    op = 0;
+                    //cout << sum << ' ' << p * a[i].XX << endl;
+                    ans = max(ans, sum - p * a[i].XX);
+                    //cout << ans << endl;
+                    uk++;
+                    if (uk >= m)
+                        break;
+                }
+                //cout << sum << endl;
+            }
+        }
+        cout << ans;
+    }
+    else
+    {
+        ll ryb = 0, sum = 0, ans = 0;
+        forn(i, n)
+            ryb += (ll)a[i].YY;
+        vec<place> q;
+        forn(i, m)
+            q.pb(place(b[i].YY, b[i].XX.XX, b[i].XX.YY));
+        multiset < pair<ll, ll> > se;
+        forn(i, m)
+        {
+            if (ryb > q[i].kol)
+            {
+                sum += (ll)q[i].kol * (ll)q[i].cost;
+                ryb -= q[i].kol;
+                ans = max(ans, (ll)sum - (ll)p * (ll)q[i].x);
+                se.insert(mp(q[i].cost, q[i].kol));
+            }
+            else
+            {
+                sum += (ll)ryb * (ll)q[i].cost;
+                ans = max(ans, (ll)sum - (ll)p * (ll)q[i].x);
+                ll d = q[i].kol - ryb;
+                while(true)
+                {
+                    if (d == 0)
+                        break;
+                    if (se.size() == 0)
+                        break;
+                    pair<ll, ll> t = *se.begin();
+                    if (t.XX >= q[i].cost)
+                        break;
+                    se.erase(se.find(t));
+                    if (t.YY <= d)
+                    {
+                        sum -= (ll)t.YY * (ll)t.XX;
+                        sum += (ll)t.YY * (ll)q[i].cost;
+                        ans = max(ans, (ll)sum - (ll)p * (ll)q[i].x);
+                        d -= t.YY;
+                    }
+                    else
+                    {
+                        sum -= (ll)d * (ll)t.XX;
+                        sum += (ll)d * (ll)q[i].cost;
+                        ans = max(ans, (ll)sum - (ll)p * (ll)q[i].x);
+                        t.YY -= d;
+                        se.insert(t);
+                        break;
+                    }
+                }
+                ryb = 0;
+                se.insert(mp(q[i].cost, q[i].kol - d));
+            }
+            //cout << ans << endl;
+        }
+        cout << ans;
+    }
+}

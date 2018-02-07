@@ -1,0 +1,205 @@
+#include <bits/stdc++.h>
+
+#define TASK "robots"
+using namespace std;
+typedef int ll;
+typedef long double ld;
+const ll inf = numeric_limits<ll>::max();
+const ll mod = 1000000007;
+const ld eps = 1e-7;
+const ll maxn = 123456;
+
+ll n, m, g;
+char mas[1234][1234];
+vector<pair<ll, ll> > tps;
+bool used[1234][1234];
+ll howfar[1234][1234];
+
+void deused()
+{
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            used[i][j] = false;
+        }
+    }
+}
+
+bool check(ll i, ll j, char c)
+{
+    if (i >= 0 && j >= 0 && i < n && j < m && toupper(mas[i][j]) == toupper(c))return true;
+    return false;
+}
+
+void topsort(ll i, ll j)
+{
+    if (used[i][j])return;
+    used[i][j] = true;
+    if (check(i, j, 'S'))topsort(i + 1, j);
+    if (check(i, j, 'N'))topsort(i - 1, j);
+    if (check(i, j, 'E'))topsort(i, j + 1);
+    if (check(i, j, 'W'))topsort(i, j - 1);
+    tps.push_back(make_pair(i, j));
+}
+
+ll colors = 0;
+ll color[1234][1234];
+ll colorcnt[5234567];
+ll colorgoodcnt[5234567];
+vector<pair<ll, ll> > colorgoodv[5234567];
+vector<set<ll>> coloredges;
+vector<set<ll>> colorpedges;
+
+void helpdfs(ll i, ll j, ll len)
+{
+    if (used[i][j])return;
+    used[i][j] = true;
+    howfar[i][j] = len;
+    if (check(i - 1, j, 'S'))helpdfs(i - 1, j, len + 1);
+    if (check(i + 1, j, 'N'))helpdfs(i + 1, j, len + 1);
+    if (check(i, j - 1, 'E'))helpdfs(i, j - 1, len + 1);
+    if (check(i, j + 1, 'W'))helpdfs(i, j + 1, len + 1);
+}
+
+void dfs(ll i, ll j)
+{
+    if (used[i][j])return;
+    used[i][j] = true;
+    color[i][j] = colors;
+    colorcnt[colors]++;
+    if (mas[i][j] == toupper(mas[i][j]))
+    {
+        colorgoodcnt[colors]++;
+        colorgoodv[colors].push_back(make_pair(i, j));
+    }
+    if (check(i - 1, j, 'S'))dfs(i - 1, j);
+    if (check(i + 1, j, 'N'))dfs(i + 1, j);
+    if (check(i, j - 1, 'E'))dfs(i, j - 1);
+    if (check(i, j + 1, 'W'))dfs(i, j + 1);
+}
+
+ll maxcnt;
+ll nowtime = 0;
+ll nowcnt = 0;
+vector<pair<pair<ll, ll>, ll> > realans;
+
+void getcnt(ll v)
+{
+    if (nowcnt >= maxcnt)return;
+    for (auto i = colorgoodv[v].begin(); i != colorgoodv[v].end() && nowcnt < maxcnt; i++)
+    {
+        realans.push_back(make_pair(make_pair(i->first, i->second),
+                                    nowtime + (howfar[i->first][i->second] - nowcnt) + colorcnt[v]));
+        nowcnt++;
+        nowtime += 1 * colorcnt[v];
+        nowtime = nowtime + colorcnt[v] - (nowtime % colorcnt[v]);
+    }
+    for (auto i : colorpedges[v])
+    {
+        nowtime += 1 * colorcnt[v];
+        getcnt(i);
+    }
+    return;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+#ifdef DEBUG
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#else
+    if(strcmp(TASK,"")!=0)
+    {
+        freopen(TASK".in","r",stdin);
+        freopen(TASK".out","w",stdout);
+    }
+#endif
+    cin >> n >> m >> g;
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            cin >> mas[i][j];
+        }
+    }
+    deused();
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            if (!used[i][j])
+                topsort(i, j);
+        }
+    }
+    reverse(tps.begin(), tps.end());
+    deused();
+    colors = 1;
+    for (int i = 0; i < tps.size(); i++)
+    {
+        if (!used[tps[i].first][tps[i].second])
+        {
+            dfs(tps[i].first, tps[i].second);
+            colors++;
+        }
+    }
+    coloredges.resize(colors);
+    colorpedges.resize(colors);
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            if (check(i, j, 'S')) if (color[i][j] != color[i + 1][j])
+            {
+                coloredges[color[i][j]].insert(color[i + 1][j]);
+                colorpedges[color[i + 1][j]].insert(color[i][j]);
+            }
+            if (check(i, j, 'N')) if (color[i][j] != color[i - 1][j])
+            {
+                coloredges[color[i][j]].insert(color[i - 1][j]);
+                colorpedges[color[i - 1][j]].insert(color[i][j]);
+            }
+            if (check(i, j, 'E')) if (color[i][j] != color[i][j + 1])
+            {
+                coloredges[color[i][j]].insert(color[i][j + 1]);
+                colorpedges[color[i][j + 1]].insert(color[i][j]);
+            }
+            if (check(i, j, 'W')) if (color[i][j] != color[i][j - 1])
+            {
+                coloredges[color[i][j]].insert(color[i][j - 1]);
+                colorpedges[color[i][j - 1]].insert(color[i][j]);
+            }
+        }
+    }
+
+    deused();
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            if (colorcnt[color[i][j]] != 1 && !used[i][j])
+            {
+                helpdfs(i, j, 0);
+            }
+        }
+    }
+    for (int i = 1; i < colors; i++)
+    {
+        if (coloredges[i].empty())
+        {
+            nowtime = 0;
+            maxcnt = colorcnt[i];
+            nowcnt = 0;
+            getcnt(i);
+        }
+    }
+    cout << realans.size() << endl;
+    if (g == 1)
+        for (auto i : realans)
+        {
+            cout << i.first.first + 1 << " " << i.first.second + 1 << " " << i.second << endl;
+        }
+    return 0;
+}

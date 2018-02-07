@@ -1,0 +1,65 @@
+program Project2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+var n,i,t,q,w,e:longint;
+function maxtwo(n:longint):longint;
+begin
+  if n<2 then result:=1 else result:=maxtwo(n div 2)*2;
+end;
+function twost(n:longint):boolean;
+begin
+  result:=true;
+  if n<2 then exit;
+  if n mod 2 = 1 then result:=false else result:=twost(n div 2);
+end;
+procedure findans(n:longint;var q,w,e:longint);
+var x:longint;
+begin
+  if n = 4 then
+  begin
+    q:=0;
+    w:=2;
+    e:=2;
+    exit;
+  end;
+  if n mod 3 = 0 then
+  begin
+    q:=n div 3;
+    w:=q;
+    e:=w;
+    exit;
+  end;
+  if n div 3 = 0 then
+  begin
+    q:=0;
+    w:=0;
+    e:=n mod 3;
+    exit;
+  end;
+  x:=maxtwo(n div 3);
+  if not(twost(n div 3 + 1)) then
+  begin
+    findans(n-x*3,q,w,e);
+    inc(q,x);
+    inc(w,x);
+    inc(e,x);
+    exit;
+  end;
+  findans(n-x*2,q,w,e);
+  e:=e+x*2;
+end;
+begin
+  assign(input,'grants.in');
+  assign(output,'grants.out');//}
+  read(t);
+  for i:=1 to t do
+  begin
+    read(n);
+    findans(n,q,w,e);
+    writeln(q,' ',w,' ',e);
+  end;
+  readln;readln;
+end.

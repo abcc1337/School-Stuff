@@ -1,0 +1,96 @@
+program N2a;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+  var k,i,w,h,j,y1,x1,x2,y2,y4,y3,x3,x4,qw,max:longint;
+      c:array [1..100] of longint;
+      s:array [1..100] of string;
+      a1:array [1..100,1..100] of string;
+      a:array [1..100,1..100] of longint;
+   procedure long;
+    begin
+      for i:=1 to h do
+       for j:=1 to w do
+        begin
+         if a1[i,j]='a' then a[i,j]:=c[1];
+         if a1[i,j]='b' then a[i,j]:=c[2];
+         if a1[i,j]='c' then a[i,j]:=c[3];
+         if a1[i,j]='d' then a[i,j]:=c[4];
+         if a1[i,j]='e' then a[i,j]:=c[5];
+         if a1[i,j]='f' then a[i,j]:=c[6];
+         if a1[i,j]='g' then a[i,j]:=c[7];
+         if a1[i,j]='h' then a[i,j]:=c[8];
+         if a1[i,j]='i' then a[i,j]:=c[9];
+         if a1[i,j]='j' then a[i,j]:=c[10];
+         if a1[i,j]='k' then a[i,j]:=c[11];
+         if a1[i,j]='l' then a[i,j]:=c[12];
+         if a1[i,j]='m' then a[i,j]:=c[13];
+         if a1[i,j]='n' then a[i,j]:=c[14];
+         if a1[i,j]='o' then a[i,j]:=c[15];
+         if a1[i,j]='p' then a[i,j]:=c[16];
+         if a1[i,j]='q' then a[i,j]:=c[17];
+         if a1[i,j]='r' then a[i,j]:=c[18];
+         if a1[i,j]='s' then a[i,j]:=c[19];
+         if a1[i,j]='t' then a[i,j]:=c[20];
+         if a1[i,j]='u' then a[i,j]:=c[21];
+         if a1[i,j]='v' then a[i,j]:=c[22];
+         if a1[i,j]='w' then a[i,j]:=c[23];
+         if a1[i,j]='x' then a[i,j]:=c[24];
+         if a1[i,j]='y' then a[i,j]:=c[25];
+         if a1[i,j]='z' then a[i,j]:=c[26];
+        end;
+    end;
+    procedure dq;
+     var i,j:longint;
+     begin
+      for i:=x1 to x2 do
+       qw:=qw+a[y1,i];
+      for i:=y2 to y1-1 do
+       qw:=qw+a[i,x3];
+      for i:=y4 to y3 do
+       qw:=qw+a[i,x4];
+      qw:=qw-a[y1,x4];   
+
+     end;
+
+begin
+  assign(input,'submarine.in');
+  reset(input);
+  readln(k);
+  for i:=1 to k do
+   begin
+   read(c[i]);
+   end;
+  readln(h,w);
+  for i:=1 to h do
+   readln(s[i]);
+  close(input);
+  for i:=1 to h do
+   for j:=1 to w do
+    a1[i,j]:=s[i][j];
+   
+   long;
+   qw:=0;
+   max:=-100000;
+   for x1:=1 to w-1 do
+    for x2:=x1+1 to w do
+     for y1:=1 to h do
+      for y2:=y1  downto 1 do
+       for y4:=y1 downto 1 do
+        for y3:=y1 to h do
+         for x3:=x1 to x2-1 do
+          for x4:=x3+1 to x2 do
+           begin
+             qw:=0;
+             dq;
+             if qw>max then max:=qw;
+
+           end;
+
+          assign(output,'submarine.out');
+          rewrite(output);
+          writeln(max);
+        close(output);
+end.

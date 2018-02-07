@@ -1,0 +1,190 @@
+#include <iostream>
+#include <vector>
+#include <map>
+#include <set>
+#include <cstdio>
+//#define int long long int
+
+
+using namespace std;
+
+int N, M, U, Q;
+
+vector<int> T;
+
+
+void change(int i, int l, int r, int pos, int x)
+{
+    if (l == r)
+    {
+        T[i] += x;
+        return;
+    }
+    int m = (l + r) / 2;
+    if (pos <= m)
+    {
+        change(2*i+1, l, m, pos, x);
+    }
+    else
+    {
+        change(2*i+2, m+1, r, pos, x);
+    }
+    T[i] = T[2*i+1] + T[2*i+2];
+}
+
+int get(int i, int l, int r, int L, int R)
+{
+
+    if (L<= l and r <= R)
+    {
+        return T[i];
+    }
+    int m = (r+l)/2;
+    if (R <= m)
+    {
+        return get(2*i+1, l, m, L, R);
+    }
+    if (L > m)
+    {
+        return get(2*i+2, m+1, r, L, R);
+    }
+    int a = get(2*i+1, l, m, L, m);
+    int b = get(2*i+2, m+1, r, m+1, R);
+    return a+b;
+}
+
+vector<int> Have;
+
+void f(int N, int M, vector<vector<pair<int, pair<int, int> > > > &All, vector<vector<int> >&X)
+{
+    T.assign(4*M, 0);
+    ////cout<<N<<' '<<M<<endl;
+    for(int i = 0; i < N; ++ i)
+    {
+        ////cout<<i<<endl;
+        for(auto z:All[i])
+        {
+            int ind = z.first;
+            int l = z.second.first;
+            int r = z.second.second;
+            ////cout<<ind<<' '<<l<<' '<<r<<endl;
+            if (ind < 0 && l<=r)
+            {
+                ////cout<<ind<<' '<<l<<' '<<r<<endl;
+                Have[-ind] -= get(0, 0, M-1, l, r);
+                ////cout<<get(0, 0, M-1, l, r)<<endl;
+
+            }
+
+        }
+        ////cout<<"AAA"<<endl;
+        for(auto y:X[i])
+        {
+            ////cout<<y<<' ';
+            change(0, 0, M-1, y, 1);
+        }
+        ////cout<<"LOL"<<endl;
+        for(auto z:All[i])
+        {
+            int ind = z.first;
+            int l = z.second.first;
+            int r = z.second.second;
+            if (ind > 0  && l<=r)
+            {
+                ////cout<<ind<<' '<<l<<' '<<r<<endl;
+                Have[ind] += get(0, 0, M-1, l, r);
+                ////cout<<get(0, 0, M-1, l, r)<<endl;
+            }
+        }
+    }
+    for(int i = 0; i < Q+1; ++ i)
+    {
+        ////cout<<Have[i]<<' ';
+    }
+}
+
+main()
+{
+    freopen("repair.in", "r", stdin);
+    freopen("repair.out", "w", stdout);
+    cin>>N>>M>>U>>Q;
+    vector<vector<int> > X(N);
+    vector<vector<int> > X1(N);
+    vector<vector<int> > X2(M);
+    set<pair<int, int> > Point;
+    for(int r = 0; r < U- 1; ++ r)
+    {
+        char z;
+        int a, b;
+        cin>>z>> a>>b;
+        ////cout<<z<<' '<<a<<' '<<b<<endl;
+        a--;
+        b--;
+        if (z == 'h')
+        {
+            if (!Point.count(make_pair(a, b)))
+            {
+                ////cout<<"LO"<<endl;
+                Point.insert(make_pair(a, b));
+                X[a].push_back(b);
+                ////cout<<"L"<<endl;
+            }
+            if (!Point.count(make_pair(a+1, b)))
+            {
+                Point.insert(make_pair(a+1, b));
+                X[a+1].push_back(b);
+            }
+            X2[b].push_back(a);
+            ////cout<<"I"<<endl;
+        }
+        else
+        {
+            if (!Point.count(make_pair(a, b)))
+            {
+                Point.insert(make_pair(a, b));
+                X[a].push_back(b);
+            }
+            if (!Point.count(make_pair(a, b+1)))
+            {
+                Point.insert(make_pair(a, b+1));
+                X[a].push_back(b+1);
+            }
+            X1[a].push_back(b);
+        }
+    }
+    ////cout<<"LOL"<<endl;
+    vector<vector<pair<int, pair<int, int> > > > S(N);
+    vector<vector<pair<int, pair<int, int> > > > S1(N);
+    vector<vector<pair<int, pair<int, int> > > > S2(M);
+    Have.resize(Q+1);
+    for(int u = 1; u < Q+1; ++ u)
+    {
+        int x1; int y1; int x2; int y2;
+        cin>>x1>>y1>>x2>>y2;
+        x1--;
+        x2--;
+        y1--;
+        y2--;
+        S[x1].push_back(make_pair(-u, make_pair(y1, y2)));
+        S[x2].push_back(make_pair(u, make_pair(y1, y2)));
+        S1[x1].push_back(make_pair(-u, make_pair(y1, y2-1)));
+        S1[x2].push_back(make_pair(u, make_pair(y1, y2-1)));
+        S2[y1].push_back(make_pair(-u, make_pair(x1, x2-1)));
+        S2[y2].push_back(make_pair(u, make_pair(x1, x2-1)));
+    }
+    f(N, M, S, X);
+    for(int i = 0; i < Q+1; ++ i)
+    {
+        Have[i] = -Have[i];
+    }
+    f(N, M, S1, X1);
+    f(M, N, S2, X2);
+    for(int i = 1; i < Q+1; ++ i)
+    {
+        cout<<-Have[i]<<endl;
+    }
+
+
+
+
+}

@@ -1,0 +1,86 @@
+{$o-}
+var
+  a, up, down: array[1 .. 100000, 0 .. 1000] of longint;
+  f: array[1 .. 1000000] of longint;
+  n, q, i, j, z, l, r, c, curr: longint;
+  ans: int64;
+  x: char;
+begin
+  assign(input, 'lamps.in');
+  assign(output, 'lamps.out');
+  reset(input);
+  rewrite(output);
+  readln(n, q);
+  for i := 1 to n do
+    begin
+      read(x);
+      if x = '1' then
+        begin
+          a[0][i] := 1;
+          f[i] := 1;
+        end
+      else
+        begin
+          a[0][i] := 0;
+          f[i] := 0;
+        end;
+    end;
+  for i := 1 to q do
+    begin
+      read(l, r, c);
+      for j := 1 to n do
+        begin
+          a[i][j] := a[i - 1][j];
+          up[i][j] := j;
+          down[i][j] := j;
+        end;
+      for j := l to r do
+        a[i][j] := c;
+    end;
+  for i := 1 to n do
+    up[0][i] := i;
+  for i := 0 to q do
+    begin
+      if i <> 0 then for j := 1 to n do
+        up[i][j] := up[i - 1][j];
+      for j := 1 to n do
+        if a[i][j] = 1 then
+          begin
+            curr := j;
+            while a[i][curr] = 1 do
+              begin
+                f[curr] := 1;
+                inc(curr);
+              end;
+            dec(curr);
+            for z := j to curr do
+              begin
+                if curr > up[i][z] then
+                  up[i][z] := curr;
+                a[i][z] := 0;
+              end;
+          end;
+      ans := 0;
+      {if i > 0 then}
+        for j := 1 to n do
+          if f[j] = 1 then
+            inc(ans, up[i][j] - j + 1);
+      writeln(ans);
+    end;
+
+
+  {for i := 1 to n do
+    begin
+      for j := 1 to q  do
+        write(a[j][i]: 2);
+      writeln;
+    end;
+  writeln();
+  for i := 1 to n do
+    begin
+      for j := 1 to q  do
+        write(up[j][i]: 2);
+      writeln;
+    end;
+  writeln();}
+end.

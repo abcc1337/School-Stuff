@@ -1,0 +1,52 @@
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#define ll long long int
+using namespace std;
+
+void gen() {
+	freopen("grants.in", "wt", stdout);
+	cout << 100 << endl;
+	for (ll i = 1700000000000000000; i <= 1700000000000000100; i++)
+		cout << i << endl;
+}
+
+int main() {
+	//gen(); return 0;
+
+	freopen("grants.in", "rt", stdin);
+	freopen("grants.out", "wt", stdout);
+
+	int t;
+	cin >> t;
+
+	ll mini = 1000000, maxi = -1000000;
+
+	for (int i = 0; i < t; i++) {
+		ll n, aa = 0, bb = 0, cc = 0, maxi = 0;
+
+		cin >> n;
+		ll tmp = n;
+
+		ll d = min(n, n / 3 + 1000000);
+		d /= 2LL;
+		d *= 2LL;
+		for (; d >= max(0LL, n / 3 - 1000000); d -= 2) {
+			ll y = (n - d) / 2;
+			ll z = y;
+
+			if ((z & d) >= maxi) {
+				maxi = (z & d);
+				aa = z;
+				bb = y;
+				cc = d;
+
+				//if(z < n / 3) break;
+			}
+		}
+
+		cout << aa << " " << bb << " " << cc << endl;
+	}
+
+	//cout << "\n\n\n" << mini << " " << maxi;
+}

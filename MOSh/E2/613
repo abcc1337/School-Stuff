@@ -1,0 +1,87 @@
+program Z6;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+  var n,i,j,p,o:longint;
+      a,k,l,l1,q,q1:array [1..3000] of longint;
+  procedure qsort(l,r:longint);
+   var i,j,p,f:longint;
+    begin
+      i:=l;
+      j:=r;
+      f:=l1[(i+j) div 2];
+       while i<j do
+        begin
+          while l1[i]<f do i:=i+1;
+          while l1[j]>f do j:=j-1;
+           if i<=j then
+            begin
+               p:=q1[i];
+               q1[i]:=q1[j];
+               q1[j]:=p;
+               p:=l1[i];
+               l1[i]:=l1[j];
+               l1[j]:=p;
+               i:=i+1;
+               j:=j-1;
+            end;
+        end;
+       if l<j then qsort(l,j);
+       if r>i then qsort(i,r);
+    end;
+begin
+  readln(n);
+  a[1]:=1;
+  k[1]:=1;
+  l[1]:=1;
+  for i:=1 to n do
+    q[i]:=i;
+  for i:=2 to n do
+    a[i]:=0;
+  for i:=2 to n do
+   begin
+     writeln('? 1 ',i);
+     flush(output);
+     readln(k[i]);
+     if k[i]>k[i-1] then
+      begin
+       a[i]:=k[i];
+       l[a[i]]:=i;
+      end;
+
+     if a[i]=0 then
+      begin
+        l1:=l;
+        q1:=q;
+        qsort(1,k[i]);
+        for j:=k[i] downto 1 do
+         begin
+          if j<>1 then
+           begin
+           writeln('? ',l1[j],' ',i);
+           flush(output);
+           readln(o);
+           if o=k[i]-j+1 then
+            begin
+             a[i]:=q1[j];
+             l[a[i]]:=i;
+             break;
+            end;
+          end
+           else
+            begin
+              a[i]:=q1[1];
+              l[a[i]]:=i;
+            end;
+         end;
+      end;
+
+   end;
+   writeln('Ready!');
+   writeln(k[n]);
+    for i:=1 to n do
+     write(a[i],' ');
+    
+end.

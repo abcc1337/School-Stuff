@@ -1,0 +1,106 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <cstdio>
+#include <algorithm>
+using namespace std;
+
+typedef long long lng;
+int n, m, p;
+lng tree[2000100];
+lng trcn[2000100];
+
+struct ryba
+{
+	int x, a;
+};
+ryba ryb[500000];
+struct torg
+{
+	int y, b, c;
+	int id;
+};
+bool operator<(torg a, torg b)
+{
+	return a.c > b.c;
+}
+torg tor[500000];
+torg tor2[500000];
+struct evs
+{
+	int x;
+	int type;
+	int id;
+};
+bool operator<(evs a, evs b)
+{
+	return a.x < b.x;
+}
+evs ev[1000100]; int en = 0;
+
+void setb(int pos, int v = 1, int tl = 0, int tr = m - 1)
+{
+	if (tl == tr)
+	{
+		tree[v] = lng(tor2[tl].b) * lng(tor2[tl].c);
+		trcn[v] = tor2[tl].b;
+		return;
+	}
+	int tm = (tl + tr) / 2;
+	if (pos <= tm)
+		setb(pos, v * 2, tl, tm);
+	else
+		setb(pos, v * 2 + 1, tm + 1, tr);
+	tree[v] = tree[v * 2] + tree[v * 2 + 1];
+	trcn[v] = trcn[v * 2] + trcn[v * 2 + 1];
+}
+
+lng calc1(lng rcnt, int v = 1, int tl = 0, int tr = m - 1)
+{
+	if (rcnt >= trcn[v])
+		return tree[v];
+	if (tl == tr)
+		return rcnt * (tree[v] / lng(tor2[tl].b));
+	int tm = (tl + tr) / 2;
+	lng ret = calc1(rcnt, v * 2, tl, tm);
+	if (rcnt - trcn[v * 2] > 0)
+		ret += calc1(rcnt - trcn[v * 2], v * 2 + 1, tm + 1, tr);
+	return ret;
+}
+
+int main()
+{
+	freopen("fisher.in", "r", stdin);
+	freopen("fisher.out", "w", stdout);
+	scanf("%d%d%d", &n, &m, &p);
+	for (int i = 0; i < n; ++i)
+	{
+		scanf("%d%d", &ryb[i].x, &ryb[i].a);
+		ev[en++] = { ryb[i].x, 0, i };
+	}
+	for (int i = 0; i < m; ++i)
+	{
+		scanf("%d%d%d", &tor[i].y, &tor[i].b, &tor[i].c);
+		tor[i].id = i;
+		tor2[i] = tor[i];
+		ev[en++] = { tor[i].y, 1, i };
+	}
+	sort(ev, ev + en);
+	sort(tor2, tor2 + m);
+	for (int i = 0; i < m; ++i)
+		tor[tor2[i].id].id = i;
+	lng rybcnt = 0;
+	lng maxpribil = 0;
+	lng pribil;
+	for (int ii = 0; ii < en; ++ii)
+	{
+		evs &evnt = ev[ii];
+		if (evnt.type == 0)
+			rybcnt += ryb[evnt.id].a;
+		else
+			setb(tor[evnt.id].id);
+		pribil = calc1(rybcnt) - lng(p) * lng(evnt.x);
+		maxpribil = max(maxpribil, pribil);
+	}
+	printf("%lld", maxpribil);
+	return 0;
+}

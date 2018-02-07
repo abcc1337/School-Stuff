@@ -1,0 +1,103 @@
+#include <bits/stdc++.h>
+#define pb push_back
+using namespace std;
+int n, k;
+vector <int> v[200000];
+int tin[200000];
+int tout[200000];
+int t = 0;
+int dp[20][200000];
+int p[200000];
+int q[200000];
+int a[200000];
+int b[200000];
+int h[200000];
+void dfs(int i, int d) {
+    tin[i] = t;
+    t++;
+    h[i] = d;
+    for (int j = 0; j < v[i].size(); j++) {
+        dfs(v[i][j], d + 1);
+    }
+    tout[i] = t;
+}
+bool upper(int u, int v) {
+    if (tin[u] <= tin[v] && tout[v] <= tout[u]) return true;
+    return false;
+}
+int lca(int u, int v) {
+    if (upper(u, v)) return u;
+    if (upper(v, u)) return v;
+    for (int j = 19; j >= 0; j--) {
+        if (!upper(dp[j][u], v)) u = dp[j][u];
+    }
+    u = p[u];
+    return u;
+}
+int main() {
+    freopen("twopaths.in", "r", stdin);
+    freopen("twopaths.out", "w", stdout);
+    ios_base::sync_with_stdio(false);
+    scanf("%d %d", &n, &k);
+    p[0] = 0;
+    for (int i = 1; i < n; i++) {
+        int x;
+        scanf("%d", &x);
+        p[i] = x;
+        p[i]--;
+        v[p[i]].pb(i);
+    }
+    dfs(0, 0);
+    for (int i = 0; i < n; i++) dp[0][i] = p[i];
+    for (int j = 1; j < 20; j++) {
+            for (int i = 0; i < n; i++) dp[j][i] = dp[j - 1][dp[j - 1][i]];
+    }
+    for (int i = 0; i < k; i++) {
+        int x, y;
+        scanf("%d %d", &x, &y);
+        a[i] = x;
+        b[i] = y;
+        a[i]--;
+        b[i]--;
+        q[i] = lca(a[i], b[i]);
+    }
+    int ind1 = 0;
+    int ind2 = 1;
+    int mx = 0;
+    for (int i = 0; i < k; i++) {
+        for (int j = i + 1; j < k; j++) {
+            int cur = 0;
+            if (upper(q[i], q[j])) {
+                if (upper(q[j], a[i]) && (lca(a[i], a[j]) != q[j] || lca(a[i], b[j]) != q[j])) {
+                    cur += h[a[i]] - h[q[j]];
+                    if (lca(a[i], a[j]) != q[j]) cur += h[lca(a[i], a[j])] - h[a[i]];
+                    if (lca(a[i], b[j]) != q[j]) cur += h[lca(a[i], b[j])] - h[a[i]];
+                }
+                if (upper(q[j], b[i]) && (lca(b[i], a[j]) != q[j] || lca(b[i], b[j]) != q[j])) {
+                    cur += h[b[i]] - h[q[j]];
+                    if (lca(b[i], a[j]) != q[j]) cur += h[lca(b[i], a[j])] - h[b[i]];
+                    if (lca(b[i], b[j]) != q[j]) cur += h[lca(b[i], b[j])] - h[b[i]];
+                }
+            }
+            else if (upper(q[j], q[i])) {
+                if (upper(q[i], a[j]) && (lca(a[j], a[i]) != q[i] || lca(a[j], b[i]) != q[i])) {
+                    cur += h[a[j]] - h[q[i]];
+                    if (lca(a[j], a[i]) != q[i]) cur += h[lca(a[j], a[i])] - h[a[j]];
+                    if (lca(a[j], b[i]) != q[i]) cur += h[lca(a[j], b[i])] - h[a[j]];
+                }
+                if (upper(q[i], b[j]) && (lca(b[j], a[i]) != q[i] || lca(b[j], b[i]) != q[i])) {
+                    cur += h[b[j]] - h[q[i]];
+                    if (lca(b[j], a[i]) != q[i]) cur += h[lca(b[j], a[i])] - h[b[j]];
+                    if (lca(b[j], b[i]) != q[i]) cur += h[lca(b[j], b[i])] - h[b[j]];
+                }
+            }
+            if (cur > mx) {
+                ind1 = i;
+                ind2 = j;
+                mx = cur;
+            }
+        }
+    }
+    printf("%d\n", mx);
+    printf("%d %d\n", ind1 + 1, ind2 + 1);
+}

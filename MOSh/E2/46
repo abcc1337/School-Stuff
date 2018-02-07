@@ -1,0 +1,77 @@
+#include <iostream>
+#include <vector>
+#include <set>
+#include <algorithm>
+
+using namespace std;
+
+typedef long long li;
+
+li deg2[62], n, t, q;
+
+set<long> s, sq;
+
+void dfs(long k, long e) {
+	long i = -1, p = k / 3, j, w = k;
+	if (p) {
+		while (p) {
+			p /= 2;
+			i++;
+		}
+	}
+	if (i >= 0 ) {
+		if (e >= 0 && i >= e)
+			i = e - 1;
+		p = deg2[i];
+		while (p) {
+			s.insert(i);
+			dfs(k - 3 * p, i);
+			p /= 2;
+			i--;
+		}
+	}
+	j = 0;
+	bool f = false;
+	while (w > 0) {
+		if (w % 2 == 1 && s.find(j) != s.end()) f = true;
+		w /= 2;
+		j++;
+	}
+	if (!f && !q) {
+		sq = s;
+		q = 1;
+	}
+	else {
+		s.erase(e);
+	}
+}
+
+int main() {
+
+	freopen("grants.in", "r", stdin);
+	freopen("grants.out", "w", stdout);
+
+	li i, m = 1, d = 0;
+	set<long>::const_iterator it;
+
+	for (i = 0; i < 62; i++) {
+		deg2[i] = m;
+		m *= 2;
+	}
+
+	cin >> t;
+
+	for (i = 0; i < t; i++) {
+		cin >> n;
+		s.clear();
+		dfs(n, -1);
+		q = 0;
+		d = 0;
+		for (it = sq.begin(); it != sq.end(); it++) {
+			if (*it != -1) d += deg2[*it];
+		}
+		cout << d << ' ' << d << ' ' << (n - 2 * d) << endl;
+	}
+
+	return 0;
+}

@@ -1,0 +1,93 @@
+#include<cstdio>
+#include<cstdlib>
+#include<cassert>
+#include<cstring>
+#include<cmath>
+#include<vector>
+#include<set>
+#include<map>
+#include<queue>
+#include<deque>
+#include<algorithm>
+#include<string>
+#include<iostream>
+#include<bitset>
+using namespace std;
+
+#define forn(i,n) for(int i=0;i<(n);i++)
+#define forab(i,a,b) for(int i=(a);i<=(b);i++)
+#define SZ(x) ((x).size())
+#define CL(x) memset(x,0,sizeof(x))
+#define PB push_back
+
+typedef long long ll;
+typedef long double ld;
+typedef vector<int> vi;
+typedef map<int, int> mii;
+typedef pair<int, int> pii;
+typedef pair<int, ll> pi;
+
+set<int> a[1001],ca[1001];
+
+ll cou = 0;
+ll bestc = 1000LL * 1000LL * 1000LL * 1000LL;
+
+static void updc(int y, int k, int lx, int rx){
+	rx += (k - (rx - y) % k)%k;
+	int lxt = (lx - y) % k;
+	if (lxt < 0)lxt += k;
+	lx -= lxt;
+	cou += (ll(rx) - ll(lx)) / k;
+}
+
+int main(){
+	iostream::sync_with_stdio(0);
+	freopen("monument.in", "r", stdin);
+	freopen("monument.out", "w", stdout);
+	int n,k;
+	cin >> n >> k;
+	int miny = 1000,maxy=0;
+	forn(i, n){
+		int x, y;
+		cin >> x >> y;
+		miny = min(miny, y);
+		maxy = max(maxy, y);
+		ca[y].insert(x);
+	}
+	forn(dc, k){
+		if (n > 50)dc = 0;
+		cou = 0;
+		forab(i, miny, maxy){
+			a[i].clear();
+			for (set<int>::iterator it = ca[i].begin(); it != ca[i].end(); it++)a[i].insert(*it);
+		}
+		int iy = miny;
+		while (iy < maxy){
+			bool aa = 0;
+			int lx, rx;
+			for (set<int>::iterator it = a[iy].begin(); it != a[iy].end(); it++){
+				if (!aa){
+					aa = 1;
+					lx = *it;
+				}
+				else{
+					aa = 0;
+					rx = *it;
+					updc(iy, k, lx+dc, rx+dc);
+					if (a[iy + 1].find(lx) != a[iy + 1].end()){
+						a[iy + 1].erase(lx);
+					}
+					else a[iy + 1].insert(lx);
+					if (a[iy + 1].find(rx) != a[iy + 1].end()){
+						a[iy + 1].erase(rx);
+					}
+					else a[iy + 1].insert(rx);
+				}
+			}
+			iy++;
+		}
+		bestc = min(cou, bestc);
+	}
+	cout << bestc << endl;
+	return 0;
+}

@@ -1,0 +1,147 @@
+
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <set>
+#include <map>
+#include <queue>
+#include <ctime>
+#include <cmath>
+#include <cassert>
+
+typedef long long int int64;
+
+using namespace std;
+
+int64 a, b, c;
+int64 now;
+
+const int MAX_N = 61;
+
+int64 arr[MAX_N] = { 1ll, 2ll, 4ll, 8ll, 16ll, 32ll, 64ll, 128ll, 256ll, 512ll, 1024ll, 2048ll, 4096ll, 8192ll, 16384ll, 32768ll, 65536ll, 131072ll, 262144ll, 524288ll, 1048576ll, 2097152ll, 4194304ll, 8388608ll, 16777216ll, 33554432ll, 67108864ll, 134217728ll, 268435456ll, 536870912ll, 1073741824ll, 2147483648ll, 4294967296ll, 8589934592ll, 17179869184ll, 34359738368ll, 68719476736ll, 137438953472ll, 274877906944ll, 549755813888ll, 1099511627776ll, 2199023255552ll, 4398046511104ll, 8796093022208ll, 17592186044416ll, 35184372088832ll, 70368744177664ll, 140737488355328ll, 281474976710656ll, 562949953421312ll, 1125899906842624ll, 2251799813685248ll, 4503599627370496ll, 9007199254740992ll, 18014398509481984ll, 36028797018963968ll, 72057594037927936ll, 144115188075855872ll, 288230376151711744ll, 576460752303423488ll, 1152921504606846976ll };
+bool used[MAX_N];
+
+void doNULL()
+{
+	for (int i = 0; i < MAX_N; ++i)
+	{
+		used[i] = 0;
+	}
+}
+
+bool find_answer(int64 col)
+{
+	int64 copy_now = now;
+
+	copy_now -= col;
+
+	col /= 3;
+
+	a = col;
+	b = col;
+	c = col;
+
+	doNULL();
+	for (int i = MAX_N - 1; i >= 0; --i)
+	{
+		if (arr[i] <= col)
+		{
+			used[i] = true;
+			col -= arr[i];
+		}
+	}
+
+	if (copy_now % 2 == 1 && used[0])
+	{
+		return false;
+	}
+
+	for (int i = MAX_N - 1; i >= 0; --i)
+	{
+		if (arr[i] * 2 <= copy_now && !used[i])
+		{
+			copy_now -= arr[i] * 2;
+			a += arr[i];
+			b += arr[i];
+		}
+		else if (arr[i] <= copy_now && !used[i])
+		{
+			copy_now -= arr[i];
+			a += arr[i];
+		}
+	}
+
+	return copy_now == 0;
+}
+
+int main()
+{
+	freopen("grants.in", "r", stdin);
+	freopen("grants.out", "w", stdout);
+
+	int t;
+	int64 pow2_now;
+
+	scanf("%d", &t);
+
+	int64 left, right;
+	int64 m;
+
+	for (int i = 0; i < t; ++i)
+	{
+		scanf("%lld", &now);
+
+		a = 0;
+		b = 0;
+		c = 0;
+
+		left = 0;
+		right = now;
+
+		/*while (right % 3 != 0)
+		{
+			--right;
+		}
+
+		while (right >= 0)
+		{
+			if (find_answer(right))
+			{
+				left = right;
+				break;
+			}
+			right -= 3;
+		}*/
+
+		for (int j = 0; j < MAX_N; ++j)
+		{
+			right = arr[j] + 100000;
+
+			while (right % 3 != 0)
+			{
+				--right;
+			}
+
+			while (right >= arr[j]-100000)
+			{
+				if (0<=right && right<=now && find_answer(right))
+				{
+					left = right;
+					break;
+				}
+				right -= 3;
+			}
+		}
+
+		find_answer(left);
+		printf("%lld %lld %lld\n", a, b, c);
+	}
+
+	fclose(stdin);
+	fclose(stdout);
+
+	return 0;
+}

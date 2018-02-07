@@ -1,0 +1,135 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define mp make_pair
+#define s second
+#define f first
+
+void dfs(int i, int j, int prev_path, vector < vector < int > >& path, vector < vector < int > >& gr, vector < vector < int > >& used)
+{
+    path[i][j] = prev_path + 1;
+    switch (gr[i][j])
+    {
+    case 0:
+        if (path[i - 1][j] == -1 && used[i - 1][j])
+        {
+            dfs(i - 1, j, prev_path + 1, path, gr, used);
+        }
+        break;
+    case 1:
+        if (path[i][j + 1] == -1 && used[i][j + 1])
+        {
+            dfs(i, j + 1, prev_path + 1, path, gr, used);
+        }
+        break;
+    case 2:
+        if (path[i + 1][j] == -1 && used[i + 1][j])
+        {
+            dfs(i + 1, j, prev_path + 1, path, gr, used);
+        }
+        break;
+    case 3:
+        if (path[i][j - 1] == -1 && used[i][j + 1])
+        {
+            dfs(i, j - 1, prev_path + 1, path, gr, used);
+        }
+        break;
+    }
+}
+
+int main()
+{
+    #ifndef LOCAL_DEBUG
+    freopen("robots.in", "rt", stdin);
+    freopen("robots.out", "wt", stdout);
+    #endif
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    int n, m, g, sum = 0, max = 0;
+    char asd;
+    cin >> n >> m >> g;
+    vector < vector < int > > a(n, vector < int >(m));
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            cin >> asd;
+            if ('A' <= asd && asd <= 'Z')
+            {
+                asd = asd - 'A' + 'a';
+                sum++;
+            }
+            if (asd == 'n')
+            {
+                a[i][j] = 0;
+            }
+            if (asd == 'e')
+            {
+                a[i][j] = 1;
+            }
+            if (asd == 's')
+            {
+                a[i][j] = 2;
+            }
+            if (asd == 'w')
+            {
+                a[i][j] = 3;
+            }
+        }
+    }
+    vector < vector < int > > used(n, vector < int >(m, 1));
+    map < pair < int, int >, int > circles;
+    int counter = 0;
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            vector < vector < int > > path(n, vector < int >(m, -1));
+            dfs(i, j, -2, path, a, used);
+            if (path[i][j] != -1 && used[i][j])
+            {
+                circles[mp(i, j)] = path[i][j] + 1;
+            }
+            if (path[i][j] != -1)
+            {
+                for (int x = 0; x < n; x++)
+                {
+                    for (int y = 0; y < m; y++)
+                    {
+                        if (path[x][y] != -1)
+                        {
+                            used[x][y] = 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            used[i][j] = 1;
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            vector < vector < int > > path(n, vector < int >(m, -1));
+            bool flag = 1;
+            dfs(i, j, -2, path, a, used);
+            for (int x = 0; x < n && flag; x++)
+            {
+                for (int y = 0; y < m; y++)
+                {
+                    if (path[x][y] != -1 && circles[mp(x, y)] > 0)
+                    {
+                        counter++;
+                        circles[mp(x, y)]--;
+                        flag = false;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    cout << counter << endl;
+    return 0;
+}

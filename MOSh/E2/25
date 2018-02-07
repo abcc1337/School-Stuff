@@ -1,0 +1,287 @@
+#include <iostream>
+#include <algorithm>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+#include <ctime>
+#include <vector>
+#include <string>
+#include <cassert>
+#include <utility>
+#include <stack>
+#include <set>
+#include <unordered_set>
+#include <functional>
+
+#define ll long long
+#define ld long double
+#define mp make_pair
+#define TASKNAME "twopaths"
+
+using namespace std;
+
+const int MAXLOG = 5;
+
+namespace sol1 {
+	vector<vector<int>> g;
+	vector <vector<int>> par;
+	vector<int> tin, tout, d;
+
+	int timer = 1;
+
+	void dfs(int v) {
+		if (v)
+			d[v] = d[par[v][0]] + 1;
+		tin[v] = timer++;
+		for (int l = 1; l < MAXLOG; l++)
+			par[v][l] = par[par[v][l - 1]][l - 1];
+		for (int to : g[v])
+			dfs(to);
+		tout[v] = timer++;
+	}
+
+	bool upper(int v, int u) {
+		return tin[v] < tin[u] && tout[u] < tout[v];
+	}
+
+	int lca(int v, int u) {
+		if (v == u)
+			return v;
+		if (upper(v, u))
+			return v;
+		if (upper(u, v))
+			return u;
+		for (int l = MAXLOG - 1; l >= 0; l--) {
+			if (!upper(par[v][l], u))
+				v = par[v][l];
+		}
+		return par[v][0];
+	}
+
+	void solve() {
+		int n, k;
+		cin >> n >> k;
+		g.resize(n);
+		tin.resize(n);
+		tout.resize(n);
+		d.resize(n);
+		par.resize(n, vector<int>(MAXLOG, 0));
+		par[0][0] = 0;
+		for (int i = 1; i < n; i++) {
+			int p;
+			cin >> p;
+			g[p - 1].push_back(i);
+			par[i][0] = p - 1;
+		}
+		vector<pair<int, int>> a(k);
+		vector<int> anc(k);
+		dfs(0);
+		for (int i = 0; i < k; i++) {
+			cin >> a[i].first >> a[i].second;
+			a[i].first--;
+			a[i].second--;
+			anc[i] = lca(a[i].first, a[i].second);
+		}
+		int ans = 0;
+		pair<int, int> ansp = mp(1, 2);
+		for (int i = 0; i < k; i++) {
+			for (int j = 0; j < k; j++) {
+				if (i == j)
+					continue;
+				int t1 = anc[i];
+				int t2 = anc[j];
+				int len1 = 0;
+				int len2 = 0;
+				if (t1 == t2) {
+
+					int lca1 = lca(a[i].first, a[j].first);
+					len1 = d[lca1] - d[t2];
+					int lca2 = lca(a[i].second, a[j].second);
+					len1 += (d[lca2] - d[t2]);
+
+					int lca3 = lca(a[i].first, a[j].second);
+					len2 = d[lca3] - d[t2];
+					int lca4 = lca(a[i].second, a[j].first);
+					len2 += (d[lca4] - d[t2]);
+					int cur = max(len1, len2);
+					if (cur > ans) {
+						ans = len1;
+						ansp = mp(i + 1, j + 1);
+					}
+				}
+				else if (upper(t1, t2) && upper(t2, a[i].first)) {
+					int lca1 = lca(a[i].first, a[j].first);
+					len1 = d[lca1] - d[t2];
+					int lca2 = lca(a[i].first, a[j].second);
+					len1 = max(len1, d[lca2] - d[t2]);
+					if (len1 > ans) {
+						ans = len1;
+						ansp = mp(i + 1, j + 1);
+					}
+				}
+				else if (upper(t1, t2) && upper(t2, a[i].second)) {
+					int lca1 = lca(a[i].second, a[j].first);
+					len1 = d[lca1] - d[t2];
+					int lca2 = lca(a[i].second, a[j].second);
+					len1 = max(len1, d[lca2] - d[t2]);
+					if (len1 > ans) {
+						ans = len1;
+						ansp = mp(i + 1, j + 1);
+					}
+				}
+			}
+		}
+		cout << ans << endl << ansp.first << " " << ansp.second;
+	}
+
+}
+
+namespace sol2 {
+	vector<vector<int>> g;
+	vector <vector<int>> par;
+	vector<int> tin, tout, d;
+
+	int timer = 1;
+
+	void dfs(int v) {
+		if (v)
+			d[v] = d[par[v][0]] + 1;
+		tin[v] = timer++;
+		for (int l = 1; l < MAXLOG; l++)
+			par[v][l] = par[par[v][l - 1]][l - 1];
+		for (int to : g[v])
+			dfs(to);
+		tout[v] = timer++;
+	}
+
+	bool upper(int v, int u) {
+		return tin[v] <= tin[u] && tout[u] <= tout[v];
+	}
+
+	int lca(int v, int u) {
+		if (upper(v, u))
+			return v;
+		if (upper(u, v))
+			return u;
+		for (int l = MAXLOG - 1; l >= 0; l--) {
+			if (!upper(par[v][l], u))
+				v = par[v][l];
+		}
+		return par[v][0];
+	}
+
+	void solve() {
+		int n, k;
+		scanf("%d %d", &n, &k);//cin >> n >> k;
+		g.resize(n);
+		tin.resize(n);
+		tout.resize(n);
+		d.resize(n);
+		par.resize(n, vector<int>(MAXLOG, 0));
+		par[0][0] = 0;
+		for (int i = 1; i < n; i++) {
+			int p;
+			scanf("%d", &p);//cin >> p;
+			g[p - 1].push_back(i);
+			par[i][0] = p - 1;
+		}
+		vector<pair<int, int>> a(k);
+		vector<int> anc(k);
+		dfs(0);
+		for (int i = 0; i < k; i++) {
+			scanf("%d %d", &a[i].first, &a[i].second);//cin >> a[i].first >> a[i].second;
+			a[i].first--;
+			a[i].second--;
+			anc[i] = lca(a[i].first, a[i].second);
+		}
+		int ans = 0;
+		pair<int, int> ansp = mp(1, 2);
+		for (int i = 0; i < k; i++) {
+			for (int j = 0; j < k; j++) {
+				if (i == j)
+					continue;
+				int t1 = anc[i];
+				int t2 = anc[j];
+				int len1 = 0;
+				int len2 = 0;
+				if (t1 == t2) {
+					int lc = lca(a[j].first, a[i].first);
+					len1 = d[lc] - d[t2];
+					lc = lca(a[j].second, a[i].second);
+					len2 = d[lc] - d[t2];
+					int lenn1 = len1 + len2;
+					len1 = 0;
+					len2 = 0;
+
+					lc = lca(a[j].second, a[i].first);
+					len1 = d[lc] - d[t2];
+					lc = lca(a[j].first, a[i].second);
+					len2 = d[lc] - d[t2];
+					int lenn2 = len1 + len2;
+					int cur = max(lenn1, lenn2);
+					if (cur > ans) {
+						ans = cur;
+						ansp = mp(i + 1, j + 1);
+					}
+				}
+				else if (upper(t1, t2) && upper(t2, a[i].first)) {
+					int lc = lca(a[j].first, a[i].first);
+					len1 = d[lc] - d[t2];
+					lc = lca(a[j].second, a[i].first);
+					len2 = d[lc] - d[t2];
+					int cur = max(len1, len2);
+					if (cur > ans) {
+						ans = cur;
+						ansp = mp(i + 1, j + 1);
+					}
+				}
+				else if (upper(t1, t2) && upper(t2, a[i].second)) {
+					int lc = lca(a[j].first, a[i].second);
+					len1 = d[lc] - d[t2];
+					lc = lca(a[j].second, a[i].second);
+					len2 = d[lc] - d[t2];
+					int cur = max(len1, len2);
+					if (cur > ans) {
+						ans = cur;
+						ansp = mp(i + 1, j + 1);
+					}
+				}
+			}
+		}
+		printf("%d\n%d %d", ans, ansp.first, ansp.second);//cout << ans << endl << ansp.first << " " << ansp.second;
+	}
+}
+
+
+
+int main() {
+#ifdef __DEBUG__
+	freopen("input.txt", "r", stdin);
+	clock_t start = clock();
+#else
+	freopen(TASKNAME".in", "r", stdin);
+	freopen(TASKNAME".out", "w", stdout);
+#endif
+	srand(time(NULL));
+
+#if 1
+	sol2::solve();
+#else
+	int t = 20;
+	while (t--) {
+		int n = rand() % 18 + 2;
+		int k = rand() % 8 + 2;
+		vector<int> con;
+		con.push_back(1);
+		vector<int> inp1;
+		for (int i = 1; i < n; i++) {
+			inp1.push_back(con[rand() % con.size()])
+		}
+	}
+#endif
+
+#ifdef __DEBUG__
+	cerr << "\nTime: " << (ld)(clock() - start) / (ld)CLOCKS_PER_SEC << endl;
+#endif
+	return 0;
+}

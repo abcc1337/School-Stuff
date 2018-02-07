@@ -1,0 +1,67 @@
+#include <iostream>
+#include <cstdio>
+#include <cstdint>
+
+using namespace std;
+
+uint64_t a, b, c;
+
+bool can(uint64_t sum, uint64_t g)
+{
+    uint64_t r = sum - g * 3;
+    a = b = c = 0;
+    uint64_t cur;
+    for (long i = 60; i >= 0 && (r != 0); --i)
+    {
+        cur = (1ull << i);
+        if (g & cur)
+            continue;
+        if (cur > r)
+            continue;
+        if (2 * cur > r)
+        {
+            r -= cur;
+            a += cur;
+            continue;
+        }
+        if (3 * cur > r)
+        {
+            r -= 2 * cur;
+            a += cur;
+            b += cur;
+            continue;
+        }
+        r -= 3 * cur;
+        a += cur;
+        b += cur;
+        c += cur;
+    }
+    return r == 0;
+}
+
+int main()
+{
+    ios::sync_with_stdio(false);
+    freopen("grants.in", "r", stdin);
+    freopen("grants.out", "w", stdout);
+    uint16_t t;
+    cin >> t;
+    for (uint16_t q = 0; q < t; ++q)
+    {
+        uint64_t sum;
+        cin >> sum;
+        if (sum % 3 == 0)
+        {
+            cout << sum / 3 << ' ' << sum / 3 << ' ' << sum / 3 << endl;
+            continue;
+        }
+        for (int64_t i = sum / 3; i >= 0; --i)
+            if (can(sum, i))
+            {
+                //cout << i << endl;
+                cout << a + i << ' ' << b + i << ' ' << c + i << endl;
+                break;
+            }
+    }
+    return 0;
+}

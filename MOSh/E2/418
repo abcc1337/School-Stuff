@@ -1,0 +1,210 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const int maxn=(int)1e3+5;
+const int maxc=(int)1e6+5;
+int L,c[maxn][maxn],was[maxn][maxn],k[maxn][maxn],n,m,colour,col,g,cnt[maxc],l[maxc],t,ans,lastx,lasty;
+bool stop,check;
+string s[maxn];
+vector <pair <int,int> > v[maxn][maxn];
+
+void f(int x,int y)
+{
+    if(s[x][y]=='E'||s[x][y]=='e')
+    {
+        v[x][y].push_back(make_pair(x,y+1));
+        //f[x][y+1].push_back(make_pair(x,y));
+    }
+    if(s[x][y]=='W'||s[x][y]=='w')
+    {
+        v[x][y].push_back(make_pair(x,y-1));
+        //f[x][y-1].push_back(make_pair(x,y));
+    }
+    if(s[x][y]=='S'||s[x][y]=='s')
+    {
+        v[x][y].push_back(make_pair(x+1,y));
+        //f[x+1][y].push_back(make_pair(x,y));
+    }
+    if(s[x][y]=='N'||s[x][y]=='n')
+    {
+        v[x][y].push_back(make_pair(x-1,y));
+        //f[x-1][y].push_back(make_pair(x,y));
+    }
+}
+
+void dfs(int x,int y)
+{
+    L++;
+    c[x][y]=col;
+    for(int i=0;i<v[x][y].size();i++)
+    {
+        auto z=v[x][y][i];
+        int tox=z.first;
+        int toy=z.second;
+        if(c[tox][toy]==-1) dfs(tox,toy);
+    }
+}
+
+void DFS(int stx,int sty,int x,int y)
+{
+    k[x][y]=t;
+    //if(stx==0&&sty==0) cout << x << " " << y << endl;
+    for(int i=0;i<v[x][y].size();i++)
+    {
+        auto z=v[x][y][i];
+        int tox = z.first;
+        int toy = z.second;
+        if(was[tox][toy]==0)
+        {
+            was[x][y]=0;
+            break;
+        }
+        if(stop==true) break;
+        if(stop==true&&was[stx][sty]!=1&&check==true) was[x][y]=0;
+        //if(x==lastx&&y==lasty) check=true;
+        if(stop==true) break;
+
+        if(was[tox][toy]==0)
+        {
+            was[x][y]=0;
+            break;
+        }
+        if(k[tox][toy]==t&&tox==stx&&toy==sty)
+        {
+            //cout << "HI";
+            //cout << x << " "<< y << endl;
+            was[stx][sty]=1;
+            stop=true;
+        }
+        if(k[tox][toy]==t&&!stop)
+        {
+            lastx=tox;
+            lasty=toy;
+            stop=true;
+            was[stx][sty]=0;
+        }
+        if(k[tox][toy]!=t&&was[tox][toy]==0) stop=true;
+        if(!stop)
+            DFS(stx,sty,tox,toy);
+        if(was[tox][toy]==0) was[x][y]=0;
+    }
+    if(x==lastx&&y==lasty&&(x!=stx||y!=sty)) check=true;
+    if(stop==true&&was[stx][sty]!=1&&check==true&&(x!=lastx||y!=lasty)) was[x][y]=0;
+}
+
+void update(int x,int y)
+{
+    was[x][y]=1;
+    auto z=v[x][y][0];
+    int tox=z.first;
+    int toy=z.second;
+    if(was[tox][toy]==1) return; else update(tox,toy);
+}
+
+void Dfs(int x,int y)
+{
+    //cout << x << " " << y << endl;
+    auto z=v[x][y][0];
+    int tox=z.first;
+    int toy=z.second;
+    if(c[tox][toy]!=-1)
+        colour=c[tox][toy]; else Dfs(tox,toy);
+    c[x][y]=colour;
+}
+
+int main()
+{
+    freopen("robots.in","r",stdin);
+    freopen("robots.out","w",stdout);
+    /*
+    3 4 0
+    SSSS
+    EESW
+    ENWW
+    */
+    //ios:: sync_with_stdio(false);
+    cin >> n >> m >> g;
+    for(int i=0;i<n;i++)
+        cin >> s[i];
+    for(int i=0;i<n;i++)
+        for(int j=0;j<m;j++)
+            f(i,j);
+    //for(int i=0;i<n;i++)
+      //  for(int j=0;j<m;j++)
+        //    cout << i << " " << j << " " << v[i][j][0].first << " " << v[i][j][0].second << endl;
+    for(int i=0;i<n;i++)
+        for(int j=0;j<m;j++)
+            c[i][j]=-1;
+    for(int i=0;i<n;i++)
+            for(int j=0;j<m;j++)
+                was[i][j]=-1;
+    for(int i=0;i<n;i++)
+        for( int j=0;j<m;j++)
+            k[i][j]=-1;
+    //cout << "H";
+    for(int i=0;i<n;i++)
+        for(int j=0;j<m;j++)
+            if(was[i][j]==-1)
+            {
+                check=false;
+                lastx=-1;
+                lasty=-1;
+                stop=false;
+                DFS(i,j,i,j);
+                //if(check==true) cout << "ALO";
+                if(was[i][j]==-1) was[i][j]=0;
+                if(was[i][j]==1) update(i,j);
+                t++;
+                /*cout << i << " " << j << endl;
+                for(int id=0;id<n;id++)
+                {
+                    for(int jd=0;jd<m;jd++)
+                        cout << was[id][jd] << " ";
+                    cout << endl;
+                }
+                cout << endl;*/
+            }
+    //cout << "I";
+    /*for(int i=0;i<n;i++)
+    {
+        for(int j=0;j<m;j++)
+            cout << was[i][j] << " ";
+        cout << endl;
+    }*/
+    for(int i=0;i<n;i++)
+        for(int j=0;j<m;j++)
+        {
+            if(c[i][j]==-1&&was[i][j]==1)
+            {
+                L=0;
+                dfs(i,j);
+                l[col]=L;
+                //st[col]=make_pair(i,j);
+                col++;
+            }
+        }
+    /*cout << "HO";
+    for(int i=0;i<n;i++)
+    {
+        for(int j=0;j<m;j++)
+            cout << c[i][j] << " ";
+        cout << endl;
+    }*/
+    for(int i=0;i<n;i++)
+        for(int j=0;j<m;j++)
+            if(c[i][j]==-1)
+            {
+                //cout << i << " " << j << endl;
+                colour=-1;
+                Dfs(i,j);
+            }
+    //cout << "HO";
+    for(int i=0;i<n;i++)
+        for(int j=0;j<m;j++)
+            if(s[i][j]=='W'||s[i][j]=='S'||s[i][j]=='N'||s[i][j]=='E')cnt[c[i][j]]++;
+    for(int i=0;i<col;i++)
+        ans+=min(cnt[i],l[i]);
+    cout << ans;
+    return 0;
+}

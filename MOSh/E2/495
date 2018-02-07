@@ -1,0 +1,20 @@
+f = open('onlyone.in', 'r')
+x = f.readlines()
+f.close()
+n = int(x[0])
+a = []
+k = 0
+for i in range(n):
+    b = list(map(int, x[i + 1].split()))
+    a.append(b)
+for i in range(n):
+    for j in range(i):
+        o = 0
+        for l in range(3):
+            if a[i][l] == a[j][l]:
+                o += 1
+        if o == 1:
+            k += 1
+f = open('onlyone.out', 'w')
+f.write(str(k))
+f.close()

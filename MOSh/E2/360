@@ -1,0 +1,124 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <set>
+#include <map>
+#include <string>
+
+using namespace std;
+
+#define lint long long int
+
+struct p1
+{
+	lint x, a;
+};
+
+struct p2
+{
+	lint x, b, c;
+};
+
+bool operator<(p2 a, p2 b)
+{
+	return a.c > b.c;
+}
+
+int main()
+{
+	freopen("fisher.in", "r", stdin);
+	freopen("fisher.out", "w", stdout);
+
+	lint n, m, p;
+
+	vector<p1> v1;
+	vector<p2> v2;
+	vector<pair<lint, lint>> lens;
+	vector<lint> cur2;
+	map<lint, lint> fish;
+	map<lint, lint> xWh;
+
+	cin >> n >> m >> p;
+
+	lens.push_back(make_pair(0, 0));
+
+	for (int i = 0; i < n; i++)
+	{
+		p1 t;
+		cin >> t.x >> t.a;
+		v1.push_back(t);
+		fish[t.x] = t.a;
+		if(lens.back().first != t.x)
+		lens.push_back(make_pair(t.x, 0));
+	}
+
+	for (int j = 0; j < m; j++)
+	{
+		p2 t;
+		cin >> t.x >> t.b >> t.c;
+		v2.push_back(t);
+		if (lens.back().first != t.x)
+		lens.push_back(make_pair(t.x, 0));
+	}
+	p2 t;
+	t.x = 5000000000;
+	  
+	v2.push_back(t);
+
+	sort(lens.begin(), lens.end());
+
+	lint curSum = 0;
+	lint last = -1;
+	lint _cur2 = -1;
+	for (int i = 0; i < lens.size(); i++)
+	{
+		
+
+		while (v2[_cur2 + 1].x <= lens[i].first)
+			_cur2++;
+
+		cur2.push_back(_cur2);
+
+		if (last == lens[i].first)
+			continue;
+	
+		last = lens[i].first;
+
+		xWh[lens[i].first] = i;
+		if (fish.find(lens[i].first) != fish.end())
+			curSum += fish[lens[i].first];
+		lens[i].second = curSum;
+	}
+	set<p2> S;
+	lint res = 0;
+	lint curAdded = -1;
+	for (int i = 0; i < lens.size(); i++)
+	{
+		//lint curF = 0, curP = 0;
+		lint totalFish = lens[i].second;
+
+		while (curAdded < cur2[i])
+		{
+			curAdded++;
+			S.insert(v2[curAdded]);
+		}
+
+		lint balance = 0;
+		balance -= p * lens[i].first;
+
+		
+
+		for (auto it = S.begin(); it != S.end(); ++it)
+		{
+			lint x = min(totalFish, it->b);
+			balance += it->c * x;
+			totalFish -= x;
+			
+		}
+		res = max(res, balance);
+	}
+
+	cout << res;
+
+
+}

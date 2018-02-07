@@ -1,0 +1,86 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int n, k;
+
+struct Node {
+    int from, to;
+    vector <int> mas;
+};
+
+struct V {
+    int tin, tout;
+    vector <Node*> next;
+    Node* pred;
+};
+
+
+
+int ans[10000][10000];
+
+V mas[10000];
+
+int dfs(int v, int t) {
+    mas[v].tin = t;
+    for(int i = 0; i < mas[v].next.size(); i++) {
+        t = dfs(mas[v].next[i]->to, t+1);
+    }
+    mas[v].tout = t;
+    return t+1;
+}
+
+
+void setF(int a, int b, int k) {
+    if(a != b)
+    if(mas[a].tin < mas[b].tin && mas[a].tout > mas[b].tout) {
+        setF(b, a, k);
+    } else {
+        //if(mas[a].tin > mas[b].tout || mas[a].tout < mas[b].tin) {
+            for(auto it : mas[a].pred->mas) {
+                  //  cout << it;
+                ans[it][k]++;
+                ans[k][it]++;
+            }
+            mas[a].pred->mas.push_back(k);
+            setF(mas[a].pred->from, b, k);
+        //} else {
+        //}
+    }
+}
+
+int main() {
+    freopen("twopaths.in", "r", stdin);
+    freopen("twopaths.out", "w", stdout);
+    scanf("%d%d", &n, &k);
+    int h;
+    Node *x;
+    for(int i = 1; i < n; i++) {
+        scanf("%d", &h);
+        x = new Node;
+        x->from = h-1;
+        x->to = i;
+        mas[i].pred = x;
+        mas[h-1].next.push_back(x);
+    }
+    dfs(0, 0);
+    int a, b;
+    for(int i = 0; i < k; i++) {
+        scanf("%d%d", &a, &b);
+        a--;
+        b--;
+        setF(a, b, i);
+    }
+    int best = 0, ab = 1, bb = 0;
+    for(int i = 0; i < k; i++) {
+        for(int j = i+1; j < k; j++) {
+            if(ans[i][j] > best) {
+                best = ans[i][j];
+                ab = i;
+                bb = j;
+            }
+        }
+    }
+    printf("%d\n%d %d", best, ab+1, bb+1);
+    return 0;
+}

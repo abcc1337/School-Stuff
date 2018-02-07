@@ -1,0 +1,187 @@
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <iostream>
+#include <cstdlib>
+#include <cstdio>
+#include <algorithm>
+#include <cmath>
+#include <vector>
+#include <set>
+#include <map>
+#include <bitset>
+#include <cassert>
+
+using namespace std;
+
+int solve();
+
+#define TASK "video"
+
+typedef long long ll;
+
+#define forn(i, n) for (int i = 0; i < n; i++)
+#define fornn(i, q, n) for (int i = q; i < n; i++)
+#define all(v) v.begin(), v.end()
+
+int main() {
+#ifdef KAZAN
+	//freopen("input.txt", "r", stdin), freopen("output.txt", "w", stdout);
+#else
+	//freopen(TASK".in", "r", stdin), freopen(TASK".out", "w", stdout);
+#endif
+	solve();
+	return 0;
+}
+
+int K;
+int n;
+
+map<pair<int, int>, int > M;
+
+int it;
+
+int ask(int l, int r) {
+	if (l == r)
+		return 1;
+
+	if (M.count(make_pair(l, r)))
+		return M[make_pair(l, r)];
+
+	it++;
+	if (it > 70000)
+		assert(0);
+
+	cout << "? " << l << " " << r << endl;
+
+	int t;
+	cin >> t;
+
+	return M[make_pair(l, r)] = t;
+}
+
+vector<int> G;
+
+void out(vector<int> A) {
+	cout << "Ready!" << endl;
+	cout << K << endl;
+
+	forn(i, n)
+		cout << A[i + 1] << " ";
+	cout << endl;
+
+	if (G != A) {
+		fornn(i, 1, G.size())
+			G[i] = 3 - G[i];
+		if (G != A) {
+			cout << "fail\n";
+		}
+	}
+}
+
+void init(int x, int t) {
+	srand(t);
+	G.assign(x + 1, 0);
+	forn(i, x) {
+		G[i + 1] = rand() % 2 + 1;
+		cout << G[i + 1] << " ";
+	}
+	cout << "\n\n";
+
+	forn(i, x) {
+		map<int, int> J;
+		for (int j = i; j < x; j++) {
+			J[G[j + 1]]++;
+
+			M[make_pair(i + 1, j + 1)] = J.size();
+		}
+	}
+}
+
+int solve() {
+	//cin >> n;
+	n = 4;
+	for (int t = 10; t <= 200; t++) {
+		cout << t << "\n";
+		M.clear();
+		init(n, t);
+
+		K = ask(1, n);
+
+		vector<int> A(n + 1);
+
+		int cur = 1;
+
+
+		vector<int> T(n);
+
+		forn(i, n) {
+			T[i] = ask(i + 1, n);
+		}
+
+		vector<pair<int, int> > H;
+
+		fornn(i, 1, n) {
+			if (T[i] != T[i - 1]) {
+				A[i] = cur;
+
+				H.push_back(make_pair(i, cur));
+
+				cur++;
+				if (cur > K)
+					cur -= K;
+			}
+		}
+
+		A[n] = cur++;
+
+		/*fornn(i, 1, n) {
+		if (A[i] == 0) {
+
+		int t = 0;
+
+		for (int j = 0; j < H.size(); j++) {
+		if (H[j].first <= i)
+		continue;
+		t++;
+
+		if (ask(i, H[j].first) == t) {
+		A[i] = H[j].second;
+		break;
+		}
+		}
+		}
+		}*/
+
+		for (int i = n - 1; i > 0; i--) {
+			if (A[i])
+				continue;
+
+			int pr = -1;
+
+			for (int j = i; j <= n; j++) {
+				int t = ask(i, j);
+
+				if (t == pr) {
+					int t2 = ask(i + 1, j);
+
+					if (t2 == t) {
+						A[i] = A[j];
+						break;
+					}
+				}
+				pr = t;
+			}
+
+			if (A[i] == 0) {
+				A[i] = cur;
+				cur++;
+				if (cur > K)
+					cur -= K;
+			}
+		}
+
+		out(A);
+		cout << "\n\n\n\n";
+	}
+	return 0;
+}

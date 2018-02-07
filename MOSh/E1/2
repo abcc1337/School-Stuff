@@ -1,0 +1,70 @@
+program Fish12;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+     var x,a,y,b,c,b1,c1,su:array [0..50000] of longint;
+     i,j,k,u,m,n,p,mx,s,s1:longint;
+  procedure qsort(l,r:longint);
+  var f,i,j,p:longint;
+   begin
+     i:=l;
+     j:=r;
+     f:=c[(l+r) div 2];
+     while i<j do
+      begin
+     while c[i]<f do i:=i+1;
+     while c[j]>f do j:=j-1;
+      if i<=j then
+       begin
+        p:=c[i];
+        c[i]:=c[j];
+        c[j]:=p;
+        p:=b[i];
+        b[i]:=b[j];
+        b[j]:=p;
+        i:=i+1;
+        j:=j-1;
+       end;
+ 
+      end;
+     if j>l then qsort(l,j);
+     if r>i then qsort(i,r);
+   end;
+begin
+  assign(input,'fisher.in');
+  reset(input);
+   assign(output,'fisher.out');
+     rewrite(output);
+     readln(n,m,p);
+     s:=0;
+     for i:=1 to n do
+      begin
+      readln(x[i],a[i]);
+        s:=s+a[i];
+      end;
+     for i:=1 to m do
+      readln(y[i],b[i],c[i]);
+
+    qsort(1,m);
+ close(input);
+  k:=0;
+  for i:=m downto 1 do
+   begin
+     if s>b[i] then
+      begin
+        k:=k+c[i]*b[i];
+       s:=s-b[i];
+      end
+       else
+        begin
+          k:=k+c[i]*s;
+          break;
+        end;
+   end;
+     writeln(k);
+     close(output);
+  
+end.
+ 

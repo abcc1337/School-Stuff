@@ -1,0 +1,66 @@
+
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <algorithm>
+#include <cmath>
+#include <vector>
+#include <set>
+#include <queue>
+#include <stack>
+#include <ctime>
+
+using namespace std;
+
+typedef int ll;
+typedef long double ld;
+
+typedef pair<ll, ll> pll;
+typedef pair<ld, ld> pld;
+
+pll gmaxb(ll i, ll a, ll x, ll b, bool wasleft = false) {
+	pll mx(a&b&(x - a - b), b);
+	if (i < 0) {
+		return mx;
+	}
+	ll crnt = (1 << i);
+
+	if (a & crnt) {
+		ll newb = b + crnt;
+		ll newc = x - newb - a;
+		if (newc >= 0 && (newc&crnt == 1)) {
+			mx = max(mx, gmaxb(i - 1, a, x, newb, true));
+		}
+		else if (newc >= 0) {
+			mx = max(mx, gmaxb(i - 1, a, x, newb, wasleft));
+		}
+	}
+	else {
+		mx = max(mx, gmaxb(i - 1, a, x, b, wasleft));
+	}
+	return mx;
+}
+
+int main() {
+	freopen("grants.in", "r", stdin);
+	freopen("grants.out", "w", stdout);
+
+	ll t;
+	cin >> t;
+	for (ll tn = 0; tn < t; ++tn) {
+		ll x;
+		cin >> x;
+		ll maxscore = -1, maxa = -1, maxb = -1, maxc = -1;
+		for (ll a = x; a >= 0; --a) {
+			pll z = gmaxb(6, a, x, 0);
+			if (z.first > maxscore) {
+				maxscore = z.first;
+				maxa = a;
+				maxb = z.second;
+				maxc = x - a - z.second;
+			}
+		}
+		cout << maxa << " " << maxb << " " << maxc << endl;
+	}
+	return 0;
+}

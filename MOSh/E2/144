@@ -1,0 +1,242 @@
+#include <iostream>
+#include <iomanip>
+#include <cstdio>
+
+#include <cassert>
+#include <cmath>
+#include <algorithm>
+#include <ctime>
+
+#include <vector>
+#include <string>
+#include <set>
+#include <map>
+#include <queue>
+#include <bitset>
+#include <utility>
+
+using std::cin;
+using std::cout;
+using std::cerr;
+
+using std::max;
+using std::min;
+using std::abs;
+
+using std::vector;
+using std::pair;
+using std::string;
+using std::queue;
+using std::set;
+using std::map;
+
+typedef long long ll;
+typedef unsigned long long ull;
+typedef long double ld;
+typedef pair<int, int> pii;
+typedef pair<ll, ll> pll;
+typedef pair<ull, ull> pul;
+
+#define ff first 
+#define ss second 
+#define pb push_back 
+#define print(a) cerr << (a) << '\n' 
+#define dbg(a) cerr << #a << " = " << (a) << '\n' 
+#define dbg2(a, b) cerr << #a << " = " << (a) << ' ' << #b << " = " << (b) << '\n' 
+#define dbg3(a, b, c) cerr << #a << " = " << (a) << ' ' << #b << " = " << (b) << ' ' << #c << " = " << (c) << '\n' 
+
+void init() {
+	#ifndef LOCAL
+	freopen("robots.in", "r", stdin);
+	freopen("robots.out", "w", stdout);
+	#endif
+	std::iostream::sync_with_stdio(0);
+	cout << std::fixed << std::setprecision(10);
+	cerr << std::fixed << std::setprecision(10);
+}
+
+const int MAXN = 1002;
+
+map<char, int> dx, dy; 
+
+char arr[MAXN][MAXN];
+int used[MAXN][MAXN];
+int cycle[MAXN][MAXN];
+vector<pii> stack;
+int curcycle = 0;
+int col = 0;
+int n, m;
+
+void dfs(int x, int y) {
+	used[x][y] = col;
+	stack.pb({x, y});
+	int nx = x + dx[arr[x][y]], 
+		ny = y + dy[arr[x][y]];
+
+	// dbg2(x, y);
+	// dbg2(nx, ny);
+	// dbg2(cycle[nx][ny], used[nx][ny]);
+
+	// for (int i = 1; i <= n; ++i) {
+	// 	for (int j = 1; j <= m; ++j)
+	// 		cerr << cycle[i][j] << ' ';
+	// 	cerr << '\n';
+	// }
+
+	if (!cycle[nx][ny]) {
+		if (used[nx][ny] == col) {
+			++curcycle;
+			int pos = stack.size() - 1;
+			while (stack[pos] != pii({nx, ny})) {
+				cycle[stack[pos].ff][stack[pos].ss] = curcycle;
+				stack.pop_back();
+				--pos;
+			}
+			cycle[stack[pos].ff][stack[pos].ss] = curcycle;
+			stack.pop_back();
+			return;
+		} else if (used[nx][ny] == 0) {
+			dfs(nx, ny);
+			if (!stack.empty()) // only if started in cycle
+				stack.pop_back();
+		}
+	}
+}
+
+vector<pii> trans[MAXN][MAXN];
+int dist[MAXN][MAXN];
+int where[MAXN][MAXN];
+
+vector< vector<pii> > cycles;
+
+void transdfs(int x, int y, int cyc, int len, int num) {
+	used[x][y] = true;
+
+	if (cycle[x][y]) {
+		dist[x][y] = 0;
+		if (x != cycles[cyc][num].ff || y != cycles[cyc][num].ss) {
+			cycles[cyc].pb({x, y});
+			++num;
+		}
+	} else {
+		dist[x][y] = len;
+	}
+
+	cycle[x][y] = cyc;
+	where[x][y] = num;
+
+	for (auto to : trans[x][y]) {
+		int nx = to.ff, ny = to.ss;
+		if (!used[nx][ny])
+			transdfs(nx, ny, cyc, dist[x][y] + 1, num);
+	}
+}
+
+int main() {
+	init();
+
+	int g;
+	cin >> n >> m >> g;
+	for (int i = 1; i <= n; ++i)
+		for (int j = 1; j <= m; ++j)
+			cin >> arr[i][j];
+
+
+	dx['n'] = dx['N'] = -1;
+	dx['s'] = dx['S'] = +1;
+	dx['w'] = dx['W'] = +0;
+	dx['e'] = dx['E'] = +0;
+	
+	dy['n'] = dy['N'] = +0;
+	dy['s'] = dy['S'] = +0;
+	dy['w'] = dy['W'] = -1;
+	dy['e'] = dy['E'] = +1;
+
+	for (int i = 1; i <= n; ++i)
+		for (int j = 1; j <= m; ++j)
+			if (!used[i][j]) {
+				++col;
+				dfs(i, j);
+			}
+
+	// for (int i = 1; i <= n; ++i) {
+	// 	for (int j = 1; j <= m; ++j)
+	// 		cerr << cycle[i][j] << ' ';
+	// 	cerr << '\n';
+	// }
+
+	for (int i = 1; i <= n; ++i) 
+		for (int j = 1; j <= m; ++j) {
+			used[i][j] = 0;
+			int nx = i + dx[arr[i][j]],
+				ny = j + dy[arr[i][j]];
+			trans[nx][ny].pb({i, j});
+		}
+
+	cycles.resize(curcycle + 1);
+
+	for (int i = 1; i <= n; ++i)
+		for (int j = 1; j <= m; ++j) {
+			if (cycle[i][j] && !used[i][j]) {
+				cycles[cycle[i][j]].pb({i, j});
+				transdfs(i, j, cycle[i][j], 0, 0);
+			}
+		}
+
+	for (int i = 1; i <= curcycle; ++i) {
+		std::reverse(cycles[i].begin(), cycles[i].end());
+	}
+
+	for (int i = 1; i <= n; ++i)
+		for (int j = 1; j <= m; ++j) {
+			int cnt = cycles[cycle[i][j]].size();
+			where[i][j] = cnt - where[i][j] + 1;
+		}
+
+	// for (int i = 1; i <= n; ++i) {
+	// 	for (int j = 1; j <= m; ++j) {
+	// 		cerr << '<' << i << ',' << j << ',' << cycle[i][j] << ',' << dist[i][j] << ',' << where[i][j] << ',' << (arr[i][j] > 'A' && arr[i][j] < 'Z') << "> ";
+	// 	}
+	// 	cerr << '\n';
+	// }
+
+	vector<int> fr(curcycle + 1);
+	for (int i = 1; i <= curcycle; ++i)
+		fr[i] = cycles[i].size();
+
+	int ans = 0;
+
+	vector<vector<pii>> use (curcycle + 1);
+
+	for (int i = 1; i <= n; ++i)
+		for (int j = 1; j <= m; ++j) {
+			if (arr[i][j] > 'A' && arr[i][j] < 'Z' && fr[cycle[i][j]] > 0) {
+				--fr[cycle[i][j]];
+				use[cycle[i][j]].pb({i, j});
+				++ans;
+			}
+		}
+
+	cout << ans << '\n';
+
+	if (g == 0) return g;
+	int add = 0;
+	for (int i = 1; i <= curcycle; ++i) {
+		int sz = use[i].size();
+		vector<int> need(sz, 0);
+		int mx = -1;
+		for (int j = 0; j < sz; ++j) {
+			int x = use[i][j].ff, y = use[i][j].ss;
+			need[j] = dist[x][y] + (sz + where[x][y] - j + sz) % sz;
+			mx = max(mx, need[j]);
+		}
+		++mx;
+		for (int j = 0; j < sz; ++j) {
+			int x = use[i][j].ff, y = use[i][j].ss;
+			cout << x << ' ' << y << ' ' << (add + mx - need[j]) << '\n';
+		}
+		add += sz;
+	}
+
+	return 0;
+}

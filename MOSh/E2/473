@@ -1,0 +1,86 @@
+fin = open('robots.in')
+fout = open('robots.out', 'w')
+n, m, g = map(int, fin.readline().split())
+A = [0] * n
+ANS1 = []
+ANS2 = []
+c = 0
+B = [[-1] * m for i in range(n)]
+for i in range(n):
+    A[i] = fin.readline()
+for i in range(n):
+    for j in range(m):
+        if B[i][j] == -1:
+            B[i][j] = c
+            x = i
+            y = j
+            if A[x][y] in 'Nn':
+                x -= 1
+            elif A[x][y] in 'Ss':
+                x += 1
+            elif A[x][y] in 'Ww':
+                y -= 1
+            else:
+                y += 1
+            while B[x][y] == -1:
+                B[x][y] = c
+                if A[x][y] in 'Nn':
+                    x -= 1
+                elif A[x][y] in 'Ss':
+                    x += 1
+                elif A[x][y] in 'Ww':
+                    y -= 1
+                else:
+                    y += 1
+            if B[x][y] == c:
+                c += 1
+                if ord(A[x][y]) < 97:
+                    ANS1.append(1)
+                else:
+                    ANS1.append(0)
+                X = x
+                Y = y
+                if A[x][y] in 'Nn':
+                    x -= 1
+                elif A[x][y] in 'Ss':
+                    x += 1
+                elif A[x][y] in 'Ww':
+                    y -= 1
+                else:
+                    y += 1
+                ans = 1
+                while (x, y) != (X, Y):
+                    ans += 1
+                    if A[x][y] in 'Nn':
+                        x -= 1
+                    elif A[x][y] in 'Ss':
+                        x += 1
+                    elif A[x][y] in 'Ww':
+                        y -= 1
+                    else:
+                        y += 1          
+                ANS2.append(ans)
+            else:
+                C = B[x][y]
+                if ord(A[i][j]) < 97:
+                    ANS1[C] += 1
+                x = i
+                y = j
+                while B[x][y] == c:
+                    B[x][y] = C
+                    if A[x][y] in 'Nn':
+                        x -= 1
+                    elif A[x][y] in 'Ss':
+                        x += 1
+                    elif A[x][y] in 'Ww':
+                        y -= 1
+                    else:
+                        y += 1                     
+        elif ord(A[i][j]) < 97:
+            ANS1[B[i][j]] += 1
+ans = 0
+for i in range(len(ANS1)):
+    ans += min(ANS1[i], ANS2[i])
+fout.write(str(ans))
+fin.close()
+fout.close()

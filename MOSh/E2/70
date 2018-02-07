@@ -1,0 +1,92 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cstring>
+#include <set>
+#include <string>
+#include <cmath>
+
+using namespace std;
+
+typedef long long ll;
+
+const int MaxN = 2020;
+const ll INF = 1LL << 62LL;
+
+int cst[27];
+int k;
+int w, h;
+char arr[MaxN][MaxN];
+ll cost[MaxN][MaxN];
+ll tail[MaxN][MaxN];
+ll head[MaxN][MaxN];
+
+
+int main() {
+	freopen("submarine.in", "r", stdin);
+	freopen("submarine.out", "w", stdout);
+	scanf("%d", &k);
+	for (int i = 0; i < k; ++i) {
+		scanf("%d", &cst[i]);
+	}
+	scanf("%d%d", &h, &w);
+	for (int i = 0; i < h; ++i) {
+		scanf("%s\n", arr[i]);
+		for (int j = 0; j < w; ++j) {
+			cost[i][j] = cst[arr[i][j] - 'a'];
+		}
+		/*
+		for (int j = 0; j < w; ++j)
+			cout << cost[i][j] << "\t";
+		cout << endl;
+		*/
+		//cout << arr[i] << endl;
+	}
+
+	ll ans = -INF;
+	for (int r = 0; r < h; ++r) {
+		for (int c = 0; c < w; ++c) {
+			ll s = 0;
+			for (int l = 1; r - l >= 0; ++l) {
+				s += cost[r - l][c];
+				head[r][c] = max(head[r][c], s);
+			}
+			s = 0;
+			for (int l = 1; r + l < h; ++l) {
+				s += cost[r + l][c];
+				tail[r][c] = max(tail[r][c], s);
+			}
+			tail[r][c] += head[r][c];
+		}
+		/*if (r == 2) {
+			for (int j = 0; j < w; ++j)
+				cout << head[r][j] << " ";
+			cout << endl;
+			for (int j = 0; j < w; ++j)
+				cout << tail[r][j] << " ";
+			cout << endl;
+		}*/
+		for (int b = 0; b < w - 1; ++b) {
+			ll cur = cost[r][b] + cost[r][b + 1];
+			ll after = 0;
+			ll best = cur + head[r][b] + tail[r][b + 1];
+			ll maxhead = max(head[r][b], head[r][b + 1]);
+			for (int c = b + 2; c < w; ++c) {
+				cur += cost[r][c];
+				after += cost[r][c];
+				if (cur + maxhead + tail[r][c] > best) {
+					best = cur + maxhead + tail[r][c];
+					after = 0;
+				}
+				if (after > 0) {
+					best += after;
+					after = 0;
+				}
+				maxhead = max(maxhead, head[r][c]);
+			}
+			ans = max(ans, best);
+		}
+	}
+	cout << ans << endl;
+	return 0;
+}

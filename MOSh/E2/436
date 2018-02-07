@@ -1,0 +1,82 @@
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+const int maxN = 4e5;
+
+int pref[maxN];
+int a[maxN];
+int mx[maxN];
+
+int sum(int l, int r)
+{
+    return pref[r] - pref[l - 1];
+}
+
+int n, q;
+
+
+void f()
+{
+    int it = 0;
+    while (it <= n)
+    {
+        if (a[it] == 0)
+        {
+            it++;
+            continue;
+        }
+        int l = it;
+        int r = l;
+        while (a[it] == 1)
+        {
+            it++;
+            r++;
+        }
+        r--;
+        for (int j = l; j <= r; j++)
+        {
+            mx[j] = max(mx[j], r - j + 1);
+        }
+    }
+    int ans = 0;
+    for (int j = 1; j <= n; j++)
+    {
+        ans += mx[j];
+    }
+    cout << ans << "\n";
+
+
+}
+
+int main()
+{
+    freopen("lamps.in", "r", stdin);
+    freopen("lamps.out", "w", stdout);
+
+    cin >> n >> q;
+    for (int i = 1; i <= n; i++)
+    {
+        char c;
+        cin >> c;
+        a[i] = c - '0';
+    }
+    f();
+    for (int i = 1; i <= q; i++)
+    {
+        int l1, r1, c;
+        cin >> l1 >> r1 >> c;
+        for (int pp1 = l1; pp1 <= r1; pp1++)
+        {
+            a[pp1] = c;
+        }
+        f();
+    }
+
+
+
+    return 0;
+}

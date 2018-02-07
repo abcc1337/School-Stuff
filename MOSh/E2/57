@@ -1,0 +1,20 @@
+read = lambda: map(int, input().split())
+n = int(input())
+
+a = [0] * n
+i, j = 1, 2
+a[0] = 1 
+last = 1
+cur = 1
+while j <= n:
+    print('?', i, j)
+    res = int(input())
+    if res > last:
+        cur += 1
+    a[j - 1] = cur
+    last = res
+    j += 1
+k = len(set(a))
+print('Ready!')
+print(k)
+print(*a)

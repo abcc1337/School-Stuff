@@ -1,0 +1,61 @@
+#include <fstream>
+#include <vector>
+
+using namespace std;
+
+#define NAME "grants"
+
+#ifdef DEBUG
+#include <iostream>
+#define PRINT(x) cerr << #x << ": " << x << '\n';
+#define DELIM cerr << "======================\n";
+#else
+#define PRINT(x)
+#define DELIM
+#endif // DEBUG
+
+typedef long long ll;
+ifstream in(NAME ".in");
+ofstream out(NAME ".out");
+
+template <class A, class B>
+ostream &operator <<(ostream &o, const pair<A, B> &p)
+{
+    return o << '(' << p.first << ';' << p.second << ')';
+}
+
+template <class T>
+ostream &operator <<(ostream &o, const vector<T> &v)
+{
+    o << '[';
+    if(!v.empty())
+    {
+        o << v.front();
+        for(int i = 1; i < v.size(); i++)
+        {
+            o << ';' << v[i];
+        }
+    }
+    return o << ']';
+}
+
+int main()
+{
+    int t;
+    in >> t;
+    while(t--)
+    {
+        ll n;
+        in >> n;
+        ll max_grant = n / 3, r = n % 3;
+        while(max_grant & r)
+        {
+            max_grant--;
+            r += 3;
+        }
+        out << max_grant << ' ' << max_grant << ' ' << (max_grant + r) << '\n';
+    }
+    in.close();
+    out.close();
+    return 0;
+}

@@ -1,0 +1,92 @@
+#include <iostream>
+#include <cstdio>
+
+using namespace std;
+
+int totalRows, totalCols;
+char** storage;
+
+char isGood(int i, int j) {
+
+    return (storage[i][j] == storage[i][j+1] && storage[i][j] == storage[i+1][j] && storage[i][j] == storage[i+1][j+1]);
+
+}
+
+int main() {
+
+    freopen("video.in", "r", stdin);
+    freopen("video.out", "w", stdout);
+
+    cin >> totalRows >> totalCols;
+
+    storage = new char*[totalRows+1];
+
+    for(int i=0; i<totalRows; ++i) {
+
+        storage[i] = new char[totalCols+1];
+
+        for(int j=0; j<totalCols; ++j) {
+
+            cin >> storage[i][j];
+
+        }
+
+    }
+    storage[totalRows] = new char[totalCols+1];
+
+    for(int i=0; i<totalRows; ++i)
+        storage[i][totalCols] = storage[i][0];
+    for(int j=0; j<totalCols; ++j)
+        storage[totalRows][j] = storage[0][j];
+    storage[totalRows][totalCols] = storage[0][0];
+
+    long long best = 0;
+
+    int* decrows = new int[totalRows];
+    int* deccols = new int[totalCols];
+    for(int i=0; i<totalRows; ++i)
+        decrows[i] = 0;
+    for(int j=0; j<totalCols; ++j)
+        deccols[j] = 0;
+
+    for(int i=0; i<totalRows; ++i) {
+
+        for(int j=0; j<totalCols; ++j) {
+
+            if(isGood(i, j)) {
+                //cout << i << ' ' << j << endl;
+                ++best;
+                ++decrows[i];
+                ++deccols[j];
+            }
+
+        }
+
+    }
+
+    int mindec = 1e9;
+
+    for(int i=0; i<totalRows; ++i) {
+
+        for(int j=0; j<totalCols; ++j) {
+
+            mindec = min(mindec, decrows[i] + deccols[j] - isGood(i, j));
+
+        }
+
+    }
+
+    cout << best - mindec << endl;
+
+    //cout << "DEBUG\n";
+    //cout << best << ' ' << mindec << endl;
+    //for(int i=0; i<totalRows; ++i)
+    //    cout << decrows[i] << ' ';
+    //cout << endl;
+    //for(int j=0; j<totalCols; ++j)
+    //    cout << deccols[j] << ' ';
+    //cout << endl;
+
+    return 0;
+
+}

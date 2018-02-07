@@ -1,0 +1,67 @@
+program Cc1;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+var n, i, j, k, a, b, q, x, y, now, x1, x2, y1, y2: integer;
+    m: array[1..3000, 1..3000, 0..4] of boolean;
+    used: array[0..3002, 0..3003] of integer;
+    ans: int64;
+    c: char;
+
+procedure dfs(a, b, now: integer);
+var i: integer;
+begin
+  used[a, b] := now;
+  if (m[a, b, 3] = true) and (used[a - 1, b] <> now) and (a - 1 >= x1) then dfs(a - 1, b, now);
+  if (m[a, b, 4] = true) and (used[a + 1, b] <> now) and (a + 1 <= x2) then dfs(a + 1, b, now);
+  if (m[a, b, 1] = true) and (used[a, b - 1] <> now) and (b - 1 >= y1) then dfs(a, b - 1, now);
+  if (m[a, b, 2] = true) and (used[a, b + 1] <> now) and (b + 1 <= y2) then dfs(a, b + 1, now);
+end;
+
+begin
+  reset(input, 'repair.in');
+  rewrite(output, 'repair.out');
+  read(x, y);
+  readln(n, q);
+  for i := 1 to x do begin
+    for j := 1 to y do begin
+      for k := 0 to 4 do begin
+        m[i, j, k] := false;
+      end;
+    end;
+  end;
+  for i := 1 to n - 1 do begin
+    read(c);
+    readln(a, b);
+    if c = 'h' then begin
+      m[a, b, 4] := true;
+      m[a, b, 0] := true;
+      m[a + 1, b, 3] := true;
+      m[a + 1, b, 0] := true;
+    end;   
+    if c = 'v' then begin
+      m[a, b, 2] := true;
+      m[a, b, 0] := true;
+      m[a, b + 1, 1] := true;
+      m[a, b + 1, 0] := true;
+    end;
+  end;
+  for i := 1 to q do begin
+    ans := 0;
+    read(x1, y1, x2, y2);
+    for j := x1 to x2 do begin
+      for k := y1 to y2 do begin
+        if (m[j, k, 0] = true) and(used[j, k] <> i) then begin
+          inc(ans);
+          dfs(j, k, i);
+        end;
+      end;
+    end;
+    writeln(ans);
+  end;
+//  readln;
+//  readln;
+end.

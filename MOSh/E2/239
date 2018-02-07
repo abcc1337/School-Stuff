@@ -1,0 +1,153 @@
+#include <iostream>
+#include <cmath>
+#include <string>
+#include <map>
+#include <set>
+#include <vector>
+#include <algorithm>
+#include <queue>
+#include <fstream>
+
+using namespace std;
+
+bool mf(pair<long long, long long> p1, pair<long long, long long> p2)
+{
+    return (p1.first < p2.first || p1.first == p2.first && p1.second < p2.second);
+}
+
+bool mf_y(pair<long long, long long> p1, pair<long long, long long> p2)
+{
+    return (p1.second < p2.second || p2.second == p1.second && p1.first < p2.first);
+}
+
+int main()
+{
+    ifstream fin("monument.in");
+    ofstream fout("monument.out");
+    long long n, k;
+    fin >> n >> k;
+    vector<pair<long long, long long> > points;
+    map<pair<long long, long long>, pair<long long, long long> > next_point;
+    long long min_x = 1000000000, min_y = 1000000000, max_x = 0, max_y = 0;
+    long long prev_y = 0;
+    for (long long i = 0; i < n; i++)
+    {
+        long long x, y;
+        fin >> x >> y;
+        if (x < min_x) min_x = x;
+        if (x > max_x) max_x = x;
+        if (y < min_y) min_y = y;
+        if (y > max_y) max_y = y;
+        if (i > 0 && abs(y - prev_y) > 1)
+        {
+            while (y - prev_y > 1)
+            {
+                points.push_back(make_pair(x, prev_y + 1));
+                prev_y++;
+            }
+            while (prev_y - y > 1)
+            {
+                points.push_back(make_pair(x, prev_y - 1));
+                prev_y--;
+            }
+        }
+        prev_y = y;
+        points.push_back(make_pair(x, y));
+    }
+    if (abs(prev_y - points[0].second) > 1)
+    {
+        while (points[0].second - prev_y > 1)
+        {
+            points.push_back(make_pair(points[0].first, prev_y + 1));
+            prev_y++;
+        }
+        while (prev_y - points[0].second > 1)
+        {
+            points.push_back(make_pair(points[0].first, prev_y - 1));
+            prev_y--;
+        }
+    }
+    /*for (long long i = 0; i < points.size(); i++)
+    {
+        cout << points[i].first << " " << points[i].second << endl;
+    }
+    cout << endl;*/
+    /*for (long long i = 1; i < points.size(); i++)
+    {
+        points[i].first -= points[0].first;
+        points[i].second -= points[0].second;
+    }
+    points[0].first = points[0].second = 0;*/
+    /*for (long long i = 0; i < points.size(); i++)
+    {
+        points[i].first -= min_x;
+        points[i].second -= min_y;
+    }*/
+    for (long long i = 0; i < points.size(); i++)
+    {
+        if (i < points.size() - 1) next_point[points[i]] = points[i + 1];
+    }
+    next_point[points[points.size() - 1]] = points[0];
+    sort(points.begin(), points.end(), mf);
+    vector<pair<long long, long long> > sort_vect;
+    for (long long i = 0; i < points.size(); i++)
+    {
+        if (i < points.size() - 1 && points[i].second < points[i + 1].second && points[i].first == points[i + 1].first && (next_point[points[i]] == points[i + 1] || next_point[points[i + 1]] == points[i])
+             || i > 0 && points[i].second < points[i - 1].second && points[i].first == points[i - 1].first && (next_point[points[i]] == points[i - 1] || next_point[points[i - 1]] == points[i]))
+        {
+            sort_vect.push_back(points[i]);
+        }
+    }
+    //cout << endl;
+    //cout << "A" << endl;
+    sort(sort_vect.begin(), sort_vect.end(), mf_y);
+    /*for (long long i = 0; i < sort_vect.size(); i++)
+    {
+        cout << sort_vect[i].first << " " << sort_vect[i].second << endl;
+    }
+    cout << "A" << endl;*/
+    vector<long long> start, finish;
+    for (long long i = 0; i < sort_vect.size(); i += 2)
+    {
+        start.push_back(sort_vect[i].first);
+        finish.push_back(sort_vect[i + 1].first);
+    }
+    vector<long long> ost(start.size());
+    map<long long, long long> os;
+    int max_ost = 0;
+    int best_f = 0;
+    for (int i = 0; i < start.size(); i++)
+    {
+        ost[i] = k - (start[i] - sort_vect[i * 2].second + k * sort_vect[i * 2].second) % k;
+        os[ost[i]]++;
+        if (os[ost[i]] > max_ost)
+        {
+            max_ost = os[ost[i]];
+            best_f = ost[i];
+        }
+    }
+    vector<long long> ost2(finish.size());
+    //map<long long, long long> os2;
+    for (int i = 0; i < finish.size(); i++)
+    {
+        ost2[i] = k - (finish[i] - sort_vect[i * 2].second + k * sort_vect[i * 2].second) % k;
+        if (ost[i] != ost2[i]) os[ost2[i]]++;
+        if (os[ost2[i]] > max_ost)
+        {
+            max_ost = os[ost2[i]];
+            best_f = ost2[i];
+        }
+    }
+    long long _count = 0;
+    for (int i = 0; i < start.size(); i++)
+    {
+        long long now_pos = -sort_vect[i * 2].second * (k - 1) - best_f;
+        //cout << now_pos << " ";
+        now_pos = start[i] - ((start[i] - now_pos) % k);
+        //cout << now_pos << endl;
+        _count += ((finish[i] - now_pos - 1) / k + 1);
+    }
+    fout << _count << endl;
+    fin.close();
+    fout.close();
+}

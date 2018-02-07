@@ -1,0 +1,46 @@
+#define	_USE_MATH_DEFINES
+#include<cstdio>
+#include<cstdlib>
+#include<cmath>
+#include<cstring>
+#include<iostream>
+#include<string>
+#include<numeric>
+#include<set>
+#include<map>
+#include<vector>
+#include<utility>
+#include<algorithm>
+
+using namespace std;
+
+typedef	long long		ll;
+typedef	long double	ld;
+
+int t;
+ll n;
+
+int main()
+{
+#ifdef M_DEBUG
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+#else
+	freopen("input.in", "r", stdin);
+	freopen("output.out", "w", stdout);
+#endif // M_DEBUG
+
+	ios_base::sync_with_stdio(false);
+
+	cin >> t;
+	ll r;
+	for (int i = 0; i < t; i++)
+	{
+		cin >> n;
+		for (r = n % 3; (n - r) / 3 & r; r += 3)
+			;
+		cout << (n - r) / 3 + r << ' ' << (n - r) / 3 << ' ' << (n - r) / 3 << endl;
+	}
+
+	return 0;
+}

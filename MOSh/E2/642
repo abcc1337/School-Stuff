@@ -1,0 +1,68 @@
+program q;
+var i,j,k,n,l,h,g,sa,sb:longint;
+  m,a,b:array[-1..100,-1..100]of longint;
+    p:array[1..100]of longint;
+procedure f(k:longint);
+var i:longint;
+begin
+   for i:=1 to m[k,0] do
+   begin
+      p[m[k,i]]:=p[k]+1;
+      f(m[k,i])
+   end
+end;
+begin
+ assign(input,'twopaths.in'); reset(input);
+ assign(output,'twopaths.out'); rewrite(output);
+ read(n,k);
+ for i:=2 to n do
+ begin
+    read(j);
+    inc(m[j,0]);
+    m[j,m[j,0]]:=i;
+    m[i,-1]:=j
+ end;
+ p[1]:=1;
+ f(1);
+ for i:=1 to k do
+ begin
+   read(sa,sb);
+   if sa<sb
+   then begin j:=sa; sa:=sb; sb:=j end;
+   while sa<>sb do
+   begin
+      while p[sa]>p[sb] do
+      begin
+        a[sa,i]:=m[sa,-1];
+        sa:=m[sa,-1];
+      end;
+      while p[sb]>p[sa] do
+      begin
+        a[sb,i]:=m[sb,-1];
+        sb:=m[sb,-1]
+      end;
+      if sa<>sb
+      then begin
+             a[sa,i]:=m[sa,-1];
+             sa:=m[sa,-1];
+             a[sb,i]:=m[sb,-1];
+             sb:=m[sb,-1]
+           end;
+   end;
+   end;
+   for i:=1 to n do
+   for j:=1 to k do
+   for l:=1 to k do
+   if (a[i,j]=a[i,l]) and (a[i,j]<>0)
+   then inc(b[j,l]);
+   n:=0;
+   sa:=1;
+   sb:=2;
+   for i:=1 to k do
+   for j:=1 to k do
+   if (i<>j) and (b[i,j]>n)
+   then begin n:=b[i,j]; sa:=i; sb:=j end;
+   writeln(n);
+   write(sa,' ',sb)
+
+end.

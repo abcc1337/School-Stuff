@@ -1,0 +1,49 @@
+fi = open ("monument.in", "r")
+fo = open ("monument.out", "w")
+n, k =  map(int, fi.readline().strip().split())
+x0, y0 =  map(int, fi.readline().strip().split())
+x, y = x0, y0
+d = [-1]*10000
+for i in range(10000):
+     d[i] = [9999999999999,-1]
+     
+ymi = y0
+yma = y0
+for i in range(n-1):
+     x1, y1 = map(int, fi.readline().strip().split())
+     if x1 == x0:
+          i = min(y1, y0)
+          while i < max(y1, y0):
+               if x1 > d[i][1]:
+                    d[i][1] = x1
+               if x1 < d[i][0]:
+                    d[i][0] = x1
+               i+=1
+     x0, y0 = x1, y1
+     if y1 > yma:
+          yma = y1
+     if y1 < ymi:
+          ymi = y1
+x1, y1 = x, y
+if x1 == x0:
+     i = min(y1, y0)
+     while i < max(y1, y0):
+          if x1 > d[i][1]:
+               d[i][1] = x1
+          if x1 < d[i][0]:
+               d[i][0] = x1
+          i+=1
+cmin = 99999999999999
+for i in range(k):
+     cou = 0
+     for j in range(ymi, yma):
+          s1 = d[j][0] + i - (d[j][0] + i) % k
+          s2 = d[j][1] + i + k - (d[j][1] + i) % k
+          if (d[j][1] + i) % k == 0:
+               s2 -= k
+          cou+= (s2-s1)//k
+          i-=1
+     cmin = min(cmin, cou)
+print(cmin, file = fo)
+fo.close()
+fi.close()

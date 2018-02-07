@@ -1,0 +1,61 @@
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <vector>
+#include <set>
+#define ll long long int
+#define pii pair<ll, ll>
+using namespace std;
+
+
+
+vector< pii > g[3003];
+ll dist[3003];
+set<pii> st;
+bool used[3003];
+
+void dfs(int v, ll power, int last) {
+	if (power < 0) return;
+
+	if (st.count(make_pair(dist[v], v)))
+		st.erase(st.find(make_pair(dist[v], v)));
+
+	power = max(power, dist[v]);
+
+	for (auto it = g[v].begin(); it != g[v].end(); it++) {
+		pii p = (*it);
+		if (p.first == last) continue;
+		dfs(p.first, power - p.second, v);
+	}
+}
+
+int main() {
+	freopen("alarm.in", "rt", stdin);
+	freopen("alarm.out", "wt", stdout);
+
+	int n;
+	scanf("%d", &n);
+
+	for (int i = 0; i < n; i++) {
+		scanf("%d", &dist[i]);
+		st.insert(make_pair(dist[i], i));
+	}
+
+	for (int i = 0; i < n - 1; i++) {
+		int a, b;
+		ll len;
+		scanf("%d%d%I64d", &a, &b, &len);
+		a--, b--;
+		g[a].push_back(make_pair(b, len));
+		g[b].push_back(make_pair(a, len));
+	}
+
+	ll ans = 0;
+	while (st.size() > 0) {
+		pii v = (*st.rbegin());
+		dfs(v.second, v.first, -1);
+		ans++;
+	}
+
+	printf("%I64d", ans);
+}

@@ -1,0 +1,202 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <map>
+#include <set>
+
+
+using namespace std;
+
+const int MAXN = 400000;
+
+pair<int, int> st[30][MAXN];
+int fp[MAXN];
+int pw[MAXN];
+vector<int> tr[MAXN];
+int dp[MAXN];
+int f[MAXN];
+int t[MAXN];
+
+vector<int> path;
+
+void dfs(int v, int d)
+{
+//    int k = 0;
+//    while ((1 << k) <= path.size())
+//    {
+//        bp[k][v] = path[path.size() - (1 << k)];
+//        k++;
+//    }
+    fp[v] = path.size();
+    path.push_back(v);
+    dp[v] = d;
+    for (int i = 0; i < tr[v].size(); i++)
+    {
+        dfs(tr[v][i], d + 1);
+        path.push_back(v);
+    }
+}
+
+int lca(int a, int b)
+{
+//    cout << a << ' ' << b << endl;
+    int l = fp[a];
+    int r = fp[b];
+    if (l > r)
+        swap(l, r);
+//    cout << l << ' ' << r << endl;
+    int k = pw[r - l + 1];
+//    cout << k << endl;
+    pair<int, int> p = min(st[k][l], st[k][r - (1 << k) + 1]);
+//    cout << p.second << endl;
+    return p.second;
+}
+
+int gt(int a, int b)
+{
+    int p = lca(a, b);
+//    cout << p << endl;
+    return (dp[a] + dp[b] - 2 * dp[p]);
+}
+
+int ans = 0, n1 = 0, n2 = 1;
+
+vector<int> dmn[MAXN];
+
+int mdp[MAXN];
+int mdi[MAXN];
+//path.push_back(v);
+
+pair<int, int> dfs1(int v)
+{
+    pair<int, int> a, b, c;
+    b = {mdp[v], mdi[v]};
+    c = {-1, -1};
+    for (int i = 0; i < tr[v].size(); i++)
+    {
+        a = dfs1(tr[v][i]);
+        if (a.first > b.first)
+            c = b, b = a;
+        else
+            if (a.first > c.first)
+            c = a;
+    }
+    if (c.first > 0)
+    {
+        if (ans < min(c.first, b.first))
+        {
+            ans = min(c.first, b.first);
+            n1 = b.second;
+            n2 = c.second;
+        }
+    }
+//    cout << v << ' ' << b.first << ' ' << c.first << endl;
+    b.first--;
+    return b;
+}
+
+int main()
+{
+    freopen("twopaths.in", "r", stdin);
+    freopen("twopaths.out", "w", stdout);
+    int n, k, i, j;
+    cin >> n >> k;
+    for (i = 1; i < n; i++)
+    {
+        int p;
+        cin >> p;
+        p--;
+        tr[p].push_back(i);
+    }
+//    for (j = 0; j < 30; j++)
+//        for (i = 0; i < n; i++)
+//        bp[j][i] = 0;
+    dfs(0, 0);
+    k = 0;
+    for (i = 0; i < MAXN; i++)
+    {
+        if ((2 << k) < i)
+            k++;
+        pw[i] = k;
+    }
+    int spsz = path.size();
+    for (i = 0; i < spsz; i++)
+    {
+        st[0][i] = {dp[path[i]], path[i]};
+//        cout << st[0][i].second << ' ';
+    }
+//    cout << endl;
+    for (k = 1; (1 << k) < spsz; k++)
+    {
+        for (i = 0; i < spsz - (1 << k) + 1; i++)
+        {
+            st[k][i] = min(st[k - 1][i], st[k - 1][i + (1 << (k - 1))]);
+//            cout << st[k][i].second << ' ';
+        }
+//        cout << endl;
+    }
+    for (i = 0; i < n; i++)
+        mdp[i] = -1;
+    map<pair<int, int>, int> pt;
+    for (i = 0; i < k; i++)
+    {
+        cin >> f[i] >> t[i];
+        if (f[i] < t[i])
+            swap(f[i], t[i]);
+        f[i]--;
+        t[i]--;
+        int val = -1;
+        if (pt.find({f[i], t[i]}) != pt.end())
+        {
+            val = pt[{f[i], t[i]}];
+        }
+        int p = lca(f[i], t[i]);
+        if (val != -1)
+        {
+            int u = dp[f[i]] + dp[t[i]] - 2 * dp[p];
+            if (u > ans)
+                ans = u, n1 = i, n2 = val;
+            continue;
+        }
+        pt[{f[i], t[i]}] = i;
+        if (mdp[f[i]] < dp[f[i]] - dp[p])
+        {
+            mdp[f[i]] = dp[f[i]] - dp[p];
+            mdi[f[i]] = i;
+        }
+        if (mdp[t[i]] < dp[t[i]] - dp[p])
+        {
+            mdp[t[i]] = dp[t[i]] - dp[p];
+            mdi[t[i]] = i;
+        }
+        if (t[i] != p && f[i] != p)
+            dmn[p].push_back(i);
+    }
+
+    dfs1(0);
+    for (int h = 0; h < n; h++)
+    {
+        for (int x = 0; x < dmn[h].size(); x++)
+        {
+            for (int y = x + 1; y < dmn[h].size(); y++)
+            {
+                i = dmn[h][x];
+                j = dmn[h][y];
+                int sum = 0;
+                sum += 2 * gt(f[i], t[i]);
+                sum += 2 * gt(f[j], t[j]);
+                sum -= gt(f[i], t[j]);
+                sum -= gt(f[j], t[i]);
+                sum -= gt(f[j], f[i]);
+                sum -= gt(t[j], t[i]);
+                sum /= 2;
+                if (sum > ans)
+                    ans = sum, n1 = i, n2 = j;
+        //            cout << sum << ' ' << ans << endl;
+            }
+        }
+    }
+    cout << ans << endl;
+    cout << n1 + 1 << ' ' << n2 + 1 << endl;
+    return 0;
+}

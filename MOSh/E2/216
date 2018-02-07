@@ -1,0 +1,48 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <string>
+#include <queue>
+#include <array>
+#include <algorithm>
+
+typedef long long ll;
+using namespace std;
+
+#define INF 1791791791ll
+
+int main()
+{
+#ifndef LOCAL
+    freopen("typing.in", "r", stdin);
+    freopen("typing.out", "w", stdout);
+#endif
+    int m, n, L;
+    cin >> m >> n >> L;
+    string s;
+    cin >> s;
+    vector<string> t(n);
+    vector<ll> c(n);
+    for (int i = 0; i < n; i++)
+        cin >> c[i] >> t[i];
+    vector<ll> dp(m + 1, INF);
+    dp[0] = 0;
+    for (int i = 0; i < m; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            for (int k = 0; k < (int)t[j].size() && k <= i; k++)
+            {
+                if (s.substr(i - k, k + 1) == t[j].substr(0, k + 1) || s.substr(i - k, k + 1) == t[j].substr(t[j].size() - k + 1, k + 1))
+                {
+                    dp[i + 1] = min(dp[i + 1], dp[i - k] + c[j]);
+                }
+            }
+        }
+    }
+    if (dp[m] == INF)
+        cout << -1 << endl;
+    else
+        cout << dp[m] << endl;
+    return 0;
+}

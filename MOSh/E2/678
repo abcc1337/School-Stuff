@@ -1,0 +1,28 @@
+from time import time
+t = time()
+f = open("onlyone.in").read().split("\n")
+n = int(f[0])
+a = [set() for _ in range(100)]
+b = [set() for _ in range(100)]
+c = [set() for _ in range(100)]
+for i in range(n):
+    x, y, z = map(int, f[i+1].split())
+    a[x-1].add((i, y, z))
+    b[y-1].add((i, x, z))
+    c[z-1].add((i, x, y))
+res = 0
+for i in range(100):
+    for j in a[i]:
+        for k in a[i]:
+            if j[0] > k[0] and j[1] != k[1] and j[2] != k[2]:
+                res += 1
+    for j in b[i]:
+        for k in b[i]:
+            if j[0] > k[0] and j[1] != k[1] and j[2] != k[2]:
+                res += 1
+    for j in c[i]:
+        for k in c[i]:
+            if j[0] > k[0] and j[1] != k[1] and j[2] != k[2]:
+                res += 1
+open("onlyone.out", "w").write(str(res))
+print(time() - t)

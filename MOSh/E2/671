@@ -1,0 +1,100 @@
+{$mode delphi}
+{$minstacksize 134217728}
+var
+ bestr:array[1..5001] of longint;
+ nowr:array[1..5001] of longint;
+ ch:char;
+ n,q:longint;
+ i,j:longint;
+ l,r,c:longint;
+ ans:int64;
+
+begin
+ assign(input,'lamps.in');
+ assign(output,'lamps.out');
+ reset(input);
+ rewrite(output);
+ readln(n,q);
+ For i:=1 to n do
+ begin
+   read(ch);
+   If ch='1' then
+   begin
+    nowr[i]:=i;
+   end
+   else
+   begin
+    nowr[i]:=0;
+   end;
+ end;
+ For i:=n downto 1 do
+ begin
+  If nowr[i]<>0 then
+  begin
+   If nowr[i]<nowr[i+1] then
+   begin
+    nowr[i]:=nowr[i+1];
+   end;
+  end;
+  bestr[i]:=nowr[i];
+ end;
+  ans:=0;
+  For i:=1 to n do
+  begin
+   If bestr[i]>=i then inc(ans,bestr[i]-i+1);
+  end;
+  writeln(ans);
+
+ For j:=1 to q do
+ begin
+  read(l,r,c);
+  If c=0 then
+  begin
+   For i:=l to r do
+   begin
+    nowr[i]:=0;
+   end;
+   For i:=1 downto r do
+   begin
+    If nowr[i]<>0 Then
+    begin
+     nowr[i]:=i;
+     If nowr[i]<nowr[i+1] then
+     begin
+      nowr[i]:=nowr[i+1];
+     end;
+    end;
+   end;
+  end
+  else
+  begin
+   For i:=l to r do
+   begin
+    If nowr[i]=0 then
+    begin
+     nowr[i]:=i;
+    end;
+   end;
+   For i:=r downto 1 do
+   begin
+    If nowr[i]<>0 then
+    begin
+     If nowr[i]<nowr[i+1] then
+     begin
+      nowr[i]:=nowr[i+1];
+      If bestr[i]<nowr[i] then
+      begin
+       bestr[i]:=nowr[i];
+      end;
+     end;
+    end;
+   end;
+  end;
+  ans:=0;
+  For i:=1 to n do
+  begin
+   If bestr[i]>=i then inc(ans,bestr[i]-i+1);
+  end;
+  writeln(ans);
+ end;
+end.

@@ -1,0 +1,63 @@
+def grant(a1, a2, a3):
+    log = 0
+    curr_grant = 0
+    while (1 << log) <= a1 and (1 << log) <= a2 and (1 << log) <= a3:
+        if ((a1 >> log) & 1) and ((a2 >> log) & 1) and ((a3 >> log) & 1):
+            curr_grant += (1 << log)
+        log += 1
+    #print('grant(', a1, ', ', a2, ', ', a3, ') = ', curr_grant, sep='')
+    return curr_grant
+
+
+def generate(index, k, n, curr_sum, prefix):
+    max_grant = 0
+    best_lst = [0, 0, n]
+    if index == 0:
+        for i in range(0, (n - curr_sum) + 1):
+            new_grant, new_lst = generate(index + 1, k, n, curr_sum + i, prefix + [i])
+            if new_grant >= max_grant:
+                max_grant = new_grant
+                best_lst = new_lst
+    elif index < k - 1:
+        for i in range(prefix[-1], (n - curr_sum) + 1):
+            new_grant, new_lst = generate(index + 1, k, n, curr_sum + i, prefix + [i])
+            if new_grant >= max_grant:
+                max_grant = new_grant
+                best_lst = new_lst
+    elif index == k - 1:
+        if n - curr_sum >= prefix[-1]:
+            new_grant, new_lst = generate(index + 1, k, n, n, prefix + [n - curr_sum])
+            if new_grant >= max_grant:
+                max_grant = new_grant
+                best_lst = new_lst
+    else:
+        #print(*prefix)
+        max_grant = grant(*prefix)
+        best_lst = prefix
+    #if n == 4:
+        #print('index =', index, '; k =', k, '; n =', n, '; curr_sum =', curr_sum, '; prefix =', prefix)
+        #print('max_grant =', max_grant, '; best_lst =', best_lst)
+    return (max_grant, best_lst)
+
+
+def main():
+    fin = open('grants.in')
+    fout = open('grants.out', 'w')
+    t = int(fin.readline())
+    for test in range(t):
+        n = int(fin.readline())
+        grant, lst = generate(0, 3, n, 0, [])
+        #print('test =', test)
+        #print('grant =', grant)
+        print(*lst, file=fout)
+    fin.close()
+    fout.close()
+
+
+def debug():
+    while True:
+        n, k = map(int, input().split())
+        generate(0, k, n, 0, [])
+
+
+main()

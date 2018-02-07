@@ -1,0 +1,26 @@
+import sys
+sys.stdin = open("video.in")
+sys.stdout = open("video.out", "w")
+n, m = list(map(int, input().split()))
+a = [input() for i in range(n)]
+dp = [[0] * m for i in range(n)]
+for i in range(n):
+    for j in range(m):
+        dp[i][j] = (a[i][j] == a[(i + 1) % n][j] == a[i][(j + 1) % m] == a[(i + 1) % n][(j + 1) % m])
+sumv = [0] * m
+for i in range(m):
+    for j in range(n):
+        sumv[i] += dp[j][i]
+sumg = [0] * n
+for i in range(n):
+    for j in range(m):
+        sumg[i] += dp[i][j]
+mindp = 10 ** 9
+for i in range(n):
+    for j in range(m):
+        if sumg[i] + sumv[j] - dp[i][j] < mindp:
+            mindp = sumg[i] + sumv[j] - dp[i][j]
+sumall = 0
+for i in range(n):
+    sumall += sum(dp[i])
+print(sumall - mindp)

@@ -1,0 +1,95 @@
+#include <iostream>
+#include <cstdio>
+#include <algorithm>
+#include <vector>
+#define For(i, a, b) for(int i = a; i < b; ++i)
+#define read(s1, s2) freopen(s1, "r", stdin); freopen(s2, "w", stdout);
+#define x first
+#define y second
+#define mp make_pair
+#define int long long
+
+using namespace std;
+
+int a, b, n, m;
+bool had[102][102];
+bool used[102][102];
+bool way[102][102][4];
+int dirx[4] = {1, 0, -1, 0};
+int diry[4] = {0, 1, 0, -1};
+int X, Y, X1, Y1;
+vector <pair <int, int> > arr;
+
+int dfs(int nx, int ny) {
+    //cout << nx << ' ' << ny << endl;
+    used[nx][ny] = true;
+    For(i, 0, 4) {
+        if (way[nx][ny][i] && !used[nx + dirx[i]][ny + diry[i]]) {
+            dfs(nx + dirx[i], ny + diry[i]);
+        }
+    }
+}
+
+bool In(pair <int, int> a) {
+    return (a.x >= X && a.y >= Y && a.x <= X1 && a.y <= Y1);
+}
+
+main() {
+    read("repair.in", "repair.out");
+    scanf("%i%i", &a, &b);
+    scanf("%i%i", &n, &m);
+    For(i, 1, n) {
+        char c = ' ';
+        int x2 = 0, y2 = 0;
+        cin >> c >> x2 >> y2;
+        if (!had[x2][y2]) {
+            had[x2][y2] = true;
+            arr.push_back(mp(x2, y2));
+        }
+        if (!had[x2 + dirx[c == 'v']][y2 + diry[c == 'v']]) {
+            had[x2 + dirx[c == 'v']][y2 + diry[c == 'v']] = true;
+            arr.push_back(mp(x2 + dirx[c == 'v'], y2 + diry[c == 'v']));
+        }
+        way[x2][y2][c == 'v'] = true;
+        way[x2 + dirx[c == 'v']][y2 + diry[c == 'v']][2 + (c == 'v')] = true;
+    }
+    For(i, 0, a + 2) {
+        For(q, 0, b + 2) {
+            used[i][q] = true;
+        }
+    }
+    For(i, 0, m) {
+        int counter = 0;
+        scanf("%i%i%i%i", &X, &Y, &X1, &Y1);
+        //cout << endl << endl;
+        For(i, 0, arr.size()) {
+            if (In(arr[i])) {
+                used[arr[i].x][arr[i].y] = false;
+            }
+        }
+        For(i, 0, arr.size()) {
+            if (!used[arr[i].x][arr[i].y]) {
+                dfs(arr[i].x, arr[i].y);
+                ++counter;
+            }
+        }
+        printf("%i\n", counter);
+    }
+}
+/*
+4 3
+8 4
+v 1 1
+h 1 1
+h 2 1
+v 2 1
+v 2 2
+h 1 3
+h 3 1
+1 1 4 3
+3 2 4 3
+3 1 3 1
+1 2 3 3
+
+
+*/

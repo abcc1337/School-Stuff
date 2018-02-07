@@ -1,0 +1,29 @@
+def solve(s):
+    ans = 1e11
+    if s == '':
+        return 0
+    for price, st in our:
+        for i in range(len(st), 0, -1):
+            if s[:i] == st[:i]:
+                ans = min(ans, solve(s[i:]) + price)
+            if s[:i] == st[len(st) - i:]:
+                ans = min(ans, solve(s[i:]) + price)
+    return ans
+
+
+fin = open('typing.in')
+fout = open('typing.out', 'w')
+m, n, l = map(int, fin.readline().strip().split())
+s = fin.readline().strip()
+our = []
+for i in range(n):
+    a, b = fin.readline().strip().split()
+    a = int(a)
+    our.append((a, b))
+
+res = solve(s)
+if res < 1e11:
+    fout.write(str(res))
+else:
+    fout.write('-1')
+fout.close()

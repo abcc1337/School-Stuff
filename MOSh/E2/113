@@ -1,0 +1,65 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void solve()
+{
+    int n, q;
+    cin >> n >> q;
+
+    vector<int64_t> xs(n+1);
+    vector<int64_t> ks(n);
+    for (int i = 0; i < n; ++i)
+        cin >> xs[i+1] >> ks[i];
+
+    vector<int64_t> ys(n+1);
+    for (int i = 0; i < n; ++i)
+        ys[i+1] = ys[i] + xs[i+1]*ks[i];
+
+    for (int i = 0; i < n; ++i)
+        xs[i+1] += xs[i];
+/*
+    for (auto it : xs)
+        cout << it << ' ';
+    cout << endl;
+    for (auto it : ys)
+        cout << it << ' ';
+    cout << endl;
+    for (auto it : ks)
+        cout << it << ' ';
+    cout << endl;
+*/
+    while (q--)
+    {
+        int x, y;
+        cin >> x >> y;
+        int ri = lower_bound(xs.begin(), xs.end(), x) - xs.begin();
+        int li = ri - (x != xs[ri]);
+
+        if (li && xs[li] == x) --li;
+        if (ri < n && xs[ri] == x) ++ri;
+
+        while (ri < n && (xs[ri] - x)*ks[ri] >= (ys[ri] - y)) ++ri;
+        while (li && (x - xs[li])*ks[li-1] <= (y - ys[li])) --li;
+
+        cout << xs[li] << ' ' << xs[ri] << endl;
+
+    }
+}
+
+#define FILE_NAME "mountain"
+
+int main()
+{
+#ifndef __DEBUG
+    freopen(FILE_NAME ".in", "r", stdin);
+    freopen(FILE_NAME ".out", "w", stdout);
+#endif // __DEBUG
+    ios_base::sync_with_stdio(false);
+    cin.tie();
+    srand(time(NULL));
+
+    solve();
+
+    return 0;
+}

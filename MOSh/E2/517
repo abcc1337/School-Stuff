@@ -1,0 +1,53 @@
+var
+  ar: array[1..5000] of byte;
+  w: array[1..5000,1..5000] of byte;
+  i, ii, j, n, q, x1, x2, c, ans: longint;
+  fl, flo: text;
+  s: ansistring;
+
+procedure UpdAns;
+var
+  i, j: longint;
+begin
+  for i:=1 to n do
+    begin
+      for j:=i to n do
+        if ar[j]=1 then
+          begin
+            if w[i,j]=0 then ans:=ans+1;
+            w[i,j]:=1;
+          end
+        else
+          break;
+    end;
+end;
+
+begin
+  assign(fl, 'lamps.in');
+  reset(fl);
+  assign(flo, 'lamps.out');
+  rewrite(flo);
+  readln(fl, n, q);
+  readln(fl, s);
+  for i:=1 to n do
+    ar[i]:=Ord(s[i])-Ord('0');
+  UpdAns;
+  writeln(flo, ans);
+  for ii:=1 to q do
+    begin
+      readln(fl, x1, x2, c);
+      if c = 0 then
+        begin
+          for i:=x1 to x2 do ar[i]:=0;
+          writeln(flo, ans);
+        end
+      else
+        begin
+          for i:=x1 to x2 do ar[i]:=1;
+          UpdAns;
+          writeln(flo, ans);
+        end;
+    end;
+  close(fl);
+  close(flo);
+end.

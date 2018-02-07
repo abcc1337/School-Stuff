@@ -1,0 +1,77 @@
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <cstdio>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <utility>
+#include <cstdlib>
+#include <cmath>
+#include <algorithm>
+#define forn(i, n) for (int i = 0; i < (n); i++)
+#define fornn(i, q, n) for (int i = (q); i < (n); i++)
+
+using namespace std;
+
+typedef long long ll;
+
+int solve();
+int main() {
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin), freopen("output.txt", "w", stdout);
+#else
+	freopen("castle.in", "r", stdin), freopen("castle.out", "w", stdout);
+#endif
+	solve();
+	return 0;
+}
+
+vector<pair<int, int> > G;
+
+ll dp[107][10007];
+
+int solve() {
+	int n, s;
+	scanf("%d %d", &n, &s);
+	G.resize(n);
+	forn(i, n) {
+		scanf("%d %d", &G[i].first, &G[i].second);
+	}
+	forn(i, n + 1) {
+	forn(j, s + 1) {
+		dp[i][j] = 1000000000000000007;
+	}
+	}
+	forn(j, s + 1) {
+		dp[0][j] = 0;
+	}
+	fornn(i, 1, n + 1) {
+		forn(j, s + 1) {
+			int l = 0, r = j;
+			while (r - l > 2) {
+				int tl = l + (r + l) / 3;
+				int tr = r - (r + l) / 3;
+				ll ppl = max(0, G[i - 1].first - G[i - 1].second * (j - tl));
+				ll ppr = max(0, G[i - 1].first - G[i - 1].second * (j - tr));
+				if (dp[i - 1][tl] + ppl <= dp[i - 1][tr] + ppr) {
+					r = tr;
+				}
+				else {
+					l = tl;
+				}
+			}
+			dp[i][j] = min(dp[i][j], dp[i - 1][l] + max(0, G[i - 1].first - G[i - 1].second * (j - l)));
+			if (r - l == 2)
+				dp[i][j] = min(dp[i][j], dp[i - 1][l + 1] + max(0, G[i - 1].first - G[i - 1].second * (j - l - 1)));
+			dp[i][j] = min(dp[i][j], dp[i - 1][r] + max(0, G[i - 1].first - G[i - 1].second * (j - l - 2)));
+			/*forn(k, j + 1) {
+				int col = j - k;
+				ll pp = max(0, G[i - 1].first - G[i - 1].second * col);
+				dp[i][j] = min(dp[i][j], dp[i - 1][k] + pp);
+			}*/
+		}
+	}
+	cout << dp[n][s];
+	return 0;
+}

@@ -1,0 +1,30 @@
+inf = open('grants.in')
+ouf = open('grants.out', 'w')
+t = int(inf.readline())
+for z in range(t):
+    n = int(inf.readline())
+    mx = n // 3
+    ans = -1
+    for i in range(mx + 1):
+        s = []
+        i1 = i
+        while(i1 > 0):
+            s.append(i1 % 2)
+            i1 //= 2
+        
+        ost = n - 3 * i
+        s2 = []
+        while(ost > 0):
+            s2.append(ost % 2)
+            ost //= 2
+        
+        fl = 1
+        for j in range(min(len(s), len(s2))):
+            if (s[j] == s2[j] and s[j] == 1):
+                fl = 0
+                break
+        if (fl):
+            ans = i
+    print(ans + (n - ans * 3), ans, ans, file = ouf)
+inf.close()
+ouf.close()

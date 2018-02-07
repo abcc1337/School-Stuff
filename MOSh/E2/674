@@ -1,0 +1,37 @@
+def main():
+    fin = open('typing.in', 'r')
+    fout = open('typing.out', 'w')
+    m, n, l = map(int, fin.readline().strip().split())
+    s = fin.readline().strip()
+    variants = []
+    costs = []
+    for i in range(n):
+        tmp = fin.readline().strip().split()
+        cost = int(tmp[0])
+        s1 = tmp[1]
+        l = len(s1)
+        for i in range(l):
+            variants.append((s1[:i + 1], len(s1[:i + 1])))
+        for i in range(l - 1):
+            variants.append((s1[i + 1:], len(s1[i + 1:])))
+        costs.extend([cost] * (l * 2 - 1))
+    dp = [None] * (m + 1)
+    l = len(variants)
+    dp[0] = 0
+    for i in range(m):
+        if dp[i] is not None:
+            for j in range(l):
+                cost, variant = costs[j], variants[j]
+                if i + variant[1] < m + 1:
+                    if s[i:i + variant[1]] == variant[0]:
+                        if dp[i + variant[1]] is None or dp[i + variant[1]] > dp[i] + cost:
+                            dp[i + variant[1]] = dp[i] + cost
+    if dp[-1] is None:
+        fout.write('-1\n')
+    else:
+        fout.write(str(dp[-1]) + '\n')
+    fin.close()
+    fout.close()
+
+
+main()

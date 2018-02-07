@@ -1,0 +1,35 @@
+var
+  ans, x, y: array[0 .. 1000] of longint;
+  n, k, i, j, z, tmp, re: longint;
+begin
+  assign(input, 'monument.in');
+  reset(input);
+  assign(output, 'monument.out');
+  rewrite(output);
+  read(n, k);
+  for i := 1 to n do
+    read(x[i], y[i]);
+  x[0] := x[n];
+  y[0] := y[n];
+  for z := 0 to k - 1 do
+    for i := 1 to n do
+      if y[i] > y[i - 1] then
+        for j := y[i - 1] to y[i] - 1 do
+          begin
+            tmp := x[i] + (k - (j mod k)) mod k + z;
+            inc(ans[z], tmp div k);
+            if (tmp mod k) <> 0 then
+              inc(ans[z]);
+          end
+      else
+        for j := y[i - 1] - 1 downto y[i] do
+          begin
+            tmp := x[i] + (k - (j mod k)) mod k + z;
+            dec(ans[z], tmp div k);
+          end;
+  re := ans[0];
+  for z := 0 to k - 1 do
+    if re > ans[z] then
+      re := ans[z];
+  write(re);
+end.

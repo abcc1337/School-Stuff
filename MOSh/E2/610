@@ -1,0 +1,27 @@
+def main():
+	inf = open("video.in", "r")
+	outf = open("video.out", "w")
+
+	n, m = map(int, inf.readline().split())
+	arr = [[0] * (m * 2) for i in range(n * 2)]
+	for i in range(n):
+		s = inf.readline()
+		for j in range(m):
+			arr[i][j] = s[j];
+			arr[i + n][j] = s[j];
+			arr[i][j + m] = s[j];
+			arr[i + n][j + m] = s[j];
+	g = 0
+	for x in range(n):
+		for y in range(m):
+			ans = 0
+			for i in range(x, x + n - 1):
+				for j in range(y, y + m - 1):
+					if (arr[i][j] == arr[i+1][j] == arr[i][j+1] == arr[i+1][j+1]):
+						ans += 1
+			g = max(ans, g)
+	print(g, file = outf)
+	inf.close()
+	outf.close()
+
+main()

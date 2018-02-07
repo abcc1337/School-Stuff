@@ -1,0 +1,59 @@
+def dfs(y, x, bottom, top):
+    global been
+    if y > top[1] or x > top[0] or y < bottom[1] or x < bottom[0]:
+        been[y][x] = True
+        return
+    been[y][x] = True
+    if matr[y + 1][x] and not been[y + 1][x] and v[x][y]:
+        dfs(y + 1, x, bottom, top)
+    if matr[y][x + 1] and not been[y][x + 1] and h[x][y]:
+        dfs(y, x + 1, bottom, top)    
+    if matr[y][x - 1] and not been[y][x - 1] and h[x - 1][y]:
+        dfs(y, x - 1, bottom, top)
+    if matr[y - 1][x] and not been[y - 1][x] and v[x][y - 1]:
+        dfs(y - 1, x, bottom, top)
+        
+
+fin = open('repair.in', 'r')
+fout = open('repair.out', 'w')        
+n, m = [int(x) for x in fin.readline().split()]
+a, b = [int(x) for x in fin.readline().split()]
+matr = [[False for i in range(n + 1)] for j in range(m + 1)]
+been = [[False for i in range(n + 1)] for j in range(m + 1)]
+points = []
+v = [[False for i in range(m + 1)] for j in range(n + 1)]
+h = [[False for i in range(m + 1)] for j in range(n + 1)]
+el = [[] for i in range(n)]
+for i in range(a - 1):
+    cur = fin.readline().split()
+    x = int(cur[1]) - 1
+    y = int(cur[2]) - 1
+    if cur[0] == 'v':
+        matr[y][x] = True
+        matr[y + 1][x] = True
+        points.append([x, y])
+        points.append([x, y + 1])
+        v[x][y] = True
+    else:
+        matr[y][x] = True
+        matr[y][x + 1] = True
+        points.append([x, y])
+        points.append([x + 1, y])   
+        h[x][y] = True
+for i in range(b):
+    summ = 0
+    top = [0, 0]
+    bottom = [0, 0]
+    been = [[False for i in range(n + 1)] for j in range(m + 1)]
+    cur = [int(x) - 1 for x in fin.readline().split()]
+    print(cur)
+    bottom[0], bottom[1], top[0], top[1] = cur
+    for j in range(len(points)):
+        y = points[j][1]
+        x = points[j][0]
+        if (not been[y][x]) and (not (y > top[1] or x > top[0] or y < bottom[1] or x < bottom[0])):
+            summ += 1
+            dfs(y, x, bottom, top)
+    print(summ, file = fout)
+fout.close()
+fin.close()  

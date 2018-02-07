@@ -1,0 +1,189 @@
+#include <iostream>
+#include <cstdio>
+#include <cstring>
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+const int MAXN = 26, MAXW = 2e+3 + 10, MIN_INT = -1e+9;
+int dec[MAXN], ar[MAXW][MAXW];
+char buffer[MAXW];
+int maxUp[MAXW], maxDown[MAXW], maxUpPos[MAXW], maxDownPos[MAXW], prefMin[MAXN], prefMinPos[MAXN];
+char resAr[MAXW][MAXW], defAr[MAXW][MAXW];
+
+int getTail(int index)
+{
+    return maxUp[index] + maxDown[index];
+}
+
+int getRub(int index)
+{
+    return maxDown[index];
+}
+
+int getPair(int a, int b)
+{
+    return getRub(a) + getTail(b);
+}
+
+inline void ok(int a, int b)
+{
+    resAr[a][b] = defAr[a][b];
+}
+
+int main()
+{
+  /*
+    #pragma message "FREOPEN"
+    freopen("tmpB", "r", stdin);
+//  */ freopen("submarine.in", "r", stdin); freopen("submarine.out", "w", stdout);
+
+    int n;
+    cin >> n;
+    for (int q = 0; q < n; ++q)
+        cin >> dec[q];
+
+    int w, h;
+    cin >> h >> w;
+    for (int q = 0; q < h; ++q)
+    {
+        cin >> buffer;
+        for (int i = 0; i< w; ++i)
+        {
+            ar[q][i] = dec[(unsigned char)buffer[i] - 'a'];
+            defAr[q][i] = buffer[i];
+        }
+    }
+
+    /*
+    for (int q = 0; q < h; ++q)
+    {
+        for (int i = 0; i < w; ++i)
+            cout << ar[q][i] << ' ';
+        cout << endl;
+    } // */
+
+
+    int bestSum = MIN_INT, bestRow, bestLeft, bestRight, bestRub, bestTail,
+        bestRubUp, bestTailUp, bestTailDown;
+
+    for (int row = 0; row < h; ++row)
+    {
+        for (int col = 0; col < w; ++col)
+        {
+            int mUp = 0, mPos = row, cnt = 0;
+            for (int q = row + 1; q < h; ++q)
+            {
+                cnt += ar[q][col];
+                if (cnt > mUp)
+                {
+                    mUp = cnt;
+                    mPos = q;
+                }
+            }
+
+            maxUp[col] = mUp;
+            maxUpPos[col] = mPos;
+
+            int mDown = 0;
+            mPos = row; cnt = 0;
+            for (int q = row - 1; q >= 0; --q)
+            {
+                cnt += ar[q][col];
+                if (cnt > mDown)
+                {
+                    mDown = cnt;
+                    mPos = q;
+                }
+            }
+
+            maxDown[col] = mDown;
+            maxDownPos[col] = mPos;
+        }
+
+        /*
+        prefMin[0] = maxUp[0];
+        prefMinPos[0] = 0;
+        for (int q = 1; q < w; ++q)
+        {
+            prefMin[q] = prefMin[q - 1];
+            prefMinPos[q] = prefMinPos[q - 1];
+            if (maxUp[q] < prefMin[q])
+            {
+                prefMin[q] = maxUp[q];
+                prefMinPos[q] = q;
+            }
+        } // */
+
+        for (int left = 0; left < w; ++left)
+        {
+            int cnt = ar[row][left];
+
+            for (int right = left + 1; right < w; ++right)
+            {
+//                printf("!! %d %d %d\n", row, left, right);
+
+ /*
+                    if (row == 3 and left == 1 and right == w - 2)
+                    {
+                        for (int q = 0; q < w; ++q)
+                            cout << maxDown[q] << ' ';
+                        cout << endl;
+                    } // */
+                cnt += ar[row][right];
+                int prefMax = getRub(left), prefPos = left, bR = left, bT = left + 1;
+
+                for (int q = left; q <= right; ++q)
+                {
+                    if (getPair(bR, bT) < getPair(prefPos, q))
+                    {
+                        bR = prefPos;
+                        bT = q;
+                    }
+                    if (getRub(q) > prefMax)
+                    {
+                        prefMax = getRub(q);
+                        prefPos = q;
+                    }
+                }
+
+                int sum = cnt + getPair(bR, bT);
+                if (sum > bestSum)
+                {
+                    bestSum = sum;
+                    bestRow = row;
+                    bestLeft = left;
+                    bestRight = right;
+                    bestRub = bR;
+                    bestTail = bT;
+                    bestRubUp = maxDownPos[bR];
+                    bestTailUp = maxUpPos[bT];
+                    bestTailDown = maxDownPos[bT];
+                }
+            }
+        }
+    }
+
+    /*
+    printf("%d : %d %d %d, %d %d, %d %d %d\n",  bestSum, bestRow, bestLeft, bestRight, bestRub, bestTail,
+        bestRubUp, bestTailUp, bestTailDown); // */
+
+    memset(resAr, '.', sizeof(resAr));
+    for (int q = bestLeft; q <= bestRight; ++q)
+        ok(bestRow, q);
+
+    for (int q = bestRubUp; q <= bestRow; ++q)
+        ok(q, bestRub);
+    for (int q = bestTailDown; q <= bestTailUp; ++q)
+        ok(q, bestTail);
+
+    for (int q = 0; q < h; ++q)
+    {
+        for (int i = 0; i < w; ++i)
+            putchar(resAr[q][i]);
+        putchar('\n');
+    }
+
+    return 0;
+}

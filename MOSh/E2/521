@@ -1,0 +1,22 @@
+fin = open('onlyone.in', 'r')
+fout = open('onlyone.out', 'w')
+a = int(fin.readline())
+people = []
+c012 = [[[0 for i in range(100)] for j in range(100)] for k in range(100)]
+c01 = [[0 for i in range(100)] for j in range(100)]
+c02 = [[0 for i in range(100)] for j in range(100)]
+c12 = [[0 for i in range(100)] for j in range(100)]
+for i in range(a):
+    cur = [int(x) - 1 for x in fin.readline().split()]
+    people.append(cur)
+    c01[cur[0]][cur[1]] += 1
+    c02[cur[0]][cur[2]] += 1
+    c12[cur[1]][cur[2]] += 1
+    c012[cur[0]][cur[1]][cur[2]] += 1
+ans = 0
+for i in range(a):
+    c0, c1, c2 = people[i]
+    ans += (a - c01[c0][c1] - c02[c0][c2] - c12[c1][c2] + (c012[c0][c1][c2] - 1) * 2 + 2)
+print(ans // 2, file = fout)
+fout.close()
+fin.close()

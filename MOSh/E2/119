@@ -1,0 +1,197 @@
+#include <iostream>
+#include <cstdio>
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <cstdlib>
+#include <set>
+#include <map>
+
+using namespace std;
+
+#define int long long
+int n, m, p;
+int get_ans(int k, vector <pair <int, int> > v) {
+	int ans = 0;
+	sort(v.rbegin(), v.rend());
+	for (int i = 0; i < v.size(); ++i) {
+		if (k >= v[i].second) {
+			ans += v[i].second * v[i].first;
+			k -= v[i].second;
+		}
+		else {
+			ans += k * v[i].first;
+			k = 0;
+		}
+	}
+	return ans;
+}
+void res() {
+	int ss = 0;
+	for (int i = 1; i <= n; ++i) {
+		int a, b;
+		cin >> a >> b;
+		ss += b;
+	}
+	vector <pair <int, int> > v;
+	for (int i = 1; i <= m; ++i) {
+		int a, b, c;
+		cin >> a >> b >> c;
+		v.push_back(make_pair(c, b));
+	}
+	cout << get_ans(ss, v) << endl;
+	exit(0);
+}
+
+struct cc {
+	int x, cnt, st;
+	cc() {}
+	cc(int x, int cnt, int st) : x(x), cnt(cnt), st(st) {}
+};
+bool operator <(cc f, cc s) {
+	return f.x < s.x;
+}
+vector <cc> v;
+void res2() {
+	vector <pair <int, int> > xx;
+	multiset <pair <int, int> > sss;
+	for (auto it : v) {
+		if (it.st == -1) {
+			xx.push_back(make_pair(it.x, it.cnt));
+		}
+		else {
+			sss.insert(make_pair(it.st, it.cnt));
+		}
+	}
+	int ans = 0;
+	int est = 0;
+	for (int i = 0; i < n; ++i) {
+		int hh = p * xx[i].first;
+		while (sss.size() && xx[i].second) {
+			pair <int, int> cur = *sss.rbegin();
+			sss.erase(--sss.end());
+			if (xx[i].second > cur.second) {
+				est += cur.second * cur.first;
+				xx[i].second -= cur.second;
+				cur.second = 0;
+			}
+			else {
+				est += xx[i].second * cur.first;
+				cur.second -= xx[i].second;
+				xx[i].second = 0;
+			}
+			if (cur.second) sss.insert(cur);
+		}
+		ans = max(ans, est - hh);
+	}
+	cout << ans << endl;
+	exit(0);
+}
+void res3() {
+	
+	vector <pair <int, int> > im;
+	int ss = 0;
+	int ans = 0;
+	for (auto it : v) {
+		int hh = it.x * p;
+		if (it.st == -1) {
+			ss += it.cnt;
+		}
+		else {
+			im.push_back(make_pair(it.st, it.cnt));
+		}
+		ans = max(ans, get_ans(ss, im) - hh);
+	}
+	cout << ans << endl;
+	exit(0);
+}
+struct dd {
+	int st, all, est;
+	dd() {}
+	dd(int st, int all, int est) : st(st), all(all), est(est) {}
+};
+bool operator <(dd f, dd s) {
+	return f.st < s.st;
+}
+void res4() {
+	int ss = 0;
+	int ans = 0;
+	multiset <dd> sss;
+	int est = 0;
+	for (auto it : v) {
+		int hh = it.x * p;
+		if (it.st == -1) {
+			ss += it.cnt;
+		}
+		else {
+			dd cur = dd(it.st, it.cnt, 0);
+			if (ss >= it.cnt) {
+				cur.est += it.cnt;
+				est += it.st * it.cnt;
+				ss -= it.cnt;
+			}
+			else {
+				cur.est += ss;
+				est += ss * it.st;
+				ss = 0;
+			}
+			while (sss.size() && sss.begin()->st <= cur.st && cur.est != cur.all) {
+				dd curr = *sss.begin();
+				sss.erase(sss.begin());
+				if (curr.est <= cur.all - cur.est) {
+					est -= curr.est * curr.st;
+					est += curr.est * cur.st;
+					cur.est += curr.est;
+					curr.est = 0;
+				}
+				else {
+					int nado = cur.all - cur.est;
+					est -= nado * curr.st;
+					est += nado * cur.st;
+					cur.est += nado;
+					curr.est -= nado;
+				}
+				if (curr.est) sss.insert(curr);
+			}
+			if (cur.est) sss.insert(cur);
+		}
+		ans = max(ans, est - hh);
+	}
+	cout << ans << endl;
+	exit(0);
+}
+signed main() {
+	//freopen("input.txt", "r", stdin);
+	//freopen("output.txt", "w", stdout);
+
+	freopen("fisher.in", "r", stdin);
+	freopen("fisher.out", "w", stdout);
+
+
+	cin >> n >> m >> p;
+	
+	if (p == 0) res();
+	
+	for (int i = 1; i <= n; ++i) {
+		int a, b;
+		cin >> a >> b;
+		v.push_back(cc(a, b, -1));
+	}
+	for (int i = 1; i <= m; ++i) {
+		int a, b, c;
+		cin >> a >> b >> c;
+		v.push_back(cc(a, b, c));
+	}
+	sort(v.begin(), v.end());
+	if (n <= 8500 && m <= 8500) {
+		res3();
+	}
+	else {
+		if (v[0].st == -1) {
+			res4();
+		}
+		else {
+			res2();
+		}
+	}
+}

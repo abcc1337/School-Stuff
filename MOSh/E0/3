@@ -1,0 +1,172 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define filename "robots"
+
+#define getId(x, y) ((x) * m + (y))
+const int N = (int)1e6 + 10;
+
+vector<int> g[N];
+int p[N];
+int dist[N];
+vector<int> color;
+vector<char> used;
+vector<char> isRobot;
+vector<char> onCycle;
+
+int n, m;
+
+void dfs1(int v) {
+    color[v] = 1;
+    for (int u : g[v])
+        if (!color[u])
+            dfs1(u);
+        else if (color[u] == 1)
+            onCycle[v] = true;
+    color[v] = 2;
+}
+
+void dfs2(int v, int c) {
+    color[v] = c;
+    onCycle[v] = true;
+    for (int u : g[v])
+        if (!color[u])
+            dfs2(u, c);
+}
+
+void dfs3(int v) {
+    used[v] = true;
+    for (int u : g[v]) {
+        if (!used[u] && !onCycle[u])
+            dfs3(u);
+
+        p[v] = (onCycle[u] ? color[u] : p[u]);
+    }
+
+}
+
+void dfs4(int v, int to) {
+    used[v] = true;
+    for (int u : g[v]) {
+        if (!used[u] && u != to)
+            dfs4(u, to);
+
+        dist[v] = 1 + (u == to ?  0 : dist[u]);
+    }
+}
+
+bool cmp(int a, int b) {
+    return (dist[a] < dist[b]);
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+
+#ifndef SCHEMTSCHIK
+    freopen(filename".in", "r", stdin);
+    freopen(filename".out", "w", stdout);
+#endif
+
+    int G;
+    cin >> n >> m >> G;
+    int nm = n * m;
+
+    color.assign(nm, false);
+    onCycle.assign(nm, false);
+    isRobot.resize(nm);
+
+    for (int i  = 0; i < n; i++) {
+        string s;
+        cin >> s;
+        for (int j = 0; j < m; j++) {
+            int v = getId(i, j);
+            isRobot[v] = (s[j] == 'N' || s[j] == 'S' || s[j] == 'W' || s[j] == 'E');
+            s[j] = tolower(s[j]);
+            int to;
+            if (s[j] == 'n')
+                to = v - m;
+            else if (s[j] == 's')
+                to = v + m;
+            else if (s[j] == 'w')
+                to = v - 1;
+            else
+                to = v + 1;
+            g[v].push_back(to);
+        }
+    }
+
+    for (int i = 0; i < nm; i++)
+        if (!color[i])
+            dfs1(i);
+
+    color.assign(nm, 0);
+
+    int col = 0;
+    for (int i = 0; i < nm; i++)
+        if (!color[i] && onCycle[i])
+            dfs2(i, ++col);
+
+    used.assign(nm, false);
+    memset(p, 0, sizeof(p));
+
+    for (int i = 0; i < nm; i++)
+        if (!used[i] && !onCycle[i])
+            dfs3(i);
+
+    vector< vector<int> > cnt_places(col), cnt_robots(col);
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++) {
+            int v = getId(i, j);
+
+            if (onCycle[v])
+                cnt_places[color[v] - 1].push_back(v), p[v] = color[v];
+
+            if (isRobot[v])
+                cnt_robots[p[v] - 1].push_back(v);
+        }
+
+    int ans = 0;
+    for (int i = 0; i < col; i++)
+        ans += min(cnt_places[i].size(), cnt_robots[i].size());
+    cout << ans << endl;
+
+    if (G) {
+
+        used.assign(nm, false);
+        for (int i = 0; i < nm; i++)
+            if (!used[i] && !onCycle[i])
+                dfs4(i, cnt_places[p[i] - 1][0]);
+
+        /*for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++)
+                cout << dist[getId(i, j)];
+            cout << endl;
+        }*/
+
+        for (int i = 0; i < col; i++) {
+
+            if (!cnt_robots.empty())
+                sort(cnt_robots[i].begin(), cnt_robots[i].end(), cmp);
+
+            set<int> tmp;
+
+            for (int j = 0; j < min(cnt_places[i].size(), cnt_robots[i].size()); j++) {
+                int v = cnt_robots[i][j];
+
+                int add = rand() % (int)1e8;
+                while (j > 0 && tmp.count((dist[cnt_robots[i][j]] + add) % (int)cnt_places[i].size()))
+                    add = rand() % (int)1e8;
+
+                tmp.insert((dist[cnt_robots[i][j]] + add) % (int)cnt_places[i].size());
+
+                //cout << v <<  endl;
+
+                cout << v / m + 1 << ' ' << v % m + 1 << ' ' << dist[v] + 1 + add << endl;
+            }
+        }
+
+    }
+
+    return 0;
+}

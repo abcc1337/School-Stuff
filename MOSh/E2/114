@@ -1,0 +1,128 @@
+#include <bits/stdc++.h>
+
+#define mp make_pair
+#define pb push_back
+
+#define all(a) (a).begin(), (a).end()
+#define sz(a) (int) (a).size()
+
+using namespace std;
+
+typedef long long ll;
+typedef pair <int, int> pii;
+
+const int maxn = 1005;
+
+int main()
+{
+
+    freopen("penguins.in", "r", stdin);
+    freopen("penguins.out", "w", stdout);
+
+    int tt;
+    scanf("%d", &tt);
+
+    while (tt--)
+    {
+        int n, k;
+        scanf("%d%d", &n, &k);
+        char s[maxn];
+        scanf("%s", &s);
+        int cnt = 1, prev = s[0] - '0';
+        for (int i = 1; i < n; i++)
+            if (s[i] - '0' != prev) {prev = s[i] - '0'; ++cnt;}
+        if (cnt <= k) {printf("%s\n", s); continue;}
+        vector <vector <vector <int> > > dp(n, vector <vector <int> > (k, vector <int> (2, 100500)));
+        vector <vector <vector <int> > > p(n, vector <vector <int> > (k, vector <int> (2)));
+        if (s[0] == '0')
+        {
+            dp[0][0][0] = 0;
+            dp[0][0][1] = 1;
+            p[0][0][0] = -1;
+            p[0][0][1] = -1;
+        }
+        else
+        {
+            dp[0][0][1] = 0;
+            dp[0][0][0] = 1;
+            p[0][0][1] = -1;
+            p[0][0][0] = -1;
+        }
+        for (int i = 1; i < n; i++)
+            for (int j = 0; j < k; j++)
+            {
+                if (s[i] == '0')
+                {
+                    if (!j) {dp[i][j][0] = dp[i - 1][j][0]; p[i][j][0] = 0; dp[i][j][1] = dp[i - 1][j][1] + 1; p[i][j][1] = 1; continue;}
+                    if (dp[i - 1][j][0] < dp[i - 1][j - 1][1])
+                    {
+                        dp[i][j][0] = dp[i - 1][j][0];
+                        p[i][j][0] = 0;
+                    }
+                    else
+                    {
+                        dp[i][j][0] = dp[i - 1][j - 1][1];
+                        p[i][j][0] = 1;
+                    }
+                    if (dp[i - 1][j][1] < dp[i - 1][j - 1][0])
+                    {
+                        dp[i][j][1] = dp[i - 1][j][1] + 1;
+                        p[i][j][1] = 1;
+                    }
+                    else
+                    {
+                        dp[i][j][1] = dp[i - 1][j - 1][0] + 1;
+                        p[i][j][1] = 0;
+                    }
+                }
+                else
+                {
+                    if (!j) {dp[i][j][1] = dp[i - 1][j][1]; p[i][j][1] = 1; dp[i][j][0] = dp[i - 1][j][0] + 1; p[i][j][0] = 0; continue;}
+                    if (dp[i - 1][j][1] < dp[i - 1][j - 1][0])
+                    {
+                        dp[i][j][1] = dp[i - 1][j][1];
+                        p[i][j][1] = 1;
+                    }
+                    else
+                    {
+                        dp[i][j][1] = dp[i - 1][j - 1][0];
+                        p[i][j][1] = 0;
+                    }
+                    if (dp[i - 1][j][0] < dp[i - 1][j - 1][1])
+                    {
+                        dp[i][j][0] = dp[i - 1][j][0] + 1;
+                        p[i][j][0] = 0;
+                    }
+                    else
+                    {
+                        dp[i][j][0] = dp[i - 1][j - 1][1] + 1;
+                        p[i][j][0] = 1;
+                    }
+                }
+            }
+        int ans = 1000000000;
+        pii para;
+        for (int j = 0; j < k; j++)
+        {
+            if (dp[n - 1][j][0] < ans) {ans = dp[n - 1][j][0]; para = mp(j, 0);}
+            if (dp[n - 1][j][1] < ans) {ans = dp[n - 1][j][1]; para = mp(j, 1);}
+        }
+        int i = n - 1, j = para.first, c = para.second;
+        vector <int> a(n);
+        int pos = n - 1;
+        a[pos--] = c;
+        while (1)
+        {
+            int pr = p[i][j][c];
+            if (pr == -1) break;
+            a[pos--] = pr;
+            if (pr != c) --j;
+            --i;
+            c = pr;
+        }
+        for (pos = 0; pos < sz(a); pos++)
+            printf("%d", a[pos]);
+        printf("\n");
+    }
+
+}

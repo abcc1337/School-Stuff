@@ -1,0 +1,142 @@
+#include <iostream>
+#include <cstdio>
+#include <cmath>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+char ch[100100];
+
+struct otrez{
+	int len1, len2;
+};
+
+vector<otrez> vec;
+
+int main()
+{
+	//freopen("input.txt", "r", stdin);
+	freopen("penguins.in", "r", stdin);
+	freopen("penguins.out", "w", stdout);
+
+	int t, n, k, cur, num, mn, l, start_pos, pix, last_pos;
+	otrez tmp;
+	cin >> t;
+	
+	for (int q = 0; q < t; q++)
+	{
+		cin >> n >> k;
+		cur = 0;
+		vec.clear();
+		for (int i = 0; i < n; i++)
+		{
+			cin >> ch[i];
+			ch[i] -= '0';
+			if (i > 0 && ch[i] != ch[i - 1])
+			{
+				tmp.len1 = cur;
+				tmp.len2 = 0;
+				vec.push_back(tmp);
+				cur = 1;
+			}
+			else
+				cur++;
+		}
+		pix = ch[0];
+		tmp.len1 = cur;
+		tmp.len2 = 0;
+		vec.push_back(tmp);
+
+		cur = vec.size();
+		start_pos = 0; 
+		last_pos = vec.size() - 1;
+
+		while (vec.size() > k)
+		{
+			mn = 1000100;
+			num = 0;
+			for(l = 1; l + 1 < vec.size(); l++)
+			{
+				if (mn > vec[l].len1)
+				{
+					num = l;
+					mn = vec[l].len1;
+				}
+			}
+
+			if (vec.size() - k == 1)
+			{
+				if (mn > vec[0].len1)
+				{
+					num = 0;
+					mn = vec[0].len1;
+				}
+				if (mn > vec[vec.size() - 1].len1)
+				{
+					num = vec.size() - 1;
+					mn = vec[vec.size() - 1].len1;
+				}
+			}
+			else
+			{
+				if (mn > vec[0].len1 + vec[vec.size() - 1].len1)
+				{
+					vec[1].len2 += vec[0].len1;
+					vec[1].len1 += vec[0].len2;
+
+					for (int j = 1; j < vec.size(); j++)
+						swap(vec[j - 1], vec[j]);
+					vec.pop_back();
+					pix ^= 1;
+					vec[vec.size() - 2].len1 += vec[vec.size() - 1].len1;
+					vec[vec.size() - 2].len2 += vec[vec.size() - 1].len2;
+					vec.pop_back();
+					continue;
+				}
+			}
+
+			l = num;
+
+			if (l == 0)
+			{
+				vec[1].len2 += vec[l].len1;
+				vec[1].len1 += vec[l].len2;
+
+				for (int j = 1; j < vec.size(); j++)
+					swap(vec[j - 1], vec[j]);
+				vec.pop_back();
+				pix ^= 1;
+				continue;
+			}
+
+			if (l == vec.size() - 1)
+			{
+				vec[vec.size() - 2].len1 += vec[vec.size() - 1].len1;
+				vec[vec.size() - 2].len2 += vec[vec.size() - 1].len2;
+				vec.pop_back();
+				continue;
+			}
+
+			vec[l - 1].len1 += vec[l + 1].len1 + vec[l].len2;
+			vec[l - 1].len2 += vec[l + 1].len2 + vec[l].len1;
+
+			for (int u = 0; u < 2; u++)
+			{
+				for (int j = l + 1; j < vec.size(); j++)
+					swap(vec[j], vec[j - 1]);
+				vec.pop_back();
+			}
+		}
+
+		for(l = 0; l < vec.size(); l++)
+		{
+			for (int i = 0; i < vec[l].len1 + vec[l].len2; i++)
+				cout << pix;
+			pix ^= 1;
+		}
+		cout << '\n';
+	}
+
+	return 0;
+}

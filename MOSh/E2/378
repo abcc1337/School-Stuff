@@ -1,0 +1,144 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+struct Vector
+{
+    int x, y;
+    Vector() {}
+    Vector(int x, int y) : x(x), y(y) {}
+};
+
+Vector operator + (const Vector &v1, const Vector &v2)
+{
+    return Vector(v1.x + v2.x, v1.y + v2.y);
+}
+
+vector< vector<char> > F;
+unordered_map<char, Vector> dir;
+vector< vector<int> > col;
+vector< vector<int> > D;
+
+vector< Vector > nodeVec;
+vector<int> cycleSize;
+vector< vector<int> > freeInd;
+
+#define nextNode(v) ((v) + dir[F[(v).x][(v).y]])
+
+int dfs(Vector currC, int currCol, Vector &node)
+{
+    if (col[currC.x][currC.y] != -1)
+    {
+        node = currC;
+        return col[currC.x][currC.y];
+    }
+
+    col[currC.x][currC.y] = currCol;
+
+    return dfs(nextNode(currC), currCol, node);
+}
+
+void calcD(Vector currC, int currCol, int mod)
+{
+    if (D[currC.x][currC.y] != -1)
+        return;
+
+    col[currC.x][currC.y] = currCol;
+    Vector nNode = nextNode(currC);
+
+    calcD(nNode, currCol, mod);
+    D[currC.x][currC.y] = (D[nNode.x][nNode.y] + 1) % mod;
+}
+
+int calcCycleSize(Vector currC, Vector firstC)
+{
+    //cout << currC.x << ' ' << currC.y << "   " << firstC.x << ' ' << firstC.y << '\n';
+    if (currC.x == firstC.x && currC.y == firstC.y)
+        return 1;
+
+    return (calcCycleSize(nextNode(currC), firstC) + 1);
+}
+
+
+int main()
+{
+    freopen("robots.in", "r", stdin);
+    freopen("robots.out", "w", stdout);
+
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    dir['W'] = dir['w'] = Vector(0, -1);
+    dir['N'] = dir['n'] = Vector(-1, 0);
+    dir['E'] = dir['e'] = Vector(0, +1);
+    dir['S'] = dir['s'] = Vector(+1, 0);
+
+    int n, m, g;
+    cin >> n >> m >> g;
+
+    F.resize(n, vector<char>(m));
+    col.resize(n, vector<int>(m, -1));
+    D.resize(n, vector<int>(m, -1));
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            cin >> F[i][j];
+
+    int currCol = 0, findCol;
+    Vector node;
+
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++, currCol++)
+        {
+            findCol = dfs(Vector(i, j), currCol, node);
+
+            if (findCol != currCol)
+                currCol--;
+            else
+            {
+                D[node.x][node.y] = 0;
+                cycleSize.push_back(calcCycleSize(nextNode(node), node));
+                nodeVec.push_back(node);
+                freeInd.push_back(vector<int>(cycleSize[findCol]));
+
+                for (int i = 0; i < cycleSize[findCol]; i++)
+                    freeInd[findCol][i] = i;
+            }
+
+            calcD(Vector(i, j), findCol, cycleSize[findCol]);
+            calcD(nextNode(node), findCol, cycleSize[findCol]);
+        }
+    }
+
+    unordered_map<char, bool> isSmall;
+    isSmall['w'] = isSmall['n'] = isSmall['e'] = isSmall['s'] = true;
+    isSmall['W'] = isSmall['N'] = isSmall['E'] = isSmall['S'] = false;
+
+    vector< pair< pair<int, int>, int> > ans;
+
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            if (isSmall[F[i][j]])
+                continue;
+
+            if (freeInd[ col[i][j] ].size() > 0)
+            {
+                ans.push_back({{i + 1, j + 1}, (freeInd[ col[i][j] ].back() - D[i][j] + cycleSize[ col[i][j] ]) % cycleSize[ col[i][j] ] });
+                freeInd[ col[i][j] ].pop_back();
+            }
+        }
+    }
+
+    cout << ans.size() << '\n';
+
+    if (g == 1)
+    {
+        for (auto el : ans)
+            cout << el.first.first << ' ' << el.first.second << ' ' << el.second << '\n';
+    }
+
+    return 0;
+}

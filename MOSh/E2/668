@@ -1,0 +1,76 @@
+program Bb1;
+
+{$APPTYPE CONSOLE}
+{$O-}
+
+uses
+  SysUtils, Math;
+
+var i, j, k, h, w: integer;
+    dd: array['a'..'z'] of integer;
+    c, sumg, sumv, u, d, l, r, s, maxs: array[0..2003, 0..2003] of integer;
+    c1: char;
+    ans, ans1: int64;
+
+begin
+  reset(input, 'submarine.in');
+  rewrite(output, 'submarine.out');
+  read(k);
+  for c1 := 'a' to (chr(ord('a') + k - 1)) do begin
+    read(dd[c1]);
+  end;
+  readln(h, w);
+  for i := 0 to h+1 do begin
+    for j := 0 to w + 1 do begin
+      c[i, j] := 0;              
+      u[i, j] := 0;
+      d[i, j] := 0;
+      l[i, j] := 0;
+      r[i, j] := 0;
+      sumg[i, j] := 0;
+      sumv[i, j] := 0;
+      s[i, j] := 0;
+      maxs[i, j] := 0;
+    end;
+  end;
+  for i := 1 to h do begin
+    for j := 1 to w do begin
+      read(c1);
+      c[i, j] := dd[c1];
+      sumv[i, j] := sumv[i - 1, j] + c[i, j];
+      sumg[i, j] := sumg[i, j - 1] + c[i, j];
+    end;
+    readln;
+  end;
+  for i := 1 to h do begin
+    for j := 1 to w do begin
+      u[i, j] := min(u[i - 1, j], sumv[i, j]);
+      l[i, j] := min(l[i, j - 1], sumg[i, j]);
+    end;
+  end;
+  for i := h downto 1 do begin
+    for j := w downto 1 do begin
+      d[i, j] := min(d[i + 1, j], sumv[h, j] - sumv[i - 1, j]);
+      r[i, j] := min(r[i, j + 1], sumg[i, w] - sumg[i, j - 1]);
+    end;
+  end;
+  for i := 1 to h do maxs[i, w + 1] := sumg[i, w];
+  for i := 1 to h do begin
+    for j := w downto 1 do begin
+      s[i, j] := sumg[i, j] + (sumv[i, j] - u[i - 1, j]) + (sumg[i, w] - sumg[i, j-1] - r[i, j + 1]) + (sumv[h, j] - sumv[i - 1, j] - d[i + 1, j]) - 3 * c[i, j];
+      maxs[i, j] := max(maxs[i, j + 1], s[i, j]);
+    end;
+  end;
+  ans := - 1000*1000*1001;
+  for i := 1 to h do begin
+    for j := 1 to w - 1 do begin
+      ans1 := (sumv[i, j] - u[i - 1, j]) + (sumg[i, j] - l[i, j - 1]) + (maxs[i, j + 1] - sumg[i, j]) - c[i, j];
+      if ans1 > ans then begin
+        ans := ans1;
+      end;
+    end;
+  end;
+  writeln(ans);
+//  readln;
+//  readln;
+end.

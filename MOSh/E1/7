@@ -1,0 +1,148 @@
+program q;                         {$Q-} {$R-}
+var a:array[0..2000,0..2000]of record j,p:int64; i:char; b:boolean end;
+  t,s,t1:array[1..5000000]of record i,j,o,k:int64 end;
+  i,j,k,n,l,m,g,ni,nj,top,h,x,y,d,v:longint;  c:char;
+function f(i,j:int64):int64;
+begin
+   if (i<1) or (j<1) or (i>n) or (j>m)
+   then while 0=0 do;
+   if a[i,j].p<0
+   then case a[i,j].i of
+        'S': a[i,j].p:=f(i+1,j)+1;
+        'N': a[i,j].p:=f(i-1,j)+1;
+        'E': a[i,j].p:=f(i,j+1)+1;
+        'W': a[i,j].p:=f(i,j-1)+1
+        end;
+   if (a[i,j].p<0) or (a[i,j].p>1000000)
+   then while 0=0 do;
+   f:=a[i,j].p;
+end;
+begin
+   assign(input,'robots.in'); reset(input);
+   assign(output,'robots.out'); rewrite(output);
+   readln(n,m,g);
+   d:=0;
+   for i:=1 to n do
+   begin
+   for j:=1 to m do
+   begin
+     read(a[i,j].i);
+     a[i,j].b:=(a[i,j].i>='A') and (a[i,j].i<='Z');
+     if not a[i,j].b
+     then a[i,j].i:=chr(ord(a[i,j].i)-ord('a')+ord('A'));
+     a[i,j].j:=0;
+     a[i,j].p:=-1;
+   end;
+   readln
+   end;
+   ni:=0;
+   for i:=1 to n do
+   for j:=1 to m do
+   if a[i,j].j=0
+   then begin
+          s[1].i:=i;
+          s[1].j:=j;
+          top:=1;
+          h:=1;
+          inc(ni);
+          nj:=0;
+          repeat
+             if a[s[h].i,s[h].j].i='S'
+             then begin
+                   x:=s[h].i+1; y:=s[h].j;
+                  if a[x,y].j=0
+                  then begin
+                     inc(top);
+                     s[top].i:=x;
+                     s[top].j:=y;
+                     a[x,y].j:=ni
+                     end
+                  else nj:=a[x,y].j;
+                  end;
+             if a[s[h].i,s[h].j].i='N'
+             then begin
+                   x:=s[h].i-1; y:=s[h].j;
+                  if a[x,y].j=0
+                  then begin
+                     inc(top);
+                     s[top].i:=x;
+                     s[top].j:=y;
+                     a[x,y].j:=ni
+                     end
+                  else nj:=a[x,y].j;
+                  end;
+              if a[s[h].i,s[h].j].i='E'
+             then begin
+                   x:=s[h].i; y:=s[h].j+1;
+                  if a[x,y].j=0
+                  then begin
+                     inc(top);
+                     s[top].i:=x;
+                     s[top].j:=y;
+                     a[x,y].j:=ni
+                     end
+                  else nj:=a[x,y].j;
+                  end;
+             if a[s[h].i,s[h].j].i='W'
+             then begin
+                   x:=s[h].i; y:=s[h].j-1;
+                  if a[x,y].j=0
+                  then begin
+                     inc(top);
+                     s[top].i:=x;
+                     s[top].j:=y;
+                     a[x,y].j:=ni
+                     end
+                  else nj:=a[x,y].j;
+                  end;
+             inc(h);
+             inc(d);
+             if d>2*n*m
+             then begin h:=999;
+             while h=h do
+             a[2*h,h].j:=1
+             end;
+          until nj>0;
+          for k:=1 to h-1 do
+          a[s[k].i,s[k].j].j:=nj;
+          if ni=nj
+          then begin
+                  k:=h-1;
+                  while ((s[k].i<>x) or (s[k].j<>y)) and (k>0) do
+                  dec(k);
+                  t[ni].o:=h-k;
+                  a[x,y].p:=0;
+               end
+          else dec(ni)
+         end;
+    k:=0;
+    t1:=t;
+    for i:=1 to n do
+    for j:=1 to m do
+    if (t[a[i,j].j].o>0) and (a[i,j].b)
+    then begin inc(k); dec(t[a[i,j].j].o) end;
+    writeln(k);
+    k:=1;
+    t:=t1;
+    for i:=1 to ni do
+    t[i].k:=1;
+    d:=0;
+    if g=1
+    then for i:=1 to n do
+         for j:=1 to m do
+         if (a[i,j].b) and (t[a[i,j].j].o>0)
+         then begin
+                 if n<101
+                 then begin
+                 v:=f(i,j);
+                 x:=a[i,j].j;
+                 d:=(v-t[x].k) div t1[x].o+1;
+                 if v>=t[x].k
+                 then t[x].k:=t[x].k+t1[x].o*d;
+                  writeln(i,' ',j,' ',t[a[i,j].j].k-f(i,j));  end;
+                 v:=f(1,1);
+                 inc(t[a[i,j].j].k);
+
+                 dec(t[a[i,j].j].o)
+              end;
+end.

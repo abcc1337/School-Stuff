@@ -1,0 +1,194 @@
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <iterator>
+#define next lkadsjflasdjfl
+using namespace std;
+
+const int maxN = (int)1e5;
+const int maxM = 50000;
+const int INF = 1e9;
+
+vector<int> g[maxN];
+int d[maxN];
+int fst[maxN], lst[maxN];
+int tin[maxN], tout[maxN];
+vector<int> sp[30];
+vector<int> lg;
+int timer = 0;
+
+vector<int> e;
+vector<pair<int, int> > keks;
+
+void dfs(int v, int pr = -1, int depth = 0)
+{
+	tin[v] = timer;
+	timer++;
+	d[v] = depth;
+	e.push_back(v);
+	for (int i = 0; i < g[v].size(); i++)
+	{
+		int u = g[v][i];
+		if (u != pr)
+		{
+			dfs(u, v, depth + 1);
+			e.push_back(v);
+		}
+	}
+	tout[v] = timer;
+	timer++;
+}
+
+int lg2(int n)
+{
+	int curr = 1;
+	while (n >= (1 << curr))
+	{
+		curr++;
+	}
+	return curr - 1;
+
+}
+
+int lca(int a, int b)
+{
+	int f = fst[a], l = lst[b];
+	if (l < f)
+	{
+		swap(l, f);
+	}
+ 	int len = l - f;
+
+	
+
+	if (d[sp[lg[len]][f]] < d[sp[lg[len]][l - (1 << lg[len])]])
+	{
+		return sp[lg[len]][f];
+	}
+	else
+	{
+		return sp[lg[len]][l - (1 << lg[len])];
+	}
+}
+
+int dist(int a, int b)
+{
+	return abs(d[a] - d[b]);
+}
+
+
+int main()
+{
+	//freopen("input.txt", "r", stdin);
+	freopen("twopaths.in", "r", stdin);
+	freopen("twopaths.out", "w", stdout);
+
+	int n, k;
+	cin >> n >> k;
+
+	for (int i = 0; i < n - 1; i++)
+	{
+		int p;
+		cin >> p;
+		g[p - 1].push_back(i + 1);
+	}
+
+	for (int i = 0; i < k; i++)
+	{
+		int a, b;
+		cin >> a >> b;
+		keks.push_back(make_pair(a - 1, b - 1));
+	}
+
+	dfs(0);
+
+	for (int i = 0; i < n; i++)
+	{
+		fst[i] = INF;
+		lst[i] = -INF;
+	}
+
+	for (int i = 0; i < e.size(); i++)
+	{
+		fst[e[i]] = min(fst[e[i]], i);
+		lst[e[i]] = max(lst[e[i]], i);
+	}
+
+	for (int i = 0; (1 << i) < e.size(); i++)
+	{
+		sp[i].resize(e.size());
+	}
+
+	for (int i = 0; i < e.size(); i++)
+	{
+		sp[0][i] = e[i];
+	}
+
+	for (int i = 1; (1 << i) < e.size(); i++)
+	{
+		for (int j = 0; j < e.size() - (1 << i); j++)
+		{
+			if (d[sp[i - 1][j]] < d[sp[i - 1][j + (1 << (i - 1))]])
+			{
+				sp[i][j] = sp[i - 1][j];
+			}
+			else
+			{
+				sp[i][j] = sp[i - 1][j + (1 << (i - 1))];
+			}
+		}
+	}
+
+	lg.resize(e.size() + 1);
+
+	for (int i = 1; i < lg.size(); i++)
+	{
+		lg[i] = lg2(i);
+	}
+
+	int mx = 0;
+	int ba = 0, bb = 1;
+
+	for (int i = 0; i < k; i++)
+	{
+		for (int j = i + 1; j < k; j++)
+		{
+			int cres = 0;
+			int lca1 = lca(keks[i].first, keks[i].second), lca2 = lca(keks[j].first, keks[j].second);
+			int clca = (d[lca1] > d[lca2] ? lca1 : lca2);
+			int currlca = lca(keks[i].first, keks[j].first);
+			if (d[currlca] > d[clca])
+			{
+				cres += dist(currlca, clca);
+			}
+			currlca = lca(keks[i].first, keks[j].second);
+			if (d[currlca] > d[clca])
+			{
+				cres += dist(currlca, clca);
+			}
+			currlca = lca(keks[i].second, keks[j].first);
+			if (d[currlca] > d[clca])
+			{
+				cres += dist(currlca, clca);
+			}
+			currlca = lca(keks[i].second, keks[j].second);
+			if (d[currlca] > d[clca])
+			{
+				cres += dist(currlca, clca);
+			}
+			if (cres > mx)
+			{
+				mx = cres;
+				ba = i;
+				bb = j;
+			}
+		}
+	}
+	cout << mx << endl;
+	cout << max(ba + 1, bb + 1) << " " << min(bb + 1, ba + 1);
+
+	
+    return 0;
+}
+

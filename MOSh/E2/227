@@ -1,0 +1,73 @@
+#include <fstream>
+
+using namespace std;
+
+const int maxA = 3001, maxB = 3001;
+bool g[maxA][maxB][4];
+bool used[maxA][maxB];
+bool is[maxA][maxB];
+int q, w, e, r;
+
+void dfs(int x, int y)
+{
+    used[x][y] = true;
+    if (g[x][y][0] && !used[x - 1][y] && x > q)
+        dfs(x - 1, y);
+    if (g[x][y][1] && !used[x + 1][y] && x < e)
+        dfs(x + 1, y);
+    if (g[x][y][2] && !used[x][y - 1] && y > w)
+        dfs(x, y - 1);
+    if (g[x][y][3] && !used[x][y + 1] && y < r)
+        dfs(x, y + 1);
+}
+
+int main()
+{
+    ifstream fin("repair.in");
+    ofstream fout("repair.out");
+    int a, b;
+    fin >> a >> b;
+    int n, m;
+    fin >> n >> m;
+    --n;
+    for (int i = 0; i < n; ++i)
+    {
+        char c;
+        int x, y;
+        fin >> c >> x >> y;
+        --x;
+        --y;
+        if (c == 'h')
+        {
+            is[x][y] = true;
+            is[x + 1][y] = true;
+            g[x][y][1] = true;
+            g[x + 1][y][0] = true;
+        }
+        else
+        {
+            is[x][y] = true;
+            is[x][y + 1] = true;
+            g[x][y][3] = true;
+            g[x][y + 1][2] = true;
+        }
+    }
+    for (int i = 0; i < m; ++i)
+    {
+        fin >> q >> w >> e >> r;
+        --q; --w; --e; --r;
+        int res = 0;
+        for (int z = q; z <= e; ++z)
+            for (int c = w; c <= r; ++c)
+                used[z][c] = false;
+        for (int z = q; z <= e; ++z)
+            for (int c = w; c <= r; ++c)
+                if (!used[z][c] && is[z][c])
+                {
+//                    fout << z << ' ' << c << '\n';
+                    dfs(z, c);
+                    ++res;
+                }
+        fout << res << '\n';
+    }
+}

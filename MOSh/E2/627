@@ -1,0 +1,62 @@
+program Dd1;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils, Math;
+
+var t, i, j, n, k, m, num, u, z, d, ans, mm: integer;
+    a, b: array[1..30] of char;
+    col: char;
+
+begin
+  reset(input, 'penguins.in');
+  rewrite(output, 'penguins.out');
+  read(t);
+  for i := 1 to t do begin
+    readln(n, k);
+    for j := 1 to n do begin
+      read(a[j]);
+    end;
+    mm := 1000;
+    for m := 0 to (1 shl n) do begin
+      z := m;
+      u := 1;
+      for z := 1 to 15 do b[z] := '0';
+      z := m;
+      while z > 0 do begin
+        b[u] := chr(z mod 2 + ord('0'));
+        z := z div 2;
+        inc(u);
+      end;
+      col := b[1];
+      num := 1;
+      d := 0;
+      for z := 1 to n do begin
+        if col <> b[z] then begin
+          inc(num);
+          col := b[z];
+        end;
+        if b[z] <> a[z] then inc(d);
+      end;
+      if (num <= k) and (d < mm) then begin
+        ans := m;
+        mm := d;
+      end;
+    end;
+    m := ans;
+    z := m;
+    u := 1;
+    for z := 1 to 15 do b[z] := '0';
+    z := m;
+    while z > 0 do begin
+      b[u] := chr(z mod 2 + ord('0'));
+      z := z div 2;
+      inc(u);
+    end;
+    for j := 1 to n do write(b[j]);
+    writeln;
+  end;
+//  readln;
+ // readln;
+end.

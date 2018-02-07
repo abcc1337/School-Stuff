@@ -1,0 +1,68 @@
+program q;
+var a,b:array[0..3000]of longint;
+i,j,k,n,m,l,i1,j1,d:longint;
+procedure sort(first,last:longint);
+var count,mid,f,l:longint;
+begin
+   f:=first;
+   l:=last;
+   mid:=b[(f+l) div 2];
+   repeat
+      while b[f]<mid do inc(f);
+      while b[l]>mid do dec(l);
+      if f<=l
+      then begin
+              count:=b[l];
+              b[l]:=b[f];
+              b[f]:=count;
+              inc(f);
+              dec(l)
+           end;
+   until f>l;
+   if first<l
+   then sort(first,l);
+   if f<last
+   then sort(f,last);
+end;
+begin
+  { assign(input,'video.in'); reset(input);
+   assign(output,'video.out'); rewrite(output);
+   }readln(n);
+   a[1]:=1;
+   b[1]:=1;
+   i:=2;
+   m:=1;
+   while i<=n do
+   begin
+      j:=m;
+      k:=0;
+      i1:=1;
+      j1:=m;
+      writeln('? 1 ',i);
+      flush(output);
+      readln(k);
+      if k<>m
+      then begin
+             inc(m); b[m]:=i; a[i]:=m
+             end
+      else begin
+      while (i1<>j1) do
+      begin
+          d:=(i1+j1) div 2+(i1+j1) mod 2;
+          writeln('? ',b[d],' ',i);
+          flush(output);
+          readln(k);
+          if k=1+m-d
+          then i1:=d
+          else j1:=d-1
+      end;
+       a[i]:=a[b[j1]]; b[j1]:=i
+      end;
+      sort(1,m);
+      inc(i)
+   end;
+   writeln('Ready!');
+   writeln(m);
+   for i:=1 to n do
+   write(a[i],' ');
+end.

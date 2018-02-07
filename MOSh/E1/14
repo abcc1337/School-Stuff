@@ -1,0 +1,43 @@
+def srrent(x, y):
+	cnt = 0
+	sm = 0
+	s = y
+	while(s <= x):
+		cnt += 1
+		sm += s
+		s += y
+	if (s > x and s != x + y):
+		cnt += 1
+		sm += x
+	return sm / cnt
+
+inf = open("castle.in", "r")
+outf = open("castle.out", "w")
+
+n, s= map(int, inf.readline().split())
+arr = []
+for i in range(n):
+	x, y = map(int, inf.readline().split())
+	arr.append([-y, y, x])
+arr.sort()
+ans = 0;
+for i in arr:
+	ans += i[2]
+for i in range(n):
+	x = min(s, (arr[i][2]) // arr[i][1])
+	ans -= min(arr[i][2], arr[i][1] * x)
+	arr[i][2] -= min(arr[i][2], arr[i][1] * x)
+	s -= x
+
+illtake = []
+for i in arr:
+	illtake.append(i[2])
+illtake.sort()
+for i in illtake[::-1]:
+	if (i != 0 and s != 0):
+		ans -= i
+		s-=1
+print(ans, file = outf)
+
+inf.close()
+outf.close()

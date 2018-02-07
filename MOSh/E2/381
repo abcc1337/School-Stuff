@@ -1,0 +1,87 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+// vector<pair<long long, pair<long long, long long>>> whole; /// !!! -- coord,  weight, <cost>
+vector<pair<long long, pair<long long, long long>>> sell;
+vector<pair<long long, pair<long long, long long>>> fish;
+vector<int> whole;
+
+
+inline bool cmp(pair<long long, pair<long long, long long>> a, pair<long long, pair<long long, long long>> b) {
+    return a.second.second > b.second.second;
+}
+
+inline long long simulate(long long maxx) {
+    long long sumw = 0;
+    for (long long i = 0; i < fish.size(); ++i) {
+        if (fish[i].first > maxx) break;
+        sumw += fish[i].second.first;
+    }
+
+    long long sumc = 0;
+    for (auto i : sell) {
+        if (i.first > maxx) continue;
+
+        if (sumw >= i.second.first) {
+            sumw -= i.second.first;
+            sumc += i.second.first * i.second.second;
+        } else {
+            sumc += sumw * i.second.second;
+            sumw = 0;
+        }
+        if (sumw <= 0) {
+            break;
+        }
+    }
+    return sumc;
+}
+
+int main() {
+    freopen("fisher.in", "r", stdin);
+    freopen("fisher.out", "w", stdout);
+
+    long long n, m, p;
+    long long res = 0;
+    cin >> n >> m >> p;
+    for (long long i = 0; i < n; ++i) {
+        long long x, a;
+        cin >> x >> a;
+      //  whole.push_back({x, {a, -1}});
+        whole.push_back(x);
+        fish.push_back({x, {a, -1}});
+    }
+    for (long long i = 0; i < m; ++i) {
+        long long y, b, c;
+        cin >> y >> b >> c;
+       // whole.push_back({y, {b, c}});
+        whole.push_back(y);
+        sell.push_back({y, {b, c}});
+    }
+    sort(whole.begin(), whole.end());
+    sort(fish.begin(), fish.end());
+    sort(sell.begin(), sell.end(), cmp);
+
+    if (p == 0) {
+        res = max(res, simulate(2e+9));
+        cout << res;
+        return 0;
+    }
+
+    if (n > 8500 or m > 8500) {
+
+        for (long long i = min(n, m); i < whole.size(); ++i) {
+            res = max(res, simulate(whole[i]) - p * whole[i]);
+        }
+        cout << res << endl;
+        return 0;
+
+    }
+
+    for (long long i = 0; i < whole.size(); ++i) {
+        res = max(res, simulate(whole[i]) - p * whole[i]);
+    /*    cout << whole[i].first << "  " << whole[i].second.first << " " << whole[i].second.second << "   :   ";
+        cout << res << "   " << simulate(i) << " " << p * whole[i].first << endl;*/
+    }
+    cout << res << endl;
+}

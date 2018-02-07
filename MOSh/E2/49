@@ -1,0 +1,88 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <cmath>
+
+using namespace std;
+
+ifstream fin("alarm.in");
+ofstream fout("alarm.out");
+
+const int INF = 1000000000;
+int n;
+vector <int> line;
+vector <vector <int> > data;
+vector <int> used;
+
+void dfs(int v, int col){
+    used[v] = col;
+    for (int i = 0; i < n; ++i){
+        if (used[i] != col && data[v][i] <= line[v]){
+            dfs(i, col);
+        }
+    }
+}
+
+int main(){
+    int v, u, l;
+    fin >> n;
+    line.resize(n);
+    data.resize(n);
+    used.resize(n);
+
+    vector <int> t(n, INF);
+
+    for (int i = 0; i < n; ++i){
+        fin >> line[i];
+        used[i] = 0;
+        data[i] = t;
+    }
+
+    for (int i = 0; i < n - 1; ++i){
+        fin >> v >> u >> l;
+        v--; u--;
+        data[v][u] = l;
+        data[u][v] = l;
+    }
+
+    for (int k = 0; k < n; ++k){
+        for (int i = 0; i < n; ++i){
+            for (int j = 0; j < n; ++j){
+                data[i][j] = min(data[i][j], data[i][k] + data[k][j]);
+            }
+        }
+    }
+
+    int num = pow(2, n), col = 1, ans = n, cnt = 0;
+    bool check;
+
+    for (int i = 0; i <= num; ++i){
+        cnt = 0;
+        check = true;
+        for (int j = 0; j < n; ++j){
+            if ((1 << j) & i){
+                cnt++;
+                if (used[j] < col){
+                    dfs(j, col);
+                }
+            }
+        }
+        for (int j = 0; j < n; ++j){
+            if (used[j] != col){
+                check = false;
+                break;
+            }
+        }
+
+        if (check){
+            ans = min(ans, cnt);
+
+        }
+        col++;
+    }
+
+    fout << ans;
+
+    return 0;
+}

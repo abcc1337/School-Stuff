@@ -1,0 +1,115 @@
+#include <algorithm>
+#include <fstream>
+#include <vector>
+
+using namespace std;
+
+ifstream cin("monument.in");
+ofstream cout("monument.out");
+
+struct point {
+    int x, y;
+};
+
+struct event {
+    int x, val;
+};
+
+bool operator <(event a, event b) {
+    return a.x < b.x;
+}
+
+const int MAXN = 100000;
+const int MAXX = 1000000;
+const long long INF = 1000000000000000000;
+int n, k;
+point p[MAXN];
+int ya[MAXX], yb[MAXX];
+vector <event> e;
+
+void check(point a, point b) {
+    if (a.x != b.x)
+        return;
+    if (a.y > b.y)
+        for (int i = b.y; i < a.y; ++i)
+            ya[i] = a.x;
+    else
+        for (int i = a.y; i < b.y; ++i)
+            yb[i] = a.x;
+}
+
+
+
+void count(int len, int z) {
+    //cout << "OK" << len << ' ' << z << endl;
+    if (len == 1) {
+        e.push_back({0, 1});
+        return;
+    }
+    if (k == 1) {
+        e.push_back({0, len});
+        return;
+    }
+    if (k >= len) {
+        e.push_back({0, 1});
+        int a = (z + 1) % k, b = (z + len) % k;
+        e.push_back({a, 1});
+        if (b > a)
+            e.push_back({b, -1});
+        else {
+            e.push_back({0, 1});
+            e.push_back({b, -1});
+        }
+        return;
+    }
+    int xa = len / k + ((len) % k > 0);
+    int xb = (len - 1) / k + ((len - 1) % k > 0) + 1;
+    e.push_back({0, xb});
+    if (xa == xb)
+        return;
+    e.push_back({z, xa - xb});
+    e.push_back({z + 1, xb - xa});
+    if (len % k == 0)
+        return;
+    z = (z + len) % k;
+    e.push_back({z, xa - xb});
+    e.push_back({z + 1, xb - xa});
+}
+
+int main() {
+    cin >> n >> k;
+    for (int i = 0; i < n; ++i)
+        cin >> p[i].x >> p[i].y;
+    for (int i = 0; i < n; ++i)
+        check(p[i], p[(i + 1) % n]);
+    for (int i = 0; i < MAXX; ++i)
+        if (ya[i] != yb[i])
+            count(yb[i] - ya[i], (k + (ya[i] - i) % k) % k);
+    long long cnt = 0, ans = INF;
+    sort(e.begin(), e.end());
+    int i = 0;
+    while (i < e.size()) {
+        while (i + 1 < e.size() && e[i + 1].x == e[i].x)
+            cnt += e[i].val, ++i;
+        if (e[i].x < k) {
+            cnt += e[i].val;
+            ans = min(ans, cnt);
+        }
+        ++i;
+    }
+    cout << ans << endl;
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

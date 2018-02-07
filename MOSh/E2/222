@@ -1,0 +1,95 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <array>
+#include <string>
+
+using namespace std;
+
+int get_dist(int wh, int bl, int p)
+{
+    if (p)
+        return wh;
+    else
+        return bl;
+}
+
+string solve(int n, int k, string s)
+{
+    vector<vector<array<int, 2> > > opt(n, vector<array<int, 2> >(k + 1, {1791791791, 1791791791}));
+    vector<vector<array<int, 2> > > last(n, vector<array<int, 2> >(k + 1, {-1, -1}));
+    vector<int> wh = {0}, bl = {0};
+    for (int i = 0; i < n; i++)
+    {
+        wh.push_back(wh[i]);
+        bl.push_back(bl[i]);
+        if (s[i] == '0')
+            wh[i + 1]++;
+        else
+            bl[i + 1]++;
+        opt[i][1][0] = bl[i + 1];
+        opt[i][1][1] = wh[i + 1];
+        opt[i][0] = {0, 0};
+        for (int p = 0; p < 2; p++)
+        {
+            for (int j = 2; j <= min(i + 1, k); j++)
+            {
+                opt[i][j][p] = 1791791791;
+                for (int t = 1; t <= i; t++)
+                {
+                    if (get_dist(wh[i + 1] - wh[t], bl[i + 1] - bl[t], p) + opt[t - 1][j - 1][1 - p] < opt[i][j][p])
+                    {
+                        opt[i][j][p] = get_dist(wh[i + 1] - wh[t], bl[i + 1] - bl[t], p) + opt[t - 1][j - 1][1 - p];
+                        last[i][j][p] = t;
+                    }
+                }
+            }
+        }
+    }
+    /*for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < k; j++)
+            cout << "{" << opt[i][j][0] << ", " << opt[i][j][1] << "} ";
+        cout << endl;
+    }*/
+    string ans = s;
+    int cur_i = n - 1, cur_j = k, cur_p = 0;
+    for (int i = 1; i <= k; i++)
+        for (int j = 0; j < 2; j++)
+            if (opt[n - 1][i][j] < opt[n - 1][cur_j][cur_p])
+            {
+                cur_j = i;
+                cur_p = j;
+            }
+    while (cur_i > -1)
+    {
+
+        if (cur_p)
+            for (int i = cur_i; i >= last[cur_i][cur_j][cur_p]; i--)
+                ans[i] = '1';
+        else
+            for (int i = cur_i; i >= last[cur_i][cur_j][cur_p]; i--)
+                ans[i] = '0';
+        cur_i = last[cur_i][cur_j][cur_p] - 1;
+        cur_j--;
+        cur_p = 1 - cur_p;
+    }
+    return ans;
+}
+
+int main()
+{
+    freopen("penguins.in", "r", stdin);
+    freopen("penguins.out", "w", stdout);
+    int t;
+    cin >> t;
+    for (int i = 0; i < t; i++)
+    {
+        int n, k;
+        cin >> n >> k;
+        string s;
+        cin >> s;
+        cout << solve(n, k, s) << endl;
+    }
+    return 0;
+}

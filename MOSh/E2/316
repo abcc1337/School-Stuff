@@ -1,0 +1,106 @@
+#include <iostream>
+#include <stdio.h>
+#include <algorithm>
+#include <cmath>
+#include <vector>
+#include <set>
+#include <map>
+
+using namespace std;
+
+struct ss {
+    int x;
+    bool f;
+    long long k;
+    long long p;
+};
+
+vector<ss> s;
+
+bool comp(ss a, ss b) {
+    return a.x < b.x;
+}
+vector<pair<long long, long long> > u;
+
+int main() {
+    freopen("fisher.in", "r", stdin);
+    freopen("fisher.out", "w", stdout);
+    long long n, m, p;
+    cin >> n >> m >> p;
+    ss q;
+    for (int i = 0; i < n; i++) {
+        long long a, b;
+        cin >> a >> b;
+        q.x = a;
+        q.f = 0;
+        q.k = b;
+        s.push_back(q);
+    }
+    for (int i = 0; i < m; i++) {
+        long long a, b, c;
+        cin >> a >> b >> c;
+        q.x = a;
+        q.f = 1;
+        q.k = b;
+        q.p = c;
+        s.push_back(q);
+    }
+    long long l = 0;
+    long long mm = 0;
+    if (p == 0) {
+        for (int i = 0; i < s.size(); i++) {
+            if (s[i].f) {
+                u.push_back({s[i].p, s[i].k});
+            }
+            else {
+                l += s[i].k;
+            }
+        }
+        long long c = 0;
+        sort(u.begin(), u.end());
+        reverse(u.begin(), u.end());
+        for (int i = 0; i < u.size(); i++) {
+            long long a = u[i].first;
+            long long b = u[i].second;
+            if (l > b) {
+                c += a * b;
+                l -= b;
+            }
+            else {
+                c += l * a;
+                break;
+            }
+        }
+        cout << c;
+        return 0;
+    }
+    sort(s.begin(), s.end(), comp);
+    for (int i = 0; i < s.size(); i++) {
+        long long c = -p * s[i].x;
+        //cout << c << '\n';
+        if (s[i].f) {
+            u.push_back({s[i].p, s[i].k});
+        }
+        else {
+            l += s[i].k;
+        }
+        sort(u.begin(), u.end());
+        reverse(u.begin(), u.end());
+        long long ll = l;
+        for (int j = 0; j < u.size(); j++) {
+            long long a = u[j].first;
+            long long b = u[j].second;
+            if (ll > b) {
+                c += a * b;
+                ll -= b;
+            }
+            else {
+                c += ll * a;
+                break;
+            }
+        }
+        mm = max(mm, c);
+    }
+    cout << mm;
+}
+

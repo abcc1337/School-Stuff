@@ -1,0 +1,87 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+
+using namespace std;
+
+ifstream in("twopaths.in");
+ofstream out("twopaths.out");
+
+vector <int> dep;
+vector <int> gr;
+vector <vector <int> > gr2;
+vector <vector <int> > prev;
+vector <vector <int> > kyr;
+
+void dfs(int pos, int depnow, vector <int> &prevn){
+    dep[pos] = depnow;
+    prevn.push_back(pos);
+    prev[pos] = prevn;
+    for (int i = 0; i < (int) gr2[pos].size(); i++){
+        dfs(gr2[pos][i], depnow + 1, prevn);
+    }
+    prevn.pop_back();
+}
+
+int main(){
+    int n, m;
+    vector <int> non;
+    in >> n >> m;
+    dep.resize(n);
+    prev.resize(n);
+    kyr.resize(m);
+    gr.resize(n);
+    gr2.resize(n);
+    gr[0] = -1;
+    for (int i = 1; i < n; i++){
+        in >> gr[i];
+        gr[i] -= 1;
+        gr2[gr[i]].push_back(i);
+    }
+    dfs(0, 0, non);
+    /*for (int i = 0; i < n; i++){
+        for (int j = 0; j < prev[i].size(); j++){
+            cout << prev[i][j] << " ";
+        }
+        cout << endl;
+    }*/
+    for (int i = 0; i < m; i++){
+        int ass, bss, iii = 0, ii;
+        in >> ass >> bss;
+        ass--;
+        bss--;
+        while (iii < (int) prev[ass].size() && iii < (int) prev[bss].size()){
+            if (prev[ass][iii] == prev[bss][iii]){
+                ii = iii;
+            }
+            iii++;
+        }
+        for (int j = ii; j < prev[ass].size(); j++){
+            kyr[i].push_back(prev[ass][j]);
+        }
+        for (int j = ii + 1; j < prev[bss].size(); j++){
+            kyr[i].push_back(prev[bss][j]);
+        }
+        /*for (int j = 0; j < kyr[i].size(); j++){
+            cout << kyr[i][j] << " ";
+        }
+        cout << endl;*/
+    }
+    int res1 = -1, res2 = 0, res3 = 0;
+    for (int i = 0; i < m; i++){
+        for (int j = 0; j < i; j++){
+            int tempres = 0;
+            for (int k = 0; k < kyr[i].size(); k++){
+                for (int jj = 0; jj < kyr[j].size(); jj++){
+                    tempres += (kyr[i][k] == kyr[j][jj]);
+                }
+            }
+            if (max(0, tempres - 1) > res1){
+                res1 = max(tempres - 1, 0);
+                res2 = i + 1;
+                res3 = j + 1;
+            }
+        }
+    }
+    out << res1 << endl << res2 << " " << res3;
+}

@@ -1,0 +1,58 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void print(set<pair<int, int> > x)
+{
+    for (auto i: x)
+    {
+        cout << "(" << i.first << " " << i.second << ") ";
+    }
+    cout << endl;
+}
+
+int main()
+{
+    freopen("castle.in", "r", stdin);
+    freopen("castle.out", "w", stdout);
+    int n, s, curr_can, curr_i, ans = 0, soldiers = 0, m;
+    cin >> n >> s;
+    set<pair<int, int> > curr_def;
+    vector<int> a(n);
+    vector<int> k(n);
+    for (int i = 0; i < n; ++i)
+    {
+        cin >> a[i] >> k[i];
+        soldiers += a[i];
+        if (k[i] > a[i])
+            curr_def.insert(make_pair(a[i], i));
+        else
+            curr_def.insert(make_pair(k[i], i));
+    }
+    //print(curr_def);
+    while ((s > 0) && curr_def.rbegin()->first > 0)
+    {
+        curr_can = curr_def.rbegin()->first;
+        curr_i = curr_def.rbegin()->second;
+        if (a[curr_i] <= k[curr_i])
+        {
+            s--;
+            ans += a[curr_i];
+            a[curr_i] = 0;
+        }
+        else
+        {
+            ans += (min(s, a[curr_i] / k[curr_i]) * k[curr_i]);
+            m = min(s, a[curr_i] / k[curr_i]);
+            a[curr_i] -= (m * k[curr_i]);
+            s -= m;
+            //cerr << s << " " << ans << endl;
+        }
+        curr_def.erase(make_pair(curr_can, curr_i));
+        curr_def.insert(make_pair(min(a[curr_i], k[curr_i]), curr_i));
+        //print(curr_def);
+        //cout << ans << endl;
+    }
+    cout << soldiers - ans;
+    return 0;
+}

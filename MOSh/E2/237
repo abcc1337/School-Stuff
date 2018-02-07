@@ -1,0 +1,72 @@
+#include <iostream>
+#include <vector>
+#include <cstdio>
+#include <algorithm>
+#include <unordered_map>
+#include <string>
+#include <cstring>
+
+using namespace std;
+
+#define SIZE 20228
+#define ll long long
+#define p 179
+#define Mod 1791791791
+
+int m, n, l;
+unordered_map<ll, ll> cost;
+string a;
+ll d[SIZE];
+string h;
+ll st[SIZE];
+
+int main()
+{
+	st[0] = 1;
+	for (int i = 1; i < SIZE; i++)
+		st[i] = (st[i - 1] * p) % Mod;
+	freopen("typing.in", "r", stdin);
+	freopen("typing.out", "w", stdout);
+	ios_base::sync_with_stdio(false);
+	cin.tie(0);
+	cin >> m >> n >> l;
+	cin >> a;
+	ll c;
+	for (int i = 0; i < n; i++)
+	{
+		cin >> c >> h;
+		int l = h.length();
+		ll hsh = 0;
+		for (int q = 0; q < l; q++)
+		{
+			hsh = (hsh * p + h[q]) % Mod;
+			if (cost.find(hsh) == cost.end())
+				cost[hsh] = c;
+			else
+				cost[hsh] = min(cost[hsh], c);
+		}
+		hsh = 0;
+		for (int q = l - 1; q > -1; q--)
+		{
+			hsh = (h[q] * st[l - 1 - q] + hsh) % Mod;
+			if (cost.find(hsh) == cost.end())
+				cost[hsh] = c;
+			else
+				cost[hsh] = min(cost[hsh], c);
+		}
+	}
+	fill(d, d + SIZE, 10000000000000000);
+	d[0] = 0;
+	for (int i = 0; i < m; i++)
+	{
+		ll hsh = 0;
+		for (int q = i; q < m; q++)
+		{
+			hsh = (hsh * p + a[q]) % Mod;
+			if (cost.find(hsh) != cost.end())
+				d[q + 1] = min(d[q + 1], d[i] + cost[hsh]);
+		}
+	}
+	cout << (d[m] == 10000000000000000 ? -1:d[m]) << endl;
+	return 0;
+}

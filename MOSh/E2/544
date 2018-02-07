@@ -1,0 +1,87 @@
+const
+  MAXN = 2048;
+  INFIMUM = -1000000000;
+
+var
+  minl, minr, mint, minb: array [0..MAXN + 1, 0..MAXN + 1] of longint;
+  m: array [1..MAXN, 1..MAXN] of char;
+  c: array ['a'..'z'] of longint;
+  sumb, suml: array [0..MAXN + 1, 0..MAXN + 1] of longint;
+  x, y, i, n, k, allmax, maxl, maxr, w, h, cur: longint;
+
+function min(a, b: longint): longint;
+  begin
+    if a < b
+      then min := a
+      else min := b;
+  end;
+
+function max(a, b: longint): longint;
+  begin
+    if a > b
+      then max := a
+      else max := b;
+  end;
+
+begin
+  assign(input, 'submarine.in');
+  reset(input);
+  assign(output, 'submarine.out');
+  rewrite(output);
+  read(k);
+  for i := 0 to k - 1 do read(c[chr(ord('a') + i)]);
+  readln(h, w);
+  for y := h downto 1 do begin
+    for x := 1 to w do
+      read(m[x, y]);
+    readln;
+  end;
+  allmax := INFIMUM;
+  for x := 1 to w do
+    suml[x, 0] := 0;
+  for y := 1 to h do
+    sumb[0, y] := 0;
+  for x := 1 to w do
+    for y := 1 to h do begin
+      suml[x, y] := suml[x - 1, y] + c[m[x, y]];
+      sumb[x, y] := sumb[x, y - 1] + c[m[x, y]];
+  end;
+  for y := 1 to h do begin
+    minl[0, y] := 0;
+    cur := 0;
+    for x := 1 to w do begin
+      minl[x, y] := min(cur, minl[x - 1, y]);
+      cur := cur + c[m[x, y]];
+    end;
+    minr[w + 1, y] := 0;
+    cur := 0;
+    for x := w downto 1 do begin
+      minr[x, y] := min(cur, minr[x + 1, y]);
+      cur := cur + c[m[x, y]];
+    end;
+  end;
+  for x := 1 to w do begin
+    minb[x, 0] := 0;
+    cur := 0;
+    for y := 1 to h do begin
+      minb[x, y] := min(cur, minb[x, y - 1]);
+      cur := cur + c[m[x, y]];
+    end;
+    mint[x, h + 1] := 0;
+    cur := 0;
+    for y := h downto 1 do begin
+      mint[x, y] := min(cur, mint[x, y + 1]);
+      cur := cur + c[m[x, y]];
+    end;
+  end;
+  for y := 1 to h do begin
+    maxl := sumb[1, h] - sumb[1, y - 1] + mint[1, y];
+    for x := 2 to w do begin
+      maxr := sumb[x, h] + suml[w, y] - suml[x, y] - mint[x, y] - minb[x, y] - minr[x, y];
+      allmax := max(allmax, maxl + maxr);
+      maxl := max(maxl + c[m[x, y]], suml[x, y] + sumb[x, h] - sumb[x, y] - mint[x, y] - minl[x, y]);
+    end;
+  end;
+  writeln(allmax);
+end.
+

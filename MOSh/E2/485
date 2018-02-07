@@ -1,0 +1,124 @@
+program Video;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+const max=1000;
+type megabool=0..1;
+type matrix=array[1..max,1..max] of megabool;
+type doublematrix=array[1..max*2,1..max*2] of megabool;
+var
+  n,m,i,j,ans,k:integer;
+  c:char;
+  f,p:matrix;
+  a,d:doublematrix;
+  r:array[1..4] of megabool;
+  low,right:doublematrix;
+function plus(x:integer;b:megabool):integer;
+begin
+  if b=0 then
+  begin
+    if x=n then result:=1
+    else result:=x+1;
+  end
+  else
+  begin
+    if x=m then result:=1
+    else result:=x+1;
+  end;
+end;
+function supermod(x,module:integer):integer;
+begin
+  if x>module then result:=x-module
+  else result:=x;
+end;
+begin
+  assign(input,'video.in');
+  assign(output,'video.out');
+  reset(input);
+  rewrite(output);
+  readln(n,m);
+  for i:=1 to n do for j:=1 to m do begin p[i,j]:=0; f[i,j]:=0; end;
+  for i:=1 to n*2 do
+  begin
+    for j:=1 to m*2 do
+    begin
+      low[i,j]:=0;
+      right[i,j]:=0;
+      a[i,j]:=0;
+    end;
+  end;
+  for i:=1 to n do
+  begin
+    for j:=1 to m do
+    begin
+      read(c);
+      if c='1' then p[i,j]:=0
+      else p[i,j]:=1;
+    end;
+    if i<n then readln;
+  end;
+  for i:=1 to n do
+  begin
+    for j:=1 to m do
+    begin
+      r[1]:=p[i,j];
+      r[2]:=p[i,plus(j,1)];
+      r[3]:=p[plus(i,0),j];
+      r[4]:=p[plus(i,0),plus(j,1)];
+      if (r[1]=r[2]) and (r[2]=r[3]) and (r[3]=r[4]) then f[i,j]:=1;
+    end;
+  end;
+  for i:=1 to n*2 do
+  begin
+    for j:=1 to m*2 do
+    begin
+      d[i,j]:=f[supermod(i,n),supermod(j,m)];
+    end;
+  end;
+  for i:=1 to n*2 do
+  begin
+    for j:=1 to m+2 do
+    begin
+      if j=1 then
+      begin
+        for k:=1 to m-1 do inc(right[i,1],d[i,k]);
+      end
+      else right[i,j]:=right[i,j-1]-d[i,j-1]+d[i,j+m-2];
+    end;
+  end;
+  for j:=1 to m*2 do
+  begin
+    for i:=1 to n+2 do
+    begin
+      if i=1 then
+        for k:=1 to n-1 do inc(low[1,j],d[k,j])
+      else low[i,j]:=low[i-1,j]-d[i-1,j]+d[i+n-2,j];
+    end;
+  end;
+  for i:=1 to n-1 do
+    for j:=1 to m-1 do
+      inc(a[1,1],d[i,j]);
+  for i:=1 to n+2 do
+  begin
+    for j:=1 to m+2 do
+    begin
+      if (i=1) and (j=1) then continue;
+      if j>1 then
+      begin
+        a[i,j]:=a[i,j-1]-low[i,j-1]+low[i,j+m-2];
+      end
+      else
+      begin
+        a[i,j]:=a[i-1,j]-right[i-1,j]+right[i+n-2,j];
+      end;
+    end;
+  end;
+  ans:=0;
+  for i:=1 to n+2 do for j:=1 to m+2 do if a[i,j]>ans then begin ans:=a[i,j]; end;
+  writeln(ans);
+  close(input);
+  close(output);
+end.

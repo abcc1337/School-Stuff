@@ -1,0 +1,65 @@
+import sys
+
+
+def dfs(v):
+    tmppoints[v] = False
+    for u in matrix[v]:
+        if tmppoints[u]:
+            dfs(u)
+
+
+sys.stdin = open('repair.in')
+sys.stdout = open('repair.out', 'w')
+a, b = map(int, input().split())
+n, q = map(int, input().split())
+arr = [None] * (n - 1)
+for i in range(n - 1):
+    arr[i] = list(input().split())
+    arr[i][1] = int(arr[i][1])
+    arr[i][2] = int(arr[i][2])
+questions = [None] * q
+for i in range(q):
+    questions[i] = list(map(int, input().split()))
+matrix = []
+points = []
+for i in range(n - 1):
+    if arr[i][0] == 'v':
+        tmp1 = (arr[i][1], arr[i][2])
+        tmp2 = (arr[i][1], arr[i][2] + 1)
+    elif arr[i][0] == 'h':
+        tmp1 = (arr[i][1], arr[i][2])
+        tmp2 = (arr[i][1] + 1, arr[i][2])
+    if not tmp1 in points:
+        matrix.append([])
+        points.append(tmp1)
+    if not tmp2 in points:
+        matrix.append([])
+        points.append(tmp2)
+    matrix[points.index(tmp1)].append(points.index(tmp2))
+    matrix[points.index(tmp2)].append(points.index(tmp1))
+#print(points)
+#print()
+#print(matrix)
+#print()
+for i in range(q):
+    x1 = questions[i][0]
+    y1 = questions[i][1]
+    x2 = questions[i][2]
+    y2 = questions[i][3]
+    count = 0
+    tmppoints = [True] * n
+    for i in range(n):
+        if points[i][0] < x1:
+            tmppoints[i] = False
+        if points[i][1] < y1:
+            tmppoints[i] = False
+        if points[i][0] > x2:
+            tmppoints[i] = False
+        if points[i][1] > y2:
+            tmppoints[i] = False
+    for i in range(n):
+        if tmppoints[i]:
+            dfs(i)
+            count += 1
+    print(count)
+sys.stdout.close()

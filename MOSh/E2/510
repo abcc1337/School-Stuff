@@ -1,0 +1,30 @@
+var
+  a, b, c, mx, n, nn, j, t, aa, bb, cc:longint;
+begin
+  //Assign(input, 'grants.in');
+  //reset(input);
+  //Assign(output, 'grants.out');
+  //rewrite(output);
+  readln(nn);
+  for j := 1 to nn do
+  begin
+    readln(n);
+    mx := -1;
+    for a := 0 to n do
+    begin
+      for b := 0 to n - a do
+      begin
+         c := n - a - b;
+         t := ((a and b) and c);
+         if mx < t then
+         begin
+            mx := t;
+            aa := a;
+            bb := b;
+            cc := c;
+         end;
+      end;
+    end;
+    writeln(aa, ' ', bb, ' ', cc);
+  end;
+end.

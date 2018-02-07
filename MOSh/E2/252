@@ -1,0 +1,129 @@
+#include <iostream>
+#include <stdio.h>
+#include <vector>
+#include <bitset>
+#include <map>
+using namespace std;
+
+vector<vector<int> > graph;
+vector<int> used;
+vector<int> time_in, time_out;
+vector<int> previous;
+vector<int> depth;
+vector<vector<int> > p_up;
+
+void dfs(int a, int& time, int d = 0) {
+    time_in[a] = time;
+    time++;
+    depth[a] = d;
+    used[a] = true;
+    for (int v : graph[a]) {
+        if (!used[v]) {
+            previous[v] = a;
+            used[v] = true;
+            dfs(v, time, d + 1);
+            time++;
+        }
+    }
+    time_out[a] = time;
+    time++;
+}
+
+bool is_parent(int u, int v) {
+    return time_in[u] <= time_in[v] and time_out[v] <= time_out[u];
+}
+
+void count_p_up() {
+    int n = graph.size();
+    p_up.resize(20, vector<int>(n));
+    for (int i = 0; i < n; i++) {
+        p_up[0][i] = previous[i];
+    }
+    for (int i = 1; i < 20; i++) {
+        for (int j = 0; j < n; j++) {
+            p_up[i][j] = p_up[i - 1][p_up[i - 1][j]];
+        }
+    }
+}
+
+int get_lca(int u, int v) {
+    
+    for (int i = 17; i >= 0; i--) {
+        if (!is_parent(p_up[i][u], v)) {
+            u = p_up[i][u];
+        }
+    }
+    if (!is_parent(u, v)) {
+        u = p_up[0][u];
+    }
+    return u;
+}
+
+
+int count_way(int u, int v, int a, int b) {
+    int top = -1;
+    if (is_parent(v, b)) {
+        top = v;
+    } else if (is_parent(b, v)) {
+        top = b;
+    }
+    if (top != v and top != b) {
+        return 0;
+    }
+    int bottom = get_lca(u, a);
+//    cout << ' ' <<  u << ' ' <<  v << ' ' <<  a << ' ' <<  b << ' ' <<  top << ' ' <<  bottom << endl;;
+    return max(0, (depth[bottom] - depth[v + b - top]));
+}
+vector<int> lcas;
+int count_ans(int u, int v, int a, int b, int i, int j) {
+    int p1 = lcas[i];
+    int p2 = lcas[j];
+//    cout << p1 << ' ' << p2 << endl;
+    return max(count_way(u, p1, a, p2) + count_way(v, p1, b, p2), count_way(u, p1, b, p2) + count_way(v, p1, a, p2));
+}
+
+int main() {
+    freopen("twopaths.in", "r", stdin);
+    freopen("twopaths.out", "w", stdout);
+    int n, k, u, v, ans = -1;
+    scanf("%d%d", &n, &k);
+    graph.resize(n);
+    for (int i = 1; i < n; i++) {
+        scanf("%d", &u);
+        u--;
+        graph[u].push_back(i);
+        graph[i].push_back(u);
+    }
+    previous.resize(n);
+    used.resize(n, 0);
+    time_in.resize(n, 0);
+
+    depth.resize(n, 0); 
+    time_out.resize(n, 0);
+
+    previous[0] = 0;
+    int time = 0;
+    dfs(0, time);   
+    count_p_up();
+    vector<pair<int, int> > couriers(k);
+    lcas.resize(k);
+    for (int i = 0; i < k; i++) {
+    scanf("%d%d", &couriers[i].first, &couriers[i].second);
+        couriers[i].first--;
+        couriers[i].second--;
+        lcas[i] = get_lca(couriers[i].first, couriers[i].second);
+    }
+    for (int i = 0; i < k; i++) {
+        for (int j = 0; j < i; j++) {
+            int curr_ans = count_ans(couriers[i].first, couriers[i].second, couriers[j].first, couriers[j].second, i, j);
+            if (curr_ans > ans) {
+                ans = curr_ans;
+                u = i;
+                v = j;
+            }
+        }
+    }
+    cout << ans << endl;
+    cout << u + 1 << ' ' << v + 1 << endl;
+    //cout << get_lca(2, 3) << endl;
+}

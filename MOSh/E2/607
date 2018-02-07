@@ -1,0 +1,45 @@
+var
+  n1, n2, s1, s2, h, l, i, j, sum1, m, n: longint;
+  c: char;
+  f: text;
+begin
+assign (f,'video.in');
+reset (f);
+  readln(f,n, m);
+  sum1 := 0;
+  for i := 1 to n do 
+  begin
+    for j := 1 to m do 
+    begin
+      read(f,c); if c = '1' then s1 := s1 + 1 else s2 := s2 + 1; 
+    end;
+    readln (f);
+  end;
+  close (f);
+  for i := 1 to (n - 1) do 
+    for j := 1 to (m - 1) do 
+      if ((s1 = i * j) or (s2 = i * j)) and (sum1 < (n - 1) * (m - 1) - (i + j - 1)) then sum1 := (n - 1) * (m - 1) - (i + j - 1);
+  for i := 1 to n - 1 do 
+  begin
+    if ((s1 = i * m) or (s2 = i * m)) and (sum1 < (m - 1) * (n - 2)) then sum1 := (m - 1) * (n - 2);
+  end;
+  for i := 1 to m - 1 do 
+  begin
+    if ((s1 = i * n) or (s2 = i * n)) and (sum1 < (m - 2) * (n - 1)) then sum1 := (m - 2) * (n - 1);
+  end;
+  for i := 1 to m - 2 do 
+    for j := 1 to n - 1 do
+    begin
+      if ((s1 = n * (i - 1) - j) or (s2 = n * (i - 1) - j)) and (sum1 < (m - 1) * (n - 1) - n) then sum1 := (m - 1) * (n - 1) - n;
+    end;
+  for i := 1 to n - 2 do 
+    for j := 1 to m - 1 do
+    begin
+      if ((s1 = m * (i - 1) - j) or (s2 = m * (i - 1) - j)) and (sum1 < (n - 1) * (m - 1) - m) then sum1 := (n - 1) * (m - 1) - m;
+    end;
+  if (s1 = 0) or (s2 = 0) then sum1 := (m - 1) * (n - 1);
+  assign (f,'video.out');
+  rewrite (f);
+  writeln(f,sum1);
+  close (f);
+end.

@@ -1,0 +1,164 @@
+program ProjectA4;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils, Math;
+
+type mas = array[1..100100] of int64;
+
+var n, s : int64;
+    a, k : mas;
+    i, j : longint;
+    kol, sub : int64;
+    heap : array[1..100100] of int64;
+    size : longint;
+
+procedure qsort(l, r : longint);
+var i, j : longint;
+    mid, q : int64;
+begin
+  i := l; j := r;
+  mid := k[(l + r) div 2];
+
+  repeat
+    while k[i] < mid do
+      inc(i);
+    while k[j] > mid do
+      dec(j);
+
+    if i <= j then
+      begin
+        q := k[i]; k[i] := k[j]; k[j] := q;
+        q := a[i]; a[i] := a[j]; a[j] := q;
+
+        inc(i);
+        dec(j);
+      end;
+  until i >= j;
+
+  if j > l then
+    qsort(l, j);
+  if i < r then
+    qsort(i, r);
+end;
+
+procedure push(n : int64);
+var i, q : int64;
+begin
+  i := n;
+
+  while i*2 <= size do
+  begin
+    if (i*2+1 <= size) and (heap[i*2+1] > heap[i*2]) and (heap[i] < heap[i*2+1]) then
+      begin
+        q := heap[i];
+        heap[i] := heap[i*2+1];
+        heap[i*2+1] := q;
+        i := i*2+1;
+      end
+    else
+      if heap[i*2] > heap[i] then
+        begin
+          q := heap[i];
+          heap[i] := heap[i*2];
+          heap[i*2] := q;
+
+          i := i*2;
+        end
+      else
+        break;
+  end;
+end;
+
+procedure up;
+var i, q : int64;
+begin
+  i := size;
+
+  while i > 1 do
+  begin
+    if heap[i] > heap[i div 2] then
+      begin
+        q := heap[i];
+        heap[i] := heap[i div 2];
+        heap[i div 2] := q;
+        i := i div 2;
+      end
+    else
+      break;
+  end;
+end;
+
+procedure delete;
+begin
+  heap[1] := heap[size];
+  dec(size);
+  push(1);
+end;
+
+procedure plus(x : int64);
+begin
+  inc(size);
+  heap[size] := x;
+  up;
+end;
+
+begin
+//  assign(input, 'input.txt'); assign(output, 'output.txt');
+  assign(input, 'castle.in'); assign(output, 'castle.out');
+
+  readln(n, s);
+
+  kol := 0;
+  for i := 1 to n do
+  begin
+    readln(a[i], k[i]);
+    kol := kol + a[i];
+  end;
+
+  size := 0;
+  qsort(1, n);
+
+  for i := n downto 1 do
+  begin
+    while (size > 0) and (s > 0) do
+      begin
+        if heap[1] >= k[i] then
+          begin
+            dec(s);
+            kol := kol - heap[1];
+            delete;
+          end
+        else
+          break;
+      end;
+
+    sub := a[i] div k[i];
+    sub := min(sub, s);
+
+    kol := kol - sub * k[i];
+    s := s - sub;
+
+    if s = 0 then
+      begin
+        writeln(kol);
+        exit;
+      end;
+
+    sub := a[i] mod k[i];
+    plus(sub);
+  end;
+
+  if (s > 0) and (kol > 0) then
+    begin
+      while (size > 0) and (s > 0) do
+      begin
+        kol := kol - heap[1];
+        delete;
+        dec(s);
+      end;
+    end;
+
+  writeln(kol);
+end.

@@ -1,0 +1,86 @@
+#define fname "typing"
+
+#include <iostream>
+#include <cstdio>
+#include <cmath>
+#include <algorithm>
+
+#include <vector>
+#include <map>
+#include <set>
+#include <string>
+
+
+
+#define forn(i, n) for (int i = 0; i < n; i ++)
+#define fornn(i, m, n) for (int i = m; i < n; i ++)
+
+#define inb push_back
+#define mk make_pair
+#define X first
+#define Y second
+
+using namespace std;
+
+const int dd = 4e5;
+const int inf = 1e9;
+
+vector<pair<int, string> > qwe;
+
+int dp[dd];
+
+int main() {
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+#else
+	freopen(fname".in", "r", stdin);
+	freopen(fname".out", "w", stdout);
+#endif
+	int m, n, L;
+	cin >> m >> n >> L;
+	swap(m, n);
+	string str;
+	cin >> str;
+
+	forn(i, m) {
+		int w;
+		cin >> w;
+		string s;
+		cin >> s;
+		qwe.inb(mk(w, s));
+	}
+
+	dp[0] = 0;
+	forn(i, n)
+		dp[i + 1] = inf;
+	fornn(i, 1, n + 1) {
+		int minx = dp[i];
+		forn(j, m) {
+			string s = qwe[j].Y;
+			forn(q, s.size()) {
+				if (i - q - 1 < 0 || str[i - q - 1] != s[s.size() - q - 1])
+					break;
+				minx = min(minx, qwe[j].X + dp[i - q - 1]);
+			}
+			forn(q, s.size()) {
+				if (i - q - 1 < 0)
+					break;
+				bool fl = 1;
+				forn(qq, q + 1)
+					if (str[i - q - 1] != s[qq]) {
+						fl = 0;
+						break;
+					}
+				if (fl)
+					minx = min(minx, qwe[j].X + dp[i - q - 1]);
+			}
+		}
+		dp[i] = minx;
+	}
+	if (dp[n] == inf)
+		cout << -1;
+	else
+		cout << dp[n];
+	return 0;
+}

@@ -1,0 +1,107 @@
+#pragma comment(linker, "/stack:256000000")
+
+#include <cstdio>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+const long long P = (long long)1e9 + 7LL, Q = 379721;
+
+#define MAXL 50003
+#define MAXN 5003
+#define INF (long long)1e17
+
+string mas;
+
+long long hashs[MAXL];
+
+long long dp[MAXL];
+
+vector<pair<string, int> > mstr;
+
+long long step[MAXL];
+
+long long countHash(long long l, long long r)
+{
+	return (hashs[r] - (hashs[l] * step[r - l]) % P + P * Q) % P;
+}
+
+struct mde
+{
+	long long hsh;
+	int x;
+	int size;
+};
+
+vector<mde> masans;
+
+int main()
+{
+	long long n, m, L;
+	freopen("typing.in", "r", stdin);
+	freopen("typing.out", "w", stdout);
+	cin >> n >> m >> L;
+	cin >> mas;
+	for (int i = 0; i < m; i++)
+	{
+		long long x;
+		string a;
+		cin >> x >> a;
+		mstr.push_back(make_pair(a, x));
+	}
+	step[0] = 1;
+	for (int i = 1; i < MAXL; i++)
+		step[i] = (step[i - 1] * Q) % P;
+	long long hashnow = 0;
+	for (int i = 1; i <= n; i++)
+	{
+		hashnow *= Q;
+		hashnow %= P;
+		hashnow += mas[i - 1];
+		hashnow %= P;
+		hashs[i] = hashnow;
+	}
+	for (long long i = 0; i < m; i++)
+	{
+		long long hashnowl = 0;
+		long long hashnowr = 0;
+		string now = mstr[i].first;
+		for (long long j = 0; j < now.size(); j++)
+		{
+			hashnowr += now[now.size() - j - 1] * step[j];
+			hashnowr %= P;
+			hashnowl *= Q;
+			hashnowl += now[j];
+			hashnowl %= P;
+			mde K;
+			K.size = j + 1;
+			K.hsh = hashnowl;
+			K.x = mstr[i].second;
+			masans.push_back(K);
+			K.hsh = hashnowr;
+			masans.push_back(K);
+		}
+	}
+	for (int i = 1; i <= n; i++)
+	{
+		dp[i] = INF;
+		for (int j = 0; j < masans.size(); j++)
+		{
+			mde x = masans[j];
+			if (i >= x.size)
+			{
+				long long sad = countHash(i - x.size, i);
+				if (countHash(i - x.size, i) == masans[j].hsh)
+					dp[i] = min(dp[i], dp[i - x.size] + masans[j].x);
+			}
+		}
+	}
+	if (dp[n] < INF)
+		cout << dp[n];
+	else
+		cout << -1;
+	return 0;
+}

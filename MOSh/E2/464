@@ -1,0 +1,37 @@
+var
+a:array[1..100] of integer;
+i,x,y,z,t:integer;
+f1,f2:text;
+begin
+assign(f1,'grants.in');
+assign(f2,'grants.out');
+reset(f1);
+rewrite(f2);
+read(f1,t);
+for i:=1 to t do
+read(f1,a[i]);
+for i:=1 to t do
+ begin
+ if a[i] mod 3=0 then
+  begin
+  x:=a[i] div 3;
+  y:=x;
+  z:=x;
+  end;
+ if a[i] mod 3=1 then
+  begin
+  x:=(a[i] div 3)+1;
+  y:=a[i] div 3;
+  z:=y;
+  end;
+ if a[i] mod 3=2 then
+  begin
+  x:=(a[i] div 3)+1;
+  y:=x;
+  z:=a[i] div 3;
+  end;
+writeln(f2,x,' ',y,' ',z);
+ end;
+close(f1);
+close(f2);
+end.

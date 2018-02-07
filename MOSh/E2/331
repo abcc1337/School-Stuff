@@ -1,0 +1,107 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cstdio>
+
+struct Crit{
+    int val, id;
+};
+
+bool cmp(Crit a, Crit b){
+    return a.val < b.val;
+}
+
+std::vector <Crit> a;
+std::vector <Crit> b;
+std::vector <Crit> c;
+
+std::vector <Crit> at;
+std::vector <Crit> bt;
+std::vector <Crit> ct;   
+
+int n;
+
+int chr(int id, std::vector <Crit> v, int val){
+            
+    int ans = 0;
+    int l = 0, r = n, m;    
+    while(r-l > 1){
+        m = l + (r - l) / 2;
+        if(v[m].val < val && v[m].id < id){
+            l = m;
+        }else
+            r = m;        
+    }
+    if(v[l].val != val)
+        ++l;
+        
+    for(int it = l; it < n && v[it].val == val; ++it){
+        int i = v[it].id;
+         //std::cout << i << ":" << id;
+         int t = (a[i].val == a[id].val) + (b[i].val == b[id].val) + (c[i].val == c[id].val);
+         if(t == 1 && id < i) {
+             ans++;
+           //  std::cout << " ok";
+             //std::cout << i << " " << id << " " << val << " " << t << "\n";
+            // std::cout << a[i].val << " " << a[id].val << "\n";
+         }
+        // std::cout << "\n";
+     }
+         
+     return ans;
+}
+
+int ch(int id){
+    int ans = 0;
+    for(int i = id + 1; i < n; ++i){
+        int t = (a[i].val == a[id].val) + (b[i].val == b[id].val) + (c[i].val == c[id].val);
+        if(t == 1){
+        //   std::cout << i << " " << id << "\n";
+           ans++;
+        }
+    }
+    return ans;
+}
+
+int main(){
+   // freopen("onlyone.in", "r", stdin);
+   // freopen("onlyone.out", "w", stdout);
+
+    std::cin >> n;
+
+    a.resize(n);
+    b.resize(n);
+    c.resize(n);    
+
+    at.resize(n);
+    bt.resize(n);
+    ct.resize(n);
+
+    for(int i = 0; i < n; ++i){
+        std::cin >> a[i].val >> b[i].val >> c[i].val;
+        at[i].id = a[i].id = i;
+        bt[i].id = b[i].id = i;
+        ct[i].id = c[i].id = i;
+
+        at[i].val = a[i].val;
+        bt[i].val = b[i].val;
+        ct[i].val = c[i].val;
+    }
+
+    std::stable_sort(at.begin(), at.end(), cmp);
+    std::stable_sort(bt.begin(), bt.end(), cmp);
+    std::stable_sort(ct.begin(), ct.end(), cmp);
+    
+    int ans = 0;
+    for(int i = 0; i < n; ++i){
+      //  if(ch(i) == 1){
+        ans += (chr(i, at, a[i].val) + chr(i, bt, b[i].val) + chr(i, ct, c[i].val));
+       // }
+       // std::cout << a[i].val;
+    }
+    std::cout << ans << "\n";
+    
+    fclose(stdin);
+    fclose(stdout);
+    return 0;
+}

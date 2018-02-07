@@ -1,0 +1,157 @@
+program Fish;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+     var x,a,y,b,c,b1,c1,su:array [0..50000] of longint;
+     i,j,k,u,m,n,p,mx,s,s1:longint;
+
+  function tr(i:longint):longint;
+   var j,l,r:longint;
+    begin
+    if x[i]<y[1] then tr:=0
+     else
+      begin
+     l:=1;
+     r:=m;
+
+      while l<r do
+       begin
+        j:=(l+r) div 2;
+         if y[j]>x[i] then r:=j
+          else l:=j+1;
+
+       end;
+
+
+     if y[l]<=x[i] then tr:=l
+      else tr:=l-1;
+       end;
+    end;
+    function tr1(i:longint):longint;
+   var j,l,r:longint;
+    begin
+    if y[i]<x[1] then tr1:=0
+     else
+      begin
+     l:=1;
+     r:=m;
+
+      while l<r do
+       begin
+        j:=(l+r) div 2;
+         if x[j]>y[i] then r:=j
+          else l:=j+1;
+
+       end;
+
+
+     if x[l]<=y[i] then tr1:=l
+      else tr1:=l-1;
+       end;
+    end;
+   procedure qsort(l,r:longint);
+  var f,i,j,p:longint;
+   begin
+     i:=l;
+     j:=r;
+     f:=c1[(l+r) div 2];
+     while i<j do
+      begin
+     while c1[i]<f do i:=i+1;
+     while c1[j]>f do j:=j-1;
+      if i<=j then
+       begin
+        p:=c1[i];
+        c1[i]:=c1[j];
+        c1[j]:=p;
+        p:=b1[i];
+        b1[i]:=b1[j];
+        b1[j]:=p;
+        i:=i+1;
+        j:=j-1;
+       end;
+
+      end;
+     if j>l then qsort(l,j);
+     if r>i then qsort(i,r);
+   end;
+begin
+  assign(input,'fisher.in');
+  reset(input);
+   assign(output,'fisher.out');
+     rewrite(output);
+     readln(n,m,p);
+     for i:=1 to n do
+      readln(x[i],a[i]);
+      a[0]:=0;
+      su[0]:=0;
+     for i:=1 to m do
+      readln(y[i],b[i],c[i]);
+  close(input);
+  mx:=0;
+  s:=0;
+  b1:=b;
+  c1:=c;
+    for i:=1 to n do
+     begin
+      k:=0;
+       s:=s+a[i];
+       su[i]:=s;
+       s1:=s;
+       j:=tr(i);
+       qsort(1,j);
+       u:=j;
+       while (s1<>0)and(u>0) do
+        begin
+         if s1>b1[u] then
+          begin
+           s1:=s1-b1[u];
+           k:=k+b1[u]*c1[u];
+           u:=u-1;
+          end
+           else
+            begin
+
+              k:=k+c1[u]*s1;
+              s1:=0;
+            end;
+
+        end;
+        if mx<k-p*x[i] then mx:=k-p*x[i];
+
+     end;
+      b1:=b;
+  c1:=c;
+     for j:=1 to m do
+      begin
+       k:=0;
+        i:=tr1(j);
+        s1:=su[i];
+        u:=j;
+        while (s1<>0)and(u>0) do
+        begin
+         if s1>b1[u] then
+          begin
+           s1:=s1-b1[u];
+           k:=k+b1[u]*c1[u];
+           u:=u-1;
+          end
+           else
+            begin
+
+              k:=k+c1[u]*s1;
+              s1:=0;
+            end;
+
+        end;
+        if mx<k-p*y[j] then mx:=k-p*y[j];
+      end;
+
+
+     writeln(mx);
+     close(output);
+  
+end.
+ 

@@ -1,0 +1,20 @@
+inf = open("castle.in", "r")
+outf = open("castle.out", "w")
+
+n, s= map(int, inf.readline().split())
+arr = []
+for i in range(n):
+	x, y = map(int, inf.readline().split())
+	arr.append((y/x,y,x))
+arr.sort()
+ans = 0;
+for i in arr:
+	ans += i[2]
+for i in arr:
+	x = min(s, (i[2]+i[1]-1) // i[1])
+	ans -= min(i[2], i[1] * x)
+	s -= x
+print(ans, file = outf)
+
+inf.close()
+outf.close()

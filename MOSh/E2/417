@@ -1,0 +1,50 @@
+#include <iostream>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <fstream>
+
+using namespace std;
+
+bool cmp(pair<int, int> a, pair <int, int> b){
+    return (a.second > b.second);
+}
+
+int main(){
+    int n, non = 1;
+    cin >> n;
+    vector <int> res1(1, 0);
+    //map <int, int> ma1;
+    //ma1[0] = 0;
+    vector <pair <int, int> > ma2;
+    ma2.push_back(make_pair(0, 0));
+    for (int i = 1; i < n; i++){
+        int left = 0, right = non + 1;
+        int res = 1;
+        sort(ma2.begin(), ma2.end(), cmp);
+        while (left + 1 < right){
+            int j = (left + right) / 2;
+            cout << "? " << ma2[j - 1].second + 1 << " " << i + 1 << endl;
+            cin >> res;
+            if (res > j){
+                left = j;
+            }
+            else {
+                right = j;
+            }
+        }
+        if (left == non){
+            res1.push_back(non);
+            non++;
+            ma2.push_back(make_pair(non - 1, i));
+        }
+        else{
+            res1.push_back(ma2[right - 1].first);
+            ma2[right - 1].second = i;
+        }
+    }
+    cout << "Ready!" << endl << non << endl;
+    for (int i = 0; i < n; i++){
+        cout << res1[i] + 1 << " ";
+    }
+}

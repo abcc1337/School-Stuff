@@ -1,0 +1,88 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define int long long
+#define mp make_pair
+#define pb push_back
+
+string t[20000];
+int c[20000];
+
+int d[300001];
+signed main()
+{
+//
+//    freopen("input.txt", "r", stdin);
+//    freopen("output.txt", "w", stdout);
+
+    freopen("typing.in", "r", stdin);
+    freopen("typing.out", "w", stdout);
+
+    ios_base::sync_with_stdio(0);
+//    cin.tie(0);
+
+
+    int m, n, l;
+    cin >> m >> n >> l;
+    string s = "";
+
+    for (int i = 0; i < m; ++i)
+    {
+        char q;
+        cin >> q;
+        s += q;
+    }
+    for (int i = 0; i < n; ++i)
+    {
+        string ss;
+        cin >> c[i] >> ss;
+        int l = 0, r = (int)ss.length() - 1;
+        while (ss[l] != '0' && ss[l] != '1')
+            l++;
+        while (ss[r] != '0' && ss[r] != '1')
+            r--;
+        t[i] = "";
+        for (int j = l; j <= r; ++j)
+            t[i] += ss[j];
+    }
+
+    int kek = 2000000000;
+//    int kek = (long long)1000000000;
+//    kek *= (long long)1000000000;
+    for (int i = 0; i < n; ++i)
+    {
+        t[i + n] = "";
+        int k = (int)t[i].length();
+        for (int j = 0; j < t[i].length(); ++j)
+            t[i + n] += t[i][t[i].length() - 1 - j];
+        c[i + n] = c[i];
+    }
+//    n *= 2;
+    for (int i = 0; i <= 1000; ++i)
+        d[i] = kek;
+    d[0] = 0;
+    for (int i = 0; i < 1000; ++i)
+    {
+        for (int j = 0; j < n; ++j)
+        {
+            int it = 0;
+            int k = (int)t[j].length();
+            while ((it < t[j].length()) && ((i + it) < m) && (t[j][it] == s[i + it]))
+                it++;
+            for (int q = 0; q <= it; ++q)
+                d[i + q] = min(d[i + q], d[i] + c[j]);
+
+            it = 0;
+            while ((it < t[j].length()) && ((i + it) < m) && (t[j][(int)t[j].length() - 1 - it] == s[i + it]))
+                it++;
+            for (int q = 0; q <= it; ++q)
+                d[i + q] = min(d[i + q], d[i] + c[j]);
+
+        }
+    }
+    if (d[m] == kek)
+        d[m] = -1;
+    cout << d[m];
+
+}

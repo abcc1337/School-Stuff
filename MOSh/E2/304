@@ -1,0 +1,59 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+
+using namespace std;
+
+ifstream in("mountain.in");
+ofstream out("mountain.out");
+
+vector <pair <long long, long long> > points;
+
+int itok(pair <long long, long long> a, pair <long long, long long> b){
+    for (int i = 0; i < points.size() - 1;  i++){
+        if (((points[i].first - a.first) * (b.second - a.second) - (points[i].second - a.second) * (b.first - a.first)) *
+            ((points[i + 1].first - a.first) * (b.second - a.second) - (points[i + 1].second - a.second) * (b.first - a.first)) < 0 &&
+            ((points[i].first - points[i + 1].first) * (b.second - points[i + 1].second) - (points[i].second - points[i + 1].second) * (b.first - points[i + 1].first)) *
+            ((points[i].first - points[i + 1].first) * (a.second - points[i + 1].second) - (points[i].second - points[i + 1].second) * (a.first - points[i + 1].first)) < 0){
+                return i;
+            }
+    }
+    return -1;
+}
+
+int main(){
+    long long n, q, d, k;
+    in >> n >> q;
+    points.resize(n + 1);
+    points[0] = make_pair(0, 0);
+    for (int i = 0; i < n; i++){
+        in >> d >> k;
+        points[i + 1] = make_pair(points[i].first + d, points[i].second + d * k);
+    }
+    for (int i = 0; i < q; i++){
+        in >> d >> k;
+        int le = 0, ri = n;
+        while (le + 1 < ri){
+            int mi = (le + ri) / 2;
+            if (points[mi].first <= d){
+                le = mi;
+            }
+            else {
+                ri = mi;
+            }
+        }
+        //out << le << " " << ri << endl;
+        while (ri < n && -1 == itok(make_pair(d, k), points[ri])){
+            ri++;
+        }
+        if (-1 != itok(make_pair(d, k), points[ri])){
+            ri--;
+        }
+        while (le > 0 && -1 == itok(make_pair(d, k), points[le])){
+            le--;
+        }
+        if (-1 != itok(make_pair(d, k), points[le])){
+            le++;}
+        out << points[le].first << " " << points[ri].first << endl;
+    }
+}

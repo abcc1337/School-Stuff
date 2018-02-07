@@ -1,0 +1,27 @@
+fin = open("mountain.in", "r")
+fout = open("mountain.out", "w")
+n, q = [int(x) for x in fin.readline().split()]
+a = [[0, 0, 0]]
+for i in range(n):
+    x, y = [int(x) for x in fin.readline().split()]
+    a.append([a[-1][0] + x, a[-1][1] + x * y, y])
+for i in range(q):
+    x, y = [int(x) for x in fin.readline().split()]
+    l = 0;
+    r = 0;
+    while a[l][0] < x:
+        l += 1
+        r += 1
+    l -= 1
+    #print(l, r)
+    if a[r][0] == x:
+        r += 1
+    while l > 0 and (y - a[l][1]) / (x - a[l][0]) >= a[l][2]:
+        l -= 1
+    while r < n and (a[r][1] - y) / (a[r][0] - x) <= a[r + 1][2]:
+        r += 1    
+    if r > n:
+        r = n
+    print(a[l][0], a[r][0], file=fout)
+fin.close()
+fout.close()

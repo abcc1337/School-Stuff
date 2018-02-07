@@ -1,0 +1,110 @@
+
+#pragma comment(linker, "/STACK:1000000000")
+#include<stdio.h>
+#include<conio.h>
+#include<iostream>
+#include<vector>
+
+#define ll long long
+#define mp make_pair
+using namespace std;
+
+int n, q;
+vector < pair<int, ll >> edg[300000];
+ll dist[3000][3000], d[300000];
+int was[300000], was1[300000], in[300000], cn;
+int cur[300000], can[3000][3000];
+ll max(ll a, ll b)
+{
+  return a > b ? a : b;
+}
+void dfs(int start, int v, ll deep)
+{
+  if (was[v] == 1)
+    return;
+  dist[start][v] = deep;
+  if (dist[start][v] <= d[v])
+    can[start][v] = 1;
+  was[v] = 1;
+  for (int i = 0; i < edg[v].size(); i++)
+    dfs(start, edg[v][i].first, deep + edg[v][i].second);
+}
+void dfs1(int v)
+{
+  if (was[v] == 1)
+    return;
+  was[v] = 1;
+  cn++;
+  for (int i = 0; i < n; i++)
+    if (dist[v][i] == 1)
+      dfs1(i);
+}
+int cnt(int mask)
+{
+  int nas = 0;
+  while (mask)
+  {
+    if (mask & 1)
+      nas++;
+    mask >>= 1;
+  }
+  return nas;
+}
+int main(void)
+{
+  freopen("alarm.in", "rt", stdin);
+  freopen("alarm.out", "wt", stdout);
+  //getch();
+    cin >> n;
+    for (int i = 0; i < n; i++)
+      edg[i].clear();
+    for (int i = 0; i < n; i++)
+      d[i] = rand() % 10;
+    for (int i = 0; i < n - 1; i++)
+    {
+      int u, v, l;
+      //cin >> u >> v >> l;
+      u = i + 1;
+      v = rand() % (i + 1);
+      l = rand() % 10;
+      edg[u].push_back(mp(v, l));
+      edg[v].push_back(mp(u, l));
+    }
+    for (int i = 0; i < n; i++)
+    {
+      dfs(i, i, 0);
+      for (int j = 0; j < n; j++)
+        was[j] = 0;
+    }
+    for (int i = 0; i < n; i++)
+      for (int j = 0; j < n; j++)
+        if (dist[i][j] <= d[i])
+          dist[i][j] = 1;
+        else
+          dist[i][j] = 0;
+    int ans = 0;
+    for (int i = 0; i < n; i++)
+      for (int j = 0; j < n; j++)
+        if (i != j && can[i][j] == 1)
+          in[j]++;
+    cn = n;
+//    int ans = 0;
+    while (cn)
+    {
+      int best = 0;
+      for(int i = 0; i < n; i++)
+        if (was[i] == 0)
+        {
+        best = i;
+        break;
+        }
+      for (int i = 0; i < n; i++)
+        if (was[i] == 0 && in[i] < best)
+          best = i;
+      ans++;
+      dfs1(best);
+    }
+    cout << ans << endl;
+  //getch();
+  return 0;
+}

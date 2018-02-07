@@ -1,0 +1,101 @@
+#include <iostream>
+#include <cstdio>
+#include <string>
+#include <algorithm>
+ 
+using namespace std;
+ 
+const int MAXT = 2000;
+ 
+int bor[100100][2];
+long long borc[100100];
+int cnt = 1;
+ 
+void add(const string &s, int pos, int st, int cur = 0)
+{
+    if (pos >= (int)s.size())
+        return;
+    int go = s[pos] - '0';
+    if (bor[cur][go] == -1)
+    {
+        bor[cur][go] = cnt;
+        borc[bor[cur][go]] = st;
+        cnt++;
+        add(s, pos + 1, st, bor[cur][go]);
+    }
+    else
+    {
+        borc[bor[cur][go]] = min(borc[bor[cur][go]], (long long)st);
+        add(s, pos + 1, st, bor[cur][go]);
+    }
+}
+
+void sadd(const string &s, int pos, int st, int cur = 0)
+{
+    if (pos < 0)
+        return;
+    int go = s[pos] - '0';
+    if (bor[cur][go] == -1)
+    {
+        bor[cur][go] = cnt;
+        borc[bor[cur][go]] = st;
+        cnt++;
+        add(s, pos - 1, st, bor[cur][go]);
+    }
+    else
+    {
+        borc[bor[cur][go]] = min(borc[bor[cur][go]], (long long)st);
+        add(s, pos - 1, st, bor[cur][go]);
+    }
+}
+ 
+long long d[300000];
+ 
+int main()
+{
+    freopen("typing.in", "r", stdin);
+    freopen("typing.out", "w", stdout);
+    for (int i = 0; i < 100000; i++)
+    {
+        d[i] = 1e17;
+        borc[i] = 1e17;
+        bor[i][1] = -1;
+        bor[i][0] = -1;
+    }
+    borc[0] = 0;
+    d[0] = 0;
+    int m, n, l;
+    cin >> m >> n >> l;
+    string s;
+    cin >> s;
+    for (int i = 0; i < n; i++)
+    {
+        int st;
+        string cs;
+        cin >> st >> cs;
+        add(cs, 0, st);
+		for (int j = 0; j < cs.size(); j++)
+		{
+        	sadd(cs, j, st);
+		}
+    }
+    for (int i = 0; i < m; i++)
+    {
+        int pos = 0;
+        for (int j = 0; j < m - i; j++)
+        {
+            pos = bor[pos][s[i + j] - '0'];
+            if (pos == -1)
+                break;
+            d[i + j + 1] = min((long long)1e17, min(d[i + j + 1], d[i] + borc[pos]));
+        }
+    }
+    if (d[m] >= 1e17)
+    {
+        cout << -1 << endl;
+    }
+    else
+    {
+        cout << d[m] << endl;
+    }
+}

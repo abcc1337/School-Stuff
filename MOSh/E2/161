@@ -1,0 +1,125 @@
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <set>
+#include <map>
+#include <queue>
+#include <ctime>
+#include <cmath>
+#include <cassert>
+
+typedef long long int int64;
+
+using namespace std;
+
+const int INF = 2147000000;
+
+struct point
+{
+	int v;
+	int d;
+};
+
+struct edge
+{
+	int v;
+	int l;
+};
+
+int n;
+vector<edge> graf[300005];
+point arr[300005];
+int lenOf[300005];
+bool used[300005];
+
+queue<int> now;
+
+void dfs(int v, int d, int prev)
+{
+	if (!used[v])
+	{
+		now.push(v);
+		used[v] = true;
+	}
+
+	for (int i = 0; i < graf[v].size(); ++i)
+	{
+		if (d - graf[v][i].l >= 0 && graf[v][i].v != prev)
+		{
+			dfs(graf[v][i].v, d - graf[v][i].l, v);
+		}
+	}
+}
+
+bool cmp(const point &a, const point &b)
+{
+	return a.d > b.d;
+}
+
+int main()
+{
+	freopen("alarm.in", "r", stdin);
+	freopen("alarm.out", "w", stdout);
+
+	scanf("%d", &n);
+
+	for (int i = 1; i <= n; ++i)
+	{
+		scanf("%d", &arr[i].d);
+		arr[i].v = i;
+
+		lenOf[i] = arr[i].d;
+	}
+
+	int a, b, l;
+	edge add;
+
+	for (int i = 0; i < n - 1; ++i)
+	{
+		scanf("%d %d %d", &a, &b, &l);
+
+		add.v = b;
+		add.l = l;
+
+		graf[a].push_back(add);
+
+		add.v = a;
+		add.l = l;
+		graf[b].push_back(add);
+	}
+
+	for (int i = 1; i <= n; ++i)
+	{
+		used[i] = false;
+	}
+
+	int answer = 0;
+
+	sort(arr + 1, arr + n + 1, cmp);
+
+	for (int i = 1; i <= n; ++i)
+	{
+		if (!used[arr[i].v])
+		{
+			++answer;
+			now.push(arr[i].v);
+			used[arr[i].v] = true;
+		}
+
+		while (!now.empty())
+		{
+			dfs(now.front(), lenOf[now.front()], -1);
+			now.pop();
+		}
+	}
+
+	printf("%d", answer);
+
+	fclose(stdin);
+	fclose(stdout);
+
+	return 0;
+}

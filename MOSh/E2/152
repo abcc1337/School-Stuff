@@ -1,0 +1,98 @@
+#include <string>
+#include <map>
+#include <set>
+#include <iomanip>
+#include <algorithm>
+#include <cmath>
+#include <vector>
+using namespace std;
+
+#ifdef _DEBUG
+#include <iostream>
+//ifstream cin("input.txt");
+//ofstream cout("output.txt");
+#else
+#include <iostream>
+//ifstream cin("video.in");
+//ofstream cout("video.out");
+#endif
+
+int x;
+int a[3000];
+bool us[3000];
+bool u[3000];
+
+vector < int > g;
+
+void dfs(int v, int color){
+	u[v] = true;
+	a[v] = color;
+	if (g[v] != -1 && !u[g[v]])
+		dfs(g[v], color);
+}
+
+int main() {
+	cin >> x;
+	a[0] = 1;
+	int ans = 0;
+	cout << "? 1 " << x << endl;
+	cout.flush();
+	cin >> ans;
+
+	int kek = 0;
+
+	int q = 1;
+
+	for (int i = 0; i < x - 1; i++) {
+		if (q >= x * x * 3)
+			return 1;
+		g.push_back(-1);
+		if(ans + kek < x)
+		for (int j = i + 1; j < x; j++) {
+			if (!us[j]) {
+				cout << "? " << i + 2 << ' ' << j + 1 << endl;
+				q++;
+				cout.flush();
+				int res1 = 0;
+				cin >> res1;
+				int res2 = 0;
+				cout << "? " << i + 1 << ' ' << j + 1 << endl;
+				q++;
+				cout.flush();
+				cin >> res2;
+				if (res1 == res2) {
+					g[i] = j;
+					us[j] = true;
+					kek++;
+					break;
+				}
+			}
+		}
+	}
+	g.push_back(-1);
+
+	int col = 0;
+
+	for (int i = 0; i < x; i++) {
+		if (!u[i])
+			dfs(i, ++col);
+	}
+	if (col > ans)
+		return 1;
+
+	cout << "Ready!" << endl;
+	cout.flush();
+	cout << ans << endl;
+	cout.flush();
+	for (int i = 0; i < x; i++) {
+		if (a[i] == 0)
+			return 1;
+		cout << a[i] << ' ';
+	}
+	cout.flush();
+	
+
+	#ifdef _DEBUG
+	system("pause");
+	#endif
+}

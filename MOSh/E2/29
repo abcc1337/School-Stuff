@@ -1,0 +1,65 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void solveA(){
+    int n, m ;
+    scanf("%d%d", &n, &m);
+    char k[n][m];
+    int ra_n[n], ra_m[m];
+    int factor_delete[n][m];
+    for(int i = 0; i < n; ++i)ra_n[i] = 0;
+    for(int j = 0; j < m; ++j)ra_m[j] = 0;
+    for(int i = 0; i < n; ++i){
+        scanf("\n");
+        for(int j = 0; j < m; ++j){
+            scanf("%c", &k[i][j]);
+            //cerr << k[i][j];
+        }
+    }
+    int new_i, new_j;
+    int ans = 0;
+    int curr = 0;
+    for(int i = 0; i < n; ++i){
+        for(int j = 0; j < m; ++j){
+            new_i = i;
+            new_j = j;
+            ++new_i;
+            ++new_j;
+            if(new_i == n)new_i = 0;
+            if(new_j == m)new_j = 0;
+            if(k[i][j] == k[new_i][new_j] && k[i][j] == k[new_i][j] && k[i][j] == k[i][new_j]){
+                ++ra_n[new_i];
+                ++ra_m[new_j];
+                ++curr;
+                factor_delete[i][j] = 1;
+            }
+            else factor_delete[i][j] = 0;
+        }
+    }
+    for(int i = 0; i < n; ++i){
+        new_i = i;
+        ++new_i;
+        if(new_i == n)new_i = 0;
+        curr -= ra_n[new_i];
+        for(int j = 0; j < m; ++j){
+            new_j = j;
+            ++new_j;
+            if(new_j == m)new_j = 0;
+            curr -= ra_m[new_j];
+            ans = max(curr + factor_delete[i][j], ans);
+            curr += ra_m[new_j];
+
+        }
+
+        curr += ra_n[new_i];
+    }
+    cout << ans << endl;
+}
+
+int main(){
+    freopen("video.in", "r", stdin);
+    freopen("video.out", "w", stdout);
+    solveA();
+    return 0;
+}

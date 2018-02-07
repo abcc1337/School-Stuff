@@ -1,0 +1,35 @@
+def r(n, k, st, s):
+    global minp, mins
+    if len(st) == n:
+        t = st[0]
+        kp = 1
+        for i in range(n):
+            if st[i] == t:
+                continue
+            else:
+                kp += 1
+                t = st[i]
+        if kp <= k:
+            sp = 0
+            for i in range(n):
+                if st[i] != s[i]:
+                    sp += 1
+            if sp < minp:
+                minp = sp
+                mins = st
+    else:
+        r(n, k, st + '0', s)
+        r(n, k, st + '1', s)
+f = open('penguins.in', 'r')
+x = f.readlines()
+f.close()
+t = int(x[0])
+f = open('penguins.out', 'w')
+for i in range(t):
+    n, k = map(int, x[i * 2 + 1].split())
+    s = str(x[i * 2 + 2])
+    minp = n + 1
+    mins = 'g'
+    r(n, k, '', s)
+    f.write(mins)
+f.close()

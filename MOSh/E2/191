@@ -1,0 +1,84 @@
+#include <bits/stdc++.h>
+
+#define pb push_back
+#define pii pair<int, int>
+#define mp make_pair
+#define fi first
+#define se second
+#define ll long long
+#define NAME "video"
+#define FREOPEN freopen(NAME".in", "r", stdin); freopen(NAME".out", "w", stdout);
+
+using namespace std;
+
+const int N = 1001;
+
+int i, j, k, n, m, ans, tek, tk;
+char a[3 * N][3 * N], x;
+
+inline int f(int i, int j) {
+    if (a[i][j] == a[i + 1][j] && a[i][j] == a[i][j + 1] && a[i][j] == a[i + 1][j + 1])
+        return 1;
+    return 0;
+}
+
+int main()
+{
+    FREOPEN
+    ios_base::sync_with_stdio(0);
+    cin >> n >> m;
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < m; j++) {
+            cin >> x;
+            a[i][j] = x;
+            a[i][j + m] = x;
+            a[i][j + 2 * m] = x;
+            a[i + n][j] = x;
+            a[i + n][j + m] = x;
+            a[i + n][j + 2 * m] = x;
+            a[i + 2 * n][j] = x;
+            a[i + 2 * n][j + m] = x;
+            a[i + 2 * n][j + 2 * m] = x;
+        }
+    }
+    /*for (i = 0; i < 3 *n; i++) {
+        for (j = 0; j < 3 * m; j++)
+            cout << a[i][j];
+        cout << endl;
+    }*/
+    for (i = 0; i < n - 1; i++)
+        for (j = 0; j < m - 1; j++)
+            tek += f(i, j);
+    for (i = 0; i < 2 * n; i++) {
+        if (i) {
+            for (j = 0; j < m - 1; j++) {
+                tek -= f(i - 1, j);
+                tek += f(i + n - 2, j);
+            }
+        }
+        ans = max(ans, tek);
+        tk = tek;
+        for (j = 1; j < 2 * m; j++) {
+            for (k = i; k < i + n - 1; k++) {
+                tk -= f(k, j - 1);
+                tk += f(k, j + m - 2);
+            }
+            ans = max(ans, tk);
+        }
+    }
+    cout << ans;
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

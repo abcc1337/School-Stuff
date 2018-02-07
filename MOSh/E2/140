@@ -1,0 +1,59 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int query(int l, int r) {
+    cout << "? " << l + 1 << ' ' << r + 1 << endl;
+    cout.flush();
+    int ret;
+    cin >> ret;
+    return ret;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    int a[3000];
+    int cur = 1;
+    int cur_idx = 0;
+    int left = cur_idx;
+    int right = n - 1;
+    while(cur_idx < n) {
+        while(left < right) {
+            int mid = left + (right - left) / 2;
+            if((right - left) == 1)
+                mid++;
+            int qr = query(cur_idx, mid);
+            /*if(qr == (mid - cur_idx + 1)) {
+                    cout << "kr";
+                for(int i = cur_idx; i < mid; i++) {
+                    a[i] = cur;
+                    cur++;
+                }
+                cur_idx+=(mid - cur_idx);
+                break;
+            }*/
+            if(qr > 1) {
+                if((right - cur_idx) == 1) {
+                    right = left;
+                }
+                else {
+                    right = mid - 1;
+                }
+            } else {
+                left = mid;
+            }
+        }
+        fill(a + cur_idx, a + cur_idx + left + 1, cur);
+        cur_idx = left + 1;
+        left = cur_idx;
+        right = n - 1;
+        cur++;
+    }
+    cout << "Ready!" << endl << cur - 1 << endl;
+    cout << a[0];
+    for(int i = 1; i < n; i++)
+        cout << ' ' << a[i];
+    cout << endl;
+    return 0;
+}

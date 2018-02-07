@@ -1,0 +1,123 @@
+#include <bits/stdc++.h>
+#define forn(i, n) for (int i = 0; i < n; i++)
+#define sz(a) (int)a.size()
+#define mp(a, b) make_pair(a, b)
+#define pb(a) push_back(a)
+#define all(a) a.begin(), a.end()
+
+using namespace std;
+typedef long long ll;
+const int MAXN = 100500;
+const string NAME = "mountain"; 
+
+struct Point
+{
+	ll x, y;
+	Point () {}
+	Point (ll _x, ll _y) : x(_x), y(_y) {}
+
+	void print()
+	{
+		cout << x << ' ' << y << '\n';
+	}
+};
+
+Point point[MAXN];
+int n, q;
+
+bool checkleft(Point b, Point c, Point a)
+{
+	return (a.y - b.y) * (a.x - c.x) <= (a.y - c.y) * (a.x - b.x); 
+}
+
+bool checkright(Point b, Point c, Point a)
+{
+	return (a.y - b.y) * (a.x - c.x) >= (a.y - c.y) * (a.x - b.x); 
+}
+
+
+ll sol1(Point A)
+{
+	int s = 0;
+
+	while (s != n + 1 && point[s].x <= A.x)
+		s++;
+		 
+	s--;
+
+	Point last;
+	bool is_first = true;
+
+	for(int i = s; i >= 0; i--)
+	{
+		if (is_first || checkleft(point[i], last, A))
+		{
+			last = point[i];
+			is_first = false;
+		}                        
+	}
+	return last.x;
+}
+
+
+ll sol2(Point A)
+{
+	int s = n;
+
+	while (s != -1 && point[s].x >= A.x)
+		s--;
+		 
+	s++;
+
+	Point last;
+	bool is_first = true;
+
+	for(int i = s; i < n + 1; i++)
+	{
+		if (is_first || checkright(point[i], last, A))
+		{                             
+			last = point[i];
+
+			is_first = false;
+		}
+		                        
+	}
+
+	assert(!is_first);
+	return last.x;
+}
+
+            
+int main()
+{
+#ifndef LOCAL                                        
+	freopen((NAME + ".in").c_str(), "rt", stdin);
+	freopen((NAME + ".out").c_str(), "wt", stdout);
+#endif	
+
+	cin >> n >> q;
+
+	ll px = 0;
+	ll py = 0;
+	point[0] = Point(0, 0);
+
+	forn(i, n)
+	{
+		ll d, k;
+		cin >> d >> k;
+		point[i + 1] = Point(px + d, py + k * d);
+		px += d;
+		py += k * d; 
+	}
+
+	forn(i, q)
+	{
+		ll x, y;
+		cin >> x >> y;
+		Point P = Point(x, y);
+
+		cout << sol1(P) << ' ' << sol2(P) << '\n';
+	}
+
+	return 0;
+}

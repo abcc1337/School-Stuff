@@ -1,0 +1,67 @@
+#include <cstdio>
+#include <algorithm>
+#include <iostream>
+#include <vector>
+using namespace std;
+const int N = 3100;
+int main() {
+    freopen("repair.in", "r", stdin);
+    freopen("repair.out", "w", stdout);
+    int pos[N][N], posver[N][N], poshor[N][N];
+    long long sum[N][N], partsum[N][N], sumver[N][N], partsumver[N][N],sumhor[N][N], partsumhor[N][N];
+    int a, b, n, q, x, y;
+    char c;
+    cin >> a >> b;
+    cin >> n >> q;
+    for (int i = 0; i <= a; i++)
+        for (int j = 0; j <= b; ++j) {
+            pos[i][j] = 0;
+            poshor[i][j] = 0;
+            posver[i][j] = 0;
+        };
+    for (int i = 0; i < n - 1; ++i) {
+        cin >> c >> x >> y;
+        pos[x][y] = 1;
+        if (c == 'h') {
+            pos[x + 1][y] = 1;
+            poshor[x][y] = 1;
+        } else {
+            pos[x][y + 1] = 1;
+            posver[x][y] = 1;
+        };
+    };
+    for (int i = 0; i <= a; ++i) {
+        long long s = 0, sver = 0, shor = 0;
+        for (int j = 0; j <= b; ++j) {
+            s += pos[i][j];
+            sver += posver[i][j];
+            shor += poshor[i][j];
+            partsum[i][j] = s;
+            partsumhor[i][j] = shor;
+            partsumver[i][j] = sver;
+        };
+    };
+    for (int j = 0; j <= b; ++j) {
+        long long s = 0, sver = 0, shor = 0;
+        for (long long i = 0; i <= a; ++i) {
+            s += partsum[i][j];
+            shor += partsumhor[i][j];
+            sver += partsumver[i][j];
+            sum[i][j] = s;
+            sumhor[i][j] = shor;
+            sumver[i][j] = sver;
+        };
+    };
+    int x1, y1, x2, y2;
+    for (int i = 0; i < q; ++i) {
+        cin >> x1 >> y1 >> x2 >> y2;
+        long long v = sum[x1 - 1][y1 - 1] + sum[x2][y2] - sum[x1 - 1][y2] - sum[x2][y1 - 1];
+        long long ever = sumver[x1 - 1][y1 - 1] + sumver[x2][y2 - 1] - sumver[x1 - 1][y2 - 1] - sumver[x2][y1 - 1];
+        long long ehor = sumhor[x1 - 1][y1 - 1] + sumhor[x2 - 1][y2] - sumhor[x1 - 1][y2] - sumhor[x2 - 1][y1 - 1];
+        long long e = ever + ehor;
+        cout << v - e << '\n';
+    };
+    fclose(stdin);
+    fclose(stdout);
+    return 0;
+};

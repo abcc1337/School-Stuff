@@ -1,0 +1,109 @@
+#include <iostream>
+#include <cstring>
+#include <cstdio>
+#include <vector>
+#include <algorithm>
+#include <map>
+#include <string>
+#include <set>
+#define y1 edf 
+using namespace std;
+
+const int MAX = 3000 * 3000 + 1;
+
+struct Point
+{
+	int x, y;
+	Point(){}
+	Point(int x, int y) : x(x), y(y){};
+};
+
+int a, b;
+
+int n, q;
+
+int x1, x2, y1, y2;
+
+bool was[MAX];
+
+int ans;
+
+map < pair <int, int>, vector<pair <int, int> > > mp;
+
+set <pair <int, int> > st, is;
+
+
+bool good(pair <int, int> gg)
+{
+	int x = gg.first;
+	int y = gg.second;
+	return x >= x1 && x <= x2 && y >= y1 && y <= y2;
+}
+
+void dfs(pair <int, int> ver, pair <int, int> prev = make_pair(-1, -1))
+{
+	st.insert(ver);
+	int size = mp[ver].size();
+	for (int i = 0; i < size; i++)
+	{
+		if (mp[ver][i] != prev && !st.count(mp[ver][i]) && good(mp[ver][i]))
+			dfs(mp[ver][i], ver);
+	}
+}
+
+void solve()
+{
+	st.clear();
+	for (int x = 1; x <= a; x++)
+	{
+		for (int y = 1; y <= b; y++)
+		{
+			if (!is.count(make_pair(x, y)))
+				continue;
+			if (st.count(make_pair(x, y)))
+				continue;
+			if (good(make_pair(x, y)))
+			{
+				dfs(make_pair(x, y));
+				ans++;
+			}
+		}
+	}
+}
+
+int main()
+{
+	freopen("repair.in", "r", stdin);
+	freopen("repair.out", "w", stdout);
+	scanf("%d %d", &a, &b);
+	scanf("%d %d", &n, &q);
+	for (int i = 0; i < n - 1; i++)
+	{
+		int x, y;
+		string s;
+		cin >> s;
+		scanf("%d %d", &x, &y);
+		if (s == "h")
+		{
+			mp[make_pair(x, y)].push_back(make_pair(x + 1, y));
+			mp[make_pair(x + 1, y)].push_back(make_pair(x, y));
+			is.insert(make_pair(x, y));
+			is.insert(make_pair(x + 1, y));
+		}
+		else
+		{
+			mp[make_pair(x, y)].push_back(make_pair(x, y + 1));
+			mp[make_pair(x, y + 1)].push_back(make_pair(x, y));
+			is.insert(make_pair(x, y));
+			is.insert(make_pair(x, y + 1));
+		}
+	}
+	for (int i = 0; i < q; i++)
+	{
+		scanf("%d %d %d %d", &x1, &y1, &x2, &y2);
+		solve();
+		printf("%d\n", ans);
+		ans = 0;
+	}
+	return 0;
+}

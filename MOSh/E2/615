@@ -1,0 +1,124 @@
+def f(n, a, f=True):
+    if n == 0:
+        if f:
+            return True
+        i = 2
+        g = []
+        while a > 0:
+            if a % i != 0:
+                g.append(i // 2)
+                a -= (i // 2)
+            i *= 2   
+        return g
+    s = []
+    a -= 3 * n
+    if a < 0:
+        return False
+    if a == 0:
+        if f:
+            return True
+        else:
+            return []
+    i = 2
+    while n > 0:
+        if n % i != 0:
+            s.append(i // 2)
+            n -= (i // 2)
+        i *= 2
+    i = 2
+    g = []
+    while a > 0:
+        if a % i != 0:
+            g.append(i // 2)
+            a -= (i // 2)
+        i *= 2
+    i = len(g) - 1
+    j = len(s) - 1
+    v = []
+    if j == 0:
+        while g[i] > s[j] and i > 0:
+            v.append(g[i])
+            i -= 1
+        if s[j] == g[i]:
+            return False
+        else:
+            if f:
+                return True
+            return g
+    while j > 0:
+        while s[j] > g[i] and j > 0:
+            j -= 1
+        while g[i] > s[j] and i > 0:
+            v.append(g[i])
+            i -= 1
+        if s[j] == g[i]:
+            if g[i] == 1:
+                return False
+            g[i] //= 2
+            while j > 0 and s[j] > g[i]:
+                j -= 1
+            if s[j] == g[i]:
+                if g[i] == 1:
+                    return False
+                g[i] //= 2
+                j -= 1
+                while j > 0 and s[j] > g[i]:
+                    j -= 1
+                if s[j] == g[i]:
+                    return False
+                if g[i] == 1:
+                    return False
+                if i > 0 and g[i - 1] == g[i]:
+                    v.append(g[i])
+                    v.append(g[i])
+                    g[i] = g[i] * 2
+                    j += 2
+                    s[j] = g[i]
+                    s[j - 1] = g[i - 1]
+                else:
+                    j += 1
+                    s[j] = g[i]
+                    v.append(g[i])
+                    v.append(g[i])
+                    v.append(g[i])
+            else:
+                if i > 0:
+                    i -= 1
+                elif f:
+                    return True
+                else:
+                    v.append(g[i])
+                    v.append(g[i])
+        elif i == 0:
+            if f:
+                return True
+            else:
+                v.append(g[0])
+                return v
+    v += g[:i + 1]
+    if f:
+        return True
+    else:
+        return v
+    
+    
+fin = open('grants.in', 'r')
+fout = open('grants.out', 'w')
+t = int(fin.readline())
+for q in range(t):
+    a = int(fin.readline())
+    for i in range(a // 3 + 1, -1, -1):
+        if f(i, a):
+            l = i
+            break
+    v = f(l, a, False)
+    g = [l, l, l]
+    j = 0
+    for i in range(len(v)):
+        g[j] += v[i]
+        j += 1
+        if j > 2:
+            j = 0
+    fout.write(' '.join(map(str, g)) + '\n')
+fin.close()
+fout.close()

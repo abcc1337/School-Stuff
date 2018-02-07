@@ -1,0 +1,136 @@
+program q;
+type l=record y,b,c:int64 end;
+p=array[0..50000]of l;
+var i,j,n,m,k,h,ni,nj:longint;    a,b,c:p;
+               x,y,v:int64;
+procedure sort(first,last:longint; var m:p);
+var f,l,mid:longint;
+begin
+   f:=first;
+   l:=last;
+   mid:=m[(f+l) div 2].y;
+   repeat
+      while m[f].y<mid do inc(f);
+      while m[l].y>mid do dec(l);
+      if f<=l
+      then begin
+              m[0]:=m[f];
+              m[f]:=m[l];
+              m[l]:=m[0];
+              dec(l);
+              inc(f)
+           end;
+   until f>l;
+   if f<last
+   then sort(f,last,m);
+   if first<l
+   then sort(first,l,m)
+end;
+procedure sort1(first,last:longint; var m:p);
+var f,l,mid:longint;
+begin
+   f:=first;
+   l:=last;
+   mid:=m[(f+l) div 2].c;
+   repeat
+      while m[f].c>mid do inc(f);
+      while m[l].c<mid do dec(l);
+      if f<=l
+      then begin
+              m[0]:=m[f];
+              m[f]:=m[l];
+              m[l]:=m[0];
+              dec(l);
+              inc(f)
+           end;
+   until f>l;
+   if f<last
+   then sort1(f,last,m);
+   if first<l
+   then sort1(first,l,m)
+end;
+begin
+  assign(input,'fisher.in'); reset(input);
+  assign(output,'fisher.out'); rewrite(output);
+  read(n,m,k);
+  for i:=1 to n do
+  begin
+  read(a[i].y,a[i].b);
+  a[i].c:=-1
+  end;
+  for i:=1 to m do
+  read(b[i].y,b[i].b,b[i].c);
+  sort(1,n,a);
+  sort(1,m,b);
+  if k=0
+  then begin
+         sort1(1,m,b);
+         for i:=1 to n do
+         x:=x+a[i].b;
+         for i:=1 to m do
+         if (x>=b[i].b)
+         then begin
+                 x:=x-b[i].b;
+                 y:=y+b[i].b*b[i].c
+              end
+         else begin y:=y+b[i].c*x; x:=0 end;
+         write(y)
+        end else
+  if b[m].y<a[1].y
+  then begin
+          v:=0;
+          y:=-a[1].y*k;
+          sort1(1,m,b);
+          j:=1;
+          x:=0;
+          for i:=1 to n do
+          begin
+             x:=x+a[i].b;
+             while (j<=m) and (x>0) do
+             if (x>=b[j].b)
+             then begin
+                 x:=x-b[j].b;
+                 y:=y+b[j].b*b[j].c;
+                 inc(j);
+              end
+              else begin b[j].b:=b[j].b-x; y:=y+b[j].c*x; x:=0 end;
+             if y>v
+             then v:=y;
+             y:=y-(a[i+1].y-a[i].y)*k;
+          end;
+          write(v)
+        end
+  else begin
+         for i:=1 to m do
+         a[n+i]:=b[i];
+         sort(1,n+m,a);
+         v:=0;
+         ni:=0;
+         nj:=0;
+         for i:=1 to n+m do
+         begin
+           y:=-a[i].y*k;
+           ni:=0;
+           for j:=1 to i do
+           if a[j].c>-1
+           then begin inc(ni); b[ni]:=a[j] end;
+           x:=0;
+           for j:=1 to i do
+           if a[j].c=-1
+         then x:=x+a[j].b;
+           sort1(1,ni,b);
+           j:=1;
+           while (j<=ni) and (x>0) do
+           if (x>=b[j].b)
+           then begin
+                 x:=x-b[j].b;
+                 y:=y+b[j].b*b[j].c;
+                 inc(j);
+              end
+             else begin b[j].b:=b[j].b-x; y:=y+b[j].c*x; x:=0 end;
+             if y>v
+             then v:=y;
+         end;
+         write(v)
+        end;
+end.

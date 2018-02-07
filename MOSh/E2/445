@@ -1,0 +1,74 @@
+#include <iostream>
+#include <vector>
+#include <set>
+#include <algorithm>
+#include <map>
+
+
+using namespace std;
+
+vector<pair<long long, long long> > can;
+const long long P = 787;
+const long long MOD = 1e9 + 7;
+const long long INF = 1e16;
+vector<long long> prise;
+
+int main()
+{
+    freopen("typing.in", "r", stdin);
+    freopen("typing.out", "w", stdout);
+    int m, n, l;
+    cin >> m >> n >> l;
+    string s;
+    cin >> s;
+    vector<string> lst(n);
+    prise.resize(n);
+    for (int i = 0; i < n; i++){
+        cin >> prise[i];
+        cin >> lst[i];
+    }
+    vector<long long> power(l);
+    power[0] = 1;
+    for (int i = 1; i < l; i++)
+        power[i] = power[i - 1] * P % MOD;
+    vector<vector<long long> > hashik1(n);
+    vector<vector<long long> > hashik2(n);
+    for (int i = 0; i < n; i++){
+        hashik1[i].resize(lst[i].size() + 1);
+        hashik2[i].resize(lst[i].size() + 1);
+        hashik1[i][0] = 0;
+        hashik2[i][lst[i].size()] = 0;
+        for (int j = 0; j < lst[i].size(); j++){
+            hashik1[i][j + 1] = (hashik1[i][j] * P % MOD + int(lst[i][j])) % MOD;
+            hashik2[i][lst[i].size() - 1 - j] = (hashik2[i][lst[i].size() - j] * P % MOD + int(lst[i][lst[i].size() - 1 - j])) % MOD;
+        }
+        for (int j = 0; j < lst[i].size(); j++){
+            can.push_back(make_pair(hashik1[i][j + 1], prise[i]));
+            can.push_back(make_pair(hashik2[i][j], prise[i]));
+        }
+    }
+    sort(can.begin(), can.end());
+    map<long long, long long> use;
+    use[can[0].first] = can[0].second;
+    for (int i = 1; i < can.size(); i++)
+        if (can[i].first != can[i - 1].first)
+            use[can[i].first] = can[i].second;
+    vector<long long> hashik(m + 1);
+    hashik[0] = 0;
+    for (int i = 0; i < m; i++)
+        hashik[i + 1] = (hashik[i] * P % MOD + int(s[i])) % MOD;
+    vector<long long> dp(m + 1);
+    for (int i = 0; i < m + 1; i++)
+        dp[i] = INF;
+    dp[0] = 0;
+    for (int i = 0; i < m; i++){
+        for (int j = 0; j <= i; j++){
+            long long a = (hashik[i + 1] - hashik[j] * power[i - j + 1] % MOD + 2 * MOD) % MOD;
+            if (use[a] != 0){
+                dp[i + 1] = min(dp[i + 1], dp[j] + use[a]);
+            }
+        }
+    }
+    cout << dp[m] << endl;
+    return 0;
+}

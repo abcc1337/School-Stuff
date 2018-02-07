@@ -1,0 +1,183 @@
+#define _CRT_SECURE_NO_WARNINGS
+
+#pragma comment(linker, "/STACK:1000000000")
+
+#include <vector>
+#include <iostream>
+#include <cstdio>
+#include <cmath>
+#include <algorithm>
+#include <map>
+#include <set>
+#include <list>
+#include <stack>
+#include <queue>
+#include <ctime>
+#include <unordered_map>
+#include <unordered_set>
+
+using namespace std;
+
+#define pb push_back
+#define mp make_pair
+#define pob pop_back
+#define lwb lower_bound
+#define upb upper_bound
+#define sz(a) (int)a.size()
+#define all(a) a.begin(), a.end()
+
+typedef long long ll;
+typedef vector <int> vi;
+typedef double db;
+typedef long double ldb;
+typedef pair <int, int> ii;
+
+const int inf = (int)1e9 + 7;
+const int N = (int)1e5 + 4;
+const int MAX = 100;
+
+struct pt
+{
+	int x, y, n;
+	pt() { }
+	pt(int x, int y, int n) : x(x), y(y), n(n) { }
+};
+
+struct ot
+{
+	pt a, b;
+	ot() { }
+	ot(pt a, pt b) : a(a), b(b) { }
+};
+
+pt a[N];
+
+struct prm
+{
+	int l, r;
+	prm() { }
+	prm(int l, int r) : l(l), r(r) { }
+};
+
+prm g[10 * N];
+int fen[4][10 * N], k;
+
+int sum(int num, int l)
+{
+	int ans = 0;
+	for (int i = l; i >= 0; i = int(i & (i + 1)) - 1)
+		ans += fen[num][i];
+	return ans;
+}
+
+void upd(int num, int l)
+{
+	for (int i = l; i < k; i = int(i | (i + 1)))
+		fen[num][i]++;
+}
+
+
+int main()
+{
+//	freopen("input.txt", "r", stdin);
+//	freopen("output.txt", "w", stdout);
+	freopen("monument.in", "r", stdin);	
+	freopen("monument.out", "w", stdout);
+	int n;
+	scanf("%d %d", &n, &k);
+	pt a1 = pt(inf, inf, -1), a2 = pt(-1, inf, -1), a3 = pt(inf, -1, -1), a4 = pt(-1, -1, -1);
+	for (int i = 0; i < n; ++i)
+	{
+		scanf("%d %d", &a[i].x, &a[i].y);
+		a[i].n = i;
+		if (a[i].y < a1.y || (a[i].y == a1.y && a[i].x < a1.x))
+			a1 = a[i];
+		if (a[i].y < a2.y || (a[i].y == a2.y && a[i].x > a2.x))
+			a2 = a[i];
+		if (a[i].y > a3.y || (a[i].y == a3.y && a[i].x < a3.x))
+			a3 = a[i];
+		if (a[i].y > a4.y || (a[i].y == a4.y && a[i].x > a4.x))
+			a4 = a[i];
+	}
+	vector <ot> q, p;
+	for (int i = a1.n; ;)
+	{
+		int j = (i - 1 + n) % n;
+		if (a[j].y > a[i].y)
+			q.pb(ot(a[i], a[j]));
+		i = j;
+		if (i == a3.n)
+			break;
+	}
+	for (int i = a2.n; ;)
+	{
+		int j = (i + 1) % n;
+		if (a[j].y > a[i].y)
+			p.pb(ot(a[i], a[j]));
+		i = j;
+		if (i == a4.n)
+			break;
+	}
+	for (int i = a1.y + 1; i <= a3.y; ++i)
+	{
+		int l = 0, r = sz(q) - 1;
+		for (; r > l;)
+		{
+			int m = (l + r) / 2 + 1;
+			if (q[m].b.y <= i)
+				l = m;
+			else
+				r = m - 1;
+		}
+		int ll = 0, rr = sz(q) - 1;
+		for (; rr > ll;)
+		{
+			int m = (ll + rr) / 2 + 1;
+			if (p[m].b.y <= i)
+				ll = m;
+			else
+				rr = m - 1;
+		}
+		g[i - a1.y - 1] = prm(q[l].a.x - i + 1, p[ll].a.x - i + 1);
+	}	
+	ll ans = 0;
+	for (int i = 0; i < a3.y - a1.y; ++i)
+	{
+		int l = g[i].l, r = g[i].r;
+		if (l < 0)
+		{
+			int tp = l / k + 5;
+			l += tp * k;
+			r += tp * k;
+		}
+		int t1 = (l / k + 1) * k - l;
+		int t2 = ((r + k - 1) / k) * k + 1 - r;
+		int p1 = l / k + 1;
+		int p2 = (r - 1) / k;
+		if (p2 >= p1)
+			ans += ll(p2 - p1);
+		if (p1 > p2)
+			ans++;
+		else
+			ans += (ll)2;
+		if (k - 1 < min(t1, t2))
+			continue;
+		if (t1 == t2)
+			continue;
+		if (t1 < t2)
+		{
+			upd(0, t1);
+			upd(1, min(t2 - 1, k - 1));
+		}
+		else
+		{
+			upd(2, t2);
+			upd(3, min(t1 - 1, k - 1));
+		}
+	}
+	int w = 0;
+	for (int i = 1; i < k; ++i)
+		w = min(w, sum(1, i - 1) - sum(0, i) + sum(2, i) - sum(3, i - 1));
+	printf("%lld", ans + (ll)w);
+	return 0;
+}

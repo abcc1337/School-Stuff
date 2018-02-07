@@ -1,0 +1,67 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define forn(i, n) for (int i = 0; i < n; i++)
+#define sz(a) (int)a.size()
+#define re return
+#define fi first
+#define se second
+
+typedef long long ll;
+typedef pair<int, int> pii;
+typedef pair<ll, ll> pll;
+ll ans = 0, n, m, m1, k1, k2, p = 0, dp[3001], sum[3001];
+vector<int> ii, jj;
+int fc(int i) {
+    int k = 0;
+    for (int j = i; j < sz(jj); j++) {
+        sum[jj[j]]++;
+        if (sum[jj[j]] == 1) k++;
+    }
+    for (int j = i; j < sz(jj); j++) {
+        sum[jj[j]]--;
+    }
+    re k;
+}
+
+int main() {
+    iostream::sync_with_stdio(0);
+    //assert(freopen("video.in", "r", stdin));
+    //freopen("video.out", "w", stdout);
+    cin >> n;
+    int q = 0;
+    while (q < n) {
+        ii.push_back(q + 1);
+        int l = q + 1, k;
+        int ql = -1, qr = sz(ii) - 1;
+        while (qr - ql > 1) {
+            int mid = (qr + ql) / 2;
+            cout << "? " << ii[mid] << " " << l << "\n";
+            cout.flush();
+            cin >> k;
+            if (k == fc(mid) + 1) qr = mid;
+            else ql = mid;
+        }
+        //cout << ql << endl;
+        if (ql == -1) {
+            p++;
+            jj.push_back(p);
+            for (int i = q; i < l; i++) dp[i] = p;
+        }
+        else {
+            jj.push_back(jj[ql]);
+            for (int i = q; i < l; i++) dp[i] = jj[ql];
+        }
+        q = l;
+    }
+    cout << "Ready!\n";
+    cout.flush();
+    cout << p << endl;
+    cout.flush();
+    forn (i, n) {
+        cout << dp[i] << " ";
+    }
+    cout << endl;
+    re 0;
+}

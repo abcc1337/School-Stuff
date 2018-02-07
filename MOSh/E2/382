@@ -1,0 +1,51 @@
+#include <iostream>
+#include <string.h>
+#include <cassert>
+using namespace std;
+
+int  q;
+bool used[3010];
+
+int get(int i, int j) {
+    int ans;
+    q++;
+    assert(q < 35000);
+
+    cout << "? " << i + 1 << ' ' << j + 1 << endl;
+    cin >> ans;
+    return ans;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    int a[n], k = 1, curk;
+    a[0] = 1;
+    for (int i = 1; i < n; i++) {
+        if (get(0, i) > k) {
+            a[i] = ++k;
+            continue;
+        }
+        int l = 0, r = i, m;
+        while ((r - l)/2 > 1) {
+            m = (r - l)/2;
+            curk = 0;
+            memset(used, 0, 3010);
+            for (int j = m; j < i; j++)
+                if (!used[a[j]]) {
+                    used[a[j]] = 1;
+                    curk++;
+                }
+            if (get(m, i) == curk)
+                l = m;
+            else
+                r = m;
+        }
+        a[i] = a[l];
+    }
+    cout << "Ready!" << endl << k << endl;
+    for (int i = 0; i < n; i++)
+        cout << a[i] << ' ';
+    cout << endl;
+    return 0;
+}

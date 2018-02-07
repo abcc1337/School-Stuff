@@ -1,0 +1,109 @@
+#include <cstdio>
+#include <iostream>
+#include <vector>
+#include <conio.h>
+#include <cmath>
+#include <algorithm>
+const int UP = 0;
+const int DOWN = 1;
+const int LEFT = 2;
+const int RIGHT = 3;
+
+
+using namespace std;
+
+typedef long long ll;
+
+const int INF = int(1e9) + 7;
+
+int a, b, n, q;
+bool  f[3001][3001][4], was[3001][3001];
+vector <int> ys[3001];
+
+void dfs(int x, int y, int a0, int b0, int a1, int b1)
+{
+	was[x][y] = true;
+	if (f[x][y][UP] && y + 1 <= b1 && !was[x][y + 1])
+		dfs(x, y + 1, a0, b0, a1, b1);
+	if (f[x][y][DOWN] && y - 1 >= b0 && !was[x][y - 1])
+		dfs(x, y - 1, a0, b0, a1, b1);
+	if (f[x][y][LEFT] && x - 1 >= a0 && !was[x - 1][y])
+		dfs(x - 1, y, a0, b0, a1, b1);
+	if (f[x][y][RIGHT] && x + 1 <= a1 && !was[x + 1][y])
+		dfs(x + 1, y, a0, b0, a1, b1);
+}
+
+int main()
+{
+	freopen("repair.in", "r", stdin);
+	freopen("repair.out", "w", stdout);
+	cin >> a >> b >> n >> q;
+	getchar();
+	for (int i = 0; i < n - 1; i++)
+	{
+		char c;
+		int x, y;
+		scanf("%c%d%d", &c, &x, &y);
+		x--;
+		y--;
+		if (c == 'v')
+		{
+			f[x][y][UP] = true;
+			f[x][y + 1][DOWN] = true;
+			ys[y].push_back(x);
+			ys[y + 1].push_back(x);
+		}
+		if (c == 'h')
+		{
+			f[x][y][RIGHT] = true;
+			f[x + 1][y][LEFT] = true;
+			ys[y].push_back(x);
+			ys[y].push_back(x + 1);
+		}
+		getchar();
+	}
+
+	for (int i = 0; i < b; i++)
+	{
+		sort(ys[i].begin(), ys[i].end());
+		ys[i].resize(unique(ys[i].begin(), ys[i].end()) - ys[i].begin());
+	}
+	for (int i = 0; i < q; i++)
+	{
+		int a0, b0, a1, b1;
+		scanf("%d%d%d%d", &a0, &b0, &a1, &b1);
+		a0--;
+		a1--;
+		b0--;
+		b1--;
+		int comp = 0;
+		vector <pair <int, int>> ps;
+		for (int j = b0; j <= b1; j++)
+		{
+			int pos1 = lower_bound(ys[j].begin(), ys[j].end(), a0) - ys[j].begin();
+			int pos2 = upper_bound(ys[j].begin(), ys[j].end(), a1) - ys[j].begin();
+			for (int t = pos1; t < pos2; t++)
+				ps.push_back(make_pair(ys[j][t], j));
+		}
+
+		for (int j = 0; j < int(ps.size()); j++)
+		{
+			if (!was[ps[j].first][ps[j].second])
+			{
+				comp++;
+				dfs(ps[j].first, ps[j].second, a0, b0, a1, b1);
+			}
+		}
+
+		printf("%d\n", comp);
+
+		for (int j = 0; j < int(ps.size()); j++)
+			was[ps[j].first][ps[j].second] = 0;
+		ps.clear();
+	}
+
+
+	//_getch();
+
+	return 0;
+}

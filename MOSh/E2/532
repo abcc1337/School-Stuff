@@ -1,0 +1,30 @@
+var
+  a:array[1..100000, 0..2] of longint;
+  n, j, i, ans:longint;
+  tj, ti:array[0..2] of longint;
+begin
+  assign(input, 'onlyone.in');
+  reset(input);
+  assign(output, 'onlyone.out');
+  rewrite(output);
+  readln(n);
+  for j := 1 to n do
+    readln(a[j, 0], a[j, 1], a[j, 2]);
+  for j := 1 to n do
+  begin
+    for i := j + 1 to n do
+    begin
+      tj[0] := a[j, 0];
+      tj[1] := a[j, 1];
+      tj[2] := a[j, 2];
+      ti[0] := a[i, 0];
+      ti[1] := a[i, 1];
+      ti[2] := a[i, 2];
+      if ((tj[0] = ti[0]) and (tj[1] <> ti[1]) and (tj[2] <> ti[2])) or ((tj[0] <> ti[0]) and (tj[1] = ti[1]) and (tj[2] <> ti[2])) or ((tj[0] <> ti[0]) and (tj[1] <> ti[1]) and (tj[2] = ti[2])) then
+      begin
+        ans := ans + 1;
+      end;
+    end;
+  end;
+  write(ans);
+end.

@@ -1,0 +1,70 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int n,m;
+char c[10005][10005];
+int N;
+int M;
+
+long long f(int si, int sj){
+    long long res = 0;
+    int i = si;
+    int j = sj;
+    for(int ii=0;ii<N;ii++){
+        j = sj;
+        for(int jj=0;jj<M;jj++){
+            int a = i+1; if(a>n) a = 1;
+            int b = j+1; if(b>m) b = 1;
+            if((c[i][j] == c[a][b]) && (c[i][j] == c[i][b]) && (c[i][j] == c[a][j]))
+                res++;
+            j++;
+            if(j>m) j++;
+        }
+        i++;
+        if(i>n) i = 1;
+    }
+    return res;
+}
+int main(){
+    //freopen("video.in","r",stdin);
+    //freopen("video.out","w",stdout);
+    cin>>n>>m;
+    N = n-1;
+    M = m-1;
+    for(int i=1;i<=n;i++)
+        for(int j=1;j<=m;j++)
+            cin>>c[i][j];
+
+    //1
+  /*  for(int i=1;i<=n;i++)
+        c[i][0] = c[i][m],
+        c[i][m+1] = c[i][1];
+    //2
+    for(int j=1;j<=m;j++)
+        c[0][j] = c[n][j],
+        c[n+1][j] = c[1][j];
+    //atan
+    c[0][0] = c[n][m];
+    c[0][m+1] = c[n][1];
+    c[n+1][0] = c[1][m];
+    c[n+1][m+1] = c[1][1];
+
+    for(int i=0;i<=n+1;i++,cout<<endl)
+        for(int j=0;j<=m+1;j++)
+            cout<<c[i][j]<<" ";
+    cout<<endl;
+    cout<<endl<<endl<<f(0,0)<<endl<<endl;
+    cout<<endl<<endl<<endl;*/
+
+    long long res = 0;
+
+    for(int i=1;i<=n;i++)
+        for(int j=1;j<=m;j++)
+            res = max(res,f(i,j));
+
+    /*res = max(res,f(0,0)); res = max(res,f(1,1)); res = max(res,f(2,1)); res = max(res,f(0,2)); res = max(res,f(2,0));
+    res = max(res,f(0,1)); res = max(res,f(1,0)); res = max(res,f(1,2)); res = max(res,f(2,2));*/
+
+    return cout<<res,0;
+}

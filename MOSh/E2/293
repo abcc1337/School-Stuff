@@ -1,0 +1,210 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+#define lint long long int
+
+int main()
+{
+	freopen("grants.in", "r", stdin);
+	freopen("grants.out", "w", stdout);
+
+	int t;
+	cin >> t;
+
+	lint p2[65];
+	p2[0] = 1;
+	for (int i = 1; i < 65; i++)
+		p2[i] = p2[i - 1] * 2;
+	
+	for (int i = 0; i < t; i++)
+	{
+		lint x;
+		cin >> x;
+		bool good = 1;
+		lint a, b, c;
+		a = b = c = 0;
+		
+		int mr = 0;
+		for (int j = 0; j < 60; j++)
+		{
+			if (p2[j] < x)
+				mr = j;
+			else
+				break;
+		}
+		int maxD = 0;
+		lint a0, b0, c0;
+		a0 = x;
+		b0 = 0;
+		c0 = 0;
+		for (lint j = 0; j <= p2[mr + 1] - 1; j++)
+		{
+			a = b = c = 0;
+			vector<int> v;
+			int d = 0;
+			lint x0 = j;
+			while (x0)
+			{
+				d += x0 % 2;
+				v.push_back(x0 % 2);
+				x0 /= 2;
+			}
+			lint x1 = x;
+			for (int k = 0; k < v.size(); k++)
+			{
+				cout << v[k] << " ";
+				if (v[k])
+				{
+					x1 -= p2[k] * 3;
+					a += p2[k];
+					b += p2[k];
+					c += p2[k];
+				}
+			}
+			cout << endl;
+a += x1;
+if (x1 < 0)
+	continue;
+			vector<int> v1;
+			while (x1)
+			{
+				v1.push_back(x1 % 2);
+				x1 /= 2;
+			}
+			bool good = 1;
+			for (int i = 0; i < min(v1.size(), v.size()); i++)
+			{
+				if (v1[i] && v[i])
+					good = 0;
+			}
+			
+			if(good)
+			if (d > maxD)
+			{
+				maxD = d;
+				a0 = a;
+				b0 = b;
+				c0 = c;
+			}
+			
+		}cout << a0 << " " << b0 << " " << c0 << endl;
+		/*
+		int maxM = 60;
+		vector<int> v;
+		while (x)
+		{
+			v.push_back(x % 2);
+			x /= 2;
+		}
+		int j = v.size() - 1;
+		vector<lint> spare;
+		while (j)
+		{
+			while (v[j])
+			{
+				if (v[j - 1])
+				{
+					a += p2[j - 1];
+					b += p2[j - 1];
+					c += p2[j - 1];
+					//x -= p2[j - 1] * 3;
+					v[j]--;
+					v[j - 1]--;
+				}
+				else
+				{
+					//spare.push_back(p2[j - 1]);
+					v[j - 1]++;
+					v[j - 1]++;
+					v[j]--;
+				}
+			}
+			j--;
+		}
+		if (v[0] == 3)
+		{
+			a++;
+			b++;
+			c++;
+			//x -= 3;
+		}
+		if (v[0] == 1)
+			spare.push_back(1);
+		for (int i = 0; i < spare.size(); i++)
+		{
+			a += spare[i];
+		}
+		*/
+		/*int j = 60;
+		while (j >= 0)
+		{
+			if (p2[j] > x)
+				continue;
+			if(j >= 1)
+			if ((x & (1 << j)) &&  x & (1 << (j - 1)))
+			{
+				x -= p2[j] + p2[j - 1];
+				a += p2[j - 1];
+				b += p2[j - 1];
+				c += p2[j - 1];
+				j += 2;
+				continue;
+			}
+			if (j >= 5)
+			{
+				if(x >= p2[j] + p2[j - 2] + p2[j - 4
+			}
+		}
+		*/
+		/*
+		while (good)
+		{
+			int l = 0;
+			int r = maxM;
+			for (int j = 0; j < 100; j++)
+			{
+				int mid = (l + r) / 2;
+				if (p2[mid] * 3 > x)
+				{
+					r = mid;
+					continue;
+				}
+
+				
+
+				if (((x - p2[mid] * 3) ) < 3 * (p2[mid] - 1))
+				{
+					r = mid;
+					continue;
+				}
+				l = mid;
+
+				//if (r - l <= 1)
+				//	break;
+				//if(x - mid * 3 
+			}
+			if (r == 0)
+			{
+				good = 0;
+				break;
+			}
+			a += p2[l];
+			b += p2[l];
+			c += p2[l];
+			x -= p2[l] * 3;
+			maxM = l;
+			
+
+		}
+		//vector<lint> v;
+		int i0 = 0;
+		while (x)
+		{
+			a += p2[i0++] * (x % 2);
+			x /= 2;
+		}*/
+		//cout << a << " " << b << " " << c << endl;
+
+	}
+}

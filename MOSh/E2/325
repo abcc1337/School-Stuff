@@ -1,0 +1,114 @@
+#include <iostream>
+#include <cmath>
+#include <algorithm>
+#include <cstdio>
+
+using namespace std;
+
+
+double x[100005], y[100005];
+
+
+int main()
+{
+    freopen("mountain.in","r",stdin);
+    freopen("mountain.out","w",stdout);
+    int i,u,n,q;
+    double px,py,vx,vy;
+    cin >> n >> q;
+    for (i = 1; i <= n; i++)
+    {
+        cin >> vx >> vy;
+        x[i] = x[i-1] + vx;
+        y[i] = y[i-1] + vy * vx;
+    }
+    for (u = 0; u<q; u++)
+    {
+        cin >> px >> py;
+        int r,l,s;
+        l = 0;
+        r = n;
+        while (r > l)
+        {
+            s = (r + l) / 2;
+            if (px == x[s])
+            {
+                r = s;
+                l = s;
+                break;
+            }
+            else
+            if ( px > x[s] && px < x[s+1])
+            {
+                l = s;
+                r = s+1;
+                break;
+            }
+            else
+            if (px > x[s]) l = s + 1;
+            else
+            r = s - 1;
+        }
+        if (x[r] < px) r++;
+        if (x[l] > px) l--;
+
+        //cout << l << "  !  " << r << endl;
+        int oti1,oti2;
+        oti1 = n;
+        oti2 = 0;
+        for (i = r; i <n; i++)
+        {
+            if (x[i] - px != 0)
+            {
+                if ((py  - y[i])/(x[i] - px) < (y[i] - y[i+1])/(x[i+1]-x[i])) {oti1 = i; break;}
+            }
+        }
+        for (i = l; i > 0; i--)
+        {
+            if (x[i] - px != 0)
+            {
+                if ((py  - y[i])/(px - x[i]) < (y[i] - y[i-1])/(x[i] - x[i-1])) {oti2 = i; break;}
+            }
+        }
+        printf("%.0f %.0f\n",x[oti2],x[oti1]);
+
+    }
+
+}
+/*
+
+6 1
+3 1
+2 -1
+1 1
+1 -1
+1 1
+2 -1
+5 3
+
+5 3
+1 1
+1 -2
+2 0
+2 1
+1 -1
+3 0
+3 5
+3 3
+
+6 4
+1 2
+2 -2
+1 1
+1 -2
+4 1
+1 -1
+1 4
+3 4
+10 4
+7 4
+
+
+
+
+*/

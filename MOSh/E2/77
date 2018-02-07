@@ -1,0 +1,108 @@
+#include <fstream>
+
+using namespace std;
+
+ifstream cin("submarine.in");
+ofstream cout("submarine.out");
+
+int main()
+{
+    int k, h, w,  cur;
+    cin >> k;
+    int codes[k];
+    for (int i = 0; i < k; i++)
+        cin >> codes[i];
+    cin >> h >> w;
+    int a[h][w];
+    string curstr;
+    for (int i = 0; i < h; i++)
+    {
+        cin >> curstr;
+        for (int j = 0; j < w; j++)
+            a[i][j] = codes[curstr[j] - 'a'];
+    }
+    ///up for each
+    int up[h][w];
+    for (int i = 0; i < w; i++)
+    {
+        up[0][i] = a[0][i];
+        cur = a[0][i];
+        for (int j = 1; j < h; j++)
+        {
+            cur += a[j][i];
+            up[0][i] = max(up[0][i], cur);
+        }
+        for (int j = 1; j < h; j++)
+        {
+            up[j][i] = up[j - 1][i] - a[j - 1][i];
+            if (up[j][i] == 0)
+            {
+                up[j][i] = a[j][i];
+                cur = a[j][i];
+                for (int k = 1; k + j < h; k++)
+                {
+                    cur += a[j + k][i];
+                    up[j][i] = max(up[j][i],cur);
+                }
+            }
+        }
+    }
+///down for each (COPYPASTE)
+
+    int down[h][w];
+    for (int i = 0; i < w; i++)
+    {
+        down[h - 1][i] = a[h - 1][i];
+        cur = a[h - 1][i];
+        for (int j = 1; h - 1 - j >= 0; j++)
+        {
+            cur += a[h - 1 - j][i];
+            down[h - 1][i] = max(down[h - 1][i], cur);
+        }
+        for (int j = h - 2; j >= 0; j--)
+        {
+            down[j][i] = down[j + 1][i] - a[j + 1][i];
+            if (down[j][i] == 0)
+            {
+                down[j][i] = a[j][i];
+                cur = a[j][i];
+                for (int k  = 1; j - k >= 0; k++)
+                {
+                    cur += a[j - k][i];
+                    down[j][i] = max(down[j][i],cur);
+                }
+            }
+        }
+    }
+
+///endoflast
+    int64_t result = -1e18;
+    for (int i = 0; i < h; i++)
+    {
+        int mxr[w], mxh[w];
+        for (int j = 0; j < w - 1; j++)
+        {
+            for (int k = j + 1; k < w; k++)
+            {
+                cur = 0;
+                for (int c1 = j; c1 <= k; c1++)
+                    cur += a[i][c1];
+                for (int c1 = j; c1 <= k - 1; c1++)
+                    for (int c2 = c1 + 1; c2 <= k; c2++)
+                    {
+                        result = max(result, int64_t(cur) + down[i][c1] - a[i][c1] + down[i][c2] + up[i][c2] - 2*a[i][c2]);
+
+                    }
+            }
+        }
+    }
+
+
+
+
+
+
+
+    cout << result;
+    return 0;
+}

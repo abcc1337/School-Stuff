@@ -1,0 +1,144 @@
+#define consfl 0
+#define fname "robots"
+
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+
+#include <algorithm>
+#include <cmath>
+
+#include <vector>
+#include <set>
+
+#define forn(i, n) for (int i = 0; i < n; i ++)
+#define fornn(i, n, m) for (int i = n; i < m; i ++)
+#define mk make_pair
+#define outb pop_back
+#define inb push_back
+#define X first
+#define Y second
+
+typedef long long ll;
+
+using namespace std;
+
+const int dd = 1e5;
+
+char f[1005][1005];
+pair<int, pair<int, pair<int, int> > > c[1005][1005];
+int cnum[1005][1005];
+bool used[1005][1005];
+
+vector<int> cic, csz;
+vector<pair<int, int> > way;
+
+void initc(int x, int y, pair<int, int> ss, int num, bool fl) {
+	if (ss == mk(x, y) && !fl)
+		return;
+	cnum[x][y] = num;
+	int xn = x;
+	int yn = y;
+	if (f[x][y] == 'S' || f[x][y] == 's')
+		xn++;
+	if (f[x][y] == 'W' || f[x][y] == 'w')
+		yn--;
+	if (f[x][y] == 'N' || f[x][y] == 'n')
+		xn--;
+	if (f[x][y] == 'E' || f[x][y] == 'e')
+		yn++;
+	initc(xn, yn, ss, num + 1, 0);
+}
+
+void go(int x, int y) {
+	used[x][y] = 1;
+	way.inb(mk(x, y));
+	int xn = x;
+	int yn = y;
+	if (f[x][y] == 'S' || f[x][y] == 's')
+		xn++;
+	if (f[x][y] == 'W' || f[x][y] == 'w')
+		yn--;
+	if (f[x][y] == 'N' || f[x][y] == 'n')
+		xn--;
+	if (f[x][y] == 'E' || f[x][y] == 'e')
+		yn++;
+	if (!used[xn][yn]) {
+		go(xn, yn);
+		c[x][y].X = c[xn][yn].X;
+		c[x][y].Y.Y = c[xn][yn].Y.Y;
+		c[x][y].Y.X = c[xn][yn].Y.X + 1;
+		if (cnum[xn][yn])
+			c[x][y].Y.X = 1;
+	}
+	else
+		if (!c[xn][yn].X) {
+			pair<int, int> ss = mk(xn, yn);
+			int sz = 1;
+			while (way.back() != mk(xn, yn))
+				ss = min(ss, way.back()), way.outb(), sz++;
+			initc(ss.X, ss.Y, ss, 1, 1);
+			cic.inb(sz);
+			csz.inb(sz);
+			c[x][y].X = cic.size();
+			c[x][y].Y.Y = mk(x, y);
+			c[x][y].Y.X = 0;
+		}
+		else {
+			c[x][y].X = c[xn][yn].X;
+			c[x][y].Y.Y = mk(xn, yn);
+			c[x][y].Y.X = c[xn][yn].Y.X + 1;
+			if (cnum[xn][yn])
+				c[x][y].Y.X = 1;
+		}
+	if (cnum[x][y])
+		c[x][y].Y.X = 0, c[x][y].Y.Y = mk(x, y);
+}
+
+
+int main() {
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+#else
+	if (!consfl) {
+		freopen(fname".in", "r", stdin);
+		freopen(fname".out", "w", stdout);
+	}
+#endif
+	int n, m, g;
+	cin >> n >> m >> g;
+
+	forn(i, n)
+		forn(j, m)
+		cin >> f[i][j];
+
+	forn(i, n)
+		forn(j, m)
+		if ('A' <= f[i][j] && f[i][j] <= 'Z')
+			go(i, j);
+
+	vector<pair<pair<int, int>, int> > ans;
+	int timer = 5;
+	forn(i, n)
+		forn(j, m)
+			if ('A' <= f[i][j] && f[i][j] <= 'Z') {
+				if (cic[c[i][j].X - 1]) {
+					int ind = cic[c[i][j].X - 1] - 1;
+					int t = c[i][j].Y.X;
+					int len = csz[c[i][j].X - 1];
+					int startnum = cnum[c[i][j].Y.Y.X][c[i][j].Y.Y.Y] - 1;
+					startnum = ((startnum - timer - t) % len + len) % len;
+					t += ((startnum - ind) % len + len) % len;
+					ans.inb(mk(mk(i + 1, j + 1), timer + t - c[i][j].Y.X));
+					timer += t;
+					cic[c[i][j].X - 1] --;
+				}
+			}
+	cout << ans.size() << endl;
+	if (g) {
+		forn(i, ans.size())
+			cout << ans[i].X.X << ' ' << ans[i].X.Y << ' ' << ans[i].Y << endl;
+	}
+	return 0;
+}

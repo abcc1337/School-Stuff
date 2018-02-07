@@ -1,0 +1,82 @@
+#include <iostream>
+#include <fstream>
+#include <cstdio>
+#include <algorithm>
+#include <cstring>
+#include <vector>
+#include <set>
+#include <map>
+
+using namespace std;
+
+typedef long long ll;
+
+//vector <vector <int> > line;
+map <int, vector <int> > line;
+int n;
+ll k;
+
+ll mod(ll a, ll b) {
+	return (a % b + b) % b;
+}
+
+ll divup(ll a, ll b) {
+	return (a - 1) / b + 1;
+}
+
+ll get_ans(ll dx) {
+	ll xl, xr, y;
+	y = line.begin()->first;
+	xl = line.begin()->second[0];
+	xr = line.begin()->second[1];
+	ll ans = 0;
+	for (auto p : line) {
+		for (ll Y = y; Y < p.first; ++Y) {
+			ll xb = xl - mod(xl - mod(dx + Y, k), k);
+			ans += divup(xr - xb, k);
+		}
+		if (p.second.size() == 2) {
+			if (p.second[1] == xl) {
+				xl = p.second[0];
+			}
+			else if (p.second[0] == xr) {
+				xr = p.second[1];
+			}
+			else {
+				xl = p.second[0];
+				xr = p.second[1];
+			}
+		} else {
+			xl = p.second[0];
+			xr = p.second[3];
+		}
+		y = p.first;
+	}
+	return ans;
+}
+
+int main() {
+	freopen("monument.in", "r", stdin);
+	freopen("monument.out", "w", stdout);
+	scanf("%d%lld", &n, &k);
+	for (int i = 0; i < n; ++i) {
+		int x, y;
+		scanf("%d%d", &x, &y);
+		line[y].push_back(x);
+	}
+	for (auto it = line.begin(); it != line.end(); ++it) {
+		sort(it->second.begin(), it->second.end());
+		//cout << it->first << ": ";
+		//for (int x : it->second) {
+//			cout << x << " ";
+	//	}
+		//cout << endl;
+	}
+	ll ans = get_ans(0);
+	for (int i = 0; i < k; ++i) {
+		ans = min(ans, get_ans(i));
+		//cout << get_ans(i) << endl;
+	}
+	cout << ans << endl;
+	return 0;
+}

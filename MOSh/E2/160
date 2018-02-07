@@ -1,0 +1,83 @@
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <map>
+
+using namespace std;
+
+bool getI(long long mask, int i) {
+	return mask & ((long long)(1) << i);
+}
+
+long long n;
+bool used[17];
+long long ans[3];
+
+bool ok(long long sum) {
+	if (sum > n) return false;
+	long long ost = n - sum;
+	for (int i = 0; i < 17; ++i) {
+		if (getI(ost, i) && used[i]) {
+			if (i == 0) return false;
+			else if (used[i - 1]) return false;
+		} 
+	}
+	return true;
+}
+
+void zap(long long s) {
+	ans[0] = s;
+	ans[1] = s;
+	ans[2] = s;
+	long long ost = n - 3 * s;
+	for (int i = 17; i >= 0; --i) {
+		if (getI(ost, i)) {
+			if (!used[i]) {
+				ans[0] += (1 << i);
+			} else if (i > 0 && getI(ost, i) && !used[i - 1]) {
+				ans[0] += (1 << (i - 1));
+				ans[1] += (1 << (i - 1));
+			}
+		} 
+	}
+}
+
+int main() {
+
+	freopen("grants.in", "r", stdin);
+	freopen("grants.out", "w", stdout);
+
+	int q;
+	cin >> q;
+	for (; q > 0; --q) {
+		
+		cin >> n;
+		int mask = 0;
+
+		int minS = 0;
+		
+		ans[0] = n;
+		ans[1] = 0;
+		ans[2] = 0;
+		while (mask < (1 << 17)) {
+			int sum = 3 * mask;
+			for (int i = 0; i < 17; ++i) {
+				used[i] = getI(mask, i);
+			}
+			if (ok(sum) && sum > minS) {
+				zap(mask);
+				minS = sum;
+			}
+
+			mask++;
+		}
+
+		for (int i = 0; i < 3; ++i) {
+			cout << ans[i] << " ";
+		}
+		cout << endl;
+	}
+
+
+	return 0;
+}

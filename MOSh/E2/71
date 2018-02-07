@@ -1,0 +1,89 @@
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <cstring>
+#include <map>
+#include <ctime>
+using namespace std;
+
+typedef long long ll;
+
+const int MAXN = (int)5e3 + 22;
+const ll INF = (ll)1e17;
+
+ll dp[MAXN];
+string s;
+int m, n, L;
+
+map < string, int > mp;
+
+void input()
+{
+	cin >> m >> n >> L;
+	cin >> s;
+	string xs, to;
+	int cost;
+	for (int i = 0; i < n; i++)
+	{
+		cin >> cost >> xs;
+		to.clear();
+		for (int i = 0; i < (int)xs.size(); i++)
+		{
+			to.push_back(xs[i]);
+			if (!mp.count(to))
+				mp[to] = cost;
+			else
+				mp[to] = min(mp[to], cost);
+		}
+		to.clear();
+		for (int i = (int)xs.size() - 1; i >= 0; i--)
+		{
+			to.push_back(xs[i]);
+			if (!mp.count(to))
+				mp[to] = cost;
+			else
+				mp[to] = min(mp[to], cost);
+		}
+	}
+}
+
+void INIT()
+{
+	for (int i = 0; i < MAXN; i++)
+		dp[i] = INF;
+}
+
+int main()
+{
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+	freopen("typing.in", "r", stdin);
+	freopen("typing.out", "w", stdout);
+	input();
+	INIT();
+	int j;
+	int sz = (int)s.size();
+	string xs;
+	dp[0] = 0;
+	for (int i = 0; i < sz; i++)
+	{
+		j = i;
+		while (j < sz)
+		{
+			j++;
+			xs = s.substr(i, j - i);
+			if (mp.count(xs))
+				dp[j] = min(dp[j], dp[i] + mp[xs]);
+			else
+				break;
+		}
+	}
+	if (dp[sz] == INF)
+		cout << -1;
+	else
+		cout << dp[sz - 1];
+	return 0;
+}

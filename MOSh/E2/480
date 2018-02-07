@@ -1,0 +1,68 @@
+fin = open('castle.in', 'r')
+fout = open('castle.out', 'w')
+input = fin.readline
+
+read = lambda: map(int, input().split())
+n, s = read()
+A = [0] * n
+for i in range(n):
+    A[i] = tuple(read())
+A.sort(key = lambda x: -x[1])
+
+cur = s
+ans = sum(a for a, k in A)
+
+# 1 <= k <= 2
+for a, k in A:
+    if k == 1:
+        if a > cur:
+            ans -= cur
+            cur = 0
+            break
+        else:
+            cur -= a
+            ans -= a
+    if k == 2:
+        if a > 2 * cur:
+            ans -= 2 * cur
+            cur = 0
+            break
+        else:
+            x = (a - 1) // 2 + 1
+            ans -= 2 * x
+            cur -= x
+if ans < 0: ans = 0
+
+"""
+rem = [0] * n
+for i in range(n):
+    a, k = A[i][0], A[i][1]
+    x = min(cur, a // k)
+    ans -= x * k
+    cur -= x
+    rem[i] = a % k
+    if i < n - 1 and rem[i] >= A[i + 1][1] and cur > 0:
+        x += 1
+        cur -= 1
+        ans -= rem[i]
+        rem[i] = 0
+    elif i == n - 1 and cur > 0:
+        x += 1
+        cur -= 1
+        ans -= rem[i]
+        rem[i] = 0
+rem.sort(reverse = 1)
+for i in range(n):
+    if cur and rem[i]:
+        cur -= 1
+        ans -= rem[i]
+        rem[i] = 0
+    elif cur == 0:
+        break
+"""
+
+print(ans)
+print(ans, file = fout)
+
+fin.close()
+fout.close()

@@ -1,0 +1,94 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+
+struct str {
+    char b;
+    long long cost;
+    int next[2];
+    bool end;
+};
+
+int mxI = 1;
+const int N = 100000;
+str bor[250 * N];
+const long long inf = 1e14 + 1e13;
+long long dp[N];
+int a[N];
+
+void add(int it, string &s, int x, long long &price, bool fl) {
+    if(x >= s.size()) return;
+    if(bor[it].next[s[x] - '0'] <= 0) {
+        bor[mxI].b = s[x] - '0';
+        bor[mxI].cost = price;
+        bor[mxI].end = false;
+        if(fl) bor[mxI].end = true;
+        for(int i = 0; i < 2; i++) {
+            bor[mxI].next[i] = 0;
+        }
+        bor[it].next[s[x] - '0'] = mxI;
+        if(x == s.size() - 1) {
+            bor[mxI].end = true;
+        }
+        mxI++;
+        add(mxI - 1, s, x + 1, price, fl);
+    } else {
+        int d = bor[it].next[s[x] - '0'];
+        if(x == s.size() - 1 || fl) {
+            if(bor[d].end == false) bor[d].cost = price;
+            else bor[d].cost = min(bor[d].cost, price);
+            bor[d].end = true;
+        }
+        add(d, s, x + 1, price, fl);
+    }
+}
+
+int main() {
+    //freopen("input.txt", "r", stdin); freopen("output.txt", "w", stdout);
+    freopen("typing.in", "r", stdin); freopen("typing.out", "w", stdout);
+    ios::sync_with_stdio(false);
+
+    int m, n, L;
+    cin >> m >> n >> L;
+
+    for(int i = 1; i <= m; i++) {
+        char c;
+        cin >> c;
+        a[i] = c - '0';
+    }
+
+    for(int i = 0; i < n; i++) {
+        long long pr;
+        string s;
+        cin >> pr >> s;
+        add(0, s, 0, pr, true);
+        for(int j = 1; j < s.size(); j++) {
+            add(0, s, j, pr, false);
+        }
+    }
+
+    for(int i = 1; i <= m + 10; i++) {
+        dp[i] = inf;
+    }
+
+    dp[1] = 0;
+
+    for(int i = 1; i <= m; i++) {
+        if(dp[i] == inf) continue;
+        int it = i;
+        str w = bor[0];
+        while(it <= m) {
+            if(w.next[a[it]] <= 0) break;
+            w = bor[w.next[a[it]]];
+            if(w.end)
+                dp[it + 1] = min(dp[it + 1], w.cost + dp[i]);
+            it++;
+        }
+    }
+
+    if(dp[m + 1] == inf) cout << -1 << endl;
+    else cout << dp[m + 1] << endl;
+
+
+    return 0;
+}

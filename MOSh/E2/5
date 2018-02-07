@@ -1,0 +1,89 @@
+#include <iostream>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <cstdio>
+using namespace std;
+const int INF = 1e9 + 7;
+int n, k, cnt;
+
+
+int dfs_1(vector<int> &prev, vector<bool> &used, int v, int start) {
+	if ((v != start) && (used[v])) {
+		return v;
+	}
+	if (v == 1) {
+		return -1;
+	}
+	used[v] = true;
+	return dfs_1(prev, used, prev[v], start);
+}
+
+
+void dfs_2(vector<int> &prev, vector<bool> &used, int v, int start) {
+	if (v != start) {
+		used[v] = false;
+	}
+	if (v == 1) {
+		return;
+	}
+	dfs_2(prev, used, prev[v], start);
+}
+
+int lca(vector<int> &prev, vector<bool> &used, int a, int b) {
+	used[a] = true;
+	used[b] = true;
+	int v = -1;
+	v = dfs_1(prev, used, a, a);
+	if (v == -1) {
+		v = dfs_1(prev, used, b, b);
+	}
+	dfs_2(prev, used, v, v);
+	return v;
+}
+
+void dfs_3(vector<int> &prev, vector<bool> &used, int v, int fin) {
+	if (v == fin) {
+		return;
+	}
+	if ((used[prev[v]]) && (used[v])) {
+		cnt++;
+	}
+	dfs_3(prev, used, prev[v], fin);
+}
+
+int main() {
+	freopen("twopaths.in", "r", stdin);
+	freopen("twopaths.out", "w", stdout);
+	scanf("%d%d", &n, &k);
+	vector<int> prev(n + 1, 1);
+	for (int i = 2; i <= n; i++) {
+		scanf("%d", &prev[i]);
+	}
+	int maxn = -1, ind1, ind2;
+	vector< pair<int, int> > way(k + 1);
+	for (int i = 1; i <= k; i++) {
+		int a, b;
+		scanf("%d%d", &a, &b);
+		way[i] = { a, b };
+	}
+	for (int i = 1; i < k; i++) {
+		for (int j = i + 1; j <= k; j++) {
+			vector<bool> used1(n + 1, false);
+			int l1 = lca(prev, used1, way[i].first, way[i].second);
+			vector<bool> used2(n + 1, false);
+			int l2 = lca(prev, used2, way[j].first, way[j].second);
+			cnt = 0;
+			dfs_3(prev, used1, way[j].first, l2);
+			dfs_3(prev, used1, way[j].second, l2);
+			if (maxn < cnt) {
+				maxn = cnt;
+				ind1 = i;
+				ind2 = j;
+			}
+		}
+	}
+	cout << maxn << endl;
+	cout << ind1 << " " << ind2;
+	return 0;
+}

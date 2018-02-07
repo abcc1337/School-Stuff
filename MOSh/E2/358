@@ -1,0 +1,55 @@
+#include <iostream>
+
+using namespace std;
+
+long long int a, b, c, st2[59];
+
+void work(long long int x)
+{
+	a = b = c = 0;
+	for (int i = 59; i >= 0; i--)
+	{
+		if (x < st2[i] * 3) continue;
+		if (x - st2[i] * 3 > st2[i] * 3 - 3)
+		{
+			b += st2[i + 1];
+			x -= st2[i + 1];
+			if (x - st2[i] * 3 > st2[i] * 3)
+			{
+				c += st2[i + 1];
+				x -= st2[i + 1];
+			}
+		}
+		if (x - st2[i] * 3 <= st2[i] * 3 - 3)
+		{
+			a += st2[i];
+			x -= st2[i] * 3;
+		}
+	}
+	b += a; c += a; a += x;
+	cout << a << " " << b<< " "<< c<< endl;
+}
+
+int main()
+{
+	freopen("grants.in", "r", stdin);
+	freopen("grants.out", "w", stdout);
+	int t;
+	cin >> t;
+	long long int x;
+	st2[0] = 1;
+	for (int i = 1; i < 60; i++)
+	{
+		st2[i] = st2[i - 1] * 2;
+	}
+
+
+	for (int i = 0; i < t; i++)
+	{
+		cin >> x;
+		work(x);
+	}
+
+	//system("pause");
+	return 0;
+}

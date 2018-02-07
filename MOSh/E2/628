@@ -1,0 +1,17 @@
+fi = open ("onlyone.in", "r")
+fo = open ("onlyone.out", "w")
+n = int(fi.readline().strip())
+a = [0] *n
+b = [0]*n
+c = [0]*n
+for i in range(n):
+    a[i], b[i], c[i] = map(int, fi.readline().strip().split())
+cou = 0
+for i in range(n):
+    for j in range(i, n):
+        d = int(a[i] == a[j]) + int(b[i] == b[j]) + int(c[i] == c[j])
+        if d == 1:
+            cou += 1
+print(cou, file = fo)
+fo.close()
+fi.close()

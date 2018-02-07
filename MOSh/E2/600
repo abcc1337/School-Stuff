@@ -1,0 +1,64 @@
+program N3a;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+   var a,b,n,q,x1,y1,x2,y2,i,j,z,k:longint;
+    s:char;
+    a,b:array [1..10000,1..10000] of longint;
+   procedure qwer(x,y:longint);
+    begin
+      b[x,y]:=0;
+      if a[x+y*a,x+1+y*a]=1 then qwer(x+1,y);
+      if a[x+y*a,x-1+y*a]=1 then qwer(x-1,y);
+      if a[x+y*a,x+(y+1)*a]=1 then qwer(x,y+1);
+      if a[x+y*a,x+(y+1)*a]=1 then qwer(x,y+1);
+
+    end;
+begin
+  assign(input,'repair.in');
+  reset(input);
+  readln(a,b);
+  readln(n,q);
+  for i:=1 to n-1 do
+   begin
+   read(s);
+   readln(x1,y1);
+   if s='v' then
+     begin
+       a[x1+y1*a,x1+(y1+1)*a]:=1;
+       a[x1+(y1+1)*a,x1+y1*a]:=1;
+        b[x1,y1]:=1;
+        b[x1,y1+1]:=1;
+     end;
+   if s='h' then
+     begin
+       a[x1+y1*a,x1+1+y1*a]:=1;
+        a[x1+1+y1*a,x1+y1*a]:=1;
+        b[x1,y1]:=1;
+        b[x1+1,y1]:=1;
+     end;
+
+   end;
+   assign(output,'repair.out');
+   rewrite(output);
+  for i:=1 to q do
+   begin
+    k:=0;
+    readln(x1,y1,x2,y2);
+    for j:=y1 to y2 do
+     for z:=x1 to x2 do
+       if b[j,z]=1 then
+        begin
+         k:=k+1;
+         qwer(j,z);
+
+        end;
+      writeln(k);
+
+
+   end;
+   close(output);
+end.
+ 

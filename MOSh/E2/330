@@ -1,0 +1,64 @@
+#include <fstream>
+#include <vector>
+#include <algorithm>
+#include <queue>
+
+#define force first
+#define people second
+#define id second
+
+using namespace std;
+
+int main() {
+  ifstream in("castle.in");
+  ofstream out("castle.out");
+  int n, s, needed;
+  in >> n >> s;
+  vector<pair<int, int>> a(n, make_pair(0, 0));
+  priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> ost;
+  vector<int> used(n, 0);
+  for (int i = 0; i < n; i++) {
+    in >> a[i].people >> a[i].force;
+  }
+  sort(a.begin(), a.end(), greater<pair<int, int>>());
+  for (int i = 0; i < n; i++) {
+    needed = a[i].people / a[i].force;
+    if (needed >= s) {
+      a[i].people -= s * a[i].force;
+      ost.push(make_pair(a[i].people, i));
+      used[i] = s;
+      s = 0;
+      break;
+    } else {
+      a[i].people %= a[i].force;
+      if (a[i].people > 0) ost.push(make_pair(a[i].people, i));
+      used[i] = needed;
+      s -= needed;
+    }
+  }
+  int ans = 0;
+  int var = n - 1;
+  while (!ost.empty()) {
+    pair<int, int> next = ost.top();
+    ost.pop();
+    if (s > 0) {
+      s--;
+      used[next.id]++;
+      a[next.id].people = 0;
+      continue;
+    }
+    while (var >= 0 && used[var] == 0) var--;
+    if (var < 0) break;
+    if (min(next.people, a[next.id].force) > a[var].force) {
+      a[var].people += a[var].force;
+      used[var]--;
+      a[next.id].people -= min(a[next.id].people, a[next.id].force);
+      used[next.id]++;
+      if (a[next.id].people > 0) ost.push(make_pair(a[next.id].people, next.id));
+    } else
+      break;
+  }
+  for (int i = 0; i < n; i++) ans += a[i].people;
+  out << ans;
+  return 0;
+}

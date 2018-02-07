@@ -1,0 +1,69 @@
+var
+  min, max: array[0..1000] of longint;
+  i, j, k, n, x1, y1, x, y, xp, yp: longint;
+  fl: text;
+  cans, ans: qword;
+
+begin
+  for i:=0 to 1000 do min[i]:=-1;
+  assign(fl, 'monument.in');
+  reset(fl);
+  readln(fl, n, k);
+  readln(fl, x1, y1);
+  x:=x1; y:=y1;
+  for i:=2 to n+1 do
+    begin
+      xp:=x; yp:=y;
+      if i<=n then
+        readln(fl, x, y)
+      else
+        begin
+          x:=x1;
+          y:=y1;
+        end;
+      if yp<>y then
+        begin
+          if yp>y then
+            begin
+              for j:=y to yp-1 do
+                if min[j]<0 then
+                  begin
+                    min[j]:=x;
+                    max[j]:=x;
+                  end
+                else
+                  begin
+                    if x<min[j] then min[j]:=x;
+                    if x>max[j] then max[j]:=x;
+                  end;
+            end
+          else
+            begin
+              for j:=yp to y-1 do
+                if min[j]<0 then
+                  begin
+                    min[j]:=x;
+                    max[j]:=x;
+                  end
+                else
+                  begin
+                    if x<min[j] then min[j]:=x;
+                    if x>max[j] then max[j]:=x;
+                  end;
+            end;
+        end;
+    end;
+  ans:=1000000000000000000;
+  for i:=1 to k do
+    begin
+      cans:=0;
+      for j:=0 to 1000 do if min[j]>=0 then
+        cans:=cans+((3000*k+max[j]+i-j-1) div k)-((3000*k+min[j]+i-j) div k)+1;
+      if cans<ans then ans:=cans;
+    end;
+  close(fl);
+  assign(fl, 'monument.out');
+  rewrite(fl);
+  writeln(fl, ans);
+  close(fl);
+end.

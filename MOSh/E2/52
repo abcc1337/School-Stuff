@@ -1,0 +1,83 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+struct user {
+    int a, b, c;
+
+    user() {
+        a = 0;
+        b = 0;
+        c = 0;
+    }
+};
+
+int n;
+vector<user> users;
+map<int, int> A, B, C;
+map<pair<int, int>, int> AB, AC, BC;
+map<pair<int, pair<int, int> >, int> ABC;
+
+int simple_get_friends(int i) {
+    user cur = users[i];
+    int ans = 0;
+    for (int j = 0; j < n; j++) {
+        user cand = users[j];
+        ans += (((cur.a != cand.a) + (cur.b != cand.b) + (cur.c != cand.c)) == 2);
+    }
+    return ans;
+}
+
+int get_friends(int i) {
+    user cur = users[i];
+    int ans = 0;
+    ans += A[cur.a] - AB[make_pair(cur.a, cur.b)] - AC[make_pair(cur.a, cur.c)] + ABC[make_pair(cur.a, make_pair(cur.b, cur.c))];
+    ans += B[cur.b] - AB[make_pair(cur.a, cur.b)] - BC[make_pair(cur.b, cur.c)] + ABC[make_pair(cur.a, make_pair(cur.b, cur.c))];
+    ans += C[cur.c] - AC[make_pair(cur.a, cur.c)] - BC[make_pair(cur.b, cur.c)] + ABC[make_pair(cur.a, make_pair(cur.b, cur.c))];
+    return ans;
+}
+
+int main() {
+    freopen("onlyone.in", "r", stdin);
+    freopen("onlyone.out", "w", stdout);
+
+    int test_num = 1;
+    while (cin >> n) {
+        users.resize(n);
+
+        for (int i = 0; i < n; i++) {
+            cin >> users[i].a >> users[i].b >> users[i].c;
+            A[users[i].a]++;
+            B[users[i].b]++;
+            C[users[i].c]++;
+            AB[make_pair(users[i].a, users[i].b)]++;
+            BC[make_pair(users[i].b, users[i].c)]++;
+            AC[make_pair(users[i].a, users[i].c)]++;
+            ABC[make_pair(users[i].a, make_pair(users[i].b, users[i].c))]++;
+        }
+
+        long long ans = 0;
+        for (int i = 0; i < n; i++) {
+            ans += get_friends(i);
+            if (get_friends(i) != simple_get_friends(i)) {
+                cerr << "WA: " << test_num << " -> " << i << ": " << get_friends(i) << " != " << simple_get_friends(i) << "\n";
+                cerr << "A: " << A[users[i].a] << "\n";
+                cerr << "B: " << B[users[i].b] << "\n";
+                cerr << "C: " << C[users[i].c] << "\n";
+                cerr << "AB: " << AB[make_pair(users[i].a, users[i].b)] << "\n";
+                cerr << "BC: " << BC[make_pair(users[i].b, users[i].c)] << "\n";
+                cerr << "AC: " << AC[make_pair(users[i].a, users[i].c)] << "\n";
+                cerr << "ABC: " << ABC[make_pair(users[i].a, make_pair(users[i].b, users[i].c))] << "\n";
+            }
+        }
+        test_num++;
+        A.clear();
+        B.clear();
+        C.clear();
+        AB.clear();
+        BC.clear();
+        AC.clear();
+        ABC.clear();
+    }
+    return 0;
+}

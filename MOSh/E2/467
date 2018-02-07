@@ -1,0 +1,54 @@
+fin = open("fisher.in", 'r')
+fout = open("fisher.out", 'w')
+n, m, p = [int(x) for x in fin.readline().split()]
+if p == 0:
+    ans = 0
+    y = 0
+    for i in range(n):
+        a, b = [int(x) for x in fin.readline().split()]
+        y += b
+    mas = [0] * m
+    for i in range(m):
+        mas[i] = [0] * 2
+        a, mas[i][1], mas[i][0] = [int(x) for x in fin.readline().split()]
+    mas.sort(reverse=True)
+    for i in range(m):
+        ans += min(y, mas[i][1]) * mas[i][0]
+        y -= min(y, mas[i][1])
+    print(ans, file=fout)
+else:
+    ans = 0
+    lst = [0] * n
+    qwe = 0
+    qw = 1000000
+    for i in range(n):
+        lst[i] = [0] * 2
+        lst[i][0], lst[i][1] = [int(x) for x in fin.readline().split()]
+        qwe = max(qwe, lst[i][0])
+        qw = min(qw, lst[i][0])
+    mas = [0] * m
+    qwer = 0
+    qwert = 10000000
+    for i in range(m):
+        mas[i] = [0] * 3
+        mas[i][0], mas[i][1], mas[i][2] = [int(x) for x in fin.readline().split()]
+        qwer = max(qwer, mas[i][0])
+        qwert = min(qwert, mas[i][0])
+    if qwer < qw:
+        lst.sort()
+        fuel = 0
+        y = 0
+        ans = 0
+        for i in range(m):
+            mas[i][0], mas[i][1], mas[i][2] = mas[i][2], mas[i][1], mas[i][0]
+        mas.sort()
+        for i in range(n):
+            y += lst[i][1]
+            fuel += lst[i][0]
+            an = 0
+            for i in range(m):
+                an += min(y, mas[i][1]) * mas[i][0]
+                y -= min(y, mas[i][1])
+            ans = max(ans, an)
+        print(ans)
+    print(ans, file=fout)

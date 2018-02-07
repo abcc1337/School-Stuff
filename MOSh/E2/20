@@ -1,0 +1,138 @@
+#include <bits/stdc++.h>
+using namespace std;
+const int WHITE = -3, GREY = -2, TO = -1;
+int used[1000][1000];
+char field[1000][1000];
+bool robot[1000][1000];
+vector <tuple<int, int, int>> active;
+tuple <int, int, int> to[1000][1000];
+vector<set<int>> norob;
+vector <vector<pair<int, int>>> vec;
+vector <int> last;
+void next(int &x, int &y)
+{
+    switch(field[x][y])
+    {
+        case 'n':
+            x--;
+            break;
+        case 's':
+            x++;
+            break;
+        case 'e':
+            y++;
+            break;
+        default:
+            y--;
+    }
+}
+pair<int, int> dfs(int x, int y)
+{
+    used[x][y] = GREY;
+    int nx = x, ny = y;
+    next(nx, ny);
+    if (used[nx][ny] == GREY)
+    {
+        used[x][y] = vec.size();
+        vec.push_back({});
+        norob.push_back({});
+        last.push_back(0);
+        to[x][y] = make_tuple(used[x][y], vec[used[x][y]].size(), 0);
+        if (robot[x][y])
+        {
+            active.push_back(make_tuple(x, y, 1));
+        }
+        else
+        {
+            norob[used[x][y]].insert(vec[used[x][y]].size());
+        }
+        vec[used[x][y]].push_back({x, y});
+        return {nx, ny};
+    }
+    if (used[nx][ny] == WHITE)
+    {
+        auto pr = dfs(nx, ny);
+        if (pr != make_pair(-1, -1))
+        {
+            used[x][y] = vec.size() - 1;
+            to[x][y] = make_tuple(used[x][y], vec[used[x][y]].size(), 0);
+            if (robot[x][y])
+            {
+                active.push_back(make_tuple(x, y, 1));
+            }
+            else
+            {
+                norob[used[x][y]].insert(vec[used[x][y]].size());
+            }
+            vec[used[x][y]].push_back({x, y});
+            if (pr == make_pair(x, y))
+                return {-1, -1};
+            return pr;
+        }
+    }
+    to[x][y] = to[nx][ny];
+    get<2>(to[x][y])++;
+    if (robot[x][y] && norob[get<0>(to[x][y])].size() > 0)
+    {
+        auto ind = norob[get<0>(to[x][y])].upper_bound((get<1>(to[x][y]) + 1) % vec[get<0>(to[x][y])].size());
+        if (ind == norob[get<0>(to[x][y])].end())
+            ind = norob[get<0>(to[x][y])].begin();
+        int index = *ind;
+        norob[get<0>(to[x][y])].erase(ind);
+        int len = index - get<1>(to[x][y]);
+        if (len < 0)
+            len += vec[get<0>(to[x][y])].size();
+        int timer = 0;
+        if (len <= get<2>(to[x][y]))
+            len = vec[get<0>(to[x][y])].size() * ((get<2>(to[x][y]) - len + vec[get<0>(to[x][y])].size() - 1) / vec[get<0>(to[x][y])].size()) + len;
+        timer = len - get<2>(to[x][y]);
+        while (timer <= last[get<0>(to[x][y])])
+        {
+            timer += vec[get<0>(to[x][y])].size();
+            //timer = last[get<0>(to[x][y])] + timer % vec[get<0>(to[x][y])].size() - last[get<0>(to[x][y])] % vec[get<0>(to[x][y])].size() + (timer % vec[get<0>(to[x][y])].size() - last[get<0>(to[x][y])] % vec[get<0>(to[x][y])].size() <= 0 ? vec[get<0>(to[x][y])].size() : 0);
+        }
+        last[get<0>(to[x][y])] = timer + get<2>(to[x][y]);
+        if (timer > (int)1e9)
+            cout << "Kek";
+        active.push_back(make_tuple(x, y, timer));
+    }
+    used[x][y] = TO;
+    return {-1, -1};
+}
+
+int main()
+{
+    cin.sync_with_stdio(false);
+    cout.sync_with_stdio(false);
+    freopen("robots.in", "r", stdin);
+    freopen("robots.out", "w", stdout);
+    int n, m, g;
+    cin >> n >> m >> g;
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            used[i][j] = WHITE;
+            cin >> field[i][j];
+            if (field[i][j] >= 'A' && field[i][j] <= 'Z')
+            {
+                robot[i][j] = true;
+                field[i][j] += 'a' - 'A';
+            }
+        }
+    }
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            if (used[i][j] == WHITE)
+            {
+                dfs(i, j);
+            }
+        }
+    }
+    cout << active.size() << endl;
+    if (g == 1)
+        for (int i = 0; i < active.size(); i++)
+            cout << get<0>(active[i]) + 1  << ' ' << get<1>(active[i]) + 1 << ' ' << get<2>(active[i]) << endl;
+}

@@ -1,0 +1,31 @@
+program Project2;
+
+{$APPTYPE CONSOLE}
+uses
+  SysUtils;
+
+type
+   al=record
+   a,b,c:integer;
+   end;
+  var
+  all:array[0..100001] of al;
+  i,n,j,res,time:longint;
+  f:text;
+begin
+ assign(f,'onlyone.in');
+ reset(f);
+ readln(f,n);
+ for i:=1 to n do
+ readln(f,all[i].a,all[i].b,all[i].c);
+ for i:=1 to n-1 do
+ for j:=i+1 to n do
+ if ((all[i].a=all[j].a) and (all[i].b<>all[j].b) and (all[i].c<>all[j].c)) or
+ ((all[i].a<>all[j].a) and (all[i].b=all[j].b) and (all[i].c<>all[j].c)) or
+ ((all[i].a<>all[j].a) and (all[i].b<>all[j].b) and (all[i].c=all[j].c)) then inc(res);
+ close(f);
+ assign(f,'onlyone.out');
+ rewrite(f);
+ writeln(f, res);
+ close(f);
+end.

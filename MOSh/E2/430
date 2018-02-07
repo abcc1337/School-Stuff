@@ -1,0 +1,205 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <algorithm>
+#include <set>
+#include <string>
+#pragma comment(linker, "/stack:268435456")
+#define cs(x) (ll)x.size()
+#define ll long long
+#define ld long double
+#define mp make_pair
+
+using namespace std;
+
+const ll MAXN = 1000;
+
+ll dx[4] = { -1, 0, 1, 0 };
+ll dy[4] = { 0, 1, 0, -1 };
+
+ll field[MAXN][MAXN];
+ll belongtocicl[MAXN][MAXN];
+ll dist[MAXN][MAXN];
+bool isrobot[MAXN][MAXN];
+pair<ll, ll> ciclstatus[MAXN][MAXN];
+vector<ll> cicles;
+vector<ll> used;
+ll n, m, g;
+
+/*
+-3 = Precicl, second = length to...
+> 0 = Cicl num, second undefined
+
+*/
+
+bool inborder(ll x, ll y, ll n, ll m) {
+	return x >= 0 && x < n && y >= 0 && y < m;
+}
+
+vector<pair<ll, ll> > curcicl;
+
+pair<ll, ll> dfs(ll x, ll y) {
+	ciclstatus[x][y].first = -2;
+	ll to = field[x][y];
+	ll nx = x + dx[to];
+	ll ny = y + dy[to];
+	if (ciclstatus[nx][ny].first >= 0) {
+		ciclstatus[x][y] = mp(-3, ciclstatus[nx][ny].second - 1);
+		dist[x][y] = dist[nx][ny] + 1;
+		belongtocicl[x][y] = belongtocicl[nx][ny];
+		if (ciclstatus[x][y].second < 0)
+			ciclstatus[x][y].second += cicles[belongtocicl[x][y]];
+		return mp(-1, -1);
+	}
+	if (ciclstatus[nx][ny].first == -3) {
+		ciclstatus[x][y] = mp(-3, ciclstatus[nx][ny].second - 1);
+		dist[x][y] = dist[nx][ny] + 1;
+		belongtocicl[x][y] = belongtocicl[nx][ny];
+		if (ciclstatus[x][y].second < 0)
+			ciclstatus[x][y].second += cicles[belongtocicl[x][y]];
+		return mp(-1, -1);
+	}
+	if (ciclstatus[nx][ny].first == -2) {
+		curcicl.push_back(mp(x, y));
+		return mp(nx, ny);
+	}
+	if (ciclstatus[nx][ny].first == -1) {
+		auto result = dfs(nx, ny);
+		belongtocicl[x][y] = belongtocicl[nx][ny];
+		if (result.first == -1) {
+			ciclstatus[x][y] = mp(-3, ciclstatus[nx][ny].second - 1);
+			dist[x][y] = dist[nx][ny] + 1;
+			if (ciclstatus[x][y].second < 0)
+				ciclstatus[x][y].second += cicles[belongtocicl[x][y]];
+			return result;
+		}
+		else {
+			curcicl.push_back(mp(x, y));
+			if (mp(x, y) != result)
+				return result;
+			else {
+				ciclstatus[x][y] = mp(cs(cicles), 0);
+				ll q = 0;
+				for (ll j = cs(curcicl) - 1; j >= 0; j--) {
+					auto v = curcicl[j];
+					belongtocicl[v.first][v.second] = cs(cicles);
+					ciclstatus[v.first][v.second] = mp(cs(cicles), q++);
+					dist[v.first][v.second] = q;
+				}
+				cicles.push_back(cs(curcicl));
+				curcicl.clear();
+				return mp(-1, -1);
+			}
+		}
+	}
+}
+
+ll toadd(ll a, ll mod) {
+	return mod - (a % mod);
+}
+
+ll bigger(ll start, ll need, ll toadd) {
+	if (start >= need)
+		return start;
+	ll delta = need - start;
+	ll use = delta / toadd + (delta%toadd != 0);
+	return start + use*toadd;
+}
+
+int main() {
+	iostream::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	freopen("robots.in", "r", stdin);
+	freopen("robots.out", "w", stdout);
+	cin >> n >> m >> g;
+	for (ll i = 0; i < n; i++) {
+		string s;
+		cin >> s;
+		for (ll j = 0; j < m; j++) {
+			isrobot[i][j] = s[j] >= 'A' && s[j] <= 'Z';
+			if (isrobot[i][j])
+				s[j] = s[j] - 'A' + 'a';
+			if (s[j] == 'n')
+				field[i][j] = 0;
+			if (s[j] == 'e')
+				field[i][j] = 1;
+			if (s[j] == 's')
+				field[i][j] = 2;
+			if (s[j] == 'w')
+				field[i][j] = 3;
+			ciclstatus[i][j] = mp(-1, -1);
+		}
+	}
+	for (ll i = 0; i < n; i++) {
+		for (ll j = 0; j < m; j++) {
+			if (ciclstatus[i][j].first == -1) {
+				dfs(i, j);
+			}
+		}
+	}
+	used.resize(cs(cicles));
+	vector<pair<pair<ll, ll>, ll> > ans;
+	vector<vector<pair<ll, pair<ll, ll> > > > need(cs(cicles));
+	for (ll i = 0; i < n; i++) {
+		for (ll j = 0; j < m; j++) {
+			if (isrobot[i][j]) {
+				if(ciclstatus[i][j].first == -3)
+					need[belongtocicl[i][j]].push_back(mp(dist[i][j], mp(i, j)));
+				else
+					need[belongtocicl[i][j]].push_back(mp(-1, mp(i, j)));
+			}
+		}
+	}
+	for (auto arr : need) {
+		if (cs(arr) == 0)
+			continue;
+		sort(arr.begin(), arr.end());
+		ll sz = cicles[belongtocicl[arr[0].second.first][arr[0].second.second]];
+		ll cur = 0;
+		ll lasttime = 1;
+		for (ll i = 0; i < cs(arr); i++) {
+			if (cur == sz)
+				break;
+			if (arr[i].first == -1) {
+				auto v = arr[i].second;
+				ll willbe = ciclstatus[v.first][v.second].second;
+				willbe = bigger(willbe, lasttime, sz);
+				willbe += cur;
+				cur++;
+				ans.push_back(mp(v, willbe));
+			}
+			else {
+				if (i)
+					lasttime -= arr[i].first - arr[i - 1].first;
+				lasttime = max(lasttime, 1ll);
+				ll j = i;
+				while (j + 1 < cs(arr) && arr[j + 1].first == arr[i].first)
+					j++;
+				ll tosetlasttime = lasttime;
+				for (ll z = i; z <= j; z++) {
+					if (cur == sz)
+						break;
+					auto v = arr[z].second;
+					ll willbe = ciclstatus[v.first][v.second].second;
+					willbe += cur;
+					willbe = bigger(willbe, lasttime, sz);
+					cur++;
+					ans.push_back(mp(v, willbe));
+					tosetlasttime = max(tosetlasttime, willbe+1);
+				}
+				lasttime = tosetlasttime;
+				i = j;
+			}
+		}
+	}
+	cout << cs(ans) << "\n";
+	if (g == 1) {
+		for (auto el : ans) {
+			if (el.second > 1000000000)
+				el.second %= cicles[belongtocicl[el.first.first][el.first.second]];
+			cout << el.first.first + 1 << " " << el.first.second + 1 << " " << el.second << "\n";
+		}
+	}
+	return 0;
+}

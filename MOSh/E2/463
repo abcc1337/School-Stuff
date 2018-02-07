@@ -1,0 +1,52 @@
+import sys
+sys.stdin = open("lamps.in")
+sys.stdout = open("lamps.out", "w")
+n, q = list(map(int, input().split()))
+line = input()
+mline = [0] * n
+for i in range(n):
+    mline[i] = int(line[i])
+prom1 = [[0] * (n) for i in range(n)]
+for i in range(n):
+    for j in range(n):
+        if i == j:
+            #prom[i][i] = int(line[i])
+            prom1[i][j] = int(line[i])
+        elif j < i:
+            prom1[i][j] = prom1[j][i]
+            #prom1[i][j] = prom[i][j]
+        else:
+            prom1[i][j] = int(prom1[i][j - 1]) and int(line[j])
+            #prom1[i][j] = prom[i][j]
+answer = 0
+#print(*prom1)
+for i1 in range(n):
+    for j1 in range(n):
+        if j1 >= i1:
+            answer += prom1[i1][j1]
+print(answer)
+for i in range(q):
+    answer = 0
+    tmp = list(map(int, input().split()))
+    for m in range(tmp[0] - 1, tmp[1]):
+        mline[m] = tmp[2]
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                #prom[i][i] = int(line[i])
+                if int(mline[i]) != 0:
+                    prom1[i][j] = int(mline[i])
+            elif j < i:
+                prom1[i][j] = prom1[j][i]
+                    #prom1[i][j] = prom[i][j]
+            else:
+                if (int(prom1[i][j - 1]) and int(mline[j])) != 0:
+                    prom1[i][j] = int(prom1[i][j - 1]) and int(mline[j])
+    #print(*prom1)
+    for i1 in range(n):
+        for j1 in range(n):
+            if j1 >= i1:
+                answer += prom1[i1][j1]
+    print(answer)
+    #print(*prom1)
+        

@@ -1,0 +1,58 @@
+def dfs(v, cur_ans):
+    global used, prev, G, R
+    used[v] = True
+    for i in range(len(G[v])):
+        u = G[v][i]
+        if (not used[u]):
+            tmp = dfs(u, cur_ans)
+            cur_ans = tmp
+        if (prev[u]):
+            cur_ans = True
+    return cur_ans
+
+
+fin = open("alarm.in", 'r')
+fout = open('alarm.out', 'w')
+MAXN = 200
+used = [False] * MAXN
+prev = [False] * MAXN
+R = [0] * MAXN
+G = [[] for i in range(MAXN)]
+n = int(fin.readline().rstrip())
+R = list(map(int, fin.readline().split()))
+d = [[0] * n for i in range(n)]
+for i in range(n):
+    for j in range(n):
+        d[i][j] = 1e18
+for i in range(n - 1):
+    RQ = list(map(int, fin.readline().split()))
+    a = RQ[0]
+    b = RQ[1]
+    dl = RQ[2]
+    a -= 1
+    b -= 1
+    d[a][b] = dl
+    d[b][a] = dl
+for i in range(n):
+    d[i][i] = 0
+for k in range(n):
+    for i in range(n):
+        for j in range(n):
+            d[i][j] = min(d[i][j], d[i][k] + d[k][j])
+for i in range(n):
+    for j in range(n):
+        if (d[i][j] <= R[i]):
+            G[i].append(j)
+        if (d[i][j] <= R[j]):
+            G[j].append(i)
+cnt = 0
+for i in range(n):
+    if (not used[i]):
+        x1 = dfs(i, False)
+        if (not x1):
+            cnt += 1
+        for lo in range(n):
+            prev[lo] = used[lo]
+print(cnt, file = fout)
+fin.close()
+fout.close()

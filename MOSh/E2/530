@@ -1,0 +1,62 @@
+program zad_1;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+var
+    a, d1, d2, d3 :array[0..123, 0..123, 0..123] of integer;
+    x, y, z:array[1..123456] of integer;
+    n, i, j, u, q :integer;
+    sum :int64;
+
+begin
+    reset(input, 'onlyone.in');
+    rewrite(output, 'onlyone.out');
+    readln(n);
+    for i := 1 to n do
+    begin
+        readln(x[i], y[i], z[i]);
+        inc(a[x[i]][y[i]][z[i]]);
+    end;
+
+
+    for i := 1 to 100 do
+        for j := 1 to 100 do
+            for u := 1 to 100 do
+            begin
+                d1[i][j][u] := d1[i][j][u - 1] + a[i][j][u];
+                d2[i][u][j] := d2[i][u - 1][j] + a[i][u][j];
+                d3[u][i][j] := d3[u - 1][i][j] + a[u][i][j];
+            end;
+    sum := 0;
+    for u := 1 to n do
+    begin
+        q := 0;
+        for i := 1 to 100 do
+        begin
+            if (i <> y[u]) then
+                sum := sum + ((d1[x[u]][i][100] - d1[x[u]][i][z[u]]));
+            if (i <> x[u]) then
+                sum := sum + (d2[i][100][z[u]] - d2[i][y[u]][z[u]]);
+            if (i <> z[u]) then
+                sum := sum + (d3[100][y[u]][i] - d3[x[u]][y[u]][i]);
+        end;
+    end;
+    writeln(sum);
+    readln;
+    readln;
+
+end.
+
+3
+1 2 3
+1 4 5
+1 2 4
+
+4
+100 100 100
+100 100 100
+100 99 99
+99 99 100

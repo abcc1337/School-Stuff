@@ -1,0 +1,102 @@
+uses Math,SysUtils;
+type mass=array[0..3001,1..3] of longint;
+     maxx=array[0..6000] of longint;
+     maee=array[0..3000] of longint;
+     marr=array[0..3000,0..3000] of longint;
+var l,x2,kol1,y1,kol,x1,d,x,y,b,c,ans,i,n,k,z:longint;
+    res,res1,e,a:int64;
+    u:boolean;
+    m3,m4:mass;
+    m,pred,q:maxx;
+    ch:char;
+    m2:marr;
+    used:maee;
+procedure swap(var a,b:longint);
+var c:longint;
+Begin
+   c:=a;
+   a:=b;
+   b:=c;
+end;
+procedure add(i,j:longint);
+Begin
+   inc(kol);
+   m[kol]:=j;
+   pred[kol]:=q[i];
+   q[i]:=kol;
+end;
+procedure dfs(x:longint);
+var j:longint;
+Begin
+    used[x]:=1; 
+    if (m3[x,1]>=a) and (m3[x,1]<=c) and (m3[x,2]>=b) and (m3[x,2]<=d)
+    then
+    else exit;
+    j:=q[x];
+    while j>0 do
+       Begin
+           if used[m[j]]=0
+           then dfs(m[j]);
+           j:=pred[j];
+       end;
+end;
+begin
+   assign(input,'repair.in');
+   assign(output,'repair.out');
+ //  assign(input,'input.txt');
+ //  assign(output,'output.txt');
+   reset(input);
+   rewrite(output);
+   readln(a,b);
+   readln(n,k);
+   for i:=1 to n-1 do
+      Begin
+         read(ch);
+         readln(c,d);
+         m4[i,2]:=c;
+         m4[i,3]:=d;
+         m2[c,d]:=1;
+         if ch='h'
+         then Begin
+                m2[c+1,d]:=1;
+                m4[i,1]:=1;
+              end
+         else Begin
+                 m2[c,d+1]:=1;
+                 m4[i,1]:=2;
+              end;
+      end;
+   kol1:=0;
+   for i:=1 to a do
+      for z:=1 to b do
+         if m2[i,z]=1
+         then Begin
+                 inc(kol1);
+                 m3[kol1,1]:=i;
+                 m3[kol1,2]:=z;
+                 m2[i,z]:=kol1;
+              end;
+   for i:=1 to n-1 do
+      if m4[i,1]=1
+      then Begin
+              add(m2[m4[i,2],m4[i,3]],m2[m4[i,2]+1,m4[i,3]]);
+              add(m2[m4[i,2]+1,m4[i,3]],m2[m4[i,2],m4[i,3]]);
+           end
+      else Begin
+              add(m2[m4[i,2],m4[i,3]],m2[m4[i,2],m4[i,3]+1]);
+              add(m2[m4[i,2],m4[i,3]+1],m2[m4[i,2],m4[i,3]]);
+           end;
+   for i:=1 to k do
+      Begin
+         readln(a,b,c,d);
+         fillchar(used,sizeof(used),0);
+         res:=0;
+         for z:=1 to kol1 do
+            if (used[z]=0) and (m3[z,1]>=a) and (m3[z,1]<=c) and (m3[z,2]>=b) and (m3[z,2]<=d)
+            then Begin
+                    inc(res);
+                    dfs(z);
+                 end;
+         writeln(res);
+      end;
+end.

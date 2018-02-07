@@ -1,0 +1,69 @@
+#include <fstream>
+#include <map>
+#include <vector>
+using namespace std;
+
+ifstream cin("onlyone.in");
+ofstream cout("onlyone.out");
+
+const int N = 101;
+
+int main()
+{
+    fstream::sync_with_stdio(false);
+    int n;
+    cin >> n;
+     int  abc[101][101][101] = {};
+    vector <bool> A(101), B(101), C(101);
+    vector <int> as, bs, cs;
+    long long quan = 0;
+    map<long long, int> m;
+    for (int k = 0; k < n; k++) {
+        long long a, b, c;
+        cin >> a >> b >> c;
+        abc[a][b][c]++;
+        if (!A[a]) as.push_back(a);
+        if (!B[b]) bs.push_back(b);
+        if (!C[c]) cs.push_back(c);
+        A[a] = true;
+        B[b] = true;
+        C[c] = true;
+        long long q = 0;
+        for (int i = 0; i < (int)bs.size(); i++) {
+            int v = bs[i];
+            if (v == b) continue;
+            for (int j = 0; j < (int)cs.size(); j++) {
+                int u = cs[j];
+                if (u != c) {
+                    q += abc[a][v][u];
+                }
+            }
+        }
+        for (int i = 0; i < (int)as.size(); i++) {
+            int v = as[i];
+            if (v == a) continue;
+            for (int j = 0; j < (int)cs.size(); j++) {
+                int u = cs[j];
+                if (u != c) {
+                    q += abc[v][b][u];
+                }
+            }
+        }
+        for (int i = 0; i < (int)as.size(); i++) {
+            int v = as[i];
+            if (v == a) continue;
+            for (int j = 0; j < (int)bs.size(); j++) {
+                int u = bs[j];
+                if (u != b) {
+                    q += abc[v][u][c];
+                }
+            }
+        }
+        quan += q;
+    }
+    cout << quan << '\n';
+
+
+    return 0;
+}
+

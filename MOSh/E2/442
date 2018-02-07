@@ -1,0 +1,82 @@
+#include <iostream>
+#include <cmath>
+#include <cstdio>
+#include <vector>
+
+#define Freopen freopen ("grants.in", "r", stdin); \
+                freopen ("grants.out", "w", stdout);
+#define ll long long
+
+using namespace std;
+
+const int N = 1e7 + 7;
+
+ll n, k, s, t;
+int a[N];
+bool flag;
+
+void solve ();
+
+
+int main()
+{
+    Freopen
+    cin >> t;
+    for (int i = 0; i < t; i++)
+        solve ();
+
+    return 0;
+}
+
+void solve () {
+
+    cin >> n;
+    s = 1;
+    for (int i = 0; i <= (1<<17) + 2; i++)
+        a[s] = 0;
+
+    for (int i = n; i >= 0; i--)
+        if (i % 3 == 0)
+        {
+            s = 1;
+            for (int i = 1; i <= 20; i++)
+                a[s] = 0,
+                s *= 2;
+
+            k = i / 3;
+            flag = 1;
+            while (k > 0)
+            {
+                s = 1;
+                while (s * 2 <= k)
+                    s *= 2;
+                k -= s;
+                a[s] = i + 1;
+            }
+            k = n - i;
+            if (k == 4 && !a[2] && !a[1])
+            {
+                cout << i / 3 + 3 << ' ' << i / 3 + 1<<' ' <<i / 3 << endl;
+                break;
+            }
+            if  (k == 2 && !a[1])
+            {
+                cout << i / 3 + 1 << ' ' << i / 3 + 1<<' ' <<i / 3 << endl;
+                break;
+            }
+            while (k > 0)
+            {
+                s = 1;
+                while (s * 2 <= k)
+                    s *= 2;
+                k -= s;
+                if (a[s] == i + 1)
+                    flag = 0;
+            }
+            if (flag)
+            {
+                cout << i / 3 + n - i << ' ' << i / 3 <<' ' <<i / 3 << endl;
+                break;
+            }
+        }
+}

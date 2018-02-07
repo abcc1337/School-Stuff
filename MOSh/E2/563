@@ -1,0 +1,20 @@
+var q:array[1..3000]of integer;
+    n,i,j,l,f,m:integer;
+begin
+readln(n);
+writeln('? ',1,' ',n);
+readln(m);
+q[1]:=1;
+for i:=1 to n-1 do
+begin
+writeln('? ',i,' ',i+1);
+readln(l);
+if l=2 then q[i+1]:=q[i] mod m +1
+else q[i+1]:=q[i];
+end;
+writeln('Ready!');
+writeln(m);
+for i:=1 to n do
+write(q[i],' ');
+end.
+

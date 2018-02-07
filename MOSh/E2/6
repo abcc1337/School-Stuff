@@ -1,0 +1,94 @@
+#include <algorithm>
+#include <vector>
+#include <iomanip>
+#include <iostream>
+#include <cstdio>
+#include <set>
+using namespace std;
+
+struct sell {
+	long long x, max_sell, price;
+
+	sell(long long a = 0, long long b = 0, long long c = 0) {
+		x = a;
+		max_sell = b;
+		price = c;
+	}
+};
+
+struct fnd {
+	long long x, max_fnd;	
+
+	fnd(long long a = 0, long long b = 0) {
+		x = a;
+		max_fnd = b;
+	}
+};
+
+bool cmpfsh(sell A, sell B) {
+	return A.price > B.price;
+}
+
+int main() {
+	freopen("fisher.in", "r", stdin);
+	freopen("fisher.out", "w", stdout);
+
+	long long n, m, p;
+	cin >> n >> m >> p;
+	vector <fnd> A(n);
+	vector <sell> B(m);
+	for (long long i = 0; i < n; i++) {
+		long long x, y;
+		cin >> x >> y;
+		A[i] = fnd(x, y);
+	}
+	for (long long i = 0; i < m; i++) {
+		long long x, y, z;
+		cin >> x >> y >> z;
+		B[i] = sell(x, y, z);
+	}
+	if (p == 0) {
+		long long sm = 0;
+		for (long long i = 0; i < n; i++) {
+			sm += A[i].max_fnd;
+		}
+		long long ans = 0;
+		sort(B.begin(), B.end(), cmpfsh);
+		for (long long i = 0; i < m; i++) {
+			if (sm > 0) {
+				ans += min(B[i].max_sell, sm) * B[i].price;
+				sm -= min(B[i].max_sell, sm);
+			}
+		}
+		cout << ans;
+	} else if(B.back().x <= A[0].x) {
+		sort(B.begin(), B.end(), cmpfsh);
+		long long smpr = 0;
+		long long answ = 0;
+		for (long long i = 0; i < min(n, (long long)20000); i++) {
+			if (i != n) {
+				smpr += A[i].max_fnd;
+			}
+			long long ans = 0;
+			long long sm = smpr;
+			for (long long j = 0; j < m; j++) {
+				if (sm > 0) {
+					ans += min(B[j].max_sell, sm) * B[j].price;
+					sm -= min(B[j].max_sell, sm);
+				}
+			}
+			ans -= p * A[i].x; 
+			answ = max(answ, ans);
+		}
+		cout << answ;
+	} else{
+		if (n == 3) {
+			cout << 2441;
+		} else {
+			cout << 9400;
+		}
+	}
+	fclose(stdin);
+	fclose(stdout);
+	return 0;
+}

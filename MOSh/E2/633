@@ -1,0 +1,79 @@
+var
+  ar: array[1..500,1..500] of longint;
+  c: array[1..26] of longint;
+  hminx, hmaxx, hans: array[1..500] of longint;
+  w, h, i, j, k, x1, x2, x3, x4, y1, y2, y3, y4, ym3, ym4: longint;
+  cans, c1, c2, c3, c4, am3, am4: int64;
+  fl: text;
+  s: string;
+
+begin
+  assign(fl, 'submarine.in');
+  reset(fl);
+  readln(fl, k);
+  for i:=1 to k-1 do
+    read(fl, c[i]);
+  readln(fl, c[k]);
+  readln(fl, h, w);
+  for j:=1 to h do
+    begin
+      readln(fl, s);
+      for i:=1 to w do
+        ar[i, j]:=c[Ord(s[i])-Ord('a')+1];
+    end;
+  close(fl);
+  cans:=-1000000000000000;
+  for y1:=1 to h do
+    for x1:=1 to w-1 do
+      begin
+        c1:=ar[x1,y1];
+        for x2:=x1+1 to w do
+          begin
+            c1:=c1+ar[x2,y1];
+            for x3:=x1 to x2-1 do
+              begin
+                c2:=-ar[x3,y1];
+                for y2:=y1 downto 1 do
+                  begin
+                    c2:=c2+ar[x3, y2];
+                    for x4:=x3+1 to x2 do
+                      begin
+                        c3:=-ar[x4,y1]; am3:=0;
+                        c4:=-ar[x4,y1]; am4:=0;
+                        for y3:=y1 downto 1 do
+                          begin
+                            c3:=c3+ar[x4,y3];
+                            if c3>am3 then
+                              begin
+                                am3:=c3;
+                                ym3:=y3;
+                              end;
+                          end;
+                        for y4:=y1 to h do
+                          begin
+                            c4:=c4+ar[x4,y4];
+                            if c4>am4 then
+                              begin
+                                am4:=c4;
+                                ym4:=y4;
+                              end;
+                          end;
+                        c3:=am3;
+                        c4:=am4;
+                        //writeln(c1,' ',c2,' ',c3,' ',c4,' ',x1,' ',x2,' ',x3,' ',x4,' ',y1,' ',y2,' ',y3,' ',y4);
+                        //readln;
+                        if c1+c2+c3+c4>cans then
+                          begin
+                            cans:=c1+c2+c3+c4;
+                          end;
+                      end;
+                  end;
+              end;
+
+          end;
+      end;
+  assign(fl, 'submarine.out');
+  rewrite(fl);
+  writeln(fl, cans);
+  close(fl);
+end.

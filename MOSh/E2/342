@@ -1,0 +1,149 @@
+#pragma comment(linker, "/STACK:100000000")
+#include <iostream>
+#include <map>
+#include <set>
+#include <deque>
+#include <algorithm>
+#include <vector>
+#include <stack>
+#include <queue>
+#include <iterator>
+#include <ctime>
+#include <cmath>
+#include <fstream>
+#include <stdio.h>
+#include <assert.h>
+#include <bitset>
+
+using namespace std;
+
+const int MAXN = 100000;
+vector<int> G[MAXN + 1], G1[MAXN + 1], used;
+int num[4001][4001], sz = 1, ls, cur, tout[MAXN + 1], timer, h[MAXN + 1], tin[MAXN + 1], ans = 0, x = 1, y = 2;
+vector<pair<int, int> > open[MAXN + 1];
+bitset<4001> b[1001];
+vector<int> path;
+
+void dfs(int v, int d = 0) {
+	h[v] = d;
+	tin[v] = timer++;
+	for (int i = 0; i < (int)G[v].size(); i++) {
+		int u = G[v][i];
+		if (v <= 4000 && u <= 4000 && !num[v][u]) {
+			num[v][u] = num[u][v] = sz++;
+		}
+		dfs(u, d + 1);
+	}
+	tout[v] = timer++;
+}
+
+void dfs1(int v) {
+	used[v] = 1;
+	if (v == ls) {
+		for (int i = 0; i < (int)path.size(); i++)
+			b[cur][path[i]] = 1;
+	}
+	for (int i = 0; i < (int)G1[v].size(); i++) {
+		int u = G1[v][i];
+		if (!used[u]) {
+			path.push_back(num[v][u]);
+			dfs1(u);
+			path.pop_back();
+		}
+	}
+}
+
+set<pair<int, int> > dfs2(int v) {
+	set<pair<int, int> > close;
+	for (int i = 0; i < (int)G[v].size(); i++) {
+		set<pair<int, int> > temp = dfs2(G[v][i]);
+		if (close.empty())
+			close.swap(temp);
+		else {
+			if (temp.size() > close.size()) {
+				for (auto it : close)
+					temp.insert(it);
+				close.swap(temp);
+			}
+			else {
+				for (auto it : temp)
+					close.insert(it);
+			}
+		}
+	}
+	while (!close.empty()) {
+		auto it = close.lower_bound({ h[v], 0 });
+		if (it == close.end() || it->first != h[v])
+			break;
+		else {
+			close.erase(it);
+		}
+	}
+	for (int i = 0; i < (int)open[v].size(); i++) {
+		close.insert(open[v][i]);
+	}
+	if ((int)close.size() >= 2) {
+		auto a = close.end();
+		auto b = close.end();
+		a--;
+		b--;
+		b--;
+		if (ans <= h[v] - max(a->first, b->first)) {
+			ans = h[v] - max(a->first, b->first);
+			x = a->second;
+			y = b->second;
+		}
+	}
+	return close;
+}
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	ifstream cin("twopaths.in");
+	ofstream cout("twopaths.out");
+	//get
+
+	int n, k;
+	cin >> n >> k;
+	for (int i = 2; i <= n; i++) {
+		int p;
+		cin >> p;
+		G[p].push_back(i);
+		G1[p].push_back(i);
+		G1[i].push_back(p);
+	}
+	dfs(1);
+	if (n <= 4000 && k <= 1000) {
+		for (int i = 0; i < k; i++) {
+			cur = i;
+			int a, b;
+			cin >> a >> b;
+			ls = b;
+			used.assign(MAXN + 1, 0);
+			dfs1(a);
+		}
+		for (int i = 0; i < k; i++) {
+			for (int j = i + 1; j < k; j++) {
+				if (ans <= (b[i] & b[j]).count()) {
+					ans = (b[i] & b[j]).count();
+					x = i + 1;
+					y = j + 1;
+				}
+			}
+		}
+	}
+	else {
+		for (int i = 0; i < k; i++) {
+			int a, b;
+			cin >> a >> b;
+			if (h[a] > h[b])
+				open[a].push_back({ h[b], i + 1 });
+			else
+				open[b].push_back({ h[a], i + 1 });
+		}
+		dfs2(1);
+	}
+	cout << ans << endl;
+	cout << x << " " << y << endl;
+	return 0;
+}

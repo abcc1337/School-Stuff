@@ -1,0 +1,90 @@
+#include <cstdio>
+#include <fstream>
+#include <cmath>
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <queue>
+#include <deque>
+
+#define problem "submarine"
+
+typedef long long ll;
+const ll INFll = (1e18) + 7;
+using namespace std;
+
+
+ll d[26], k, n, m, a[2006][2006], mu[2006][2006], md[2006][2006], mr[2005][2005], ml[2006][2006], mxl[2005][2005], mrr[2005][2005], mxr[2005][2005], mll[2005][2005];
+
+
+int main(){
+	ifstream cin(problem".in");
+	ofstream cout(problem".out");
+	cin >> k;
+	for (int i = 0; i < k; i++) cin >> d[i];
+	cin >> n >> m;
+	for (int i = 1; i <= n; i++){
+		for (int j = 1; j <= m; j++){
+			char c;
+			cin >> c;
+			a[i][j] = d[c - 'a'];
+//			      cout << a[i][j] << " ";
+		}
+//		  cout << '\n';
+	}
+//	cout << '\n';
+	for (int i = 1; i <= m; i++){
+		ll mx = 0, sum = 0;
+		for (int j = 1; j <= n; j++){
+			sum += a[j][i];
+			mu[j][i] = sum - mx;
+			mx = min(mx, sum);
+		}
+		mx = 0, sum = 0;
+		for (int j = n; j > 0; j--){
+			md[j][i] = sum - mx;
+			sum += a[j][i];
+			mx = min(mx, sum);
+		}
+	}
+	for (int i = 1; i <= n; i++){
+		ll mx = 0, sum = 0;
+		for (int j = m; j > 0; j--){
+			mrr[i][j] = sum - mx;
+			sum += a[i][j];
+			mx = min(mx, sum);
+		}
+	}
+	for (int j = 1; j <= n; j++){
+		for (int i = 1; i <= m; i++) {
+			mu[j][i] -= a[j][i];
+			ml[j][i] = ml[j][i - 1] + a[j][i];
+			mxl[j][i] = min(mxl[j][i - 1], ml[j][i]);
+			mr[j][i] = max(0ll, mu[j][i]) + max(0ll, md[j][i]);
+			//      cout << mrr[j][i] << " ";
+		}
+		//  cout << '\n';
+	} 
+	for (int i = 1; i <= n; i++){
+		ll bst = mu[i][1] + a[i][1], mx = 0, sum = 0;
+		for (int j = 2; j <= m; j++){
+			bst += a[i][j];
+			sum += a[i][j];
+			bst = max(mu[i][j] + sum - mx, bst);
+			mll[i][j] = bst;
+			mx = min(mx, sum);
+//			cout << mll[i][j] << ' ';
+		}
+//		cout << '\n';
+	}
+	ll ans = -INFll;
+	for (int i = 1; i <= n; i++){
+		for (int pos = 2; pos <= m; pos++){
+			ll now = mrr[i][pos] + mr[i][pos] + a[i][pos];
+			ans = max(ans, mrr[i][pos] + mr[i][pos] + a[i][pos] + mll[i][pos - 1]);
+	//		cout << pos << " " << i << " " << ans << '\n';
+		}
+	}
+	cout << ans << '\n';
+
+}

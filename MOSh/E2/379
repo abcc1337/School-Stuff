@@ -1,0 +1,77 @@
+#include <iostream>
+#include <cstdio>
+
+using namespace std;
+
+#define ll long long
+
+const int N = (int)1e5 + 7;
+
+bool u[N], d[N];
+
+bool f(ll t, ll a){
+    if (a < t * 3ll)
+        return false;
+    ll q = 1ll;
+    for (int i = 0; i < 60; i++)
+        q *= 2ll, d[i] = 0;
+    ll p = a - 3ll * t;
+    for (int i = 60; i > -1; i--){
+        if (p >= q){
+            if (u[i] == false && q != t)
+                p -= q;
+            else{
+                if (i == 0 || d[i])
+                    return false;
+                d[i - 1] = 1;
+            }
+        }
+        q /= 2ll;
+    }
+    return true;
+}
+
+int main()
+{
+    freopen("grants.in", "r", stdin);
+    freopen("grants.out", "r", stdout);
+    int n;
+    ll a, x, y, z;
+    cin >> n;
+    for (int ii = 0; ii < n; ii++){
+        x = y = z = 0;
+        cin >> a;
+        ll t = a / 3ll, q = 1ll;
+        for (int i = 0; i < 60; i++)
+            q *= 2ll;
+        if (a % 3ll == 0ll){
+            cout << t << " " << t << " " << t << endl;
+            continue;
+        }
+        for (int i = 60; i > -1; i--){
+            if (f(q, a)){
+                x += q, y += q, z += q;
+                u[i] = 1;
+                a -= 3ll * q;
+            }
+            q /= 2ll;
+        }
+        q = 1ll;
+        for (int i = 0; i < 60; i++)
+            q *= 2ll;
+        for (int i = 60; i > -1; i--){
+            if (a >= q){
+                if (u[i] == false)
+                    x += q, a -= q;
+                else{
+                    x += q / 2ll;
+                    y += q / 2ll;
+                    a -= q;
+                }
+            }
+            q /= 2ll;
+        }
+        cout << x << " " << y << " " << z;
+    }
+    return 0;
+}

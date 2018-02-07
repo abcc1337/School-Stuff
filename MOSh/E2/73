@@ -1,0 +1,104 @@
+#define MY_TASK 'A'
+
+#ifdef LOCAL
+	#include "task_select.cpp"
+#else
+	#define TASK MY_TASK
+#endif
+
+#if MY_TASK == TASK
+
+#pragma comment(linker, "/STACK:134217728")
+
+#include <cstdio>
+#include <cstring>
+#include <cmath>
+#include <cassert>
+#include <ctime>
+#include <cstdlib>
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <vector>
+#include <set>
+#include <map>
+#include <unordered_map>
+#include <unordered_set>
+#include <initializer_list>
+#include <list>
+#include <forward_list>
+#include <fstream>
+#include <queue>
+#include <stack>
+
+typedef long long ll;
+typedef long double ld;
+#define mp make_pair
+#define all(a) (a).begin(), (a).end()
+
+void wait() {
+#ifdef LOCAL
+	fclose(stdin);
+	freopen("CON", "r", stdin);
+	system("pause");
+#endif
+}
+
+#ifdef _DEBUG
+	#define debug printf
+	#define reader scanf 
+#else
+	#define debug ;
+	#define reader ;
+#endif
+
+using namespace std;
+
+const int MAXN = 201;
+const int INF = 1e9;
+const ll LONG_INF = 8e18;
+
+int a[MAXN][3];
+int n;
+
+ll A[3][2000000];
+ll B[6][MAXN][MAXN];
+ll C[MAXN][MAXN][MAXN];
+
+int main() {
+#ifdef LOCAL
+	freopen("input.txt", "r", stdin);
+	//freopen("output.txt", "w", stdout);
+#else
+	freopen("onlyone.in", "r", stdin);
+	freopen("onlyone.out", "w", stdout);
+#endif
+
+	cin >> n;
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < 3; j++)
+			cin >> a[i][j];
+		A[0][a[i][0]]++;
+		A[1][a[i][1]]++;
+		A[2][a[i][2]]++;
+		C[a[i][0]][a[i][1]][a[i][2]]++;
+
+		B[3][a[i][0]][a[i][1]]++;
+		B[5][a[i][0]][a[i][2]]++;
+		B[6][a[i][1]][a[i][2]]++;
+	}
+
+	ll ans = 0;
+	for (int i = 0; i < n; i++) {
+		ans += A[0][a[i][0]] - B[3][a[i][0]][a[i][1]] - B[5][a[i][0]][a[i][2]] + C[a[i][0]][a[i][1]][a[i][2]];
+		ans += A[1][a[i][1]] - B[3][a[i][0]][a[i][1]] - B[6][a[i][1]][a[i][2]] + C[a[i][0]][a[i][1]][a[i][2]];
+		ans += A[2][a[i][2]] - B[5][a[i][0]][a[i][2]] - B[6][a[i][1]][a[i][2]] + C[a[i][0]][a[i][1]][a[i][2]];
+	}
+
+	cout << ans / 2 << '\n';
+
+	wait();
+	return 0;
+}
+
+#endif

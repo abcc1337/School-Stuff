@@ -1,0 +1,117 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <map>
+#include <set>
+
+using namespace std;
+
+ifstream fin("alarm.in");
+ofstream fout("alarm.out");
+
+const long long MAXN = 200;
+vector <bool> used(MAXN);
+vector <bool> prev(MAXN);
+vector <long long> R(MAXN);
+vector <vector <long long> > G(MAXN);
+bool cur_ans = false;
+//bool start;
+
+bool dfs(long long v)
+{
+    used[v] = true;
+    for (long long i = 0; i < (long long)G[v].size(); ++i)
+    {
+        long long u = G[v][i];
+        if (!used[u])
+        {
+            dfs(u);
+        }
+        if (prev[u])
+        {
+            cur_ans = true;
+        }
+    }
+    return cur_ans;
+}
+
+int main()
+{
+    long long n;
+    fin >> n;
+    for (long long i = 0; i < n; ++i)
+    {
+        fin >> R[i];
+    }
+    long long d[n][n];
+    for (long long i = 0; i < n; ++i)
+    {
+        for (long long j = 0; j < n; ++j)
+        {
+            d[i][j] = 1e18;
+        }
+    }
+    //return 0;
+    for (long long i = 0; i < n - 1; ++i)
+    {
+        long long a, b;
+        long long dl;
+        fin >> a >> b >> dl;
+        a--;
+        b--;
+        //G[a].push_back(make_pair(b, dl));
+       // G[b].push_back(make_pair(a, dl));
+        d[a][b] = dl;
+        d[b][a] = dl;
+        //cout << 1;
+    }
+    for (long long i = 0; i < n; ++i)
+    {
+        d[i][i] = 0;
+    }
+    //return 0;
+    for (long long k = 0; k < n; ++k)
+    {
+        for (long long i = 0; i < n; ++i)
+        {
+            for (long long j = 0; j < n; ++j)
+            {
+                d[i][j] = min(d[i][j], d[i][k] + d[k][j]);
+            }
+        }
+    }
+    for (long long i = 0; i < n; ++i)
+    {
+        for (long long j = 0; j < n; ++j)
+        {
+            if (d[i][j] <= R[i])
+            {
+                G[i].push_back(j);
+            }
+            if (d[i][j] <= R[j])
+            {
+                G[j].push_back(i);
+            }
+        }
+    }
+    long long cnt = 0;
+    for (long long i = 0; i < n; ++i)
+    {
+        if (!used[i])
+        {
+            bool x1 = dfs(i);
+            if (!x1)
+            {
+                cnt++;
+            }
+        }
+    }
+    fout << cnt << endl;
+    fin.close();
+    fout.close();
+    return 0;
+}
+
+
+

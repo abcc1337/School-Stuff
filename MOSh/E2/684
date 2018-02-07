@@ -1,0 +1,72 @@
+type
+  pv = record 
+    x: longint;
+    y: longint;
+  end;
+
+var
+  s, s2: array [1..101] of pv;
+  s1: array [1..100] of pv;
+  n, q, x, k, i, j: longint;
+  s3: array [1..100, 1..2] of pv;
+  f: text;
+
+function vect(t1, t2: pv): pv;
+var
+  bu: pv;
+begin
+  bu.x := t2.x - t1.x;
+  bu.y := t2.y - t1.y;
+  vect := bu;
+end;
+
+function prv(v1, v2: pv ): int64;
+begin
+  prv := v1.x * v2.y - v1.y * v2.x;
+end;
+
+function vectpl(v1, v2: pv): pv;
+var
+  bu: pv;
+begin
+  bu.x := v1.x + v2.x;
+  bu.y := v1.y + v2.y;
+  vectpl := bu;
+end;
+
+begin
+  assign(f, 'mountain.in');
+  reset(f);
+  readln(f, n, q);
+  s[1].x := 0;
+  s[1].y := 0;
+  for i := 2 to n + 1 do 
+  begin
+    readln(f, x, k);
+    s[i].x := s[i - 1].x + x;
+    s[i].y := s[i - 1].y + (k * x);
+  end;
+  for i := 1 to q do 
+  begin
+    readln(f, s1[i].x, s1[i].y);
+  end;
+  close(f);
+  n := n + 1;
+  for i := 1 to q do 
+  begin
+    j := 1;
+    while s[j].x < s1[i].x do j := j + 1;
+    k := j;
+    if s[j].x > s1[i].x then j := j - 1;
+    while (prv(vect(s1[i], s[j]), vect(s1[i], s[j - 1])) <= 0 ) and (j > 2) do j := j - 1;
+    if (j = 2) and (prv(vect(s1[i], s[j]), vect(s1[i], s[j - 1])) <= 0 ) then j := 1;
+    while (prv(vect(s1[i], s[k]), vect(s1[i], s[k + 1])) >= 0 ) and (k < n - 1) do k := k + 1;
+    if (k = n - 1) and (prv(vect(s1[i], s[k]), vect(s1[i], s[k + 1])) >= 0 ) then k := n;
+    s3[i, 1] := s[j];
+    s3[i, 2] := s[k];
+  end;
+  assign(f, 'mountain.out');
+  rewrite(f);
+  for i := 1 to q do writeln(f,s3[i, 1].x, ' ', s3[i, 2].x);
+  close(f);
+end.

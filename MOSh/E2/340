@@ -1,0 +1,186 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <fstream>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <cmath>
+#include <cstring>
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <map>
+#include <set>
+#include <queue>
+#include <unordered_map>
+#include <unordered_set>
+
+using namespace std;
+
+#define forn(i, n) for (int i = 0; i < int(n); ++i)
+#define forq(i, q, n) for (int i = int(q); i < int(n); ++i)
+#define mk make_pair
+#define psh push_back
+#define all(v) v.begin(), v.end()
+#define TIME clock() * 1.0 / CLOCKS_PER_SEC
+#define Y second
+#define X first
+#define y1 asd
+#define TASK "robots"
+
+typedef long long ll;
+typedef vector <int> vi;
+typedef pair <int, int> pii;
+
+const int MAXN = (int)1e3 + 7;
+const int INF = (int)1e9 + 7;
+const int MOD = (int)1e9 + 7;
+const double EPS = 1e-6;
+
+void file()
+{
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin); freopen("output.txt", "w", stdout);
+#else
+	freopen(TASK".in", "r", stdin); freopen(TASK".out", "w", stdout);
+#endif
+}
+
+char mem[10000000];
+int cur = 0;
+
+void *operator new(size_t s){
+	cur += s;
+return cur + mem;
+}
+
+void operator delete(void *) {
+
+}
+
+char A[MAXN][MAXN];
+int ans;
+int used[MAXN][MAXN];
+bool used1[MAXN][MAXN];
+int n, m;
+pii pr[MAXN][MAXN];
+
+bool ss(int x, int y) {
+	return x >= 0 && y >= 0 && x < n && y < m;
+}
+
+int dfs1(int x, int y) {
+	int ch = 0;
+	used1[x][y] = 1;
+	if (ss(x - 1, y)) {
+		if ((A[x - 1][y] == 's' || A[x - 1][y] == 'S') && used1[x - 1][y] == 0) {
+			ch += dfs1(x - 1, y);
+		}
+	}
+	if (ss(x + 1, y)) {
+		if ((A[x + 1][y] == 'n' || A[x + 1][y] == 'N') && used1[x + 1][y] == 0) {
+			ch += dfs1(x + 1, y);
+		}
+	}
+	if (ss(x, y - 1)) {
+		if ((A[x][y - 1] == 'e' || A[x][y - 1] == 'E') && used1[x][y - 1] == 0 && ss(x, y - 1)) {
+			ch += dfs1(x, y - 1);
+		}
+	}
+	if (ss(x, y + 1)) {
+		if ((A[x][y + 1] == 'w' || A[x][y + 1] == 'W') && used1[x][y + 1] == 0 && ss(x, y + 1)) {
+			ch += dfs1(x, y + 1);
+		}
+	}
+	if (A[x][y] > 'A' && A[x][y] < 'Z') {
+		return ch + 1;
+	}
+	else {
+		return ch;
+	}
+}
+
+void obr(int x, int y, int x1, int y1) {
+	int kol = 1;
+	while (x != x1 || y != y1) {
+		pii p = pr[x][y];
+		x = p.X;
+		y = p.Y;
+		kol++;
+	}
+	forn(i, MAXN) {
+		memset(used1[i], 0, sizeof(bool) * MAXN);
+	}
+	int ch = dfs1(x, y);
+	ans += min(kol, ch);
+}
+
+void dfs(int x, int y) {
+	used[x][y] = 1;
+	if (A[x][y] == 'w' || A[x][y] == 'W') {
+		if (used[x][y - 1] == 1) {
+			obr(x, y, x, y - 1);
+		}
+		else {
+			if (used[x][y - 1] == 0) {
+				pr[x][y - 1] = mk(x, y);
+				dfs(x, y - 1);
+			}
+		}
+	}
+	if (A[x][y] == 'e' || A[x][y] == 'E') {
+		if (used[x][y + 1] == 1) {
+			obr(x, y, x, y + 1);
+		}
+		else {
+			if (used[x][y + 1] == 0) {
+				pr[x][y + 1] = mk(x, y);
+				dfs(x, y + 1);
+			}
+		}
+	}
+	if (A[x][y] == 'n' || A[x][y] == 'N') {
+		if (used[x - 1][y] == 1) {
+			obr(x, y, x - 1, y);
+		}
+		else {
+			if (used[x - 1][y] == 0) {
+				pr[x - 1][y] = mk(x, y);
+				dfs(x - 1, y);
+			}
+		}
+	}
+	if (A[x][y] == 's' || A[x][y] == 'S') {
+		if (used[x + 1][y] == 1) {
+			obr(x, y, x + 1, y);
+		}
+		else {
+			if (used[x + 1][y] == 0) {
+				pr[x + 1][y] = mk(x, y);
+				dfs(x + 1, y);
+			}
+		}
+	}
+	used[x][y] = 2;
+}
+
+int main() {
+	file();
+	int g;
+	scanf("%d%d%d", &n, &m, &g);
+	forn(i, n) {
+		forn(j, m) {
+			scanf(" %c", &A[i][j]);
+		}
+	}
+	ans = 0;
+	forn(i, n) {
+		forn(j, m) {
+			if (!used[i][j]) {
+				dfs(i, j);
+			}
+		}
+	}
+	printf("%d", ans);
+	return 0;
+}

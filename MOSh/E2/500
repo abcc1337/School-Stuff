@@ -1,0 +1,47 @@
+def main():
+	inf = open("typing.in", "r")
+	outf = open("typing.out", "w")
+
+	m, n, L = map(int, inf.readline().split())
+	s = inf.readline()
+	arr = []
+	sum_costs = 0
+	for i in range(n):
+		x, y = map(str, inf.readline().split())
+		sum_costs += int(x)
+		arr.append((x, y))
+	dst = [[100000000] * (m + 1) for i in range(m + 1)]
+	for st in range(m):
+		for fn in range(st + 1, m + 1):
+			leng = fn - st
+			for i in arr:
+				if (len(i[1]) >= leng):
+					if (s[st:fn] == i[1][:leng] or s[st:fn] == i[1][-leng:]):
+						dst[st][fn] = min(dst[st][fn], int(i[0]))
+	# for i in dst:
+	# 	print(i)
+	used = [False] * (m + 1)
+	d = [100000] * (m + 1)
+	d[0] = 0
+	for go in range(m + 1):
+		minind = -1
+		mindist = 100000
+		for i in range(m + 1):
+			if (not used[i] and d[i] <= mindist):
+				mindist = d[i]
+				minind = i
+		if (minind == -1):
+			break
+		used[minind] = True
+		for to in range(m + 1):
+			if (dst[minind][to] != 100000000):
+				d[to] = min(d[to], d[minind] + dst[minind][to])
+	if (d[m] >= 50000):
+		print(-1, file = outf)
+	else:
+		print(d[m], file = outf)
+
+	inf.close()
+	outf.close()
+
+main()

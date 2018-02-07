@@ -1,0 +1,234 @@
+#include <stdio.h>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <time.h>
+
+using namespace std;
+
+#define pb push_back
+#define mp make_pair
+#define For(i,n) for(int i=0;i<(n);i++)
+#define FOR(i,a,b) for(int i=(a);i<(b);i++)
+#define x first
+#define y second
+#define all(v) (v).begin(),(v).end()
+
+typedef long long int ll;
+typedef pair<int,int> point;
+
+struct ST{
+	ST(){
+		size=0;
+	}
+	ST(int n){
+		int i=0;
+		while((1<<i)<2*n) i++;
+		t.assign(1<<i,0);
+		size=n;
+	}
+	void assign(int n){
+		int i=0;
+		while((1<<i)<=2*n) i++;
+		t.assign(1<<i,0);
+		size=n;
+	}
+	int size;
+	int ask(int p){
+		return q(1,0,size-1,p);
+	}
+	void mod(int l,int r,int p){
+		modify(1,0,size-1,l,r,p);
+	}
+private:
+	vector<int> t;
+	int q(int v,int l,int r,int p){
+		if(t[v]!=-1) return t[v];
+		if(l==r) return -1;
+		int m=(l+r)/2;
+		if(p>m){
+			return q(2*v+1,m+1,r,p);
+		}
+		return q(2*v,l,m,p);
+	}
+	void modify(int v,int l,int r,int l1,int r1,int p){
+		if(l1>r1) return;
+		if(l==l1&&r==r1){
+			t[v]=p;
+			return;
+		}
+		if(t[v]!=-1){
+			t[2*v]=t[v];
+			t[2*v+1]=t[v];
+			t[v]=-1;
+		}
+		int m=(l+r)/2;
+		modify(2*v,l,m,l1,min(r1,m),p);
+		modify(2*v+1,m+1,r,max(m+1,l1),r1,p);
+	}
+
+
+
+};
+
+struct ST2{
+	ST2(){
+		size=0;
+	}
+	ST2(int n){
+		int i=0;
+		while((1<<i)<2*n) i++;
+		t.assign(1<<i,0);
+		a.assign(1<<i,0);
+		size=n;
+	}
+	void assign(int n){
+		int i=0;
+		while((1<<i)<2*n) i++;
+		t.assign(1<<i,0);
+		a.assign(1<<i,0);
+		size=n;
+	}
+	int size;
+	int ask(){
+		return t[1]+a[1];
+	}
+	void mod(int l,int r,int p){
+		modify(1,0,size-1,l,r,p);
+	}
+private:
+	vector<int> t,a;
+	void modify(int v,int l,int r,int l1,int r1,int p){	
+		if(l1>r1) return;
+		if(l==l1&&r==r1){
+			a[v]+=p;
+			return;
+		}
+		int m=(l+r)/2;
+		modify(2*v,l,m,l1,min(r1,m),p);
+		modify(2*v+1,m+1,r,max(m+1,l1),r1,p);
+		t[v]=min(t[2*v]+a[2*v],t[2*v+1]+a[2*v+1]);
+	}
+
+
+
+};
+
+
+
+
+
+
+void solve(int n){
+	ST l1,r1;
+	vector<point> v;
+	vector<int> len;
+	point p,pr=mp(-1,-1);
+	ll ans=0;
+	int k,mx=-1,mnx=1e9,mny=1e9,pos;
+	scanf("%d",&k);
+	For(i,n){
+		scanf("%d%d",&p.x,&p.y);
+		mx=max(mx,p.y);
+		mnx=min(mnx,p.x);
+		mny=min(mny,p.y);
+		v.pb(p);
+	}
+	For(i,n){
+		v[i].x-=mnx;
+		v[i].y-=mny;
+	}
+	mx-=mny;
+	l1.assign(mx+1);
+	r1.assign(mx+1);
+	For(i,n){
+		if(v[i].x==v[(i+1)%n].x){
+			if(v[i].y>v[(i+1)%n].y){
+				l1.mod(v[(i+1)%n].y,v[i].y-1,v[i].x);
+			}
+			else{
+				r1.mod(v[i].y,v[(i+1)%n].y-1,v[i].x);
+			}
+		}
+	}
+	len.assign(k,0);
+	vector<int> l,r;
+	For(i,mx){
+		l.pb(l1.ask(i));
+		r.pb(r1.ask(i));
+	}
+	if(k==1){
+		For(i,mx){
+			ans+=r[i]-l[i];
+		}
+		printf("%I64d",ans);
+		return;
+	}
+
+	For(i,mx){
+		ans+=(r[i]-l[i]+k-1)/k;
+		len[(r[i]-l[i])%k]++;
+	}
+	For(i,mx){
+		if(l[i]==0){
+			pos=i;
+			break;
+		}
+	}
+
+
+	ST2 answ(k);
+	For(i,mx){
+		int p1,p2,md;
+		md=(r[i]-l[i])%k;
+		if(md==1) continue;
+		if(md==0) md+=k;
+		p1=k-md+1;
+		p2=k-1;
+		p1-=l[i]-k*(((int)1e9)/k)-(i-pos);
+		p2-=l[i]-k*(((int)1e9)/k)-(i-pos);
+		p1%=k;
+		p2%=k;
+		if(p1>p2){
+			answ.mod(0,p2,1);
+			answ.mod(p1,k-1,1);
+		}
+		else{
+			answ.mod(p1,p2,1);
+		}
+	}
+	ans+=answ.ask();
+	printf("%I64d",ans);
+
+
+
+
+
+#ifdef _DEBUG
+	printf("\n\nTime in ms: %0.lf\n\n",(double)clock()*1000/CLOCKS_PER_SEC);
+#endif
+}
+
+int main(){
+#pragma comment(linker,"/STACK:536870912")
+#ifdef _DEBUG
+	freopen("input.txt","rt",stdin);
+	freopen("output.txt","wt",stdout);
+#else
+	freopen("monument.in","rt",stdin);
+	freopen("monument.out","wt",stdout);
+#endif
+	int n;
+	ll a;
+	while(scanf("%d",&n)==1) solve(n);
+
+	return 0;
+}
+
+
+
+
+
+
+
+

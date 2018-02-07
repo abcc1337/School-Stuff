@@ -1,0 +1,40 @@
+var
+  q, w, ee, e, n, s, i, j,sum,max: uint64;
+  a:array[1..1000000000]of uint64;
+  t: text;
+
+begin
+  assign(t, 'castle.in');
+  reset(t);
+  readln(t, n, s);
+  e := 1;
+  ee := 1;
+  for i := 1 to n do
+  begin
+    readln(t, q, w);
+    inc(sum,q);
+    inc(a[w],q - q mod w );
+    if q mod w<>0 then inc(a[q mod w],q mod w);
+    if w>max then max:=w;
+  end;
+  for i := max  downto 1 do
+  begin
+    if s >= a[i]div i then 
+    begin
+    dec(s,a[i]div i);
+    dec(sum,a[i]);      
+    end else
+    begin
+    dec(sum,s * i);
+    s:=0;
+    end;
+    if s=0 then break;
+  end;
+  
+  
+  close(t);
+  assign(t, 'castle.out');
+  rewrite(t);
+  if sum<s then write(t,0)else writeln(t,sum-s);
+  close(t);
+end.

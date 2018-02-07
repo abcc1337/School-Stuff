@@ -1,0 +1,99 @@
+#include <iostream>
+#include <set>
+#include <map>
+#include <cstdio>
+#include <fstream>
+#include <algorithm>
+#include <cmath>
+#include <vector>
+using namespace std;
+#define forn(i, n) for(int i = 0; i < n; i++)
+#define pb push_back
+#define mp make_pair
+#define sz(a) a.size()
+#define rs(a, n) a.resize(n)
+#define re return
+#define fi first
+#define se second
+typedef long long ll;
+typedef long double ld;
+vector<int> a[100000], b[100000];
+vector<pair<int, int> >b1[100000];
+vector<int> use(100000, 0), use1(100000, 0);
+vector<int> d, rd;
+ll ans = 0;
+/*int dfs(int nu){
+  use[nu] = 1;
+  forn(i, sz(a[nu])){
+    if(use[a[nu][i]])continue;
+    dfs(a[nu][i]);
+    if(use[a[nu][i]] == 2 && d[a[nu][i]] >= b[nu][i])use[nu] = 2;
+    if(use[a[nu][i]] == 1 && d[nu] < b[nu][i]){
+        cout << nu << " " << a[nu][i] << d[nu] << " " << d[st] << endl;
+        ans++;
+    }
+  }
+}*/
+void df1(int nu, int d1, int t){
+  use[nu] = t;
+  forn(i, sz(a[nu])){
+    int to = a[nu][i];
+    if(d1 >= b[nu][i] && use1[to] == 1 && use[to] != t){
+      ans--;
+      use1[to] = 0;
+    }
+    if(d1 >= b[nu][i] && use[to] != t){
+      df1(to, max(d1 - b[nu][i], d[to]), t);
+    }
+  }
+}
+
+int df(int nu, int d1){
+ use[nu] = 1;
+ int ans = d1, pra = -1, i = 0;
+while(pra != ans && i < sz(a[nu])){ pra = ans;
+   while(d1 >= b[nu][i]) {
+   if(d1 >= b[nu][i] && use[a[nu][i]] == 0){
+     ans = max(ans, df(a[nu][i], max(ans - b[nu][i], d[a[nu][i]])) - b[nu][i]);
+   } i++;
+ }
+}
+ return ans;
+}
+int main(){
+    freopen("alarm.in", "r", stdin);
+    freopen("alarm.out", "w", stdout);
+    ll n, st, fi, we;
+    cin >> n;
+    d.resize(n);
+    forn(i, n)cin >> d[i];
+    forn(i, n - 1){
+        cin >> st >> fi >> we;
+        st--; fi--;
+        b1[st].push_back(mp(we, fi));
+        b1[fi].push_back(mp(we, st));
+
+    }
+    forn(i, n){
+      sort(b1[i].begin(), b1[i].end());
+      forn(j, sz(b1[i])){
+        a[i].pb(b1[i][j].second); b[i].pb(b1[i][j].first);
+      }
+    }
+    rd.resize(n);
+    forn(i, n){
+      use.assign(n, 0);
+      rd[i] = df(i, d[i]);
+    }
+    d = rd;
+    use.assign(n, 0);
+    forn(i, n){
+      if(use[i] == 0){
+      use1[i] = 1;
+      df1(i, d[i], i + 1);ans++;
+      }
+    }
+    cout << ans << endl;
+    re 0;
+}
+

@@ -1,0 +1,25 @@
+import sys
+sys.stdin = open("castle.in")
+sys.stdout = open("castle.out", "w")
+
+from sys import setrecursionlimit
+import threading
+setrecursionlimit(10 ** 9)
+threading.stack_size(67108864)
+
+def main():
+    n, s = map(int, input().split())
+    s1 = 0
+    for i in range(n):
+        a, k = map(int, input().split())
+        s1 += a
+    if s > s1:
+        print(0)
+    else:
+        print(s1 - s)
+
+thread = threading.Thread(target=main)
+thread.start()
+
+sys.stdin.close()
+sys.stdout.close()

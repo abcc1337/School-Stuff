@@ -1,0 +1,55 @@
+def p2(a):
+    s = ''
+    while a != 1:
+        d = a % 2
+        s += str(d)
+        a = a // 2
+    s += str(a)
+    return s
+
+f = open('grants.in', 'r')
+x = f.readlines()
+f.close()
+g = [1]
+t = int(x[0])
+for i in range(60):
+    g.append(g[-1] * 2)
+f = open('grants.out', 'w')
+for i in range(t):
+    n = int(x[i + 1])
+    if n < 3:
+        f.write(str(n) + ' 0 0' + '\n')
+        continue
+    if n % 3 == 0:
+        v = n // 3
+        f.write((str(v) + ' ') * 3 + '\n')
+        continue
+    used = []
+    j = 60
+    otv = []
+    while j >= 0:
+        if n < 3:
+            break
+        p = n / 3
+        while g[j] > p and j >=0:
+            j -= 1
+        y = j
+        o = n - g[y] * 3
+        w = p2(o)
+        k = True
+        used.append(y)
+        for l in range(len(used)):
+            if used[l] < len(w) and w[used[l]] == '1':
+                k = False
+                break
+        if k == True:
+            n = o
+            otv.append(y)
+        else:
+            used.pop()
+            j -= 1
+    su = 0
+    for l in range(len(otv)):
+        su += g[otv[l]]
+    f.write(str(su + n) + ' ' + str(su) + ' ' + str(su) + '\n')
+f.close()

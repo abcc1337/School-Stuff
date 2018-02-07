@@ -1,0 +1,127 @@
+#include <iostream>
+#include <cstdio>
+#include <iomanip>
+#include <cstring>
+#include <string>
+#include <vector>
+#include <set>
+#include <map>
+#include <queue>
+#include <bitset>
+#include <algorithm>
+#include <cassert>
+#include <ctime>
+
+using namespace std;
+
+vector<int> par;
+vector<vector<int> > v, sparse;
+vector<int> euler, depth, pow2(200008), fin;
+
+void build_euler(int ver, int d) {
+	euler.push_back(ver);
+	depth.push_back(d);
+	for (auto x : v[ver])
+		build_euler(x, d + 1), euler.push_back(ver), depth.push_back(d);
+	
+}
+
+void build_sparse() {
+	for (int i = 1; (1 << i) < 200005; i++) {
+		pow2[1 << i]++;
+	}
+	for (int i = 1; i < 200005; i++)
+		pow2[i] += pow2[i - 1];
+	sparse.resize(pow2[euler.size()] + 1);
+	sparse[0].resize(euler.size());
+	for (int i = 0; i < euler.size(); i++)
+		sparse[0][i] = i;
+	for (int i = 1; i <= pow2[euler.size()]; i++) {
+		sparse[i].resize(euler.size() - (1 << i) + 1);
+		for (int j = 0; j < sparse[i].size(); j++) {
+			int v1 = sparse[i - 1][j];
+			int v2 = sparse[i - 1][j + (1 << (i - 1))];
+			sparse[i][j] = (depth[v1] < depth[v2] ? v1 : v2);
+		}
+	}
+}
+
+void build_array() {
+	for (int i = 0; i < euler.size(); i++)
+		fin[euler[i]] = i;
+}
+
+int getlca(int x, int y) {
+	//input:x = fin[v1], y = fin[v2];
+	int v1 = x, v2 = y;
+	if (v1 > v2)
+		swap(v1, v2);
+	int pw = pow2[v2 - v1 + 1];
+	return depth[sparse[pw][v1]] < depth[sparse[pw][v2 - (1 << pw) + 1]] ? sparse[pw][v1] : sparse[pw][v2 - (1 << pw) + 1];
+}
+
+int getcommonline(int x1, int y1, int x2, int y2) {
+	if (depth[x1] > depth[y1])
+		swap(x1, y1);
+	if (depth[x2] > depth[y2])
+		swap(x2, y2);
+	int lc = getlca(y1, y2);
+	if (depth[lc] < depth[x1] || depth[lc] < depth[x2])
+		return 0;
+	int dwn = depth[lc];
+	int upp = max(depth[x1], depth[x2]);
+	return dwn - upp;
+}
+
+int getcommon(int x1, int y1, int x2, int y2) {
+	int fx1 = fin[x1], fy1 = fin[y1], fx2 = fin[x2], fy2 = fin[y2];
+	int lca1 = getlca(fx1, fy1), lca2 = getlca(fx2, fy2);
+	return getcommonline(fx1, lca1, fx2, lca2) +
+		getcommonline(fx1, lca1, fy2, lca2) +
+		getcommonline(fy1, lca1, fx2, lca2) +
+		getcommonline(fy1, lca1, fy2, lca2);
+}
+
+int main()
+{
+	//freopen("input.txt", "r", stdin);
+	//freopen("output.txt", "w", stdout);
+	freopen("twopaths.in", "r", stdin);
+	freopen("twopaths.out", "w", stdout);
+	int n, k;
+	scanf("%d%d", &n, &k);
+	v.resize(n);
+	fin.resize(n + 1);
+	for (int i = 0; i < n - 1; i++) {
+		int t;
+		scanf("%d", &t);
+		v[t - 1].push_back(i + 1);
+	}
+	build_euler(0, 0);
+	build_sparse();
+	build_array();
+	vector<pair<int, int> > queries;
+	for (int i = 0; i < k; i++) 
+	{
+		int l, r;
+		cin >> l >> r;
+		l--, r--;
+		queries.push_back({ l, r });
+	}
+	int rs = 0, r1 = 1, r2 = 2;
+	int time = clock();
+	for (int i = 0; i < k; i++) {
+		for (int j = i + 1; j < k; j++) {
+			int q = getcommon(queries[i].first, queries[i].second, queries[j].first, queries[j].second);
+			if (q > rs)
+				rs = q, r1 = i + 1, r2 = j + 1;
+		}
+		if ((clock() - time) / CLOCKS_PER_SEC > 1) {
+			printf("%d\n%d %d\n", rs, r1, r2);
+			return 0;
+		}
+	}
+	printf("%d\n%d %d\n", rs, r1, r2);
+	return 0;
+}
+

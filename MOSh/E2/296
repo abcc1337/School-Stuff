@@ -1,0 +1,53 @@
+#include <bits/stdc++.h>
+#define fi first
+#define se second
+using namespace std;
+
+typedef long long ll;
+
+
+int main() {
+    freopen("typing.in", "r", stdin);
+    freopen("typing.out", "w", stdout);
+
+    int m, n, l;
+    cin >> m >> n >> l;
+
+    string s;
+    cin >> s;
+    s = "#" + s;
+
+    vector< pair<int, string> > a(n);
+    for (int i = 0; i < n; i++) {
+        cin >> a[i].fi >> a[i].se;
+    }
+
+    int dp[m + 1];
+    memset(dp, 127, sizeof dp);
+    const int INF = dp[0];
+    dp[0] = 0;
+
+    for (int i = 0; i <= m; i++) {
+        string cur = "";
+        for (int j = i + 1; j <= m; j++) {
+            cur += s[j];
+            for (int k = 0; k < n; k++) {
+                if (a[k].se.length() < cur.length()) continue;
+                if (a[k].se.substr(0, cur.length()) == cur) {
+                    dp[j] = min(dp[j], dp[i] + a[k].fi);
+                }
+                reverse(a[k].se.begin(), a[k].se.end());
+                if (a[k].se.substr(0, cur.length()) == cur) {
+                    dp[j] = min(dp[j], dp[i] + a[k].fi);
+                }
+                reverse(a[k].se.begin(), a[k].se.end());
+            }
+        }
+    }
+
+    if (dp[m] == INF) {
+        printf("%d\n", -1);
+    } else {
+        printf("%d\n", dp[m]);
+    }
+}

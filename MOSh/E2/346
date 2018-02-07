@@ -1,0 +1,85 @@
+#include <iostream>
+#include <cstdlib>
+#include <cstdio>
+#include <string>
+#include <cstring>
+#include <algorithm>
+#include <cmath>
+#include <vector>
+#include <set>
+#include <map>
+#include <queue>
+
+#define ll long long
+#define pii pair<int, int>
+#define mp make_pair
+#define pb push_back
+#define NAME "grants"
+#define FREOPEN freopen(NAME".in", "r", stdin); freopen(NAME".out", "w", stdout);
+
+using namespace std;
+
+ll n, m, x, a, b, a1, b1, x1, mn, mas[64], x2, m2;
+int i, t, j, z, tek, tek1;
+
+int main()
+{
+    FREOPEN
+    for (i = 0; i < 64; i++)
+        mas[i] = (1 << i);
+    scanf("%d", &t);
+    for(j = 0; j < t; j++){
+        scanf("%I64d", &n);
+        m = n / 3;
+        while (true){
+            x = n - m * 3;
+            tek = -1;
+            x2 = x;
+            m2 = m;
+            for (i = 0; x2 > 0 && m2 > 0; i++){
+                if ((x2 & 1) && (m2 & 1))
+                    tek = i;
+                x2 /= 2; m2 /= 2;
+            }
+            if (tek == -1)
+                break;
+            a = b = 0;
+            m2 = m;
+            for (z = 0; z < tek; z++){
+                if (m2 & 1)
+                    b += mas[z];
+                m2 /= 2;
+            }
+            b++;
+            a = mas[tek];
+            x2 = x;
+            for (z = 0; z < tek; z++){
+                if (x2 & 1)
+                    a -= mas[z];
+                x2 /= 2;
+            }
+            a = a / 3 + int(a % 3 != 0);
+
+            x1 = n - m * 3;
+            if ((x1 & 1) == 0){
+                x1 /= 2;
+                tek1 = -1;
+                x2 = x1;
+                m2 = m;
+                for (i = 0; x2 > 0 && m2 > 0; i++){
+                    if ((x2 & 1) && (m2 & 1))
+                        tek1 = i;
+                    x2 /= 2; m2 /= 2;
+                }
+                if (tek1 == -1)
+                    break;
+            }
+            m -= max(a, b);
+        }
+        if (tek == -1)
+            printf("%I64d %I64d %I64d\n", m + x, m, m);
+        else
+            printf("%I64d %I64d %I64d\n", m + x1, m + x1, m);
+    }
+    return 0;
+}

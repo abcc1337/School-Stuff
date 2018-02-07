@@ -1,0 +1,172 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+#define f first
+#define s second
+#define mp make_pair
+#define pb push_back
+#define sqr(x) (x) * (x)
+
+struct dnk
+{
+    int c, cnt, l;
+};
+
+const int LEN = 3100, INF = 36000;
+vector < dnk > q;
+vector <int> ar;
+dnk d;
+int n, res, use[LEN], res1, k, col, cnt[LEN], l, r, m, kol;
+
+int main()
+{
+    //freopen("video.in", "r", stdin);
+    //freopen("video.out", "w", stdout);
+
+    cin >> n;
+    d.c = 1;
+    d.cnt = 1;
+    d.l = 0;
+
+    q.pb(d);
+    col = 2;
+
+
+    for (int i = 1; i < n; i++)
+    {
+
+        for (int j = 1; j < LEN; j++)
+            use[j] = 0;
+        /*
+        kol++;
+        if (kol > INF)
+        {
+            while(1);
+        }
+        */
+        cout << "? " << q[q.size() - 1].l + 1 << " " << i + 1 << endl;
+        fflush(stdout);
+
+        cin >> res;
+
+        if (res == 1)
+            q[q.size() - 1].cnt++;
+        else
+        {
+            res1 = -1;
+
+            k = q.size() - 1;
+            cnt[k] = 1;
+            use[q[k].c] = 1;
+            for (int j = k - 1; j >= 0; j--)
+            {
+                cnt[j] = cnt[j + 1] + int(!use[q[j].c]);
+                use[q[j].c] = 1;
+            }
+
+            ar.clear();
+            for (int j = 0; j <= k; j++)
+                if (cnt[j] != cnt[j + 1])
+                    ar.pb(j);
+
+
+            l = 0;
+            r = ar.size() - 1;
+            while (l < r)
+            {
+                m = (l + r + 1) / 2;
+                /*
+                kol++;
+                if (kol > INF)
+                {
+                    while(1);
+                }
+                */
+
+                cout << "? " << q[ar[m]].l + 1 << " " << i + 1 << endl;
+                fflush(stdout);
+
+                cin >> res1;
+                if (res1 > cnt[ar[m]])
+                    r = m - 1;
+                else
+                    l = m;
+            }
+            /*
+            kol++;
+            if (kol > INF)
+            {
+                while(1);
+            }
+            */
+            cout << "? " << q[ar[l]].l + 1 << " " << i + 1 << endl;
+            fflush(stdout);
+
+            cin >> res1;
+
+            if (res1 == cnt[l])
+            {
+                d.cnt = 1;
+                d.c = q[ar[l]].c;
+                d.l = i;
+                q.pb(d);
+            }
+            else
+            {
+                d.cnt = 1;
+                d.c = col++;
+                d.l = i;
+                q.pb(d);
+            }
+
+            /*
+            while (k >= 0 && res != res1)
+            {
+                if (!use[q[k].c])
+                {
+                    use[q[k].c] = 1;
+
+                    cout << "? " << q[k].l + 1 << " " << i + 1 << endl;
+                    fflush(stdout);
+
+                    cin >> res1;
+                    if (res == res1)
+                    {
+                        d.cnt = 1;
+                        d.c = q[k].c;
+                        d.l = i;
+                        q.pb(d);
+                        break;
+                    }
+
+                    res = res1;
+                    res1 = -1;
+                }
+                k--;
+            }
+            if (k < 0)
+            {
+                d.c = col++;
+                d.cnt = 1;
+                d.l = i;
+                q.pb(d);
+            }
+            */
+        }
+    }
+
+    cout << "Ready!" << endl;
+    fflush(stdout);
+    cout << col - 1 << endl;
+    fflush(stdout);
+    for (int i = 0; i < q.size(); i++)
+    {
+        for (int j = 0; j < q[i].cnt; j++)
+        {
+            cout << q[i].c << " ";
+            fflush(stdout);
+        }
+    }
+
+    return 0;
+}

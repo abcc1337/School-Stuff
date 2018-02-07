@@ -1,0 +1,102 @@
+var nach: array[2..20000] of integer;
+lvl: array[1..20000] of integer;
+paths: array[1..20000] of array of integer;
+pathlen,point: array[1..20000] of integer;
+rabs: array[1..20000] of array of integer;
+n,k,way1,way2,m1,m2,m,x,y,count,ku1,ku2: integer;
+f: text;
+
+procedure setlvl(user,ulvl: integer);
+var i: integer;
+begin
+lvl[user]:=ulvl;
+if (length(rabs[user])>0) then
+for i:=0 to length(rabs[user])-1 do
+setlvl(rabs[user][i],ulvl+1);
+end;
+
+procedure addpoint(path,user: integer);
+begin
+setlength(paths[path],length(paths[path])+1);
+paths[path][length(paths[path])-1]:=user;
+count:=count+1;
+end;
+
+begin
+assign(f,'twopaths.in');
+reset(f);
+readln(f,n,k);
+for x:=2 to n do
+begin
+read(f,nach[x]);
+setlength(rabs[nach[x]],length(rabs[nach[x]])+1);
+rabs[nach[x]][length(rabs[nach[x]])-1]:=x;
+end;
+
+setlvl(1,1);
+
+//for x:=1 to n do
+//writeln('lvl[',x,'] = ',lvl[x]);
+
+for x:=1 to k do
+begin
+read(f,ku1,ku2);
+count:=-1;
+addpoint(x,ku1);
+addpoint(x,ku2);
+while ku1<>ku2 do
+begin
+if lvl[ku1]<lvl[ku2] then
+begin
+ku2:=nach[ku2];
+if ku1<>ku2 then addpoint(x,ku2);
+end else
+begin
+ku1:=nach[ku1];
+if ku1<>ku2 then addpoint(x,ku1);
+end;
+end;
+point[x]:=ku1;
+pathlen[x]:=count;
+end;
+close(f);
+
+m:=-1;
+for way1:=1 to k-1 do
+for way2:=way1+1 to k do
+begin
+count:=0;
+
+while lvl[ku1]<>lvl[ku2] do
+begin
+if lvl[ku1]<lvl[ku2] then
+ku2:=nach[ku2] else ku1:=nach[ku1];
+end;
+
+if ku1=ku2 then
+for x:=0 to length(paths[way1])-1 do
+begin
+//t:=paths[way1][t];
+for y:=0 to length(paths[way2])-1 do
+if paths[way1][x] = paths[way2][y] then
+begin
+count:=count+1;
+break;
+end;
+end;
+if count>0 then count:=count-1;
+if count>m then
+begin
+m:=count;
+m1:=way1;
+m2:=way2;
+end;
+end;
+
+assign(f,'twopaths.out');
+rewrite(f);
+writeln(f,m);
+writeln(f,m1,' ',m2);
+close(f);
+
+end.

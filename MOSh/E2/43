@@ -1,0 +1,49 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <string>
+#include <map>
+#include <set>
+#include <algorithm>
+#include <cstdlib>
+#include <iomanip>
+
+using namespace std;
+
+//#define int long long
+int a[1000000];
+signed main() {
+	//freopen("input.txt", "r", stdin);
+	//freopen("output.txt", "w", stdout);
+
+	//freopen("video.in", "r", stdin);
+	//freopen("video.out", "w", stdout);
+
+	int n;
+	cin >> n;
+	a[1] = 1;
+	int maxx = 1;
+	for (int i = 2; i <= n; ++i) {
+		set <int> s;
+		for (int j = i - 1; j >= 1; --j) {
+			s.insert(a[j]);
+			cout << '?' << ' ' << j << ' ' << i << endl;
+			int k;
+			cin >> k;
+			if (k == s.size()) {
+				a[i] = a[j];
+				break;
+			}
+		}
+		if (!a[i]) {
+			a[i] = ++maxx;
+		}
+	}
+	cout << "Ready!" << endl;
+	cout << maxx << endl;
+	for (int i = 1; i <= n; ++i) {
+		cout << a[i] << ' ';
+	}
+	cout << endl;
+	return 0;
+}

@@ -1,0 +1,287 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+
+int main()
+{
+    freopen("fisher.in", "r", stdin);
+    freopen("fisher.out", "w", stdout);
+    long long n, m, p;
+    cin >> n >> m >> p;
+    long long x[n];
+    long long a[n];
+    long long y[m];
+    long long b[m];
+    long long c[m];
+   // vector<pair<long long, long long>> a(n + m);
+    for (long long i = 0; i < n; i++)
+    {
+        cin >> x[i] >> a[i];
+       // a.push_back(make_pair(x[i], 0));
+    }
+    for (long long i = 0; i < m; i++)
+    {
+        cin >> y[i] >> b[i] >> c[i];
+    }
+    if (p == 0)
+    {
+        long long s = 0;
+        for (long long i = 0; i < n; i++)
+        {
+            s += a[i];
+        }
+        //cout << s;
+        vector<pair<long long, long long>> ys;
+        for (long long i = 0; i < m; i++)
+        {
+            ys.push_back(make_pair(c[i], b[i]));
+        }
+        sort(ys.rbegin(), ys.rend());
+        long long now_s = 0;
+        long long ans = 0;
+        for (long long i = 0; i < m; i++)
+        {
+            if (now_s + ys[i].second >= s)
+            {
+                ans += (s - now_s) * ys[i].first;
+                break;
+            }
+            else
+            {
+                now_s += ys[i].second;
+                ans += ys[i].first * ys[i].second;
+            }
+        }
+        cout << ans;
+    }
+    else if (y[m - 1] < x[0])
+    {
+        vector<pair<long long, long long>> ys;
+        for (long long i = 0; i < m; i++)
+        {
+            ys.push_back(make_pair(c[i], b[i]));
+        }
+        sort(ys.rbegin(), ys.rend());
+        int imr = 0;
+        long long int rl = 0;
+        long long now_s;
+        long long s;
+        s = 0;
+        long long int ansans = 0;
+        long long int ans = 0;
+        for (int j = 0; j < n; j++)
+        {
+            now_s = s;
+            s += a[j];
+            for (long long i = imr; i < m; i++)
+            {
+                if (i == imr)
+                {
+                    ys[i].second -= rl;
+                    if (now_s + ys[i].second >= s)
+                    {
+                        ans += (s - now_s) * ys[i].first;
+                        ys[i].second += rl;
+                        rl += s - now_s;
+                        break;
+                    }
+                    else
+                    {
+                        now_s += ys[i].second;
+                        ans += ys[i].first * ys[i].second;
+                    }
+                    ys[i].second += rl;
+                    continue;
+                }
+                if (now_s + ys[i].second >= s)
+                {
+                    ans += (s - now_s) * ys[i].first;
+                    imr = i;
+                    rl = s - now_s;
+                    break;
+                }
+                else
+                {
+                    now_s += ys[i].second;
+                    ans += ys[i].first * ys[i].second;
+                }
+            }
+            ansans = max(ansans, ans - p * x[j]);
+        }
+        cout << ansans;
+    }
+    else
+    {
+        vector<pair<pair<long long, int>, int>> alls;
+        for (long long i = 0; i < m; i++)
+        {
+            alls.push_back(make_pair(make_pair(y[i], 1), i));
+        }
+        for (long long i = 0; i < n; i++)
+        {
+            alls.push_back(make_pair(make_pair(x[i], 0), i));
+        }
+        sort(alls.begin(), alls.end());
+        set<pair<pair<long long, long long>, int>> ys;
+        auto imr = ys.begin();
+        long long int rl = 0;
+        long long now_s;
+        long long s;
+        s = 0;
+        long long int ansans = 0;
+        long long int ans = 0;
+        for (int j = 0; j < n + m; j++)
+        {
+            if (alls[j].first.second == 0)
+            {
+                now_s = s;
+                s += a[alls[j].second];
+                for (auto i = imr; i != ys.end(); i++)
+                {
+                    if (i == imr)
+                    {
+                        auto tt = *i;
+                        ys.erase(i);
+                        ys.insert(make_pair(make_pair(tt.first.first, tt.first.second - rl), tt.second));
+                        i = ys.lower_bound(make_pair(make_pair(tt.first.first, tt.first.second - rl), tt.second));
+                        if (now_s + (i -> first).second >= s)
+                        {
+                            ans += (s - now_s) * (i -> first).first;
+                            ys.erase(i);
+                            ys.insert(make_pair(make_pair(tt.first.first, tt.first.second + rl), tt.second));
+                            i = ys.lower_bound(make_pair(make_pair(tt.first.first, tt.first.second + rl), tt.second));
+                            rl += s - now_s;
+                            break;
+                        }
+                        else
+                        {
+                            now_s += (i -> first).second;
+                            ans += (i -> first).first * (i -> first).second;
+                        }
+                        ys.erase(i);
+                        ys.insert(make_pair(make_pair(tt.first.first, tt.first.second + rl), tt.second));
+                        i = ys.lower_bound(make_pair(make_pair(tt.first.first, tt.first.second + rl), tt.second));
+                        continue;
+                    }
+                    if (now_s + (i -> first).second >= s)
+                    {
+                        ans += (s - now_s) * (i -> first).first;
+                        imr = i;
+                        rl = s - now_s;
+                        break;
+                    }
+                    else
+                    {
+                        now_s += (i -> first).second;
+                        ans += (i -> first).first * (i -> first).second;
+                    }
+                }
+                ansans = max(ansans, ans - p * x[alls[j].second]);
+            }
+            else
+            {
+                if (imr == ys.end())
+                {
+                    ys.insert(make_pair(make_pair(c[alls[j].second], b[alls[j].second]), alls[j].second));
+                    imr = ys.begin();
+                }
+                else
+                {
+                    auto tt = *imr;
+                    ys.insert(make_pair(make_pair(c[alls[j].second], b[alls[j].second]), alls[j].second));
+                    imr = ys.lower_bound(tt);
+                }
+                if (ys.upper_bound(make_pair(make_pair(c[alls[j].second], b[alls[j].second]), alls[j].second)) == ys.end())
+                {
+                    for (auto i = imr; i != ys.end(); i++)
+                    {
+                        if (i == imr)
+                        {
+                            auto tt = *i;
+                            ys.erase(i);
+                            ys.insert(make_pair(make_pair(tt.first.first, tt.first.second - rl), tt.second));
+                            i = ys.lower_bound(make_pair(make_pair(tt.first.first, tt.first.second - rl), tt.second));
+                            if (now_s + (i -> first).second >= s)
+                            {
+                                ans += (s - now_s) * (i -> first).first;
+                                ys.erase(i);
+                                ys.insert(make_pair(make_pair(tt.first.first, tt.first.second + rl), tt.second));
+                                i = ys.lower_bound(make_pair(make_pair(tt.first.first, tt.first.second + rl), tt.second));
+                                rl += s - now_s;
+                                break;
+                            }
+                            else
+                            {
+                                now_s += (i -> first).second;
+                                ans += (i -> first).first * (i -> first).second;
+                            }
+                            ys.erase(i);
+                            ys.insert(make_pair(make_pair(tt.first.first, tt.first.second + rl), tt.second));
+                            i = ys.lower_bound(make_pair(make_pair(tt.first.first, tt.first.second + rl), tt.second));
+                            continue;
+                        }
+                        if (now_s + (i -> first).second >= s)
+                        {
+                            ans += (s - now_s) * (i -> first).first;
+                            imr = i;
+                            rl = s - now_s;
+                            break;
+                        }
+                        else
+                        {
+                            now_s += (i -> first).second;
+                            ans += (i -> first).first * (i -> first).second;
+                        }
+                    }
+                    ansans = max(ansans, ans - p * x[alls[j].second]);
+                }
+                else
+                {
+                    auto tmp5 = ys.lower_bound(make_pair(make_pair(c[alls[j].second], b[alls[j].second]), alls[j].second));
+                    long long del = 0;
+                    auto i = imr;
+                    for (i = imr; i != tmp5; i--)
+                    {
+                        if (i == imr)
+                        {
+                            if (rl + del < b[alls[j].second])
+                            {
+                                ans -= rl * (i -> first).first;
+                                rl = 0;
+                                del += rl;
+                            }
+                            else
+                            {
+                                ans -= (-del + b[alls[j].second]) * (i -> first).first;
+                                rl -= (-del + b[alls[j].second]);
+                                del = (tmp5 -> first).second;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if ((i->first).second + del < b[alls[j].second])
+                            {
+                                ans -= (i->first).second * (i -> first).first;
+                                rl = 0;
+                                del += (i->first).second;
+                            }
+                            else
+                            {
+                                ans -= (-del + b[alls[j].second]) * (i -> first).first;
+                                rl = (i->first).second - (-del + b[alls[j].second]);
+                                del = (tmp5 -> first).second;
+                                break;
+                            }
+                        }
+                    }
+                    imr = i;
+                    ans += min(del, (tmp5 -> first).second) * (tmp5 -> first).first;
+                    rl = del;
+                    ansans = max(ansans, ans - p * y[alls[j].second]);
+                }
+            }
+        }
+        cout << ansans;
+    }
+}

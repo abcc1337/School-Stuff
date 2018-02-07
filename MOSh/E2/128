@@ -1,0 +1,133 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+const int MAXN = 100100, MAXMEM = 1e7;
+
+char mem[MAXMEM];
+int memptr;
+
+void * operator new(size_t len)
+{
+	memptr += len;
+	return (void *)(mem + memptr - len);
+}
+
+void operator delete(void * p) {}
+
+
+int p[MAXN];
+int t;
+
+
+
+vector <int> g[MAXN];
+
+vector <int> order;
+
+int first[MAXN];
+
+int tin[MAXN], tout[MAXN];
+
+void dfs(int v)
+{
+	tin[v] = t++;
+	// first[v] = order.size();
+	// order.push_back(v);
+	for (int i = 0; i < (int)g[v].size(); ++i)
+	{
+		dfs(g[v][i]);
+		// order.push_back(v);
+	}
+	tout[v] = t++;
+}
+
+set <int> paths[MAXN];
+
+bool root(int a, int b)
+{
+	return (tin[a] <= tin[b] && tout[b] <= tout[a]);
+}
+
+
+
+int main()
+{	
+	freopen("twopaths.in", "r", stdin);
+	freopen("twopaths.out", "w", stdout);
+
+
+	int n, k;
+	scanf("%d%d", &n, &k);
+
+	for (int i = 1; i < n; ++i)
+	{
+		scanf("%d", &p[i]);
+		--p[i];
+		g[p[i]].push_back(i);
+	}
+
+	dfs(0);
+
+	for (int i = 0; i < k; ++i)
+	{
+		int a, b;
+		scanf("%d%d", &a, &b);
+		--a, --b;
+
+		while (!root(a, b))
+		{
+			paths[i].insert(a);
+			// printf("%d ", a);
+			a = p[a];
+		}
+		paths[i].insert(a);
+		// printf("%d ", a);
+		while (a != b)
+		{
+			paths[i].insert(b);
+			// printf("%d ", b);
+			b = p[b];
+		}
+		// printf("\n");
+	}
+
+	int ans = 1;
+	int inda = 1, indb = 2;
+
+	for (int i = 0; i < k; ++i)
+	{
+		for (int j = i + 1; j < k; ++j)
+		{
+			int cur = 0;
+			if (min(paths[i].size(), paths[j].size()) <= ans)
+				continue;
+			bool swapped = false;
+			if (paths[i].size() > paths[j].size())
+			{
+				swap(i, j);
+				swapped = true;
+			}
+
+			for (set <int> :: iterator it = paths[i].begin(); it != paths[i].end(); ++it)
+			{
+				if (paths[j].count(*it) == 1)
+					++cur;
+			}
+			if (swapped)
+				swap(i, j);
+			if (ans < cur)
+			{
+				ans = cur;
+				inda = i + 1;
+				indb = j + 1;
+			}
+		}
+	}
+
+	printf("%d\n%d %d\n", ans - 1, inda, indb);
+
+
+
+
+	return 0;
+}

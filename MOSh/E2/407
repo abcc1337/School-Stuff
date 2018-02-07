@@ -1,0 +1,104 @@
+#include <bits/stdc++.h>
+#define mp(a, b) make_pair(a, b)
+#define pb(a) push_back(a)
+
+using namespace std;
+
+typedef long long ll;
+
+const ll N = 1e6;
+const ll M = 101;
+const ll INF = 1e9;
+
+struct pt{
+    ll x, y;
+};
+
+pt a[N];
+
+ll mnx[N], mxx[N];
+ll mnx2[N], mxx2[N];
+
+bool cmp(pt a, pt b) {
+    return a.x < b.x || a.x == b.x && a.y < b.y;
+}
+
+bool cmp2(ll a, ll b) {
+        return a > b;
+}
+
+int main() {
+    freopen("monument.in", "r", stdin);
+    freopen("monument.out", "w", stdout);
+
+    ll n, k, maxy = -INF, miny = INF;
+    cin >> n >> k;
+    for (ll  i = 0; i < n; i++) {
+        cin >> a[i].x >> a[i].y;
+        miny = min(miny, a[i].y);
+        maxy = max(maxy, a[i].y);
+    }
+    maxy--;
+
+    vector <pt> dots;
+
+    sort(dots.begin(), dots.end(), cmp);
+
+    for (ll i = 0; i < n; i++) {
+        if (a[i].x == a[(i + 1) % n].x)
+            for (ll j = min(a[i].y, a[(i + 1) % n].y); j <= max(a[i].y, a[(i + 1) % n].y); j++) {
+                pt tmp;
+                tmp.x = a[i].x;
+                tmp.y = j;
+                dots.pb(tmp);}
+    }
+
+    fill(mnx2, mnx2 + 1000001, INF);
+    fill(mxx2, mxx2 + 1000001, -INF);
+
+    for (ll i = 0; i < dots.size(); i++) {
+        mnx2[(dots[i].y)] = min(mnx2[dots[i].y], dots[i].x);
+        mxx2[dots[i].y] = max(mxx2[dots[i].y], dots[i].x);
+    }
+
+    for (ll i = 0; i < dots.size(); i++) {
+        mnx[(dots[i].y)] = max(mnx2[dots[i].y], mnx2[dots[i].y + 1]);
+        mxx[dots[i].y] = min(mxx2[dots[i].y], mxx2[dots[i].y + 1]);
+    }
+
+
+
+    ll cursum = 0;
+
+    vector <ll> ql, qr;
+    for (ll i = miny; i <= maxy; i++) {
+        ql.pb((mnx[i] - i + k * k - 1) % k);
+        qr.pb((mxx[i] - i + k * k) % k);
+        cursum += ((mnx[i] - i + k * k - 1) % k) + ((mxx[i] - i + k * k) % k);
+    }
+
+    //sort(ql.begin(), ql.end());
+    //sort(qr.begin(), qr.end(), cmp2);
+
+    n = qr.size();
+
+    ll ans = INF;
+
+    //for (ll i = miny; i <= maxy; i++)
+      //  cout << mnx[i] << " " << mxx[i] << endl;
+
+    for (ll i = miny; i <= maxy; i++)
+        mnx[i] -= i - 1000 * k * k, mxx[i] -= i - 1000 * k * k;
+
+    for (ll i = 0; i <= 2 * k + 2; i++) {
+        ll curans = 0;
+        for (ll j = miny; j <= maxy; j++)
+            mnx[j]++, mxx[j]++;
+        for (ll j = miny; j <= maxy; j++)
+            curans += (mxx[j] + k - 1) / k - mnx[j] / k;
+        ans = min(ans, curans);
+        //cout << curans << endl;
+    }
+    cout << ans;
+
+}

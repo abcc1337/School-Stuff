@@ -1,0 +1,37 @@
+fin = open('fisher.in')
+fout = open('fisher.out', 'w')
+n, m, p = map(int, fin.readline().split())
+x = [0] * n
+a = [0] * n
+A = 0
+B = 0
+CB = 0
+for i in range(n):
+    x[i], a[i] = map(int, fin.readline().split())
+    A += a[i]
+cb = [0] * m
+y = [0] * m
+for i in range(m):
+    y[i], b, c = map(int, fin.readline().split())
+    cb[i] = (c, b)
+    B += b
+    CB += c * b
+ma = 0
+cb.sort(reverse = True)
+for i in range(n):
+    ans = - p * x[-i - 1]
+    if A >= B:
+        ans += CB
+    else:
+        s = A
+        j = 0
+        while s > 0:
+            ans += min(s, cb[j][1]) * cb[j][0]
+            s -= min(s, cb[j][1])
+            j += 1
+    if ans > ma:
+        ma = ans
+    A -= a[-i - 1]
+fout.write(str(ma))
+fin.close()
+fout.close()

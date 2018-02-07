@@ -1,0 +1,105 @@
+
+#include <iostream>
+#include <vector>
+#include <utility>
+
+using namespace std;
+
+#pragma comment (linker, "/STACK:1000000000")
+
+void fill_reachable(vector < vector < pair <int, int> > >& graph, vector <bool>& used, vector < vector <int> >& new_graph, int v, int left, int parent);
+
+void dfs(vector < vector <int> >& graph, vector <bool>& used, int v, vector <int>& topsort, bool need_push = true);
+
+int main()
+{
+	freopen("alarm.in", "r", stdin);
+	freopen("alarm.out", "w", stdout);
+
+	int n = 0;
+	cin >> n;
+
+	vector < vector < pair <int, int> > > graph(n);
+
+	vector <int> d(n);
+
+	for (int i = 0; i < n; i++)
+		cin >> d[i];
+
+	for (int i = 0; i < n - 1; i++)
+	{
+		int a = 0, b = 0, l = 0;
+		cin >> a >> b >> l;
+		a--; b--;
+
+		graph[a].push_back(make_pair(b, l));
+		graph[b].push_back(make_pair(a, l));
+	}
+
+	vector < vector < int > > new_graph(n);
+	vector <bool> used(n);
+
+	for (int i = 0; i < n; i++)
+	{
+		used = vector <bool>(n);
+
+		fill_reachable(graph, used, new_graph, i, d [i], i);
+	}
+
+	vector <int> topsort;
+	used = vector <bool>(n);
+
+	for (int i = 0; i < n; i++)
+		if (!used[i])
+			dfs(new_graph, used, i, topsort);
+
+	used = vector <bool>(n);
+
+	int res = 0;
+
+	for (int i = n - 1; i >= 0; i--)
+	{
+		if (!used[topsort[i]])
+		{
+			res++;
+			dfs (new_graph, used, topsort[i], topsort, false);
+		}
+	}
+
+	cout << res;
+
+	return 0;
+}
+
+void fill_reachable(vector < vector < pair <int, int> > >& graph, vector <bool>& used, vector < vector <int> >& new_graph, int v, int left, int parent)
+{
+	used[v] = true;
+
+	for (int i = 0; i < graph[v].size (); i++)
+	{
+		pair <int, int> e = graph[v][i];
+
+		if (!used[e.first] && e.second <= left)
+		{
+			new_graph[parent].push_back(e.first);
+
+			fill_reachable(graph, used, new_graph, e.first, left - e.second, parent);
+		}
+	}
+}
+
+void dfs(vector < vector <int> >& graph, vector <bool>& used, int v, vector <int>& topsort, bool need_push)
+{
+	used[v] = true;
+
+	for (int i = 0; i < graph[v].size(); i++)
+	{
+		int to = graph[v][i];
+
+		if (!used[to])
+			dfs(graph, used, to, topsort);
+	}
+
+	if (need_push)
+		topsort.push_back(v);
+}

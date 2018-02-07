@@ -1,0 +1,69 @@
+procedure svap(var a:int64;var b:int64);
+var c:int64;
+begin
+  c:=a;a:=b;b:=c;
+end;
+
+var
+   n,m,p,i,j,sumr,sumd:int64;    
+   f1,f2:text;
+   t,r,t1,r1,k1:array [1..500000] of int64; 
+begin
+  assign(f1,'fisher.in');
+  assign(f2,'fisher.out');
+  reset(f1);
+  readln(f1,n,m,p);
+  for i:=1 to n do 
+  begin
+    readln(f1,t[i],r[i]);
+    sumr:=sumr+r[i];
+  end;
+  for i:=1 to m do
+    readln(f1,t1[i],k1[i],r1[i]);//r1-цена,k1-кол-во
+  close(f1);
+  if p = 0 then
+  begin
+    //1 упорядочить стнации по стоимости рыбы
+    for i:=1 to m-1 do 
+    begin
+      for j:=i+1 to m do
+      begin
+        if r1[i]<r1[j] then
+        begin
+          svap(r1[i],r1[j]);
+          svap(k1[i],k1[j]);
+        end;
+      end;
+    end;
+      //writeln('отсортировал((');
+      //for i:=1 to m do
+      //writeln(r1[i],' ',k1[i]);
+    //2 посчитать всю рыбу
+    {for i:=1 to n do
+      sumr:=sumr+r[i];
+    //writeln('пойманная рыба',sumr);
+    }
+    //3 продать всё рыбу с начала масива
+    for i:=1 to m do
+    begin
+      //write('продаю ',i,' на');
+      if k1[i]<sumr then
+      begin
+         //writeln(k1[i]*r1[i]);
+         sumd:=sumd+k1[i]*r1[i];
+         sumr:=sumr-k1[i];
+      end else
+      begin
+        //writeln(sumr*r1[i]);
+        sumd:=sumd+sumr*r1[i];
+        break;
+      end;
+    end;
+    //write
+    rewrite(f2);
+    writeln(f2,sumd);
+    close(f2);
+  end;
+  
+  
+end.

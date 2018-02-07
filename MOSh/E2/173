@@ -1,0 +1,94 @@
+#pragma comment(linker, "/STACK:1000000000")
+
+#include <vector>
+#include <cstdio>
+#include <iostream>
+#include <algorithm>
+#include <string>
+#include <set>
+#include <stack>
+
+using namespace std;
+
+#define pb push_back
+#define pob pop_back
+#define mp make_pair
+
+typedef long long ll;
+typedef vector <int> vi;
+
+const int inf = (int)1e9 + 7;
+const int N = (int)1e5 + 4;
+const ll M = 19;
+
+int s[M], p[M];
+int a[3], aa[3];
+
+int main()
+{
+//	freopen("input.txt", "r", stdin);
+//	freopen("output.txt", "w", stdout);
+	freopen("grants.in", "r", stdin);
+	freopen("grants.out", "w", stdout);
+	int t;
+	scanf("%d", &t);
+	for (int j = 0; j < t; ++j)
+	{
+		int n;
+		scanf("%d", &n);
+		for (int i = 0; i < 3; ++i)
+			a[i] = 0;
+		for (ll i = 0; i <= n / 3; ++i)
+		{
+			for (int q = 0; q < 3; ++q)
+				aa[q] = 0;
+			int nn = i;
+			int kk = n - 3 * i;
+			for (int q = 0; q < M; ++q)
+			{
+				s[q] = nn % 2;
+				nn /= 2;
+			}
+			for (int q = 0; q < M; ++q)
+			{
+				p[q] = kk % 2;
+				kk /= 2;
+			}
+			for (int q = 0; q < 3; ++q)
+				aa[q] = i;
+			bool f = 0;
+			for (int q = 0; q < M; ++q)
+			{
+				if (q == 0 && s[0] == 1 && p[0] == 1)
+				{
+					f = 1;
+					break;
+				}
+				if (q > 0 && !(s[q - 1] == 0 && p[q - 1] == 0) && s[q] == 1 && p[q] == 1)
+				{
+					f = 1;
+					break;
+				}
+				if (p[q] == 1 && s[q] == 1)
+				{
+					aa[0] += (1 << (q - 1));
+					aa[1] += (1 << (q - 1));
+				}
+				else
+				{
+					if (p[q] == 1)
+						aa[0] += (1 << q);
+				}
+			}
+			if (!f)
+				for (int q = 0; q < 3; ++q)
+					a[q] = aa[q];
+		}
+		for (int i = 0; i < 3; ++i)
+			printf("%d ", a[i]);
+		printf("\n");
+	}
+
+
+	return 0;
+}

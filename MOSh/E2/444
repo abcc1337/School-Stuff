@@ -1,0 +1,129 @@
+#include <iostream>
+#include <cmath>
+#include <algorithm>
+#include <vector>
+#include <stdio.h>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+const int INF = 1000000000;
+const int N = 300000;
+struct node {
+	int min;
+	node *left, *right;
+	node(int new_min) {
+		min = new_min;
+		left = right = nullptr;
+	}
+};
+
+int get_min(node *root) {
+	if (root == nullptr) {
+		return INF;
+	}
+	return root->min;
+}
+void comb(node *root) {
+	root->min = min(min(get_min(root->left), get_min(root->right)), root->min);
+}
+
+node* insert(node *root, string &s, int ind, int cost) {
+	if (root == nullptr) {
+		root = new node(INF);
+	}
+	if (ind == s.size()) {
+		root->min = min(root->min, cost);
+		return root;
+	}
+	if (s[ind] == '0') {
+		root->left = insert(root->left, s, ind + 1, cost);
+		comb(root);
+		return root;
+	}
+	else {
+		root->right = insert(root->right, s, ind + 1, cost);
+		comb(root);
+		return root;
+	}
+}
+int dp[N];
+
+int main()
+{
+	freopen("typing.in", "r", stdin);
+	freopen("typing.out", "w", stdout);
+
+	int m, n, l;
+	cin >> m >> n >> l;
+	string s;
+	cin >> s;
+	s = ' ' + s;
+	string g = s;
+	reverse(g.begin(), g.end());
+	node *root = nullptr;
+	node *suff = nullptr;
+	for (int i = 0; i < n; i++) {
+		int cost;
+		cin >> cost;
+		string p;
+		cin >> p;
+		root = insert(root, p, 0, cost);
+		reverse(p.begin(), p.end());
+		suff = insert(suff, p, 0, cost);
+	}
+	dp[0] = 0;
+	for (int i = 1; i <= m; i++) {
+		dp[i] = INF;
+	}
+	for (int i = 1; i <= m; i++) {
+		for (int j = 1; j <= i; j++) {
+			node *cur = root;
+			for (int a = j; a <= i; a++) {
+				if (s[a] == '0') {
+					cur = cur->left;
+				}
+				else {
+					cur = cur->right;
+				}
+				if (cur == nullptr) {
+					break;
+				}
+			}
+			dp[i] = min(dp[i], dp[j - 1] + get_min(cur));
+
+			node *cur = suff;
+			for (int a = j; a <= i; a++) {
+				if (s[a] == '0') {
+					cur = cur->left;
+				}
+				else {
+					cur = cur->right;
+				}
+				if (cur == nullptr) {
+					break;
+				}
+			}
+			dp[i] = min(dp[i], dp[j - 1] + get_min(cur));
+		}
+
+	}
+
+	if (dp[m] >= INF) {
+		cout << -1 << endl;
+	}
+	else {
+		cout << dp[m] << endl;
+	}
+	//for (;;);
+}
+
+/*
+
+9 2 8
+000110100
+1 100
+1 11001
+
+*/

@@ -1,0 +1,119 @@
+#define MAXL 1000
+#define EPS 1e-9
+
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <cstring>
+#include <algorithm>
+#include <map>
+#include <set>
+#include <queue>
+
+using namespace std;
+
+#define NAME "repair"
+#define mp(a, b) make_pair(a, b)
+typedef long long LL;
+
+int up, down, lefty, righty;
+int a, b, n, q;
+
+int hashi(int x, int y)
+{
+	return x * (max(a, b) + 1) + y;
+}
+
+bool check(int x, int y)
+{
+	return x >= up && x <= down && y >= lefty && y <= righty;
+}
+
+pair<int, int> unpack(int x)
+{
+	return mp(x / (max(a, b) + 1), x % (max(a, b) + 1));
+}
+int K = 0;
+
+void puton(int x, int y, int x2, int y2, vector<map<int, bool> >  &here, map<int, int> &trans, vector<vector<int> > &g, map<int, int> &back)
+{
+	int tmp = hashi(x, y);
+	here[x][y] = true;
+	here[x2][y2] = true;
+	if (trans[tmp] == 0)
+		trans[tmp] = K + 1, ++K, back[K] = tmp;
+	tmp = trans[tmp];
+	int t2 = hashi(x2 , y2);
+	if (trans[t2] == 0)
+		trans[t2] = K + 1, ++K, back[K] = t2;
+	t2 = trans[t2];
+	g[tmp].push_back(t2);
+}
+
+int main()
+{
+	freopen(NAME".in", "r", stdin);
+	freopen(NAME".out", "w", stdout);
+
+
+	scanf("%d%d%d%d\n", &a, &b, &n, &q);
+	int more = max(a, b) + 100;
+	int all = more * more + 100;
+	vector<map<int, bool> >  here(more);
+	map<int, int> trans, back;
+	vector<vector<int> > g(2 * n + 1);
+	for (int i = 0; i < n - 1; ++i)
+	{
+		char c;
+		int x, y;
+		scanf("%c %d %d\n", &c, &x, &y);
+		if (c == 'h')
+			puton(x, y, x + 1, y, here, trans, g, back),
+			puton(x + 1, y, x, y, here, trans, g, back);
+		else
+			puton(x, y, x, y + 1, here, trans, g, back),
+			puton(x, y + 1, x, y, here, trans, g, back);
+	}
+
+	for (int t = 0; t < q; ++t)
+	{
+		int ans = 0;
+		map<int, bool> used;
+		scanf("%d%d%d%d", &up, &lefty, &down, &righty);
+		for (int i = up; i <= down; ++i)
+		{
+			for (auto it = here[i].lower_bound(lefty); it != here[i].upper_bound(righty); ++it)
+			{
+				int h = trans[hashi(i, it->first)];
+				if (used[h] || !check(i, it->first))
+					continue;
+
+				++ans;
+				queue<int> q;
+				q.push(h);
+				used[h] = true;
+				while (!q.empty())
+				{
+					int v = q.front();
+					q.pop();
+					vector<int> gv = g[v];
+					for (int k = 0; k < gv.size(); ++k)
+					{
+						int to = gv[k];
+						pair<int, int> tmp = unpack(back[to]);
+						if (check(tmp.first, tmp.second) && !used[to])
+						{
+							q.push(to);
+							used[to] = true;
+						}
+					}
+				}
+			}
+		}
+		printf("%d\n", ans);
+	}
+	return 0;
+}

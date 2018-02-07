@@ -1,0 +1,109 @@
+type
+  boolf = array[1..61] of byte;
+
+function toBoolF(x: qword): boolf;
+var
+  i: byte;
+begin
+  for i:=1 to 61 do
+    begin
+      toBoolF[i]:=x and 1;
+      x := x shr 1;
+    end;
+end;
+
+var
+  n, i: longint;
+  c, a1, a2, a3: qword;
+  nb: boolf;
+  fl, flo: text;
+  p: array[0..61] of qword;
+
+procedure MakeP;
+var
+  i: byte;
+begin
+  p[0]:=1;
+  for i:=1 to 61 do
+    p[i]:=2*p[i-1];
+end;
+
+procedure MakeAns;
+var
+  i, si, m1, m11, m2: int64;
+  j: longint;
+  cm, cg: BoolF;
+  f: boolean;
+begin
+  i:=c div 3;
+  while i>=0 do
+    begin
+      cm:=toBoolF(i);
+      cg:=toBoolF(c-3*i);
+      //writeln(cg[2]);
+      a1:=i; a2:=i; a3:=i;
+      f:=false;
+      for j:=61 downto 2 do if cg[j]=1 then
+        begin
+          if cm[j]=0 then
+            a3:=a3+p[j-1]
+          else
+            begin
+              if cm[j-1]=0 then
+                begin
+                  a1:=a1+p[j-2];
+                  a2:=a2+p[j-2];
+                end
+              else
+                begin
+                  f:=true;
+                  m1:=((i shr (j-1)) shl (j-1));
+                  m11:=((i shr (j-2)) shl (j-2));
+                  m2:=(c-(((((c-3*i) shr (j-1))+1) shl (j-1))-1)) div 3;
+                  if m1>m2 then
+                    si:=m1
+                  else
+                    si:=m2;
+                  if m11>si then
+                    si:=m11;
+                  if si>=i then si:=i-1;
+                  break;
+                end;
+            end;
+        end;
+      if f then
+        begin
+          i:=si;
+          continue;
+        end;
+      if cg[1]=1 then
+        begin
+          if cm[1]=0 then
+            a3:=a3+1
+          else
+            begin
+              i:=i-1;
+              continue;
+            end;
+        end;
+      break;
+    end;
+end;
+
+begin
+  MakeP;
+  assign(fl, 'grants.in');
+  reset(fl);
+  assign(flo, 'grants.out');
+  rewrite(flo);
+  readln(fl, n);
+  for i:=1 to n do
+    begin
+      readln(fl, c);
+      nb:=toBoolF(c);
+      MakeAns;
+      writeln(flo, a1,' ',a2,' ',a3);
+    end;
+  close(fl);
+  close(flo);
+end.

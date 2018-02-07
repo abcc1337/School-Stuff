@@ -1,0 +1,299 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <cstring>
+
+using namespace std;
+
+int n, m, g;
+char a[1001][1001];
+bool used[1001][1001];
+bool used2[1001][1001];
+bool used3[1001][1001];
+int pp[1001][1001];
+
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    freopen("robots.in", "r", stdin);
+    freopen("robots.out", "w", stdout);
+    //freopen("input.txt", "r", stdin);
+    //freopen("output.txt", "w", stdout);
+    cin >> n >> m >> g;
+    if (g == 1)
+    {
+        return 0;
+    }
+
+    for (int i = 1; i <= n; i++)
+    {
+        for (int g = 1; g <= m; g++)
+        {
+            cin >> a[i][g];
+        }
+    }
+
+    int ans = 0;
+
+    for (int i = 1; i <= n; i++)
+    {
+        for (int g = 1; g <= m; g++)
+        {
+            if (used3[i][g])
+            {
+                continue;
+            }
+
+            memset(used, 0, sizeof(used));
+
+            int i1 = i;
+            int g1 = g;
+            int calc = 0;
+            bool tt = false;
+            bool cm = false;
+
+            for (int j = 1; j <= n * m; j++)
+            {
+                if (a[i1][g1] == 'S')
+                {
+                    i1++;
+                    calc++;
+                } else
+                if (a[i1][g1] == 'N')
+                {
+                    i1--;
+                    calc++;
+                } else
+                if (a[i1][g1] == 'E')
+                {
+                    g1++;
+                    calc++;
+                } else
+                if (a[i1][g1] == 'W')
+                {
+                    g1--;
+                    calc++;
+                } else
+                if (a[i1][g1] == 's' )
+                {
+                    i1++;
+                } else
+                if (a[i1][g1] == 'n')
+                {
+                    i1--;
+                } else
+                if (a[i1][g1] == 'e')
+                {
+                    g1++;
+                } else
+                if (a[i1][g1] == 'w')
+                {
+                    g1--;
+                }
+
+                if (used2[i1][g1] || used3[i1][g1])
+                {
+                    break;
+                }
+
+                used3[i1][g1] = true;
+
+                if (i1 == i && g1 == g)
+                {
+                    ans += calc;
+                    used2[i][g] = true;
+                    pp[i][g] = j - calc;
+
+                    i1 = i;
+                    g1 = g;
+                    for (int jj = 1; jj <= n * m; jj++)
+                    {
+                        if (a[i1][g1] == 'S')
+                        {
+                            i1++;
+                        } else
+                        if (a[i1][g1] == 'N')
+                        {
+                            i1--;
+                        } else
+                        if (a[i1][g1] == 'E')
+                        {
+                            g1++;
+                        } else
+                        if (a[i1][g1] == 'W')
+                        {
+                            g1--;
+                        } else
+                        if (a[i1][g1] == 's' )
+                        {
+                            i1++;
+                        } else
+                        if (a[i1][g1] == 'n')
+                        {
+                            i1--;
+                        } else
+                        if (a[i1][g1] == 'e')
+                        {
+                            g1++;
+                        } else
+                        if (a[i1][g1] == 'w')
+                        {
+                            g1--;
+                        }
+
+                        if (i1 == i && g1 == g)
+                        {
+                            break;
+                        }
+
+                        used3[i1][g1] = true;
+                    }
+
+                    break;
+                }
+
+                if (used[i1][g1])
+                {
+                    break;
+                }
+
+                used[i1][g1] = true;
+            }
+        }
+    }
+
+    for (int i = 1; i <= n; i++)
+    {
+        for (int g = 1; g <= m; g++)
+        {
+            if (used2[i][g] || used3[i][g])
+            {
+                continue;
+            }
+
+            memset(used, 0, sizeof(used));
+
+            used3[i][g] = true;
+
+            int i1 = i;
+            int g1 = g;
+            int calc = 0;
+            bool tt = false;
+            bool cm = false;
+            int ii1 = 0;
+            int gg1 = 0;
+
+            if (a[i][g] == 'S' || a[i][g] == 'E' || a[i][g] == 'W' || a[i][g] == 'N')
+            {
+                calc = 1;
+            }
+
+            for (int j = 1; j <= n * m; j++)
+            {
+                if (a[i1][g1] == 'S')
+                {
+                    i1++;
+
+                    if (!used3[i1][g1] && !used2[i1][g1] && (a[i1][g1] == 'S' || a[i1][g1] == 'E' || a[i1][g1] == 'W' || a[i1][g1] == 'N'))
+                    {
+                        calc++;
+                    }
+                } else
+                if (a[i1][g1] == 'N')
+                {
+                    i1--;
+
+                    if (!used3[i1][g1] && !used2[i1][g1] && (a[i1][g1] == 'S' || a[i1][g1] == 'E' || a[i1][g1] == 'W' || a[i1][g1] == 'N'))
+                    {
+                        calc++;
+                    }
+                } else
+                if (a[i1][g1] == 'E')
+                {
+                    g1++;
+
+                    if (!used3[i1][g1] && !used2[i1][g1] && (a[i1][g1] == 'S' || a[i1][g1] == 'E' || a[i1][g1] == 'W' || a[i1][g1] == 'N'))
+                    {
+                        calc++;
+                    }
+                } else
+                if (a[i1][g1] == 'W')
+                {
+                    g1--;
+
+                    if (!used3[i1][g1] && !used2[i1][g1] && (a[i1][g1] == 'S' || a[i1][g1] == 'E' || a[i1][g1] == 'W' || a[i1][g1] == 'N'))
+                    {
+                        calc++;
+                    }
+                } else
+                if (a[i1][g1] == 's' )
+                {
+                    i1++;
+
+                    if (!used3[i1][g1] && !used2[i1][g1] && (a[i1][g1] == 'S' || a[i1][g1] == 'E' || a[i1][g1] == 'W' || a[i1][g1] == 'N'))
+                    {
+                        calc++;
+                    }
+                } else
+                if (a[i1][g1] == 'n')
+                {
+                    i1--;
+
+                    if (!used3[i1][g1] && !used2[i1][g1] && (a[i1][g1] == 'S' || a[i1][g1] == 'E' || a[i1][g1] == 'W' || a[i1][g1] == 'N'))
+                    {
+                        calc++;
+                    }
+                } else
+                if (a[i1][g1] == 'e')
+                {
+                    g1++;
+
+                    if (!used3[i1][g1] && !used2[i1][g1] && (a[i1][g1] == 'S' || a[i1][g1] == 'E' || a[i1][g1] == 'W' || a[i1][g1] == 'N'))
+                    {
+                        calc++;
+                    }
+                } else
+                if (a[i1][g1] == 'w')
+                {
+                    g1--;
+
+                    if (!used3[i1][g1] && !used2[i1][g1] && (a[i1][g1] == 'S' || a[i1][g1] == 'E' || a[i1][g1] == 'W' || a[i1][g1] == 'N'))
+                    {
+                        calc++;
+                    }
+                }
+
+                used3[i1][g1] = true;
+
+                if (used2[i1][g1])
+                {
+                    ii1 = i1;
+                    gg1 = g1;
+                    break;
+                }
+
+                if (i1 == i && g1 == g)
+                {
+                    cm = true;
+                    break;
+                }
+
+                if (used[i1][g1])
+                {
+                    break;
+                }
+
+                used[i1][g1] = true;
+            }
+
+            if (calc > 0 && !cm && ii1 > 0)
+            {
+                ans += min(pp[ii1][gg1], calc);
+                pp[ii1][gg1] -= min(pp[ii1][gg1], calc);
+            }
+        }
+    }
+
+    cout << ans << endl;
+    return 0;
+}

@@ -1,0 +1,116 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+
+struct object
+{
+    long long dist, data, weight, type;
+
+    object(long long _dist = 0, long long _data = 0, long long _weight = 0, long long _type = 0)
+    {
+        dist = _dist;
+        data = _data;
+        weight = _weight;
+        type = _type;
+    }
+};
+
+
+bool operator<(object o1, object o2)
+{
+    return (o1.dist < o2.dist);
+}
+
+
+int main()
+{
+    freopen("fisher.in", "r", stdin);
+    freopen("fisher.out", "w", stdout);
+    long long n, m, p;
+    cin >> n >> m >> p;
+    if (p == 0)
+    {
+        long long u = 0;
+        long long ans = 0;
+        vector< pair<long long, long long> > market(m);
+        for (long long i = 0; i < n; ++i)
+        {
+            long long t;
+            cin >> t >> t;
+            u += t;
+        }
+        for (long long i = 0; i < m; ++i)
+        {
+            cin >> market[i].first >> market[i].second >> market[i].first;
+        }
+        sort(market.begin(), market.end());
+        for (long long i = m - 1; i >= 0; --i)
+        {
+            ans += min(u, market[i].second) * market[i].first;
+            u -= min(u, market[i].second);
+        }
+        cout << ans << endl;
+    }
+    else
+    {
+        vector< pair<long long, long long> > fishing(n), sell(m);
+        vector<object>  obj(n + m);
+        for (long long i = 0; i < n; ++i)
+        {
+            cin >> obj[i].dist >> obj[i].data;
+            obj[i].type = 0;
+        }
+        for (long long i = 0; i < m; ++i)
+        {
+            cin >> obj[i + n].dist >> obj[i + n].weight >> obj[i + n].data;
+            obj[i + n].type = 1;
+        }
+        sort(obj.begin(), obj.end());
+        long long ans = 0, sum = 0, dist = 0;
+        map<long long, long long> market;
+        for (long long i = 0; i < n + m; ++i)
+        {
+            dist = obj[i].dist;
+            if (obj[i].type == 0)
+            {
+                sum += obj[i].data;
+            }
+            else
+            {
+                if (market.count(-obj[i].data) == 0)
+                {
+                    market[-obj[i].data] = 0;
+                }
+                market[-obj[i].data] -= obj[i].weight;
+            }
+            long long t = sum;
+            long long curr_ans = -(dist * p);
+            for (map<long long, long long>::iterator it = market.begin(); (it != market.end()) && (t > 0); ++it)
+            {
+                curr_ans += -(*it).first * min(-market[(*it).first], t);
+                t -= min(t, -market[(*it).first]);
+            }
+            ans = max(ans, curr_ans);
+        }
+        cout << ans << endl;
+    }
+/*
+    if (p == 0)
+    {
+        long long ans = 0, u = 0;
+        for (long long i = 0; i < n; ++i)
+        {
+            u += a[i];
+        }
+        sort(sell[i].)
+    }
+    else if (x[n - 1] < y[0])
+    {
+
+    }
+    else if (y[m - 1] < x[0])
+    {
+
+    }*/
+    return 0;
+}

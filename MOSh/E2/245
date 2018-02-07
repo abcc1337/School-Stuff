@@ -1,0 +1,58 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+#define int long long
+
+int32_t main() {
+	ifstream cin("castle.in");
+	ofstream cout("castle.out");
+	ios::sync_with_stdio(false);
+
+	int n, s;
+	cin >> n >> s;
+	vector<int> a(n), k(n);
+	for (int i = 0; i < n; i++) {
+		cin >> a[i] >> k[i];
+	}
+
+	vector<int> ans(n, 0);
+	vector<pair<int, int> > v;
+	for (int i = 0; i < n; i++) {
+		pair<int, int> p1 = make_pair(k[i], i);
+		pair<int, int> p2 = make_pair(a[i] % k[i], -i - 1);
+		v.push_back(p1);
+		v.push_back(p2);
+	}
+
+	sort(v.begin(), v.end());
+	//sort(vs.begin(), vs.end());
+	reverse(v.begin(), v.end());
+	//reverse(vs.begin(), vs.end());
+
+	int def = s;
+	int block = 0;
+	for (int i = 0; i < v.size() && def > 0; i++) {
+		auto x = v[i];
+		if (x.second >= 0) {
+			int id = x.second;
+			int q = min(def, a[id] / k[id]);
+			block += q * k[id];
+			def -= q;
+		}
+		else {
+			int id = -(x.second + 1);
+			def--;
+			block += a[id] % k[id];
+		}
+	}
+
+	int sum = 0;
+	for (auto i : a) sum += i;
+	cout << sum - block;
+
+	return 0;
+}

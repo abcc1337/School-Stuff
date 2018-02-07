@@ -1,0 +1,49 @@
+#include <cstdio>
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+int main () {
+   // freopen("video.in","r",stdin);
+  //  freopen("video.out","w",stdout);
+    int n,m;
+    cin>>n>>m;
+    vector<string> s(n);
+    for (int i=0;i<n;i++ ) cin>>s[i];
+    int ans=0;
+    vector<vector<int> > v(n,vector<int> (m,0));
+    int sum=0;
+    for (int i=0;i<n;i++) {
+        for (int j=0;j<m;j++) {
+            v[i][j]+=(s[i][j] == s[(i+1)%n][j] && s[i][j] == s[i][(j+1)%m] && s[i][j] == s[(i+1)%n][(j+1)%m]);
+            sum+=v[i][j];
+        }
+    }
+   /* int mazx=0;
+    for (int i=0;i<n-1;i++)
+        for (int j=0;j<m-1;j++) mazx+=v[i][j];
+    int bext=mazx;
+    for (int i=1;)
+  cout<<ans;
+    */
+    vector<int> r(n,0),sv(m,0);
+    for (int i=0;i<n;i++)
+    {
+        for (int j=0;j<m;j++) r[i]+=v[i][j];
+
+    }
+    for (int j=0;j<m;j++) {
+        for(int i=0;i<n;i++) sv[j]+=v[i][j];
+    }
+    //for (int i=0;i<n;i++){
+    //for (int j=0;j<m;j++){cout<<v[i][j]<<" ";}cout<<endl;}
+
+    int maxn=0;
+    for(int i=0;i<n;i++) {
+        for(int j=0;j<m;j++) {
+            maxn = max(maxn,sum-sv[j]-r[i]+v[i][j]);
+        }
+    }
+    cout<<maxn<<endl;
+    return 0;
+}

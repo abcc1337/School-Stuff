@@ -1,0 +1,69 @@
+//#pragma comment(linker, "/STACK:100000000")
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <ctime>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <map>
+#include <set>
+#include <iterator>
+#include <utility>
+#include <queue>
+#include <deque>
+#include <stack>
+
+using namespace std;
+
+const int MAXN = 400000;
+long long x[MAXN + 1], y[MAXN + 1], k[MAXN + 1], d[MAXN + 1];
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	ifstream cin("mountain.in");
+	ofstream cout("mountain.out");
+
+	int n, q;
+	cin >> n >> q;
+	for (int i = 1; i <= n; i++) {
+		cin >> d[i] >> k[i];
+		x[i] = x[i - 1] + d[i];
+		y[i] = y[i - 1] + 1LL * k[i] * d[i];
+	}
+	while (q--) {
+		int a, b;
+		cin >> a >> b;
+		int xx = a;
+		for (int i = 0; i <= n; i++) {
+			if (x[i] <= a && a <= x[i + 1]) {
+				a = i;
+				break;
+			}
+		}
+		int cur1 = a, cur2 = a + 1;
+		for (int j = a; j - 1 >= 0; j--, cur1--) {
+			int x2 = x[j] - 1;
+			int y2 = y[j] - k[j];
+			long long A = y2 - b;
+			long long B = xx - x2;
+			long long C = 1LL * b * x2 - 1LL * xx * y2;
+			if (A * x[j] + B * y[j] + C > 0) {
+				break;
+			}
+		}
+		for (int j = a + 1; j + 1 <= n; j++, cur2++) {
+			int x2 = x[j] + 1;
+			int y2 = y[j] + k[j + 1];
+			long long A = y2 - b;
+			long long B = xx - x2;
+			long long C = 1LL * b * x2 - 1LL * xx * y2;
+			if (A * x[j] + B * y[j] + C < 0) {
+				break;
+			}
+		}
+		cout << x[cur1] << " " << x[cur2] << endl;
+	}
+	return 0;
+}

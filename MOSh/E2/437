@@ -1,0 +1,28 @@
+program ProjectD;
+
+{$O-}
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils, Math;
+
+type rec = record
+       f : boolean;
+       c : longint;
+     end;
+
+var m, n, l : longint;
+    s, st : string;
+//    tree : array[1..] of rec;
+
+begin
+  assign(input, 'typing.in');  assign(output, 'typing.out');
+//  assign(input, 'input.txt');  assign(output, 'output.txt');
+//  reset(input); rewrite(output);
+
+  readln(m, n, l);
+
+  readln(s);
+
+  writeln(0);
+end.

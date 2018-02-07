@@ -1,0 +1,88 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <set>
+#include <map>
+#include <cmath>
+#include <algorithm>
+#include <memory.h>
+#include <time.h>
+
+#define rep(i, n) for (decltype(n) i = 0; i < n; i++)
+#define dep(i, n) for (decltype(n) i = n - 1; i >= 0; i--)
+#define FOR(i, a, b) for (decltype(b) i = a; i <= b; i++)
+#define FORD(i, a, b) for (decltype(a) i = a; i >= b; i--)
+#define all(a) a.begin(), a.end()
+#define len(a) (int)a.size()
+using namespace std;
+typedef long long int64;
+const int64 maxn = 5e4 + 1;
+const int64 mod = 1e9 + 9, p = 997;
+int64 hs[maxn], ht[maxn], pows[maxn];
+map<int64, int64> q;
+int64 dp[maxn];
+int64 inf = 1e18;
+int64 geths(int l, int r)
+{
+	return (((hs[r] - (l == 0 ? 0ll : 1ll * hs[l - 1] * pows[r - l + 1])) % mod) + mod) % mod;
+}
+int64 getht(int l, int r)
+{
+	return (((ht[r] - (l == 0 ? 0ll : 1ll * ht[l - 1] * pows[r - l + 1])) % mod) + mod) % mod;
+}
+
+
+int main()
+{
+	//freopen("typing.in", "r", stdin);
+	//freopen("typing.out", "w", stdout);
+	pows[0] = 1;
+	FOR(i, 1, maxn - 1)
+		pows[i] = (1ll * pows[i - 1] * p) % mod;
+	int64 m, n, l;
+	cin >> m >> n >> l;
+	string s;
+	cin >> s;
+	hs[0] = (s[0] - '0' + 1);
+	FOR(i, 1, len(s) - 1)
+		hs[i] = (1ll * hs[i - 1] * p + (s[i] - '0' + 1));
+	rep(k, n)
+	{
+		int64 c;
+		string t;
+		cin >> c >> t;
+		ht[0] = (t[0] - '0' + 1);
+		FOR(i, 1, len(t) - 1)
+			ht[i] = (1ll * ht[i - 1] * p + (t[i] - '0' + 1));
+		FOR(i, 0, len(t) - 1)
+		{
+			if (q.count(getht(0, i)))
+				q[getht(0, i)] = min(q[getht(0, i)], c);
+			else
+				q[getht(0, i)] = c;
+		}
+		FOR(i, 1, len(t) - 1)
+		{
+			if (q.count(getht(i, len(t) - 1)))
+				q[getht(i, len(t) - 1)] = min(q[getht(i, len(t) - 1)], c);
+			else
+				q[getht(i, len(t) - 1)] = c;
+		}
+	}
+	dp[0] = inf;
+	if (q.count(geths(0, 0)))
+		dp[0] = q[geths(0, 0)];
+	FOR(i, 1, m - 1)
+	{
+		dp[i] = inf;
+		if (q.count(geths(0, i)))
+			dp[i] = q[geths(0, i)];
+		FOR(j, 1, i)
+		{
+			if (dp[j - 1] != inf && q.count(geths(j, i)))
+				dp[i] = min(dp[i], dp[j - 1] + q[geths(j, i)]);
+		}
+	}
+	cout << (dp[m - 1] == inf ? -1 : dp[m - 1]);
+	return 0;
+}

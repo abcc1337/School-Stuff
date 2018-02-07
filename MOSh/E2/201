@@ -1,0 +1,61 @@
+#include <bits/stdc++.h>
+
+#define mp make_pair
+#define pb bush_back
+#define fi first
+#define se second
+
+using namespace std;
+
+typedef long long ll;
+typedef long double ld;
+typedef pair<int, int> pii;
+typedef pair<ll, ll> pll;
+
+const int N = 5e5 + 7;
+const int M = 5e3 + 7;
+const ll INF = 1e9 + 7;
+
+int get(int x, int y){
+    int ret;
+    cout << "? " << x + 1 << " " << y + 1 << endl;
+    fflush(stdout);
+    cin >> ret;
+    return ret;
+}
+
+int an[N];
+
+int main()
+{
+    //freopen("video.in", "r", stdin);
+   //freopen("video.out", "w", stdout);
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int n, cnt = 0;
+    cin >> n;
+    for (int i = 0; i < n; i++){
+        if (an[i] != 0)
+            continue;
+        cnt++;
+        for (int j = i; j < n;){
+            an[j] = cnt;
+            int q = n;
+            for (int c = j + 1; c < n; c++){
+                int x = get(j, c);
+                int y = get(j + 1, c);
+                if (x == y){
+                    q = c;
+                    break;
+                }
+            }
+            j = q;
+        }
+    }
+    cout << "Ready!\n" << cnt << endl;
+    for (int i = 0; i < n; i++)
+        cout << an[i] << " ";
+    cout << endl;
+    fflush(stdout);
+    return 0;
+}

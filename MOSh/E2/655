@@ -1,0 +1,48 @@
+# from time import time
+# t = time()
+f = open("repair.in").read().split("\n")
+a, b = map(int, f[0].split())
+n, q = map(int, f[1].split())
+graph = [set() for _ in range(n)]
+list1 = {}
+list2 = [None] * n
+tmp = 0
+for i in range(n-1):
+    t, x, y = f[i+2].split()
+    x, y = int(x), int(y)
+    if (x, y) not in list1:
+        list1[(x, y)] = tmp
+        list2[tmp] = (x, y)
+        tmp += 1
+    dx, dy = 0, 0
+    if t == 'v':
+        dy = 1
+    else:
+        dx = 1
+    if (x + dx, y + dy) not in list1:
+        list1[(x + dx, y + dy)] = tmp
+        list2[tmp] = (x + dx, y + dy)
+        tmp += 1
+    graph[list1[(x, y)]].add(list1[(x + dx, y + dy)])
+    graph[list1[(x + dx, y + dy)]].add(list1[(x, y)])
+f2 = open("repair.out", "w")
+for i in range(q):
+    x1, y1, x2, y2 = map(int, f[n+1 + i].split())
+    toCheck = set()
+    for i in list1:
+        if x1 <= i[0] <= x2 and y1 <= i[1] <= y2:
+            toCheck.add(list1[i])
+    res = 0
+    while len(toCheck) > 0:
+        queue = [toCheck.pop()]
+        j = 0
+        while j < len(queue):
+            cur = queue[j]
+            for i in graph[cur]:
+                if i in toCheck:
+                    toCheck.remove(i)
+                    queue.append(i)
+            j += 1
+        res += 1
+    f2.write(str(res) + '\n')
+# print(time() - t)

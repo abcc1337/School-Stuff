@@ -1,0 +1,155 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <set>
+#include <map>
+#include <cmath>
+#include <algorithm>
+#include <memory.h>
+#include <time.h>
+
+#define rep(i, n) for (decltype(n) i = 0; i < n; i++)
+#define dep(i, n) for (decltype(n) i = n - 1; i >= 0; i--)
+#define FOR(i, a, b) for (decltype(b) i = a; i <= b; i++)
+#define FORD(i, a, b) for (decltype(a) i = a; i >= b; i--)
+#define all(a) a.begin(), a.end()
+#define len(a) (int)a.size()
+using namespace std;
+
+const int maxn = 2e5 + 10;
+
+int n, k;
+vector<int> g[maxn];
+int tin[maxn], tout[maxn];
+int timer;
+int p[maxn][18];
+int ds[maxn];
+int L;
+pair<int, int> x[5010], x1[5010];
+int ids[5010];
+
+void dfs(int v, int pr = 0)
+{
+	tin[v] = timer++;
+	p[v][0] = pr;
+	FOR(l, 1, L)
+		p[v][l] = p[p[v][l - 1]][l - 1];
+	for (int &u : g[v])
+	{
+		if (u != pr)
+		{
+			ds[u] = ds[v] + 1;
+			dfs(u, v);
+		}
+	}
+	tout[v] = timer++;
+}
+
+bool is_anc(int a, int b)
+{
+	return (tin[a] <= tin[b] && tout[a] >= tout[b]);
+}
+int lca(int a, int b)
+{
+	if (is_anc(a, b))
+		return a;
+	if (is_anc(b, a))
+		return b;
+	FORD(i, L, 0)
+	{
+		if (!is_anc(p[a][i], b))
+			a = p[a][i];
+	}
+	return p[a][0];
+}
+
+int intersect(int a, int b, int c, int d)
+{
+	int res = 0;
+	int v = d;
+	while (v != c)
+	{
+		int u = p[v][0];
+		if (is_anc(a, u) && is_anc(v, b))
+			res++;
+		v = u;
+	}
+	return res;
+}
+
+int main()
+{
+	freopen("twopaths.in", "r", stdin);
+	freopen("twopaths.out", "w", stdout);
+	srand(228);
+	cin >> n >> k;
+	while ((1 << L) <= n)
+		L++;
+	FOR(i, 1, n - 1)
+	{
+		int j;
+		cin >> j;
+		j--;
+		g[j].push_back(i);
+		g[i].push_back(j);
+	}
+	dfs(0);
+	rep(i, k)
+	{
+		cin >> x1[i].first >> x1[i].second;
+		--x1[i].first;
+		--x1[i].second;
+		ids[i] = i;
+	}
+	random_shuffle(ids, ids + k);
+	rep(i, k)
+		x[i] = x1[ids[i]];
+	pair<int, pair<int, int> > ans = { 0, {0, 1} };
+	rep(i, k)
+	{
+		int a1 = x[i].first, b1 = x[i].second, c1 = lca(a1, b1);
+		vector<pair<int, int> > p1;
+		if (c1 == a1 || c1 == b1)
+		{
+			if (is_anc(a1, b1))
+				p1.push_back({ a1, b1 });
+			else
+				p1.push_back({ b1, a1 });
+		}
+		else
+		{
+			p1.push_back({ c1, a1 });
+			p1.push_back({ c1, b1 });
+		}
+		FOR(j, i + 1, k - 1)
+		{
+			int a2 = x[j].first, b2 = x[j].second, c2 = lca(a2, b2);
+			vector<pair<int, int> > p2;
+			if (c2 == a2 || c2 == b2)
+			{
+				if (is_anc(a2, b2))
+					p2.push_back({ a2, b2 });
+				else
+					p2.push_back({ b2, a2 });
+			}
+			else
+			{
+				p2.push_back({ c2, a2 });
+				p2.push_back({ c2, b2 });
+			}
+			int cur = 0;
+			rep(k1, len(p1))
+			{
+				rep(k2, len(p2))
+					cur += intersect(p1[k1].first, p1[k1].second, p2[k2].first, p2[k2].second);
+			}
+			if (cur > ans.first)
+				ans = { cur, {ids[i], ids[j]} };
+			if (clock() > 1.9 * CLOCKS_PER_SEC)
+				goto pend;
+		}
+	}
+pend:;
+	cout << ans.first << endl << ans.second.first + 1 << ' ' << ans.second.second + 1 << endl;
+	return 0;
+}

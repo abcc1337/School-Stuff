@@ -1,0 +1,118 @@
+#include <fstream>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+ifstream cin("alarm.in");
+ofstream cout("alarm.out");
+
+struct para {
+    int u, w;
+};
+
+vector <vector<para> > graph;
+vector <vector <int> > sets;
+vector <int> rad;
+vector <int> bin, dist;
+vector <int> prev;
+vector <bool> used;
+int n;
+int best = 1e+6;
+
+void rec(int i) {
+    if (i == (int)bin.size()) {
+        int am = 0;
+        queue<int> qu;
+        for (int k = 0; k < n; k++) {
+            if (bin[k] == 1) {
+                am++;
+                prev.clear();
+                prev.assign(n, -1);
+                used.clear();
+                used.resize(n);
+
+                qu.push(k);
+            }
+        }
+        while (!qu.empty()) {
+            int v = qu.front();
+            qu.pop();
+            for (int j = 0; j < (int)sets[v].size(); j++) {
+                int u = sets[v][j];
+                if (!used[u]) {
+                    qu.push(u);
+                    used[u] = true;
+                }
+            }
+        }
+        bool f = true;
+        for (int k = 0; k < n; k++) {
+            if (!used[k]) {
+                f = false;
+                break;
+            }
+        }
+        if (f && am < best) {
+            best = am;
+        }
+        return;
+    }
+    for (int k = -0; k < 2; k++) {
+        bin[i] = k;
+        rec(i + 1);
+    }
+}
+
+int main()
+{
+    cin >> n;
+    graph.resize(n);
+    rad.resize(n);
+    dist.resize(n);
+    prev.resize(n);
+    bin.resize(n);
+    used.resize(n);
+    for( int k = 0; k < n; k++) {
+        cin >> rad[k];
+    }
+
+    for (int k = 0; k < n - 1; k++) {
+        int v, u, w;
+        cin >> v >> u >> w; v--; u--;
+        para p;
+        p.u = u; p.w = w;
+        graph[v].push_back(p);
+        p.u = v;
+        graph[u].push_back(p);
+    }
+
+    sets.resize(n);
+    for (int k = 0; k < n; k++) {
+        queue<int> qu;
+        qu.push(k);
+         for (int i = 0; i < n; i++) {
+            dist[i] = -1;
+            prev[i] = -1;
+         }
+         dist[k] = 0;
+        while (!qu.empty()) {
+            int v = qu.front();
+            qu.pop();
+           for (int i = 0; i < (int)graph[v].size(); i++) {
+                para u = graph[v][i];
+                if (u.u != k) {
+                    prev[u.u] = v;
+                    dist[u.u] = dist[v] + u.w;
+                    if (dist[u.u] <= rad[k]) {
+                        sets[k].push_back(u.u);
+                        qu.push(u.u);
+                    }
+                }
+            }
+        }
+    }
+    rec(0);
+    cout << best;
+    return 0;
+}

@@ -1,0 +1,127 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cstdio>
+#include <cmath>
+
+using namespace std;
+
+//struct Event
+//{
+//    int x, y;
+//};
+
+int main()
+{
+    freopen("monument.in", "r", stdin);
+    freopen("monument.out", "w", stdout);
+    int n, k;
+    cin >> n >> k;
+    vector<pair<int, int> > pts(n);
+    int min_y = 10000001, max_y = -1;
+    int pos1 = -1, pos2 = -1;
+    for (int i = 0; i < n; i++)
+    {
+        cin >> pts[i].first >> pts[i].second;
+        if (pts[i].second == min_y)
+        {
+            if (pos1 == -1 || pts[i].first > pts[pos1].first)
+            {
+                pos1 = i;
+            }
+        }
+        else if (pts[i].second < min_y)
+        {
+            min_y = pts[i].second;
+            pos1 = i;
+        }
+        if (pts[i].second == max_y)
+        {
+            if (pos2 == -1 || pts[i].first < pts[pos2].first)
+            {
+                pos2 = i;
+            }
+        }
+        else if (pts[i].second > max_y)
+        {
+            max_y = pts[i].second;
+            pos2 = i;
+        }
+    }
+    max_y -= min_y;
+    /*vector<Event> ev(n);*/
+    for (int i = 0; i < n; i++)
+        pts[i].second -= min_y;
+    vector<int> left(max_y), right(max_y), l(max_y);
+    right[0] = pts[pos1].first;
+    left[max_y - 1] = pts[pos2].first;
+    int prev = 0;
+    int n_right = pts[pos1].first;
+    for (int i = pos1; ; i++)
+    {
+        for (int q = prev; q < pts[i % n].second; q++)
+        {
+            right[q] = n_right;
+        }
+        n_right = pts[i % n].first;
+        prev = pts[i % n].second;
+        if (pts[(i % n)].second == pts[pos2].second)
+            break;
+    }
+    prev = 0;
+    int n_left = pts[pos2].first;
+    prev = max_y;
+    for (int i = pos2; ; i++)
+    {
+        for (int q = prev - 1; q >= pts[i % n].second; q--)
+        {
+            left[q] = n_left;
+        }
+        n_left = pts[i % n].first;
+        prev = pts[i % n].second;
+        if (pts[(i % n)].second == pts[pos1].second)
+            break;
+    }
+    for (int i = 0; i < max_y; i++)
+        l[i] = right[i] - left[i];
+    long long ans = 0;
+    for (int i = 0; i < max_y; i++)
+    {
+        ans += (l[i] + k + k - 1) / k;
+        if ((left[i] - i) % k == 0 && (right[i] - i) % k != 0)
+            ans--;
+        if ((left[i] - i) % k == 0 && (right[i] - i) % k == 0)
+            ans--;
+    }
+    vector<int> move(k);
+    /*for (int i = 0; i < max_y; i++)
+    {
+        int q = ceil(1.0 * (left[i] - i) / k);
+        int to_add = q * k + i - left[i];
+        int f_ans = (l[i] + k + k - 1) / k;
+        if ((left[i] - i) % k == 0 && (right[i] - i) % k == 0)
+            f_ans--;
+        int n_ans = (l[i] + k - 1) / k;
+        move[to_add] += f_ans - n_ans;
+    }*/
+    int mx = 0;
+    for (int i = 1; i < k; i++)
+    {
+        for (int q = 0; q < max_y; q++)
+        {
+            int f_ans = (l[q] + k + k - 1) / k;
+            if ((left[q] - q) % k == 0 && (right[q] - q) % k == 0)
+                f_ans--;
+            int s_ans = (l[q] + k + i - 1) / k;
+            if ((left[q] + i - q) % k == 0 && (right[q] + i - q) % k == 0)
+                s_ans--;
+            move[i] += f_ans - s_ans;
+        }
+    }
+    for (int i = 1; i < k; i++)
+    {
+        mx = max(move[i], mx);
+    }
+    cout << ans - mx << endl;
+    return 0;
+}

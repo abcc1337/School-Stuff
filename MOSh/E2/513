@@ -1,0 +1,50 @@
+Var
+  n,k,tk,ouk,j,i:longint;
+  an:array[1..3000]of longint;
+  ou:array[1..3000]of boolean;
+Function makez(i,j:longint):longint;
+Var
+  a:longint;
+begin
+  writeln('? ',i,' ',j);
+  flush(output);
+  readln(a);
+  makez:=a;
+end;
+begin
+//  assign(input,'input.txt');assign(output,'output.txt');
+  readln(n);
+  k:=3000;
+  tk:=1;
+  an[1]:=1;
+  for i:=2 to n do
+    begin
+      fillchar(ou,sizeof(ou),false);
+      ouk:=0;
+      an[i]:=-1;
+      for j:=i-1 downto 1 do
+        begin
+          if not ou[an[j]] then
+            begin
+              inc(ouk);
+              ou[an[j]]:=true;
+              if makez(j,i)=ouk then
+                begin
+                  an[i]:=an[j];
+                  break;
+                end;
+            end;
+        end;
+      if an[i]=-1 then
+        begin
+          an[i]:=tk+1;
+          inc(tk);
+        end;
+    end;
+  writeln('Ready!');
+  writeln(tk);
+  for i:=1 to n do
+    write(an[i],' ');
+  writeln;
+  flush(output);
+end.

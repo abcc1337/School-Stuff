@@ -1,0 +1,122 @@
+#include <iostream>
+#include <stdio.h>
+#define big long long
+using namespace std;
+big zn[26];
+big mas[500][500];
+int prefx[500][500];
+int prefy[500][500];
+int sumx(int x,int l,int r)
+{
+    if(l>r)return 0;
+    if(l==0)return prefx[x][r];
+    else return prefx[x][r]-prefx[x][l-1];
+}
+int sumy(int y,int l,int r)
+{
+    if(l>r)return 0;
+    if(l==0)return prefy[y][r];
+    else return prefy[y][r]-prefy[y][l-1];
+
+}
+int main()
+{
+    big a,b,c;
+    big t;
+    freopen("submarine.in","r",stdin);
+    freopen("submarine.out","w",stdout);
+    big k,k1;
+    cin>>k;
+    for(int lol=0;lol<k;lol++)
+        {
+            cin>>k1;
+            zn[lol]=k1;
+        }
+        big n,m;
+        cin>>n>>m;string s;
+        for(int lol=0;lol<n;lol++)
+            {
+                cin>>s;
+        for(int lal=0;lal<m;lal++)
+            {
+                mas[lol][lal]=zn[s[lal]-97];
+              //  cout<<mas[lol][lal]<<" ";
+
+            }
+            //cout<<"\n";
+            }
+            big tek=0;
+            for(int bom=0;bom<n;bom++)
+                {
+                    tek=0;
+                    for(int bam=0;bam<m;bam++)
+                        {
+                            tek+=mas[bom][bam];
+                            prefy[bom][bam]=tek;
+                         //   cout<<prefy[bom][bam]<<" ";
+                        }
+                      //  cout<<"\n";
+                }
+                for(int bom=0;bom<m;bom++)
+                {
+                    tek=0;
+                    for(int bam=0;bam<n;bam++)
+                        {
+                            tek+=mas[bam][bom];
+                            prefx[bom][bam]=tek;
+                        }
+                }
+             //   cout<< sumx(3,1,4);
+        int maxres=-1e9;
+        int res=0;
+        for(int y1=0;y1<n;y1++)
+            {
+                for(int x1=0;x1<m;x1++)
+                    {
+                        for(int x2=x1+1;x2<m;x2++)
+                            {
+                                for(int x3=x1;x3<x2;x3++)
+                                    {
+                                        for(int x4=x3+1;x4<=x2;x4++)
+                                            {
+                                                int max1=0,max2=0,max3=0;
+                                                for(int y2=x1;y2>=0;y2--)
+                                                    {
+                                                       max1=max(max1,sumx(x3,y2,y1-1));
+                                                    }
+                                                for(int y3=y1;y3<n;y3++)
+                                                    {
+                                                        max2=max(max2,sumx(x4,y1+1,y3));
+                                                    }
+                                                for(int y4=y1;y4>=0;y4--)
+                                                    {
+                                                        max3=max(max3,sumx(x4,y4,y1-1));
+                                                    }
+                                                    maxres=max(maxres,max1+max2+max3+sumy(y1,x1,x2));
+                                            }
+
+                                    }
+                            }
+                    }
+            }
+            cout<<maxres;
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

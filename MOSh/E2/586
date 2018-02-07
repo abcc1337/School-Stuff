@@ -1,0 +1,87 @@
+{$O-}
+Type
+  mass=array[1..100]of boolean;
+Var
+  n,k,j,i,a,b,mx,tk,z:longint;
+  pr:array[1..4000]of longint;
+  ch:array[1..100,0..100]of longint;
+  was:array[1..100]of mass;
+  can:array[1..100]of mass;
+  nw:mass;
+Function dfs(v:longint):mass;
+Var
+  mm,q:mass;
+  i,j:longint;
+Begin
+  fillchar(mm,sizeof(mm),0);
+  mm[v]:=true;
+  for i:=1 to ch[v,0] do
+    begin
+      mm[ch[v,i]]:=true;
+      q:=dfs(ch[v,i]);
+      for j:=1 to n do
+        mm[j]:=(mm[j])or (q[j]);
+    end;
+  can[v]:=mm;
+  dfs:=mm;
+end;
+Procedure findway(tk,b:longint);
+Var
+  i:longint;
+Begin
+  if tk=b then
+    exit;
+  if can[tk,b] then
+    begin
+      for i:=1 to ch[tk,0] do
+        if can[ch[tk,i],b] then
+          begin
+            nw[ch[tk,i]]:=true;
+            findway(ch[tk,i],b);
+            exit;
+          end;
+    end
+  else
+    begin
+      nw[tk]:=true;
+      findway(pr[tk],b);
+    end;
+end;
+begin
+//  assign(input,'input.txt');assign(output,'output.txt');
+  assign(input,'twopaths.in');assign(output,'twopaths.out');
+  readln(n,k);
+  fillchar(ch,sizeof(ch),0);
+  for i:=2 to n do
+    begin
+      read(pr[i]);
+      inc(ch[pr[i],0]);
+      ch[pr[i],ch[pr[i],0]]:=i;
+    end;
+  readln;
+  dfs(1);
+  for i:=1 to k do
+    begin
+      fillchar(nw,sizeof(nw),false);
+      readln(a,b);
+      findway(a,b);
+      was[i]:=nw;      
+    end;
+  mx:=-1;
+  for i:=1 to k do
+    for j:=i+1 to k do
+      begin
+        tk:=0;
+        for z:=1 to n do
+          if (was[i,z])and(was[j,z]) then
+            inc(tk);
+        if tk>mx then
+          begin
+            mx:=tk;
+            a:=i;
+            b:=j;
+          end;
+      end;
+  writeln(mx);
+  writeln(a,' ',b);
+end.

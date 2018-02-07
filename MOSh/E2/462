@@ -1,0 +1,89 @@
+program zad_6_1;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils, Math;
+var
+  k, w, h, i, j, z, sum, res, x, x1, sum1 : integer;
+  ar : array['a' .. 'b'] of integer;
+  dp, dp1 : array[0 .. 501, 0 .. 501] of integer;
+  ar1 : array[0 .. 501, 0 .. 501] of char;
+begin
+  reset(input, 'submarine.in');
+  rewrite(output, 'submarine.out');
+
+  readln(k);
+  for i := 1 to k do
+    read(ar[chr(ord('a') - 1 + i)]);
+  readln(h, w);
+  for i := 1 to h do begin
+    for j := 1 to w - 1 do
+      read(ar1[i, j]);
+    readln(ar1[i, w]);
+  end;
+
+  for i := 2 to h do begin
+    for j := 1 to w do begin
+      dp[i, j] := max(max(0, ar[ar1[i - 1, j]] + dp[i - 1, j]), ar[ar1[i - 1, j]]);
+      //write(dp[i, j], ' ');
+    end;
+    //writeln;
+  end;
+
+  //writeln('----------------------------------');
+  for i := 1 to h do begin
+    for j := 1 to w do begin
+      dp1[i, j] := dp[i, j];
+      sum := 0;
+      sum1 := 0;
+      for z := i + 1 to h do begin
+        inc(sum, ar[ar1[z, j]]);
+        sum1 := max(sum1, sum);
+      end;
+
+      inc(dp1[i, j], sum1);
+      //write(dp1[i, j], ' ');
+    end;
+    //writeln;
+  end;
+
+  res := -maxint;
+
+  for i := 1 to h do
+    for j := 1 to w - 1 do begin
+      sum := ar[ar1[i, j]] + ar[ar1[i, j + 1]];
+      x := j;
+      x1 := j + 1;
+
+      res := max(res, sum + dp[i, x] + dp1[i, x1]);
+
+      for z := j + 2 to w do begin
+        inc(sum, ar[ar1[i, z]]);
+        if(dp1[i, z] >= dp1[i, x1]) then
+          x1 := z;
+
+        if(dp1[i, z] + dp[i, z - 1] >= dp[i, x] + dp1[i, x1]) then begin
+          x := z - 1;
+          x1 := z;
+        end;
+
+        res := max(res, sum + dp[i, x] + dp1[i, x1]);
+      end
+    end;
+
+  writeln(res);
+
+  readln(h);
+end.
+
+
+2
+-10 1
+6 11
+aaaaaaaaaaa
+aaabaaaaaaa
+aaabaaaabaa
+abbbbbbbbba
+aaaaaaaabaa
+aaaaaaaaaaa

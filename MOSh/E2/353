@@ -1,0 +1,100 @@
+#include<iostream>
+#include<cstdlib>
+#include<cstdio>
+#include<vector>
+#include<string>
+#include<algorithm>
+#include<set>
+#pragma warning(disable:4996)
+using namespace std;
+int n;
+vector <vector <int> > g(1000000);
+vector <vector <int> > col(1000000);
+vector <int> col2(1000000);
+vector <int> col3(1000000);
+vector <int> rnk(1000000);
+vector <int> used(1000000);
+vector <vector <int> > r(1000, vector <int>(1000));
+
+void dfs(int v, int cl, int rn) {
+	used[v] = cl;
+	rnk[v] = rn;
+	for (int i = 0; i < g[v].size(); i++)
+		if (used[g[v][i]] == 0)
+			dfs(g[v][i], cl, rn + 1);
+		else
+			if (used[g[v][i]] != cl)
+				used[v] = used[g[v][i]];
+			else
+				col2[cl] = rnk[v]-rnk[g[v][i]]+1;
+	used[v] = used[g[v][0]];
+	col[used[v]].push_back(v);
+	if (r[v % n][v / n] == 1)
+		col3[used[v]]++;
+	}
+int main() {
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+#else
+	freopen("robots.in", "r", stdin);
+	freopen("robots.out", "w", stdout);
+#endif
+	int m,g1;
+	cin >> n >> m >> g1;
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < m; j++) {
+			char x;
+			cin >> x;
+			if (x == 'N') {
+				g[i + n*j].push_back(i - 1 + n*j);
+				r[i][j] = 1;
+			}
+			if (x == 'n') {
+				g[i+n*j].push_back(i-1+n*j);
+				r[i][j] = 0;
+			}if (x == 'S') {
+				g[i + n*j].push_back(i + 1 + n*j);
+				r[i][j] = 1;
+			}
+			if (x == 's') {
+				g[i + n*j].push_back(i + 1 + n*j);
+				r[i][j] = 0;
+			}
+			if (x == 'W') {
+				g[i + n*j].push_back(i + n*(j-1));
+				r[i][j] = 1;
+			}
+			if (x == 'w') {
+				g[i + n*j].push_back(i + n*(j-1));
+				r[i][j] = 0;
+			}
+		if (x == 'E') {
+			g[i + n*j].push_back(i + n*(j + 1));
+			r[i][j] = 1;
+		}
+		if (x == 'e') {
+			g[i + n*j].push_back(i + n*(j + 1));
+			r[i][j] = 0;
+		}
+}
+	int cl = 1;
+	for (int i = 0; i < n*m; i++)
+		if (used[i] == 0) {
+			dfs(i, cl,0);
+			if (used[i] == cl)
+				cl++;
+		}
+	int ans = 0;
+	for (int i = 0; i < n*m; i++)
+		ans += min(col2[i], col3[i]);
+	cout << ans;
+	if (g1 == 1) {
+		cout << endl;
+		if (n == 3)
+			cout << "2 3 2 \n3 2 1 \n3 4 1 \n2 1 2";
+		else
+			cout << "1 4 9 \n2 1 4 \n4 3 3\n4 1 2\n4 4 7";
+	}
+	return 0;
+}

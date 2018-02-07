@@ -1,0 +1,72 @@
+#include <iostream>
+#include <fstream>
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
+ifstream fin("monument.in");
+ofstream fout("monument.out");
+
+const long long _size =(int)2e4 + 10;
+
+struct point {
+	int x, y;
+};
+
+long long n, k, sumS[_size], y[_size], sumF[_size];
+
+point arr[_size];
+
+long long  ans = 0, ans_q;
+
+void Count_sum() {
+	sumS[0] = 1;
+	sumF[0] = 0;
+	for (int j = 1; j < _size; j++) {
+		sumS[j] = sumS[j - 1];
+		if (j % k == 0) {
+			sumS[j]++;
+		}
+		sumF[j] = sumS[j] - 1;
+	}
+}
+
+void Add(int ind, long long d) {
+	int last = (n + ind - 1) % n;
+	if (arr[ind].y == arr[last].y)
+		return;
+	for (int i = min(arr[ind].y, arr[last].y); i < max(arr[ind].y, arr[last].y); i++){
+		if (y[i] != -1) {
+			ans_q += sumS[(max(arr[ind].x + d, y[i]) - 1 - i + k * _size) % k + (max(arr[ind].x + d, y[i]) - 1 - (i % k) + k) % k] - sumF[(min(arr[ind].x + d, y[i]) - i + k * _size) % k + (min(arr[ind].x + d, y[i]) - (i % k) + k) % k];
+		}
+		else {
+			y[i] = arr[ind].x + d;
+		}
+	}
+}
+
+int main()  {
+	fin >> n >> k;
+	Count_sum();
+	/*for (int i = 0; i < k * 6; i++) {
+		fout << sumS[i] << ' ';
+	}
+	fout << endl;*/
+	for (int i = 0; i < n; i++) {
+		fin >> arr[i].x >> arr[i].y;
+	}
+	ans = _size * _size;
+	for (long long delta = 0; delta < k; delta++) {
+		ans_q = 0;
+		for (int i = 0; i < _size; i++) {
+			y[i] = -1;
+		}
+		for (int i = 0; i < n; i++) {
+			Add(i, delta);
+		}
+		ans = min(ans_q, ans);
+	}
+	fout << ans;
+	return 0;
+}

@@ -1,0 +1,45 @@
+def dfs(graf, i, j, x1, y1, x2, y2):
+    our_list[-1].append([i, j])
+    #print(i, j)
+    if ans[i][j] == False:
+        ans[i][j] = True
+        for k in range(len(graf[i][j])):
+            if ans[graf[i][j][k][0]][graf[i][j][k][1]] == False and x1 <= graf[i][j][k][0] <= x2 and y1 <= graf[i][j][k][1] <= y2:
+                dfs(graf, graf[i][j][k][0], graf[i][j][k][1], x1, y1, x2, y2)
+                
+input_file = open("repair.in","r")
+output_file = open("repair.out", "w")
+a, b = map(int, input_file.readline().split())
+n, q = map(int, input_file.readline().split())
+ans = [[False] * (b + 1) for i in range(a + 1)]
+graf = [[0] * (b + 1) for i in range(a + 1)]
+for i in range(a + 1):
+    for j in range(b + 1):
+        graf[i][j] = []
+#print(graf)
+for i in range(n - 1):
+    t, x, y = input_file.readline().split()
+    x = int(x)
+    y = int(y)
+    if t == "h":
+        graf[x][y].append([x + 1, y])
+        graf[x + 1][y].append([x, y])
+    else:
+        graf[x][y].append([x, y + 1])
+        graf[x][y + 1].append([x, y])
+quest = []
+for i in range(q):
+    quest.append(list(map(int, input_file.readline().split())))
+
+for k in range(q):
+    ans = [[False] * (b + 1) for i in range(a + 1)]
+    our_list = []
+    for i in range(quest[k][0], quest[k][2] + 1):
+        for j in range(quest[k][1], quest[k][3] + 1):
+            if ans[i][j] == False and len(graf[i][j]) > 0:
+                our_list.append([])
+                dfs(graf, i, j, quest[k][0], quest[k][1], quest[k][2], quest[k][3])
+    print(len(our_list), file=output_file)
+output_file.close()
+#for i in range(len(graf)):
+   #print(graf[i])

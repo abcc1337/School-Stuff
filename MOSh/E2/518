@@ -1,0 +1,45 @@
+import sys
+
+
+sys.stdin = open('lamps.in')
+sys.stdout = open('lamps.out', 'w')
+n, q = map(int, input().split())
+string = input()
+res = 0
+prev = 0
+segments = [None] * n
+for i in range(n):
+    segments[i] = [0] * n
+s = [None] * n
+for i in range(n):
+    s[i] = int(string[i])
+for i in range(n):
+    if s[i] == 1:
+        prev += 1
+        res += prev
+        for j in range(i - prev, i):
+            segments[j + 1][i] = 1
+    else:
+        prev = 0
+print(res)
+for time in range(q):
+    l, r, c = map(int, input().split())
+    if c == 0:
+        print(res)
+        for i in range(l - 1, r):
+            s[i] = 0
+    else:
+        for i in range(l - 1, r):
+            s[i] = 1
+        prev = 0
+        for i in range(n):
+            if s[i] == 1:
+                prev += 1
+                for j in range(i - prev, i):
+                    if segments[j + 1][i] == 0:
+                        res += 1
+                    segments[j + 1][i] = 1
+            else:
+                prev = 0
+        print(res)
+sys.stdout.close()

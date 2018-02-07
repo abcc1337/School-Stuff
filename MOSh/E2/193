@@ -1,0 +1,116 @@
+/* B_DNK */
+
+#pragma comment(linker, "/STACK:536870912")
+
+#include <iostream>
+#include <set>
+#include <map>
+#include <vector>
+#include <list>
+#include <string>
+#include <string.h>
+#include <stdio.h>
+#include <algorithm>
+
+using namespace std;
+
+#define FOR(i, s, f) for (int i = (s); i < (f); ++i)
+#define ROF(i, f, s) for (int i = (f) - 1; i >= (s); --i)
+#define forn(i, f) for (int i = 0; i < (f); ++i)
+#define rofn(i, f) for (int i = (f) - 1; i >= 0; --i)
+#define forit(it, x) for (auto it = (x).begin(); it != (x).end(); ++it)
+#define all(x) (x).begin(), (x).end()
+#define sz(x) ((int)(x).size())
+
+typedef long long ll;
+typedef const int cint;
+typedef long double ld;
+#define pi pair < int, int >
+#define vi vector < int >
+
+#define TASK ""
+
+cint N = 1e3 + 3;
+
+int a[N];
+bool used[N];
+
+int main()
+{
+//	freopen(TASK".in", "r", stdin);
+//	freopen(TASK".out", "w", stdout);
+
+//	cout.precision(30);
+
+	int n, k;
+	cin >> n;
+	a[1] = 1;
+
+	k = 1;
+	FOR(right, 2, n + 1)
+	{
+		memset(used, 0, sizeof(used));
+
+		int prev_ans = -1;
+		ROF(left, right, 1)
+		{
+			cout << "? " << left << ' ' << right << endl;
+			cout.flush();
+
+			int ans;
+			cin >> ans;
+			if (ans > k)
+			{
+				k = ans;
+				a[right] = k;
+				break;
+			}
+
+			if (prev_ans == ans && !used[a[left]] || ans == 1)
+			{
+				a[right] = a[left];
+				break;
+			}
+
+			used[left] = true;
+
+			prev_ans = ans;
+		}
+
+		if (a[right] == 0)
+		{
+			++k;
+			a[right] = k;
+		}
+	}
+
+	cout << "Ready!\n";
+	cout << k << endl;
+	FOR(i, 1, n + 1)
+		cout << a[i] << ' ';
+	cout << endl;
+
+	/*
+	k = 1;
+	forn(i, n - 1)
+	{
+		cout << "? " << i + 1 << ' ' << i + 2 << endl;
+		cout.flush();
+		
+		int ans;
+		cin >> ans;
+		a[i + 1] = (ans == 1 ? a[i] : 3 - a[i]);
+		if (ans == 2)
+			k = 2;
+	}
+
+	cout << "Ready!\n";
+	cout << k << endl;
+	forn(i, n)
+		cout << a[i] << ' ';
+		*/
+
+	fclose(stdin);
+	fclose(stdout);
+	return 0;
+}

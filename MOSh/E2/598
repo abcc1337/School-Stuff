@@ -1,0 +1,61 @@
+{$MAXSTACKSIZE $11110000}
+type mass=array[0..3000] of longint;
+var a,b,c,i,n,k,z:longint;
+    m:mass;
+procedure rec(l,r,kol:longint;m:mass);
+var c,z,md,a1,a2:longint;m1,m2:mass;
+Begin
+   if kol=1
+   then Begin
+           for z:=l to r do
+              m[z]:=i;
+           exit;
+        end;
+   md:=(l+r) div 2;
+   writeln('? ',l,' ',md);
+   flush(output);
+   readln(a1);
+   writeln('? ',md+1,' ',r);
+   flush(output);
+   readln(a2);
+   for z:=1 to a1+a2-kol do
+      Begin
+          m1[z]:=m[z];
+          m2[z]:=m[z];
+      end;
+   for z:=a1+a2-kol+1 to a1 do
+       m1[z]:=m[z];
+   c:=a1+a2-kol;
+   for z:=a1+1 to kol do
+      Begin
+          inc(c);
+          m2[c]:=m[z];
+      end;
+   rec(l,md,a1,m1);
+   rec(md,r,a2,m2);
+end;
+begin
+  // assign(input,'input.txt');
+  // assign(output,'output.txt');
+   readln(n);
+   if n=1
+   then Begin
+           writeln('Ready!');
+           writeln(1);
+           writeln(1);
+           flush(output);
+           halt(0);
+        end;
+   writeln('? 1 ',n);
+   flush(output);
+   readln(k);
+   for i:=1 to k do
+      m[i]:=i;
+   rec(1,n,k,m);
+   writeln('Ready!');
+   writeln(k);
+   for i:=1 to n do
+      write(m[i],' ');
+   writeln;
+   flush(output);
+end. 

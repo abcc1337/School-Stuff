@@ -1,0 +1,135 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+typedef long long ll;
+
+const int MAXN = 1e5;
+
+struct Event
+{
+	ll x, cnt, type, mul;
+
+	Event () {}
+	Event (int xx, int cc, int mm, int tt) : x(xx), cnt(cc), mul(mm), type(tt) {}
+};
+
+struct Node
+{
+	
+};
+
+bool cmp(Event a, Event b)
+{
+	if (a.x != b.x)
+		return a.x < b.x;
+	return a.type < b.type;
+}
+
+int tree[MAXN * 4];
+
+void upd(int v, int l, int r, int i, int c)
+{
+	if (i < l && r <= i)
+		return;
+	tree[v] += c;
+	if (r - l == 1)
+		return;
+	int m = (l + r) / 2;
+	upd(2 * v, l, m, i, c);
+	upd(2 * v + 1, m, r, i, c);
+}
+
+/*ll search(int v, int l, int r, int c)
+{
+	if (tree[v] <= c)
+		return tree[v];
+	if (r - l == 1)
+		return ..;
+	int m = (l + r) / 2;
+	ll x = search(2 * v + 1, m, r, c);
+	if (x < c)
+		search(2 * v, l, m, c - x);
+}*/
+
+int main()
+{
+	freopen("fisher.in", "r", stdin);
+	freopen("fisher.out", "w", stdout);
+
+
+	int n, m;
+	ll p;
+	scanf("%d%d%lld", &n, &m, &p);
+
+	vector <Event> v;
+
+	for (int i = 0; i < n; ++i)
+	{
+		int x, a;
+		scanf("%d%d", &x, &a);
+		v.push_back(Event(x, a, 0, 0));
+	}
+
+	for (int i = 0; i < m; ++i)
+	{
+		int x, a, mul;
+		scanf("%d%d%d", &x, &a, &mul);
+		v.push_back(Event(x, a, mul, 1));
+	}
+
+	v.push_back(Event(0, 0, 0, 0));
+
+	sort(v.begin(), v.end(), cmp);
+
+
+	// dp[0] = (0, 0, 0);
+
+	ll cnt = 0;
+	ll ans = 0;
+
+	for (int i = 1; i < v.size(); ++i)
+	{
+		// dp[i] = dp[i - 1];
+		// dp[i]. += p * (v[i].x - v[i - 1].x);
+		if (v[i].type == 0)
+		{
+			cnt += v[i].cnt;
+		}
+		// printf("%lld\n", cnt);
+		vector <pair <ll, ll> > base;
+		for (int j = 1; j <= i; ++j)
+		{
+			if (v[j].type == 1)
+				base.push_back(make_pair(v[j].mul, v[j].cnt));
+		}
+
+		sort(base.begin(), base.end());
+		ll new_cnt = cnt;
+		ll cur = 0;
+		for (int j = base.size() - 1; j >= 0; --j)
+		{
+			if (new_cnt >= base[j].second)
+			{	
+				cur += base[j].first * base[j].second;
+				new_cnt -= base[j].second;
+			}	
+			else
+			{
+				cur += base[j].first * new_cnt;
+				new_cnt = 0;
+			}
+		}
+		ans = max(ans, cur - p * v[i].x);
+	}
+
+	printf("%lld\n", ans);
+
+
+
+
+
+
+
+
+	return 0;
+}

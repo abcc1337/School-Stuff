@@ -1,0 +1,147 @@
+#define _CRT_SECURE_NO_DEPRECATE
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <set>
+
+
+typedef long long ll;
+
+
+using namespace std;
+
+
+#define TASK "twopaths"
+
+
+vector<vector<int> > gr;
+int tin[100005];
+int tout[100005];
+int tim = 1;
+int pr[20][100005];
+int dist_to_root[100005];
+int logn = 20;
+
+
+void dfs(int v, int pred, int dst) {
+	pr[0][v] = pred;
+	tin[v] = tim++;
+	dist_to_root[v] = dst;
+	for (int j = 1; j < logn; j++) {
+		pr[j][v] = pr[j - 1][pr[j - 1][v]];
+	}
+	for (int u : gr[v]) {
+		if (u != pred) {
+			dfs(u, v, dst + 1);
+		}
+	}
+	tout[v] = tim++;
+}
+
+
+bool is_pred(int a, int b) { //a is pred b
+	return tin[a] <= tin[b] && tout[b] <= tout[a];
+}
+
+
+int lca(int a, int b) {
+	if (is_pred(a, b)) {
+		return a;
+	}
+	else if (is_pred(b, a)) {
+		return b;
+	}
+	else if (pr[0][a] == b) {
+		return b;
+	}
+	else if (pr[0][b] == a) {
+		return a;
+	}
+	for (int j = logn; j >= 0; j--) {
+		if (!is_pred(pr[j][a], b)) {
+			a = pr[j][a];
+		}
+	}
+	return pr[0][a];
+}
+
+
+int dist(int a, int b) {
+	return dist_to_root[a] + dist_to_root[b] - 2 * dist_to_root[lca(a, b)];
+}
+
+
+pair<int, int> quer[100005];
+
+
+int main() {
+#ifdef _DEBUG
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+#else
+	freopen(TASK".in", "r", stdin);
+	freopen(TASK".out", "w", stdout);
+#endif // _DEBUG
+
+	int n, k;
+	cin >> n >> k;
+	int p;
+	gr.resize(n + 1);
+	for (int i = 2; i <= n; i++) {
+		cin >> p;
+		gr[p].push_back(i);
+		gr[i].push_back(p);
+	}
+	dfs(1, 1, 0);
+	for (int i = 0; i < k; i++) {
+		cin >> quer[i].first >> quer[i].second;
+	}
+	int a, b, c, d;
+	int mi;
+	int mj;
+	int mx = -1;
+	for (int i = 0; i < k; i++) {
+		for (int j = i + 1; j < k; j++) {
+			a = quer[i].first;
+			b = quer[i].second;
+			int inter = 0;
+			set<int> qq;
+			int _lca = lca(a, b);
+			int size = 0;
+			while (a != _lca) {
+				size++;
+				qq.insert(a);
+				a = pr[0][a];
+			}
+			while (b != _lca) {
+				size++;
+				qq.insert(b);
+				b = pr[0][b];
+			}
+			size++;
+			qq.insert(_lca);
+			a = quer[j].first;
+			b = quer[j].second;
+			_lca = lca(a, b);
+			while (a != _lca) {
+				size++;
+				qq.insert(a);
+				a = pr[0][a];
+			}
+			while (b != _lca) {
+				size++;
+				qq.insert(b);
+				b = pr[0][b];
+			}
+			qq.insert(_lca);
+			size++;
+			inter = max(0, int(size - qq.size() - 1));
+			if (inter > mx) {
+				mx = inter;
+				mi = i;
+				mj = j;
+			}
+		}
+	}
+	cout << mx << '\n' << mi + 1 << ' ' << mj + 1;
+}

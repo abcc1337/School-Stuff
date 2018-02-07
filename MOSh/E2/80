@@ -1,0 +1,49 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+multiset<pair<int, int>> arr;
+int main()
+{
+    cin.sync_with_stdio(false);
+    cout.sync_with_stdio(false);
+    freopen("caste.in", "r", stdin);
+    freopen("caste.out", "w", stdout);
+    int n, s;
+    cin >> n >> s;
+    for (int i = 0; i < n; i++)
+    {
+        int att, def;
+        cin >> att >> def;
+        arr.insert({-def, att});
+    }
+    while (s > 0 && arr.size() > 0)
+    {
+        auto ind = *arr.begin();
+        ind.first *= -1;
+        arr.erase(arr.begin());
+        if (ind.first > ind.second)
+        {
+            arr.insert({-ind.second, ind.second});
+        }
+        else
+        {
+            int cnt = ind.second % ind.first;
+            if (cnt != 0)
+                arr.insert({-cnt, cnt});
+            if (s < ind.second / ind.first)
+            {
+                arr.insert({-ind.first, ind.second - s * ind.first});
+                s = 0;
+            }
+            else
+                s -= ind.second / ind.first;
+        }
+    }
+    long long ans = 0;
+    for (auto ind: arr)
+    {
+        ans += ind.second;
+    }
+    cout << ans << endl;
+    return 0;
+}
