@@ -1,7 +1,7 @@
 # coding: utf-8
 import os
-from sys import platform
 from collections import Iterable
+from sys import platform
 
 # Determine current system
 SYSTEM = 'cls' if 'win' in platform else 'clear'
@@ -133,7 +133,8 @@ def zero(n):
     return [str(n)]
 
 if __name__ == "__main__":
-    from .. import a1
+    from MOSh.solutions import a1
+
     zr = Solver(a1.solver)
     e = Estimator(2, zr)
     e.estimate(silent=False)
