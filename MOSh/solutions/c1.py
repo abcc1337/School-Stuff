@@ -26,9 +26,12 @@ class Purchase(object):
         return self.uid
 
 
-def _all_simple_paths_graph(G, source, target, cutoff=None):
+def all_simple_paths_graph(G, source, target, cutoff=None):
+    if cutoff is None:
+        cutoff = len(G) - 1
     if cutoff < 1:
         return
+
     visited = [source]
     stack = [iter(G[source])]
     while stack:
@@ -38,6 +41,8 @@ def _all_simple_paths_graph(G, source, target, cutoff=None):
             stack.pop()
             visited.pop()
         elif len(visited) < cutoff:
+            G[visited[-1]][child]['card'].update_card_limit(child.w, child, G)
+            G.remove_node(child)
             if child == target:
                 yield visited + [target]
             elif child not in visited:
@@ -53,7 +58,7 @@ def _all_simple_paths_graph(G, source, target, cutoff=None):
 class Observer(object):
 
     def __init__(self, cards):
-        self.cards = []#[Card()]
+        self.cards = cards
         self.graph = nx.DiGraph()
         self.purchases = []
 
@@ -66,12 +71,9 @@ class Observer(object):
                 self.graph.add_edge(
                     p,
                     node,
-                    directed=True,
-                    weight=c.get_cashback_for_purchase(attrs['weight'])
+                    weight=c.get_cashback_for_purchase(attrs['weight']),
+                    card=c
                 )
-
-    def on_card_limit(self):
-        pass
 
 
 class Card(object):
@@ -79,30 +81,56 @@ class Card(object):
     def __init__(self, uid, limit, p):
         self.uid = uid
         self.limit = limit
+        self.left = limit
         self.p = p
 
     def get_cashback_for_purchase(self, cash):
-        return cash * self.p
+        return (cash if self.left - cash > 0 else self.left) * self.p
 
-    def update_card_limit(self, cash):
-        cb = cash
+    def update_card_limit(self, cash, node, G: nx.DiGraph):
+        if self.left - cash < 0:
+            self.left = 0
+        else:
+            self.left -= cash
 
-        if self.limit - cash < 0:
-            cb = self.limit
-            self.limit = 0
+        for frm, to, attrs in G.edges(data=True):
+            if attrs['card'] != self and to != node:
+                continue
+            if self.left != 0:
+                G.add_edge(
+                    frm, to,
+                    weight=self.get_cashback_for_purchase(cash),
+                    card=self
+                )
+            else:
+                G.remove_edge(frm, to)
 
-        return cb * self.p
+
+"""
+    1) Покупки - вершины графа
+    2) Каждая вершина соединена с каждой всеми картами
+       => полносвязный направленный граф, карты - рёбра
+    3) Вес каждого ребра - кэшбэк по карте для соотвествующей вершины
+    4) При посещении вершины:
+           1) Обновляется лимит на карте
+           2) Обновляется вес каждого ребра с этой картой
+           3) Посещённая вершина удаляется
+"""
 
 
 if __name__ == "__main__":
+    cards = [
+        Card(1, 10, 1.0 / 100),
+        Card(2, 1, 10.0 / 100),
+        Card(3, 2, 10.0 / 100)
+    ]
+    purchases = [
+        Purchase(1),
+        Purchase(1),
+        Purchase(3),
+        Purchase(10),
+    ]
+    o = Observer(cards)
 
-    g = nx.DiGraph()
-
-    p1 = Purchase(10, "1")
-    g.add_node(p1, weight=p1.w)
-
-    p2 = Purchase(7, "2")
-    g.add_node(p2, weight=p2.w)
-
-    g.add_edge(p1, p2)
-    print(g.nodes(data=True))
+    for p in purchases:
+        o.add_purchase(p)
