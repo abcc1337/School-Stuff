@@ -1,4 +1,7 @@
 # coding: utf-8
+import random
+
+import bintrees as T
 import networkx as nx
 
 
@@ -13,8 +16,23 @@ class Purchase(object):
 
     def __init__(self, cash, uid=None):
         self.w = cash
-        self.uid = str(uid or self._NUMBER)
-        self._NUMBER += 1
+        self.uid = str(uid or Purchase._NUMBER)
+        Purchase._NUMBER += 1
+
+    def __gt__(self, other):
+        if not isinstance(other, Purchase):
+            raise ValueError("Can not compare {} and Purchase".format(other.__class__))
+        return self.w > other.w
+
+    def __lt__(self, other):
+        if not isinstance(other, Purchase):
+            raise ValueError("Can not compare {} and Purchase".format(other.__class__))
+        return self.w < other.w
+
+    def __eq__(self, other):
+        if not isinstance(other, Purchase):
+            raise ValueError("Can not compare {} and Purchase".format(other.__class__))
+        return self.w == other.w
 
     def __hash__(self):
         return hash(self.__str__())
@@ -23,7 +41,7 @@ class Purchase(object):
         return str(self)
 
     def __str__(self):
-        return self.uid
+        return "<Purchase[{uid}] = {w}>".format(w=self.w, uid=self.uid)
 
 
 def all_simple_paths_graph(G, source, target, cutoff=None):
@@ -84,14 +102,20 @@ class Card(object):
         self.left = limit
         self.p = p
 
+        self._salt = ''.join(chr(random.randint(64, 128)) for _ in range(25))
+
     def get_cashback_for_purchase(self, cash):
         return (cash if self.left - cash > 0 else self.left) * self.p
 
-    def update_card_limit(self, cash, node, G: nx.DiGraph):
+    def update_card_limit(self, cash):
         if self.left - cash < 0:
             self.left = 0
         else:
             self.left -= cash
+        return self.left
+
+    def update_card_limit_graph(self, cash, node, G: nx.DiGraph):
+        self.update_card_limit(cash)
 
         for frm, to, attrs in G.edges(data=True):
             if attrs['card'] != self and to != node:
@@ -105,6 +129,43 @@ class Card(object):
             else:
                 G.remove_edge(frm, to)
 
+    @property
+    def max_cashback(self):
+        return self.left * self.p
+
+    def __lt__(self, other: "Card"):
+        if not isinstance(other, Card):
+            raise ValueError("Can not compare {} and Card".format(other.__class__))
+        return self.max_cashback < other.max_cashback
+
+    def __gt__(self, other):
+        if not isinstance(other, Card):
+            raise ValueError("Can not compare {} and Card".format(other.__class__))
+        return self.max_cashback > other.max_cashback
+
+    def __eq__(self, other):
+        if not isinstance(other, Card):
+            raise ValueError("Can not compare {} and Card".format(other.__class__))
+        return self.max_cashback == other.max_cashback
+
+    def __ge__(self, other):
+        if not isinstance(other, Card):
+            raise ValueError("Can not compare {} and Card".format(other.__class__))
+        return self.max_cashback >= other.max_cashback
+
+    def __le__(self, other):
+        if not isinstance(other, Card):
+            raise ValueError("Can not compare {} and Card".format(other.__class__))
+        return self.max_cashback <= other.max_cashback
+
+    def __hash__(self):
+        return hash(str(self) + self._salt)
+
+    def __repr__(self):
+        return str(self)
+
+    def __str__(self):
+        return "<Card [{}] | lim={}, left={}, p={}>".format(self.uid, self.limit, self.left, self.p)
 
 """
     1) Покупки - вершины графа
@@ -119,18 +180,32 @@ class Card(object):
 
 
 if __name__ == "__main__":
+    t = T.BinaryTree()
     cards = [
         Card(1, 10, 1.0 / 100),
         Card(2, 1, 10.0 / 100),
         Card(3, 2, 10.0 / 100)
     ]
-    purchases = [
+
+    for c in cards:
+        t.insert(hash(c), c)
+
+    purchases = sorted([
         Purchase(1),
         Purchase(1),
         Purchase(3),
         Purchase(10),
-    ]
-    o = Observer(cards)
+    ])
+
+    policy = {p: None for p in purchases}
 
     for p in purchases:
-        o.add_purchase(p)
+        try:
+            h, card = t.max_item()
+            policy[p] = card.uid
+            if card.update_card_limit(p.w) == 0:
+                 t.remove(h)
+        except ValueError as e:
+            print(e)
+
+    print([(p, policy[p]) for p in sorted(policy, key=lambda x: x.uid)])
