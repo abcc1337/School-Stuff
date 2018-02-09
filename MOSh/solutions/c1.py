@@ -3,6 +3,7 @@ import random
 
 import bintrees as T
 import networkx as nx
+from tqdm import tqdm
 
 
 class CashbackLimitReachedError(Exception):
@@ -165,7 +166,11 @@ class Card(object):
         return str(self)
 
     def __str__(self):
-        return "<Card [{}] | lim={}, left={}, p={}>".format(self.uid, self.limit, self.left, self.p)
+        return "<Card [{}] | lim={}, left={}, p={}, CB = {}>".format(
+            self.uid, self.limit,
+            self.left, self.p,
+            self.max_cashback
+        )
 
 """
     1) Покупки - вершины графа
@@ -178,34 +183,113 @@ class Card(object):
            3) Посещённая вершина удаляется
 """
 
+def colorize(t, color):
+    class bcolors:
+        HEADER = '\033[95m'
+        OKBLUE = '\033[94m'
+        OKGREEN = '\033[92m'
+        WARNING = '\033[93m'
+        FAIL = '\033[91m'
+        ENDC = '\033[0m'
+        BOLD = '\033[1m'
+        UNDERLINE = '\033[4m'
+    return "{}{}{}".format(getattr(bcolors, color.upper()), t, bcolors.ENDC)
+
+
+
+def print_card_info(cards, info="", n=25):
+    print('|{}{}{}|'.format(
+        '-' * (n - len(info) // 2),
+        colorize(info, "okgreen"),
+        '-' * (n - len(info) // 2 - len(info) % 2)
+    ))
+    for c in cards:
+        print("| {}".format(c))
+    print('|{}|'.format('-' * (n * 2)))
+
+
+def calculate_policy(cards, purchases, verbose=False):
+    for c in cards:
+        t.insert(hash(c), c)
+    purchases = sorted(purchases, reverse=True)
+    policy = {p: None for p in purchases}
+
+    def act(*args):
+        global t
+        h, card = t.max_item()
+        # print(card)
+        policy[p] = card.uid
+        if card.update_card_limit(p.w) == 0:
+            t.remove(h)
+        t = T.RBTree(t.items())
+        return h, card
+
+    if verbose:
+        def make_verbose(f):
+            def wrap(p, i):
+                print_card_info(cards, info="> P = {}, ITER = {} <".format(p, i))
+                result = f()
+                print_card_info(cards, info="> P = {}, ITER = {} {} <".format(p, i, "END"))
+                print(colorize('#' * 52, "fail"))
+                return result
+            return wrap
+        act = make_verbose(act)
+
+    for i, p in enumerate(purchases):
+        try:
+            __, card = act(p, i)
+        except ValueError as e:
+            if str(e) == 'Tree is empty':
+                policy[p] = card.uid
+                t.insert(hash(card), card)
+
+    return ' '.join(str(policy[p]) for p in sorted(policy, key=lambda x: x.uid))
+
+
+def make_purchases_list(s):
+    return list(map(lambda x: Purchase(int(x)), s.split(' ')))
+
 
 if __name__ == "__main__":
-    t = T.BinaryTree()
+    from MOSh.solutions.a1 import FileStream
+
+    """3
+100 10.0
+1000 1.1
+100 2.2
+11
+1 2 3 5 10 23 71 34 11 55 29"""
+
+    t = T.RBTree() #T.BinaryTree()
     cards = [
-        Card(1, 10, 1.0 / 100),
-        Card(2, 1, 10.0 / 100),
-        Card(3, 2, 10.0 / 100)
+        Card(1, 100, 10.0 / 100),
+        Card(2, 1000, 1.1 / 100),
+        Card(3, 100, 2.2 / 100)
     ]
 
     for c in cards:
         t.insert(hash(c), c)
 
-    purchases = sorted([
-        Purchase(1),
-        Purchase(1),
-        Purchase(3),
-        Purchase(10),
-    ])
+    purchases = make_purchases_list("1 2 3 5 10 23 71 34 11 55 29")
+    print(calculate_policy(cards, purchases, True))
 
+
+    """
     policy = {p: None for p in purchases}
 
-    for p in purchases:
+    for i, p in enumerate(purchases):
         try:
+            print_card_info(cards, info="> P = {}, ITER = {} <".format(p, i))
             h, card = t.max_item()
             policy[p] = card.uid
             if card.update_card_limit(p.w) == 0:
                  t.remove(h)
+            print_card_info(cards, info="> P = {}, ITER = {} {} <".format(p, i, "END"))
+            print(colorize('#' * 52, "fail"))
         except ValueError as e:
-            print(e)
+            if str(e) == 'Tree is empty':
+                policy[p] = card.uid
+                t.insert(hash(card), card)
 
     print([(p, policy[p]) for p in sorted(policy, key=lambda x: x.uid)])
+    """
